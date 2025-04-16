@@ -3,12 +3,11 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 COPY . .
-
-RUN npm run build
+RUN yarn build
 
 # Etapa 2: ejecución
 FROM node:18
@@ -16,10 +15,10 @@ FROM node:18
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
-COPY package*.json ./
-
-RUN npm install --only=production
+COPY package.json yarn.lock ./
+RUN yarn install --production --frozen-lockfile
 
 ENV NODE_ENV=production
 
-CMD ["node", "dist/main.js"]
+# ⬇️ CAMBIO CLAVE AQUÍ
+CMD ["node", "dist/src/main.js"]

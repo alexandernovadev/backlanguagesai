@@ -21,6 +21,7 @@ import { authMiddleware } from "./app/middlewares/authMiddleware";
 dotenv.config();
 
 const app = express();
+const NODE_ENV = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 3000;
 const VERSION = process.env.VERSION || "V. March 8 2025 4:40 PM";
 
@@ -72,5 +73,5 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
 });
 
 app.listen(PORT, () => {
-  console.info(`Server running on port ${PORT}`);
+  console.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
 });

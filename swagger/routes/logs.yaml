@@ -1,0 +1,145 @@
+openapi: 3.0.0
+info:
+  title: Log Management API
+  description: API for retrieving and clearing application logs (Requires authentication)
+  version: 1.0.0
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/logs:
+    get:
+      summary: Retrieve application logs
+      description: Fetches error logs and application logs. Requires a valid token.
+      tags:
+        - Logs
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: tokenAPI
+          schema:
+            type: string
+          required: false
+          description: Token can also be passed as a query parameter
+      responses:
+        '200':
+          description: Logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logs retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      errorLog:
+                        type: string
+                        example: "Error log content..."
+                      appLog:
+                        type: string
+                        example: "Formatted app log content..."
+
+        '401':
+          description: Token not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token not provided
+
+        '403':
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized access
+
+        '500':
+          description: Failed to retrieve logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to retrieve logs
+
+  /api/logs/clear:
+    get:
+      summary: Clear all logs
+      description: Deletes all application and error logs. Requires a valid token.
+      tags:
+        - Logs
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: tokenAPI
+          schema:
+            type: string
+          required: false
+          description: Token can also be passed as a query parameter
+      responses:
+        '200':
+          description: Logs cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: All logs have been cleared successfully
+
+        '401':
+          description: Token not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token not provided
+
+        '403':
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized access
+
+        '500':
+          description: Failed to clear logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Failed to clear logs

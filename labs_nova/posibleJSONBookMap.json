@@ -1,0 +1,52 @@
+{
+  "mainTopic": "Holidays  ",
+  "grammar": [
+    "Present Simple",
+    "Present Continuous",
+    "Past Simple",
+    "Past Continuous",
+    "Present Perfect"
+  ],
+  "vocabulary": [
+    "holiday",
+    "mountains",
+    "village",
+    "hotel",
+    "weather",
+    "hiking",
+    "views",
+    "photos",
+    "time"
+  ],
+  "realLiifeFunction": "Talking about your holiday",
+  "pronuncition": {
+    "description": "Soinding friendly and polite",
+    "sound": ["/s/", "/z/", "/iz/"]
+  },
+  "listening": {
+    "description": "Someone talking about a national park on holiday",
+    "audio": "https://www.youtube.com/watch?v=8J0u6b9Yf9Y"
+  },
+  "reading": {
+    "description": "A text about a holiday in the mountains",
+    "text": "I went on holiday to the mountains last year. I stayed in a small village in a hotel. The weather was great. I went hiking every day. I saw some beautiful views. I took lots of photos. I had a great time."
+  },
+  "criticalThinking": {
+    "description": "What are the advantages and disadvantages of going on holiday to the mountains?",
+    "advantages": ["Beautiful views", "Fresh air", "Peace and quiet"],
+    "disadvantages": ["No shops", "No nightlife", "No internet"]
+  },
+  "speaking": {
+    "description": "Talk about a holiday you went on",
+    "questions": [
+      "Where did you go?",
+      "What did you do?",
+      "What was the weather like?",
+      "Did you have a good time?"
+    ]
+  },
+  "writing": {
+    "description": "Write a paragraph about a holiday you went on",
+    "paragraph": "I went on holiday to the mountains last year. I stayed in a small village in a hotel. The weather was great. I went hiking every day. I saw some beautiful views. I took lots of photos. I had a great time."
+  }
+}

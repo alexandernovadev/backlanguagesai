@@ -1,0 +1,198 @@
+openapi: 3.0.0
+info:
+  title: Word API
+  version: 1.0.0
+  description: API for managing words and related properties
+paths:
+  /api/words/get-cards-anki:
+    get:
+      summary: Retrieve recent hard or medium words for Anki cards
+      tags:
+        - Words
+      responses:
+        '200':
+          description: A shuffled list of recent hard or medium words
+        '500':
+          description: Internal server error
+
+  /api/words:
+    get:
+      summary: Retrieve a list of words with pagination
+      tags:
+        - Words
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of words per page
+        - in: query
+          name: wordUser
+          schema:
+            type: string
+          description: Filter words by user
+      responses:
+        '200':
+          description: A paginated list of words
+    post:
+      summary: Create a new word
+      tags:
+        - Words
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                word:
+                  type: string
+                meaning:
+                  type: string
+              required:
+                - word
+                - meaning
+      responses:
+        '201':
+          description: Word created successfully
+        '400':
+          description: Validation error
+
+  /api/words/{id}:
+    get:
+      summary: Get a word by its ID
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      responses:
+        '200':
+          description: A word object
+        '404':
+          description: Word not found
+    put:
+      summary: Update an entire word object
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                word:
+                  type: string
+                meaning:
+                  type: string
+              required:
+                - word
+                - meaning
+      responses:
+        '200':
+          description: Word updated successfully
+        '404':
+          description: Word not found
+    delete:
+      summary: Delete a word by ID
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      responses:
+        '200':
+          description: Word deleted successfully
+        '404':
+          description: Word not found
+
+  /api/words/{id}/increment-seen:
+    put:
+      summary: Increment the 'seen' count of a word
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      responses:
+        '200':
+          description: Word seen count incremented successfully
+        '404':
+          description: Word not found
+        '500':
+          description: Internal server error
+
+  /api/words/word/{word}:
+    get:
+      summary: Find a word by name (case insensitive)
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: word
+          required: true
+          schema:
+            type: string
+          description: Word to search
+      responses:
+        '200':
+          description: Word object
+        '404':
+          description: Word not found
+
+  /api/words/{id}/level:
+    put:
+      summary: Update the level of a word
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                level:
+                  type: string
+                  enum: [easy, medium, hard]
+              required:
+                - level
+      responses:
+        '200':
+          description: Word level updated
+        '404':
+          description: Word not found

@@ -1,0 +1,19 @@
+openapi: 3.0.0
+info:
+  title: Fixes API
+  version: 1.0.0
+  description: API for fixing operations
+
+paths:
+  /api/fixes:
+    get:
+      summary: Fix things of my back
+      description: Contain methods that help to fix things that I forget
+      responses:
+        '200':
+          description: Just returns true or false if its completed
+          content:
+            application/json:
+              schema:
+                type: boolean
+                example: true

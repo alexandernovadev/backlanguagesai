@@ -1,0 +1,25 @@
+openapi: 3.0.0
+info:
+  title: Statistics API
+  version: 1.0.0
+  description: API for statistics operations
+
+paths:
+  /api/statistics:
+    get:
+      summary: Statistics
+      description: All statistics so far
+      responses:
+        '200':
+          description: Just returns list of words and lectures with levels details count
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    word:
+                      type: string
+                    count:
+                      type: integer

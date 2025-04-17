@@ -31,7 +31,7 @@ jobs:
 
             echo "✅ SSH connection validated."
             echo "🚀 Deploying to server..."
-            cd /root/novalabs/backlanguagesai/
+            cd /root/novalabs/backlanguagesai
     
             chmod +x deploy_back.sh
             ./deploy_back.sh

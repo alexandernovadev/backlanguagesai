@@ -33,6 +33,6 @@ jobs:
             echo "🚀 Deploying to server..."
             cd /root/novalabs/backlanguagesai
     
-            chmod +x /root/novalabs/backlanguagesai/deploy_back.sh
-            ./deploy_back.sh
+            ./root/novalabs/backlanguagesai/deploy_back.sh
+            echo "✅ Deployment completed."
           EOF

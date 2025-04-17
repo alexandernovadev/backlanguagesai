@@ -23,23 +23,8 @@ jobs:
         run: |
           echo "Deploying to server..."
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            echo "✅ Validating SSH connection..."
-
-            # Iniciar el agente SSH y agregar la clave
-            cd /root/.ssh
-            eval "$(ssh-agent -s)"
-            ssh-add github-actions
-
-            echo "✅ SSH connection validated."
-            echo "🚀 Deploying to server..."
-
-            # Navegar al directorio de la aplicación y ejecutar el script de despliegue
-            cd /root/novalabs/backlanguagesai
-            git pull origin main
-            file /root/novalabs/backlanguagesai/deploy_back.sh
-
+            echo " 📦 running deploy scriptNova back ..."
             # Ejecutar el script de despliegue
             bash /root/novalabs/backlanguagesai/deploy_back.sh
-
             echo "✅ Deployment completed."
           EOF

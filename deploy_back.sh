@@ -41,6 +41,20 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
+echo "✅ Validating SSH connection..."
+
+# Iniciar el agente SSH y agregar la clave
+cd /root/.ssh
+eval "$(ssh-agent -s)"
+ssh-add github-actions
+
+echo "✅ SSH connection validated."
+echo "🚀 Deploying to server..."
+
+# Navegar al directorio de la aplicación y ejecutar el script de despliegue
+cd /root/novalabs/backlanguagesai
+git pull origin main
+
 # 6. Eliminar el archivo package-lock.json si existe
 echo "🧹 Eliminando package-lock.json para evitar conflictos..."
 rm -f package-lock.json

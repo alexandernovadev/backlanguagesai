@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Ruta relativa desde el proyecto
+# Ruta relativa desde el proyecto Imporve
 LOG_DIR="./back/logs"
 
 # Eliminar archivos .log si existen

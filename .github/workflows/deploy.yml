@@ -1,4 +1,4 @@
-name: 🚀 Deploy to Production v3
+name: 🚀 Deploy to Production v23
 
 on:
   push:
@@ -14,11 +14,13 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🛡️ Set up SSH key
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: 🔐 Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 143.198.76.115 >> ~/.ssh/known_hosts
 
       - name: 🚀 Run deploy script on server
         run: |
-          ssh -o StrictHostKeyChecking=no root@143.198.76.115 'bash /root/novalabs/backlanguagesai/deploy_back.sh.sh'
+          ssh root@143.198.76.115 'bash /root/novalabs/backlanguagesai/deploy.sh'

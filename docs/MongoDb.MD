@@ -25,7 +25,7 @@ sudo systemctl start mongod
 To create a backup of the database on your server, use the `mongodump` command:
 
 ```bash
-mongodump --db leanguagesia --out ~/novalabs/leanguagesia/labs_nova/backupsdb/leanguagesia/
+mongodump --db leanguagesia --out ~/novalabs/backlanguagesai/labs_nova/backupsdb
 ```
 
 This command backs up the database `leanguagesia` to the specified directory.

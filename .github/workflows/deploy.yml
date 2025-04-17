@@ -21,4 +21,4 @@ jobs:
 
       - name: 🚀 Run deploy script on server
         run: |
-          ssh -o StrictHostKeyChecking=no root@143.198.76.115 'bash /root/novalabs/backlanguagesai/deploy.sh'
+          ssh -o StrictHostKeyChecking=no root@143.198.76.115 'bash /root/novalabs/backlanguagesai/deploy_back.sh.sh'

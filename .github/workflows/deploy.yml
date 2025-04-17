@@ -23,11 +23,16 @@ jobs:
         run: |
           echo "Deploying to server..."
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            echo "✅ Conectado y listo para el deploy"
+            echo "✅ Validating SSH connection..."
 
             cd /root/.ssh
-            ls -a
-
             eval "$(ssh-agent -s)"
             ssh-add github-actions
+
+            echo "✅ SSH connection validated."
+            echo "🚀 Deploying to server..."
+            cd /root/novalabs/backlanguagesai/
+    
+            chmod +x deploy_back.sh
+            ./deploy_back.sh
           EOF

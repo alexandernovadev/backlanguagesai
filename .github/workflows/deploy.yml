@@ -1,0 +1,24 @@
+name: 🚀 Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: 🔐 SSH & Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🛡️ Set up SSH key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 🚀 Run deploy script on server
+        run: |
+          ssh -o StrictHostKeyChecking=no root@143.198.76.115 'bash /root/novalabs/backlanguagesai/deploy.sh'

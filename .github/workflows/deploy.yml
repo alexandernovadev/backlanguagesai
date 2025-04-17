@@ -49,6 +49,6 @@ jobs:
             chmod +x /root/novalabs/backlanguagesai/deploy_back.sh
             echo "✅ Deployment script made executable."
             echo "🚀 Running deployment script..."
-            /root/novalabs/backlanguagesai/deploy_back.sh
+            bash /root/novalabs/backlanguagesai/deploy_back.sh
             echo "✅ Deployment completed."
           EOF

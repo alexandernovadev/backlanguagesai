@@ -12,7 +12,16 @@ else
     echo "✅ Yarn ya está instalado."
 fi
 
-# 2. Instalar PM2 si no está disponible
+# 2. Instalar Node.js 18 y npm si no están disponibles
+if ! command -v node &> /dev/null; then
+    echo "🔧 Node.js no encontrado, instalando Node.js 18..."
+    curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    sudo apt install -y nodejs
+else
+    echo "✅ Node.js ya está instalado."
+fi
+
+# 3. Instalar PM2 si no está disponible
 if ! command -v pm2 &> /dev/null; then
     echo "🔧 PM2 no encontrado, instalando..."
     sudo npm install -g pm2
@@ -20,32 +29,32 @@ else
     echo "✅ PM2 ya está instalado."
 fi
 
-# 3. Verificar si jq está instalado
+# 4. Verificar si jq está instalado
 if ! command -v jq &> /dev/null; then
     echo "❌ Error: jq no está instalado. Por favor, instálalo con 'sudo apt install jq'"
     exit 1
 fi
 
-# 4. Eliminar el archivo package-lock.json si existe
+# 5. Eliminar el archivo package-lock.json si existe
 echo "🧹 Eliminando package-lock.json para evitar conflictos..."
 rm -f package-lock.json
 
-# 5. Eliminar node_modules e instalar dependencias
+# 6. Eliminar node_modules e instalar dependencias
 echo "🧹 Eliminando node_modules..."
 rm -rf node_modules
 
 echo "📦 Instalando dependencias..."
 yarn install
 
-# 6. Obtener la versión de package.json y la fecha y hora actuales
+# 7. Obtener la versión de package.json y la fecha y hora actuales
 PACKAGE_VERSION=$(jq -r .version package.json)
 DATE_FORMAT=$(TZ="America/Bogota" date +"Date 1 %B %d(%A) ⏰ %I:%M:%S %p - %Y 1  - V.$PACKAGE_VERSION")
 
-# 7. Actualizar la VERSION en .env
+# 8. Actualizar la VERSION en .env
 echo "✍️  Actualizando VERSION en .env..."
 sed -i "s/^VERSION=.*/VERSION=\"$DATE_FORMAT\"/" .env
 
-# 8. Reiniciar PM2 correctamente
+# 9. Reiniciar PM2 correctamente
 echo "🚀 Reiniciando back-dev en PM2..."
 if ! pm2 restart back-dev --update-env; then
     echo "⚠️  Falló el reinicio, realizando reinicio completo..."
@@ -53,11 +62,11 @@ if ! pm2 restart back-dev --update-env; then
     pm2 start npm --name "back-dev" -- run start
 fi
 
-# 9. Guardar la lista de procesos de PM2
+# 10. Guardar la lista de procesos de PM2
 echo "💾 Guardando lista de procesos de PM2..."
 pm2 save
 
-# 10. Reiniciar Nginx
+# 11. Reiniciar Nginx
 echo "🔄 Reiniciando Nginx..."
 sudo systemctl restart nginx
 

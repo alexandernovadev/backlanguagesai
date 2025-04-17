@@ -36,9 +36,9 @@ jobs:
             ls -a
             file /root/novalabs/backlanguagesai/deploy_back.sh
 
-            chmod +x ./root/novalabs/backlanguagesai/deploy_back.sh
+            chmod +x /root/novalabs/backlanguagesai/deploy_back.sh  # Ruta correcta aquí
             echo "✅ Deployment script made executable."
             echo "🚀 Running deployment script..."
-            ./root/novalabs/backlanguagesai/deploy_back.sh
+            /root/novalabs/backlanguagesai/deploy_back.sh  # Ruta correcta aquí
             echo "✅ Deployment completed."
           EOF

@@ -17,6 +17,6 @@ jobs:
       - name: 🔑 Print SSH variables
         run: |
           echo "USER_NOVA: $USER_NOVA"
-          echo "USER_NOVApass: $PASSWORD_NOVA"
+          echo "SSH_HOST: ${{ secrets.MOER }}"
           echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
           echo "SSH_USER: ${{ secrets.SSH_USER }}"

@@ -18,15 +18,16 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
           chmod 600 private_key
-          eval $(ssh-agent -s)  
-          chmod 600 /root/.ssh/github-actions 
-          sudo ssh-add /root/.ssh/github-actions 
 
       - name: 🚀 Deploy
         run: |
           echo "Deploying to server..."
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             echo "✅ Conectado y listo para el deploy"
+            eval $(ssh-agent -s)  
+            chmod 600 /root/.ssh/github-actions 
+            sudo ssh-add /root/.ssh/github-actions 
+            
             cd /root/novalabs/backlanguagesai/
             chmod +x deploy_back.sh
             ./deploy_back.sh

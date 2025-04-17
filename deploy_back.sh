@@ -14,6 +14,12 @@ rm -f package-lock.json
 # 1. Remove node_modules and install dependencies
 echo "🧹 Removing node_modules..."
 rm -rf node_modules
+# install yarn if not installed
+npm install -g yarn
+if ! command -v yarn &> /dev/null; then
+    echo "❌ Error: yarn is not installed. Please install it with 'npm install -g yarn'"
+    exit 1
+fi
 echo "📦 Installing dependencies..."
 yarn install
 

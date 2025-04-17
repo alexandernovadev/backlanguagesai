@@ -27,4 +27,7 @@ jobs:
 
             cd /root/.ssh
             ls -a
+
+            eval "$(ssh-agent -s)"
+            ssh-add github-actions
           EOF

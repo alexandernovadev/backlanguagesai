@@ -1,58 +1,95 @@
 #!/bin/bash
-set -e  # Stop script if any command fails
+set -e  # Detener si algún comando falla
 
-# Check if jq is installed
-if ! command -v jq &> /dev/null; then
-    echo "❌ Error: jq is not installed. Please install it with 'sudo apt install jq'"
+# ─────────────────────────────────────────────
+# 🔐 SSH: Asegurar que se pueda acceder a GitHub
+# ─────────────────────────────────────────────
+
+echo "🔐 Asegurando acceso SSH a GitHub..."
+
+SSH_KEY="$HOME/.ssh/github-actions"
+
+# Crear carpeta si no existe
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
+# Si no existe la clave, avisar (o podrías generarla automáticamente si querés)
+if [ ! -f "$SSH_KEY" ]; then
+    echo "❌ No se encontró una clave SSH en $SSH_KEY"
+    echo "👉 Por favor generá una con: ssh-keygen -t ed25519 -C 'deploy@github-actions'"
     exit 1
 fi
 
-# Remove potential package conflicts
-echo "🧹 Removing package-lock.json to avoid conflicts..."
+# Agregar clave al agente SSH
+eval "$(ssh-agent -s)"
+ssh-add "$SSH_KEY"
+
+# Probar conexión a GitHub (no obligatorio, pero útil para debug)
+echo "🔍 Probando conexión a GitHub..."
+ssh -T git@github.com || echo "⚠️  GitHub aún no respondió correctamente (puede ser normal si no se ha conectado antes)"
+
+# ─────────────────────────────────────────────
+# 🧹 Limpieza y dependencias
+# ─────────────────────────────────────────────
+
+# Verificar jq
+if ! command -v jq &> /dev/null; then
+    echo "❌ Error: jq no está instalado. Ejecutá: sudo apt install jq"
+    exit 1
+fi
+
+echo "🧹 Borrando package-lock.json..."
 rm -f package-lock.json
 
-# 1. Remove node_modules and install dependencies
-echo "🧹 Removing node_modules..."
+echo "🧹 Borrando node_modules..."
 rm -rf node_modules
-# install yarn if not installed
+
+# Instalar yarn si hace falta
 npm install -g yarn
 
 if ! command -v yarn &> /dev/null; then
-    echo "❌ Error: yarn is not installed. Please install it with 'npm install -g yarn'"
+    echo "❌ Error: yarn no se pudo instalar correctamente"
     exit 1
 fi
-echo "📦 Installing dependencies..."
+
+echo "📦 Instalando dependencias..."
 yarn install
 
-# 2. Get package.json version and current date + time
+# ─────────────────────────────────────────────
+# 🕓 Versionado automático
+# ─────────────────────────────────────────────
+
 PACKAGE_VERSION=$(jq -r .version package.json)
 DATE_FORMAT=$(TZ="America/Bogota" date +"Date 1 %B %d(%A) ⏰ %I:%M:%S %p - %Y 1  - V.$PACKAGE_VERSION")
 
-# 2.1 Update VERSION in .env
-echo "✍️  Updating VERSION in .env..."
+echo "✍️  Actualizando VERSION en .env..."
 sed -i "s/^VERSION=.*/VERSION=\"$DATE_FORMAT\"/" .env
 
-# 3. Restart PM2 properly
-echo "🚀 Restarting back-dev in PM2..."
+# ─────────────────────────────────────────────
+# 🚀 PM2 Restart
+# ─────────────────────────────────────────────
+
+echo "🚀 Reiniciando PM2..."
 
 if ! pm2 restart back-dev --update-env; then
-    echo "⚠️  Restart failed, performing full restart..."
-    pm2 delete back-dev || true
+    echo "⚠️  No se pudo reiniciar. Haciendo rebuild..."
 
-    echo "🏗️  Building with Yarn..."
+    pm2 delete back-dev || true
+    echo "🏗️  Compilando proyecto..."
     yarn build
 
-    echo "🚀 Starting with Yarn..."
+    echo "🚀 Iniciando servicio con PM2..."
     pm2 start yarn --name "back-dev" -- start
 fi
 
-# Save PM2 process list 
-echo "💾 Saving PM2 process list..."
+echo "💾 Guardando configuración de PM2..."
 pm2 save
 
-# 4. Restart Nginx
-echo "🔄 Restarting Nginx..."
-systemctl restart nginx
+# ─────────────────────────────────────────────
+# 🌐 Reiniciar Nginx
+# ─────────────────────────────────────────────
 
-echo "✅ Deployment completed successfully!"
+echo "🔄 Reiniciando Nginx..."
+sudo systemctl restart nginx
 
+echo "✅ ¡Deploy completado con éxito!"

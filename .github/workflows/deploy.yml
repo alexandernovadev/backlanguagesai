@@ -26,4 +26,6 @@ jobs:
             echo "✅ Conectado y listo para el deploy"
             cd /root/novalabs/backlanguagesai/
             ls -a
+            chmod +x deploy_back.sh
+            ./deploy_back.sh
           EOF

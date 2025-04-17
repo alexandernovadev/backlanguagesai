@@ -19,6 +19,10 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
           chmod 600 private_key
 
+
+      - name: Give execute permission to the script
+        run: chmod +x /root/novalabs/backlanguagesai/deploy_back.sh
+
       - name: 🚀 Deploy
         run: |
           echo "Deploying to server..."

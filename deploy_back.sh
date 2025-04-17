@@ -46,7 +46,7 @@ if ! pm2 restart back-dev --update-env; then
     pm2 start yarn --name "back-dev" -- start
 fi
 
-# Save PM2 process list
+# Save PM2 process list 
 echo "💾 Saving PM2 process list..."
 pm2 save
 

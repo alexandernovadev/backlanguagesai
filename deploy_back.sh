@@ -7,6 +7,17 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
+# Reset branch to main and pull latest changes
+echo "🔄 Resetting branch to main and pulling latest changes..."
+git checkout main
+git fetch origin
+git reset --hard origin/main
+git pull origin main
+if [ $? -ne 0 ]; then
+    echo "❌ Error: Failed to pull latest changes from main branch."
+    exit 1
+fi
+
 # Remove potential package conflicts
 echo "🧹 Removing package-lock.json to avoid conflicts..."
 rm -f package-lock.json

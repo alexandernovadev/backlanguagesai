@@ -1,46 +1,64 @@
 #!/bin/bash
-set -e  # Stop script if any command fails
+set -e  # Detener el script si cualquier comando falla
 
-# Check if jq is installed
+# 1. Instalar Yarn si no está disponible
+if ! command -v yarn &> /dev/null; then
+    echo "🔧 Yarn no encontrado, instalando..."
+    curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+    sudo apt update
+    sudo apt install -y yarn
+else
+    echo "✅ Yarn ya está instalado."
+fi
+
+# 2. Instalar PM2 si no está disponible
+if ! command -v pm2 &> /dev/null; then
+    echo "🔧 PM2 no encontrado, instalando..."
+    sudo npm install -g pm2
+else
+    echo "✅ PM2 ya está instalado."
+fi
+
+# 3. Verificar si jq está instalado
 if ! command -v jq &> /dev/null; then
-    echo "❌ Error: jq is not installed. Please install it with 'sudo apt install jq'"
+    echo "❌ Error: jq no está instalado. Por favor, instálalo con 'sudo apt install jq'"
     exit 1
 fi
 
-# Remove potential package conflicts
-echo "🧹 Removing package-lock.json to avoid conflicts..."
+# 4. Eliminar el archivo package-lock.json si existe
+echo "🧹 Eliminando package-lock.json para evitar conflictos..."
 rm -f package-lock.json
 
-# 1. Remove node_modules and install dependencies
-echo "🧹 Removing node_modules..."
+# 5. Eliminar node_modules e instalar dependencias
+echo "🧹 Eliminando node_modules..."
 rm -rf node_modules
 
-echo "📦 Installing dependencies..."
+echo "📦 Instalando dependencias..."
 yarn install
 
-# 2. Get package.json version and current date + time
+# 6. Obtener la versión de package.json y la fecha y hora actuales
 PACKAGE_VERSION=$(jq -r .version package.json)
 DATE_FORMAT=$(TZ="America/Bogota" date +"Date 1 %B %d(%A) ⏰ %I:%M:%S %p - %Y 1  - V.$PACKAGE_VERSION")
 
-# 2.1 Update VERSION in .env
-echo "✍️  Updating VERSION in .env..."
+# 7. Actualizar la VERSION en .env
+echo "✍️  Actualizando VERSION en .env..."
 sed -i "s/^VERSION=.*/VERSION=\"$DATE_FORMAT\"/" .env
 
-# 3. Restart PM2 properly
-echo "🚀 Restarting back-dev in PM2..."
+# 8. Reiniciar PM2 correctamente
+echo "🚀 Reiniciando back-dev en PM2..."
 if ! pm2 restart back-dev --update-env; then
-    echo "⚠️  Restart failed, performing full restart..."
+    echo "⚠️  Falló el reinicio, realizando reinicio completo..."
     pm2 delete back-dev || true
     pm2 start npm --name "back-dev" -- run start
 fi
 
-# Save PM2 process list
-echo "💾 Saving PM2 process list..."
+# 9. Guardar la lista de procesos de PM2
+echo "💾 Guardando lista de procesos de PM2..."
 pm2 save
 
-# 4. Restart Nginx
-echo "🔄 Restarting Nginx..."
-systemctl restart nginx
+# 10. Reiniciar Nginx
+echo "🔄 Reiniciando Nginx..."
+sudo systemctl restart nginx
 
-echo "✅ Deployment completed successfully!"
-
+echo "✅ Despliegue completado con éxito!"

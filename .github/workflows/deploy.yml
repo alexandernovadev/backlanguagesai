@@ -19,7 +19,8 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
           chmod 600 private_key
           eval $(ssh-agent -s)  
-          ssh-add /root/.ssh/github-actions 
+          chmod 600 /root/.ssh/github-actions 
+          sudo ssh-add /root/.ssh/github-actions 
 
       - name: 🚀 Deploy
         run: |

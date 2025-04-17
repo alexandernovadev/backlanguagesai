@@ -1,4 +1,4 @@
-name: 🚀 Deploy to Production
+name: 🚀 Deploy to Production v2
 
 on:
   push:

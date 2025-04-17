@@ -31,7 +31,7 @@ app.use(express.json());
 // Middleware to handle CORS
 app.use(cors());
 
-// Middleware to loggin requests
+// Middleware to log requests
 app.use(requestLogger);
 
 // Swagger Conf
@@ -46,9 +46,12 @@ connectDB()
     console.error("Error connecting to MongoDB:", error);
   });
 
+// Servir archivos estáticos
+app.use("/audios", express.static("public/audios"));
+app.use("/images", express.static("public/images"));
+
 // Routes
 app.use("/api/auth", AuthRoutes);
-
 app.use("/api/ai", generateRoutes);
 app.use("/api/lectures", LectureRoutes);
 app.use("/api/words", WordsRoutes);

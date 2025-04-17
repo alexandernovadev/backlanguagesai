@@ -16,8 +16,8 @@ jobs:
 
       - name: 🚀 Run deploy script on server
         run: | 
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} << 'EOF'
-            cd /root/novalabs/backlanguagesai
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          cd /root/novalabs/backlanguagesai
             git pull origin main
             npm install
             npm run build

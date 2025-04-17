@@ -34,6 +34,7 @@ jobs:
             cd /root/novalabs/backlanguagesai
             git pull origin main
             ls -a
+            file /root/novalabs/backlanguagesai/deploy_back.sh
 
             chmod +x ./root/novalabs/backlanguagesai/deploy_back.sh
             echo "✅ Deployment script made executable."

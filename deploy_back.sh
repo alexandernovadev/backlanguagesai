@@ -7,9 +7,6 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
-# Navigate to backend folder
-cd "$(dirname "$0")/back"
-
 # Remove potential package conflicts
 echo "🧹 Removing package-lock.json to avoid conflicts..."
 rm -f package-lock.json
@@ -30,10 +27,16 @@ sed -i "s/^VERSION=.*/VERSION=\"$DATE_FORMAT\"/" .env
 
 # 3. Restart PM2 properly
 echo "🚀 Restarting back-dev in PM2..."
+
 if ! pm2 restart back-dev --update-env; then
     echo "⚠️  Restart failed, performing full restart..."
     pm2 delete back-dev || true
-    pm2 start npm --name "back-dev" -- run start
+
+    echo "🏗️  Building with Yarn..."
+    yarn build
+
+    echo "🚀 Starting with Yarn..."
+    pm2 start yarn --name "back-dev" -- start
 fi
 
 # Save PM2 process list

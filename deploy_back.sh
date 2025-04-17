@@ -46,27 +46,34 @@ rm -rf node_modules
 echo "📦 Instalando dependencias..."
 yarn install
 
-# 7. Obtener la versión de package.json y la fecha y hora actuales
+# 7. Realizar el build de la aplicación
+echo "🛠️ Ejecutando build..."
+yarn build
+
+# 8. Obtener la versión de package.json y la fecha y hora actuales
 PACKAGE_VERSION=$(jq -r .version package.json)
 DATE_FORMAT=$(TZ="America/Bogota" date +"Date 1 %B %d(%A) ⏰ %I:%M:%S %p - %Y 1  - V.$PACKAGE_VERSION")
 
-# 8. Actualizar la VERSION en .env
+# 9. Actualizar la VERSION en .env
 echo "✍️  Actualizando VERSION en .env..."
 sed -i "s/^VERSION=.*/VERSION=\"$DATE_FORMAT\"/" .env
 
-# 9. Reiniciar PM2 correctamente
+# 10. Reiniciar PM2 correctamente
 echo "🚀 Reiniciando back-dev en PM2..."
-if ! pm2 restart back-dev --update-env; then
-    echo "⚠️  Falló el reinicio, realizando reinicio completo..."
-    pm2 delete back-dev || true
-    pm2 start npm --name "back-dev" -- run start
+if pm2 list | grep -q back-dev; then
+    pm2 restart back-dev --update-env
+    echo "✅ back-dev reiniciado con éxito."
+else
+    echo "⚠️ No se encontró el proceso back-dev en PM2, iniciando el proceso..."
+    pm2 start yarn --name "back-dev" -- start
+    echo "✅ back-dev iniciado con éxito."
 fi
 
-# 10. Guardar la lista de procesos de PM2
+# 11. Guardar la lista de procesos de PM2
 echo "💾 Guardando lista de procesos de PM2..."
 pm2 save
 
-# 11. Reiniciar Nginx
+# 12. Reiniciar Nginx
 echo "🔄 Reiniciando Nginx..."
 sudo systemctl restart nginx
 

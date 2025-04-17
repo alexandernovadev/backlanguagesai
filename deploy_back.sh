@@ -14,6 +14,7 @@ rm -f package-lock.json
 # 1. Remove node_modules and install dependencies
 echo "🧹 Removing node_modules..."
 rm -rf node_modules
+
 echo "📦 Installing dependencies..."
 yarn install
 

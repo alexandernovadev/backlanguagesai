@@ -13,8 +13,10 @@ jobs:
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
-        
+
       - name: 🔑 Print SSH variables
         run: |
-          echo "SSH_HOST: $SSH_HOST"
-          echo "SSH_USER: $SSH_USER"
+          echo "SSH_HOST: $USER_NOVA"
+          echo "SSH_USER: $PASSWORD_NOVA"
+          echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
+          echo "SSH_USER: ${{ secrets.SSH_USER }}"

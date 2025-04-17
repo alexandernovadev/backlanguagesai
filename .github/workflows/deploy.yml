@@ -32,6 +32,7 @@ jobs:
             echo "✅ SSH connection validated."
             echo "🚀 Deploying to server..."
             cd /root/novalabs/backlanguagesai
+            git pull origin main
             ls -a
     
             ./root/novalabs/backlanguagesai/deploy_back.sh

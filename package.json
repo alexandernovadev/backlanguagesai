@@ -1,6 +1,6 @@
 {
   "name": "back",
-  "version": "4.22.2",
+  "version": "4.33.33",
   "main": "dist/main.js",
   "scripts": {
     "build": "rm -rf ./dist && tsc && cp -r swagger/routes/*.yaml dist/swagger/routes/",

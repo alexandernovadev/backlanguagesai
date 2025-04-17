@@ -24,7 +24,5 @@ jobs:
           echo "Deploying to server..."
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             echo "✅ Conectado y listo para el deploy"
-            chmod +x /root/novalabs/backlanguagesai/deploy_back.sh
-            ./root/novalabs/backlanguagesai/deploy_back.sh
-            echo pwd
+            ls -a /root/novalabs/backlanguagesai
           EOF

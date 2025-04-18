@@ -13,7 +13,12 @@ export const authMiddleware = (
     (req.query.tokenAPI as string); // tokenAPI in query param
 
   if (!token) {
-    return errorResponse(res, "Token not provided", 401);
+    return errorResponse(
+      res,
+      "Token not provided",
+      401,
+      "Token not provided in request"
+    );
   }
 
   try {
@@ -22,6 +27,6 @@ export const authMiddleware = (
     req.user = decoded;
     next();
   } catch (error) {
-    return errorResponse(res, "Unauthorized access", 403);
+    return errorResponse(res, "Unauthorized access", 403, error);
   }
 };

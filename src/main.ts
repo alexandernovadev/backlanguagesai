@@ -21,7 +21,7 @@ import { authMiddleware } from "./app/middlewares/authMiddleware";
 dotenv.config();
 
 const app = express();
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3000;
 const VERSION = process.env.VERSION || "V. March 8 2025 4:40 PM";
 
@@ -52,10 +52,10 @@ app.use("/images", express.static("public/images"));
 
 // Routes
 app.use("/api/auth", AuthRoutes);
-app.use("/api/ai", generateRoutes);
-app.use("/api/lectures", LectureRoutes);
-app.use("/api/words", WordsRoutes);
-app.use("/api/statistics", StatisticsRoutes);
+app.use("/api/ai", authMiddleware, generateRoutes);
+app.use("/api/lectures", authMiddleware, LectureRoutes);
+app.use("/api/words", authMiddleware, WordsRoutes);
+app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 
 // Logs
 app.use("/api/logs", authMiddleware, LogsRoutes);

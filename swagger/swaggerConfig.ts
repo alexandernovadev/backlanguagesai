@@ -9,7 +9,7 @@ import {
   lectureswagger,
   generateaiswagger,
   authswagger,
-  logsswagger
+  logsswagger,
 } from "./routes";
 
 const options: swaggerJsdoc.Options = {
@@ -23,8 +23,23 @@ const options: swaggerJsdoc.Options = {
     servers: [
       {
         url: "http://localhost:3000",
-      }
+      },
     ],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+        TokenQuery: {
+          type: "apiKey",
+          in: "query",
+          name: "tokenAPI",
+        },
+      },
+    },
+    security: [{ BearerAuth: [] }, { TokenQuery: [] }],
     paths: {
       ...fixesSwagger["paths"],
       ...statisticsSwagger["paths"],

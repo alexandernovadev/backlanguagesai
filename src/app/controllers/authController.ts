@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth/authService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
-import { IUser } from "../db/models/User";
 
 export const AuthController = {
   login: async (req: Request, res: Response) => {

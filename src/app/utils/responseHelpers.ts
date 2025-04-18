@@ -16,12 +16,17 @@ export const errorResponse = (
   statusCode = 400,
   errordata?: any
 ) => {
+
   // Si errordata no es un Error, lo convertimos a uno para tener un stack
   const errorInstance =
     errordata instanceof Error
       ? errordata
       : new Error(
-          typeof errordata === "object" ? JSON.stringify(errordata) : errordata
+          errordata
+            ? typeof errordata === "object"
+              ? JSON.stringify(errordata)
+              : String(errordata)
+            : "Unknown error"
         );
 
   logger.error("Error Response:", {

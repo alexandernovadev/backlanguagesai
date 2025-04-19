@@ -94,6 +94,7 @@ export const updateUrlAudioLectureByIdByGPT = async (
   res: Response
 ) => {
   const ID = req.params.idlecture;
+  const oldUrl = req.params.oldUrl;
 
   try {
     // 1. Buscar la lecture

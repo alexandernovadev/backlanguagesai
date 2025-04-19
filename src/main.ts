@@ -46,7 +46,7 @@ connectDB()
     console.error("Error connecting to MongoDB:", error);
   });
 
-// Servir archivos estáticos
+// Servir archivos estáticos main
 app.use("/audios", express.static("public/audios"));
 app.use("/images", express.static("public/images"));
 

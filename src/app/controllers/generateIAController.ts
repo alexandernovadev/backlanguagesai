@@ -17,9 +17,37 @@ import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { imageWordPrompt } from "./helpers/ImagePrompt";
 import { promptAddEasyWords } from "./helpers/promptAddEasyWords";
 import { LectureService } from "../services/lectures/LectureService";
+import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
 
 const wordService = new WordService();
 const lectureService = new LectureService();
+
+export const generateAudioFromText = async (req: Request, res: Response) => {
+  const { prompt, voice } = req.body;
+
+  if (!prompt) {
+    return errorResponse(res, "Prompt is required to generate audio.", 400);
+  }
+
+  try {
+    const { audio, subtitles } = await generateAudioFromTextService({
+      prompt,
+      voice,
+    });
+
+    return successResponse(res, "Audio and subtitles generated successfully", {
+      audioPath: audio,
+      subtitlesPath: subtitles,
+    });
+  } catch (error) {
+    return errorResponse(
+      res,
+      "Failed to generate audio and subtitles",
+      500,
+      error
+    );
+  }
+};
 
 /**
  * Generate Image with AI, Save in Cloudinary, and Update Lecture

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  generateAudioFromText,
   generateJSONword,
   generateTextStream,
   updatedJSONWordExamples,
@@ -26,3 +27,4 @@ generateRoutes.put(
 generateRoutes.put("/generate-word-wordtypes/:idword", updatedJSONWordTypes);
 generateRoutes.put("/generate-code-synonyms/:idword", updatedJSONWordSynonyms);
 
+generateRoutes.post("/generate-audio-from-text", generateAudioFromText);

@@ -4,6 +4,56 @@ info:
   description: Endpoints for AI-generated content
   version: 1.0.0
 paths:
+  /api/ai/generate-audio-from-text:
+    post:
+      summary: Generate audio and subtitles from a given text using AI
+      tags:
+        - AI Generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  example: "Learning a new language can be fun and rewarding."
+                voice:
+                  type: string
+                  enum: [nova, alloy, echo, fable, onyx, shimmer]
+                  default: "nova"
+                  example: "fable"
+              required:
+                - prompt
+      responses:
+        '201':
+          description: Returns the generated audio and subtitles paths
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Audio and subtitles generated successfully"
+                  data:
+                    type: object
+                    properties:
+                      audioPath:
+                        type: string
+                        example: "/absolute/path/to/public/audios/1713469637492.wav"
+                      subtitlesPath:
+                        type: string
+                        example: "/absolute/path/to/public/audios/1713469637492.srt"
+        '400':
+          description: Bad request, missing prompt
+        '500':
+          description: Internal server error while generating audio or subtitles
+
   /api/ai/generate-text:
     post:
       summary: Generate a text stream based on a given prompt

@@ -12,11 +12,8 @@ export const seedAdminUser = async () => {
 
     const existingAdmin = await User.findOne({ role: "admin" });
     if (existingAdmin) {
-      console.log("Admin user already exists.");
-
       // DELETE THE ADMIN USER
       await User.deleteOne({ role: "admin", username: existingAdmin.username });
-      console.log("Admin user deleted.");  
     }
 
     const hashedPassword = await bcrypt.hash(

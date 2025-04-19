@@ -1,13 +1,25 @@
 import * as path from "path";
 import * as fs from "fs";
 import OpenAI from "openai";
+import { execSync } from "child_process"; 
 
 interface Options {
   prompt: string;
   voice?: string;
 }
 
-export const generateAudioFromTextService = async ({ prompt, voice }: Options) => {
+const chunkText = (text: string, size: number) => {
+  const chunks = [];
+  for (let i = 0; i < text.length; i += size) {
+    chunks.push(text.slice(i, i + size));
+  }
+  return chunks;
+};
+
+export const generateAudioFromTextService = async ({
+  prompt,
+  voice,
+}: Options) => {
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY || "",
   });
@@ -27,29 +39,56 @@ export const generateAudioFromTextService = async ({ prompt, voice }: Options) =
   fs.mkdirSync(folderPath, { recursive: true });
 
   const timestamp = new Date().getTime();
-  const speechFile = path.resolve(folderPath, `${timestamp}.wav`);
-  const subtitlesFile = path.resolve(folderPath, `${timestamp}.srt`);
+  const chunkSize = 3000;
 
-  const wav = await openai.audio.speech.create({
-    model: "tts-1-hd",
-    voice: selectedVoice,
-    input: prompt,
-    response_format: "wav",
-  });
+  const chunks = chunkText(prompt, chunkSize);
+  const audioChunkPaths: string[] = [];
 
-  const buffer = Buffer.from(await wav.arrayBuffer());
-  fs.writeFileSync(speechFile, buffer);
+  // 1. Crear audios por chunk
+  await Promise.all(
+    chunks.map(async (chunk, i) => {
+      const response = await openai.audio.speech.create({
+        model: "tts-1-hd",
+        voice: selectedVoice,
+        input: chunk,
+        response_format: "wav",
+      });
 
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const chunkPath = path.resolve(folderPath, `${timestamp}_chunk${i}.wav`);
+      fs.writeFileSync(chunkPath, buffer);
+      audioChunkPaths.push(chunkPath);
+    })
+  );
+
+  // 2. Concatenar con ffmpeg (asegúrate de tenerlo instalado en el sistema)
+  const listFilePath = path.resolve(folderPath, `${timestamp}_list.txt`);
+  fs.writeFileSync(
+    listFilePath,
+    audioChunkPaths.map((p) => `file '${p}'`).join("\n")
+  );
+
+  const finalAudioPath = path.resolve(folderPath, `${timestamp}.wav`);
+  execSync(
+    `ffmpeg -f concat -safe 0 -i "${listFilePath}" -c copy "${finalAudioPath}"`
+  );
+
+  // 3. Generar subtítulos del audio completo
   const subtitles = await openai.audio.transcriptions.create({
-    file: fs.createReadStream(speechFile),
+    file: fs.createReadStream(finalAudioPath),
     model: "whisper-1",
     response_format: "srt",
   });
 
-  fs.writeFileSync(subtitlesFile, subtitles); // si `subtitles` es string
+  const subtitlesFile = path.resolve(folderPath, `${timestamp}.srt`);
+  fs.writeFileSync(subtitlesFile, subtitles);
+
+  // 4. Limpiar chunks y list.txt (opcional)
+  audioChunkPaths.forEach((p) => fs.unlinkSync(p));
+  fs.unlinkSync(listFilePath);
 
   return {
-    audio: speechFile,
+    audio: finalAudioPath,
     subtitles: subtitlesFile,
   };
 };

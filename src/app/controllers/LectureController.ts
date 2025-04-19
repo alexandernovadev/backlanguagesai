@@ -105,7 +105,7 @@ export const updateUrlAudioLectureByIdByGPT = async (
     }
 
     // 2. Usar lecture.content como prompt para generar el audio
-    const { audio, subtitles } = await generateAudioFromTextService({
+    const { audio } = await generateAudioFromTextService({
       prompt: lecture.content, // <- acá va el contenido real
       voice: req.body.voice, // si querés dejar configurable la voz
     });

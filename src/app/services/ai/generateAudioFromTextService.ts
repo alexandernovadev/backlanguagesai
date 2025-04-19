@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import OpenAI from "openai";
-import { execSync } from "child_process"; 
+import { execSync } from "child_process";
 
 interface Options {
   prompt: string;
@@ -42,7 +42,7 @@ export const generateAudioFromTextService = async ({
   const chunkSize = 3000;
 
   const chunks = chunkText(prompt, chunkSize);
-  const audioChunkPaths: string[] = [];
+  const audioChunkPaths: string[] = new Array(chunks.length);
 
   // 1. Crear audios por chunk
   await Promise.all(
@@ -57,11 +57,11 @@ export const generateAudioFromTextService = async ({
       const buffer = Buffer.from(await response.arrayBuffer());
       const chunkPath = path.resolve(folderPath, `${timestamp}_chunk${i}.wav`);
       fs.writeFileSync(chunkPath, buffer);
-      audioChunkPaths.push(chunkPath);
+      audioChunkPaths[i] = chunkPath;
     })
   );
 
-  // 2. Concatenar con ffmpeg (asegúrate de tenerlo instalado en el sistema)
+  // 2. Concatenar con ffmpeg
   const listFilePath = path.resolve(folderPath, `${timestamp}_list.txt`);
   fs.writeFileSync(
     listFilePath,
@@ -73,22 +73,11 @@ export const generateAudioFromTextService = async ({
     `ffmpeg -f concat -safe 0 -i "${listFilePath}" -c copy "${finalAudioPath}"`
   );
 
-  // 3. Generar subtítulos del audio completo
-  const subtitles = await openai.audio.transcriptions.create({
-    file: fs.createReadStream(finalAudioPath),
-    model: "whisper-1",
-    response_format: "srt",
-  });
-
-  const subtitlesFile = path.resolve(folderPath, `${timestamp}.srt`);
-  fs.writeFileSync(subtitlesFile, subtitles);
-
-  // 4. Limpiar chunks y list.txt (opcional)
+  // 3. Limpiar chunks y list.txt
   audioChunkPaths.forEach((p) => fs.unlinkSync(p));
   fs.unlinkSync(listFilePath);
 
   return {
     audio: finalAudioPath,
-    subtitles: subtitlesFile,
   };
 };

@@ -47,8 +47,11 @@ connectDB()
   });
 
 // Servir archivos estáticos main
-app.use("/audios", express.static("public/audios"));
-app.use("/images", express.static("public/images"));
+import path from "path";
+
+const publicPath = path.join(__dirname, "..", "public");
+app.use("/audios", express.static(path.join(publicPath, "audios")));
+app.use("/images", express.static(path.join(publicPath, "images")));
 
 // Routes
 app.use("/api/auth", AuthRoutes);

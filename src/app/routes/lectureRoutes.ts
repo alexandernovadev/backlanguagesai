@@ -6,9 +6,12 @@ import {
   deleteLecture,
   getAllLectures,
   updateImageLecureById,
+  updateUrlAudioLectureByIdByGPT,
 } from "../controllers/LectureController";
 
 const router = Router();
+
+router.post("/generateAudio/:idlecture", updateUrlAudioLectureByIdByGPT);
 
 router.get("/", getAllLectures);
 router.get("/:id", getLectureById);

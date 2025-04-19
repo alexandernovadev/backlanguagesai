@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
+import path from "path";
 
 import { LectureService } from "../services/lectures/LectureService";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
+import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
 
 const lectureService = new LectureService();
 
@@ -84,6 +86,43 @@ export const updateImageLecureById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return errorResponse(res, "Error updating Image lecture", 500, error);
+  }
+};
+
+export const updateUrlAudioLectureByIdByGPT = async (
+  req: Request,
+  res: Response
+) => {
+  const ID = req.params.idlecture;
+
+  try {
+    // 1. Buscar la lecture
+    const lecture = await lectureService.getLectureById(ID);
+
+    if (!lecture) {
+      return errorResponse(res, "Lecture not found", 404);
+    }
+
+    // 2. Usar lecture.content como prompt para generar el audio
+    const { audio, subtitles } = await generateAudioFromTextService({
+      prompt: lecture.content, // <- acá va el contenido real
+      voice: req.body.voice, // si querés dejar configurable la voz
+    });
+
+    // 3. Guardar solo el path relativo para servir desde frontend (ej: /audios/123.wav)
+    const audioUrl = `/audios/${path.basename(audio)}`;
+
+    // 4. Actualizar la lecture con la nueva URL de audio
+    const updatedLecture = await lectureService.updateUrlAudio(ID, audioUrl);
+
+    return successResponse(
+      res,
+      "Lecture updated with new audio successfully",
+      updatedLecture
+    );
+  } catch (error) {
+    console.error(error);
+    return errorResponse(res, "Error updating lecture audio", 500, error);
   }
 };
 

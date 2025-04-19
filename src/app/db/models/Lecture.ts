@@ -7,6 +7,7 @@ export interface ILecture extends Document {
   typeWrite: string;
   language: string;
   img?: string;
+  urlAudio?: string;
   content: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -19,6 +20,7 @@ const lectureSchema = new Schema<ILecture>(
     level: { type: String, required: true },
     typeWrite: { type: String, required: true },
     language: { type: String, required: true },
+    urlAudio: { type: String, default: "" },
     img: { type: String, default: "" },
     content: { type: String, required: true },
   },

@@ -38,6 +38,20 @@ export class LectureService {
     );
   }
 
+  async updateUrlAudio(
+    id: string,
+    urlAudio: string
+  ): Promise<{ _id: string; urlAudio: string; updatedAt: Date } | null> {
+    return await Lecture.findByIdAndUpdate(
+      id,
+      { urlAudio },
+      {
+        new: true,
+        projection: { _id: 1, urlAudio: 1, updatedAt: 1 }, // Return only necessary fields
+      }
+    );
+  }
+
   async deleteLecture(id: string): Promise<ILecture | null> {
     return await Lecture.findByIdAndDelete(id);
   }

@@ -9,6 +9,63 @@ tags:
     description: Endpoints related to lecture management
 
 paths:
+  /api/ai/generate-audio-from-text/{idlecture}:
+    post:
+      summary: Generate audio and subtitles for a lecture using AI
+      tags:
+        - AI Generation
+      parameters:
+        - in: path
+          name: idlecture
+          required: true
+          schema:
+            type: string
+          description: The ID of the lecture to generate audio and subtitles for
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  example: "Learning a new language can be fun and rewarding."
+                voice:
+                  type: string
+                  enum: [nova, alloy, echo, fable, onyx, shimmer]
+                  default: "nova"
+                  example: "fable"
+              required:
+                - prompt
+      responses:
+        "201":
+          description: Returns the generated audio and subtitles paths
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Audio and subtitles generated successfully"
+                  data:
+                    type: object
+                    properties:
+                      audioPath:
+                        type: string
+                        example: "/absolute/path/to/public/audios/1713469637492.wav"
+                      subtitlesPath:
+                        type: string
+                        example: "/absolute/path/to/public/audios/1713469637492.srt"
+        "400":
+          description: Bad request, missing prompt or invalid lecture ID
+        "500":
+          description: Internal server error while generating audio or subtitles
+
   /api/lectures:
     get:
       summary: Retrieve a paginated list of lectures
@@ -27,7 +84,7 @@ paths:
             default: 10
           description: Number of lectures per page
       responses:
-        '200':
+        "200":
           description: A paginated list of lectures
 
     post:
@@ -65,9 +122,9 @@ paths:
                 - language
                 - content
       responses:
-        '201':
+        "201":
           description: Lecture created successfully
-        '400':
+        "400":
           description: Validation error
 
   /api/lectures/{id}:
@@ -82,9 +139,9 @@ paths:
             type: string
           description: Lecture ID
       responses:
-        '200':
+        "200":
           description: A lecture object
-        '404':
+        "404":
           description: Lecture not found
 
     put:
@@ -126,9 +183,9 @@ paths:
                 - language
                 - content
       responses:
-        '200':
+        "200":
           description: Lecture updated successfully
-        '404':
+        "404":
           description: Lecture not found
 
     delete:
@@ -142,9 +199,9 @@ paths:
             type: string
           description: Lecture ID
       responses:
-        '200':
+        "200":
           description: Lecture deleted successfully
-        '404':
+        "404":
           description: Lecture not found
 
   /api/lectures/image/{id}:
@@ -171,7 +228,7 @@ paths:
               required:
                 - img
       responses:
-        '200':
+        "200":
           description: Lecture image updated successfully
-        '404':
+        "404":
           description: Lecture not found

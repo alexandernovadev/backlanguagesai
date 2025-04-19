@@ -23,7 +23,7 @@ export const generateAudioFromTextService = async ({ prompt, voice }: Options) =
 
   const selectedVoice = voices[voice || "nova"] || "nova";
 
-  const folderPath = path.resolve(__dirname, "public/audios");
+  const folderPath = path.resolve(__dirname, "../../../../public/audios");
   fs.mkdirSync(folderPath, { recursive: true });
 
   const timestamp = new Date().getTime();
@@ -44,7 +44,6 @@ export const generateAudioFromTextService = async ({ prompt, voice }: Options) =
     file: fs.createReadStream(speechFile),
     model: "whisper-1",
     response_format: "srt",
-    language: "en",
   });
 
   fs.writeFileSync(subtitlesFile, subtitles); // si `subtitles` es string

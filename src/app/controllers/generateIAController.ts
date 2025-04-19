@@ -30,14 +30,13 @@ export const generateAudioFromText = async (req: Request, res: Response) => {
   }
 
   try {
-    const { audio, subtitles } = await generateAudioFromTextService({
+    const { audio } = await generateAudioFromTextService({
       prompt,
       voice,
     });
 
     return successResponse(res, "Audio and subtitles generated successfully", {
       audioPath: audio,
-      subtitlesPath: subtitles,
     });
   } catch (error) {
     return errorResponse(

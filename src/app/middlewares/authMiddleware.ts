@@ -23,7 +23,6 @@ export const authMiddleware = (
 
   try {
     const decoded = AuthService.verifyToken(token);
-    // @ts-ignore
     req.user = decoded;
     next();
   } catch (error) {

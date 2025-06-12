@@ -4,6 +4,10 @@ import cors from "cors";
 
 import { connectDB } from "./app/db/mongoConnection";
 
+// Servir archivos estáticos main
+import path from "path";
+import logger from "./app/utils/logger";
+
 // Routes
 import { generateRoutes } from "./app/routes/generatorIARoutes";
 import LectureRoutes from "./app/routes/lectureRoutes";
@@ -37,25 +41,6 @@ app.use(requestLogger);
 // Swagger Conf
 setupSwagger(app);
 
-// Connection to MongoDB
-connectDB()
-  .then(() => {
-    console.info("Connection to MongoDB established successfully");
-    logger.info("Connection to MongoDB", {
-      message: "Se conecto todo bn",
-    });
-  })
-  .catch((error) => {
-    console.error("Error connecting to MongoDB:", error);
-    logger.error("Error Response:", {
-      message: error,
-    });
-  });
-
-// Servir archivos estáticos main
-import path from "path";
-import logger from "./app/utils/logger";
-
 const publicPath = path.join(__dirname, "..", "public");
 app.use("/audios", express.static(path.join(publicPath, "audios")));
 app.use("/images", express.static(path.join(publicPath, "images")));
@@ -85,9 +70,24 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
   errorResponse(res, "Something went wrong: " + err, 500);
 });
 
-app.listen(PORT, () => {
-  console.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
-  logger.info("Server running on port: ", {
-    message: `${PORT} - "${NODE_ENV}`,
+// Connection to MongoDB
+connectDB()
+  .then(() => {
+    console.info("Connection to MongoDB established successfully");
+    logger.info("Connection to MongoDB", {
+      message: "Se conecto todo bn",
+    });
+
+    app.listen(PORT, () => {
+      console.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
+      logger.info("Server running on port: ", {
+        message: `${PORT} - "${NODE_ENV}`,
+      });
+    });
+  })
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error);
+    logger.error("Error Response:", {
+      message: error,
+    });
   });
-});

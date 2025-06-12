@@ -16,7 +16,6 @@ export const errorResponse = (
   statusCode = 400,
   errordata?: any
 ) => {
-
   // Si errordata no es un Error, lo convertimos a uno para tener un stack
   const errorInstance =
     errordata instanceof Error
@@ -30,7 +29,7 @@ export const errorResponse = (
         );
 
   logger.error("Error Response:", {
-    message: errorMessage,
+    message: errorMessage + " - " + errordata,
     stack: errorInstance.stack || "No stack available",
   });
 

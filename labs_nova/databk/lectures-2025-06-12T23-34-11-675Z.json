@@ -2,7 +2,7 @@
   {
     "_id": "672445c36313c626f65bce23",
     "time": 3,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "report",
     "language": "en",
     "img": "",
@@ -12,7 +12,7 @@
   {
     "_id": "6725017a6313c626f65bce65",
     "time": 4,
-    "level": "C1",
+    "level": "easy",
     "typeWrite": "summary",
     "language": "en",
     "img": "",
@@ -22,7 +22,7 @@
   {
     "_id": "672502446313c626f65bce72",
     "time": 3,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "summary",
     "language": "en",
     "img": "",
@@ -32,7 +32,7 @@
   {
     "_id": "6725373099d8ea42388da0ab",
     "time": 3,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "summary",
     "language": "en",
     "img": "",
@@ -42,7 +42,7 @@
   {
     "_id": "6725afee99d8ea42388da240",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "review",
     "language": "en",
     "img": "",
@@ -52,7 +52,7 @@
   {
     "_id": "672641f499d8ea42388da273",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "argumentative",
     "language": "en",
     "img": "",
@@ -62,7 +62,7 @@
   {
     "_id": "6726423d99d8ea42388da277",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "article",
     "language": "en",
     "img": "",
@@ -72,7 +72,7 @@
   {
     "_id": "67cfa554eb3e2596fd8b2eb9",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "tell",
     "language": "en",
     "img": "",
@@ -84,7 +84,7 @@
   {
     "_id": "67ce4862a02cef7d4c6c8499",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "report",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/languagesai/lectures/yvtnruv4qn8j4oxvppye",
@@ -96,7 +96,7 @@
   {
     "_id": "67ce48c8a02cef7d4c6c84a0",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "tell",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/languagesai/lectures/sddamfzxtpsylzupfzqf",
@@ -108,7 +108,7 @@
   {
     "_id": "67ce4921a02cef7d4c6c84a7",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "article",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1741231179/languagesai/lectures/nafphrhiwc7vwhmxtzmd.webp",
@@ -120,7 +120,7 @@
   {
     "_id": "67cfacf28144481fd4b423b9",
     "time": 3,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "report",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1741663574/languagesai/lectures/irklyqi6okfoclwbtokx.webp",
@@ -132,7 +132,7 @@
   {
     "_id": "67cfaf158144481fd4b423ce",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "article",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1741664028/languagesai/lectures/c3sw4u5rslzcoh8cjwas.webp",
@@ -144,7 +144,7 @@
   {
     "_id": "67cfaf748144481fd4b423d6",
     "time": 3,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "blog",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1741664146/languagesai/lectures/vpg70tbiisevslm5ilsn.webp",
@@ -156,7 +156,7 @@
   {
     "_id": "67cfafdd8144481fd4b423de",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "blog",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1741664244/languagesai/lectures/mceugywsh7qtxuhrdwlj.webp",
@@ -168,7 +168,7 @@
   {
     "_id": "67cfb0398144481fd4b423e6",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "tell",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1741664411/languagesai/lectures/ufyeisx8lu8m8db1h7as.webp",
@@ -180,7 +180,7 @@
   {
     "_id": "67d77f8d9d2dbe0dd11284b9",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "dialogue",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742315675/languagesai/lectures/pkfg6ouxk3z5pfjqxowm.webp",
@@ -192,7 +192,7 @@
   {
     "_id": "67d77ff09d2dbe0dd11284be",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "narration",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742315723/languagesai/lectures/hmymgtamw0acoruli67j.webp",
@@ -204,7 +204,7 @@
   {
     "_id": "67d895be9d2dbe0dd112850d",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "article",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742315770/languagesai/lectures/t5tcqdpm2eecq8rh5zll.webp",
@@ -216,7 +216,7 @@
   {
     "_id": "67d8a8189d2dbe0dd1128579",
     "time": 3,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "guide",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742315855/languagesai/lectures/pda0frhtoiclgzsrik0r.webp",
@@ -228,7 +228,7 @@
   {
     "_id": "67d8a8449d2dbe0dd112857d",
     "time": 3,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "review",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742315905/languagesai/lectures/zhvbripw6bmfkwzudhmn.webp",
@@ -240,7 +240,7 @@
   {
     "_id": "67dc76458bad287b164c0707",
     "time": 5,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "report",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742511313/languagesai/lectures/iyl8wr3pvb77xmbz8gsq.webp",
@@ -252,7 +252,7 @@
   {
     "_id": "67dc769b8bad287b164c070c",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "blog",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742511361/languagesai/lectures/kkn1hhudtdfm2zj1cqaf.webp",
@@ -264,7 +264,7 @@
   {
     "_id": "67dc770b8bad287b164c0718",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "blog",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742511448/languagesai/lectures/pvkvxgycvlglra50o9d8.webp",
@@ -276,7 +276,7 @@
   {
     "_id": "67dcc0f70d7b2a404fa17b6b",
     "time": 3,
-    "level": "A1",
+    "level": "easy",
     "typeWrite": "instructions",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742520680/languagesai/lectures/esupssdcnjnju8dcqmtr.webp",
@@ -288,7 +288,7 @@
   {
     "_id": "67dcc19f0d7b2a404fa17b72",
     "time": 3,
-    "level": "A2",
+    "level": "easy",
     "typeWrite": "instructions",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742520782/languagesai/lectures/zcp3kadqynbbufl5gnae.webp",
@@ -300,7 +300,7 @@
   {
     "_id": "67dcc20a0d7b2a404fa17b79",
     "time": 4,
-    "level": "C1",
+    "level": "easy",
     "typeWrite": "instructions",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742520879/languagesai/lectures/ntzpz0v1sqs5x5d0lkag.webp",
@@ -312,7 +312,7 @@
   {
     "_id": "67dcc3060d7b2a404fa17b80",
     "time": 4,
-    "level": "C2",
+    "level": "easy",
     "typeWrite": "guide",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742521279/languagesai/lectures/tvdbxhf3sp0dzh5rl0uj.webp",
@@ -324,7 +324,7 @@
   {
     "_id": "67df3c980d71c122b12cc67b",
     "time": 3,
-    "level": "B1",
+    "level": "easy",
     "typeWrite": "argumentative",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1742683437/languagesai/lectures/ydopuamnvqxob2qswprp.webp",
@@ -336,7 +336,7 @@
   {
     "_id": "67e4929841f97812fb32a2f3",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "chronicle",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1743045559/languagesai/lectures/ybaediryp9eitrcpl11t.webp",
@@ -348,7 +348,7 @@
   {
     "_id": "67e492ef41f97812fb32a2f8",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "report",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1743045643/languagesai/lectures/m90zfsi9bbwywac8tjzo.webp",
@@ -360,7 +360,7 @@
   {
     "_id": "67e4931f41f97812fb32a2fd",
     "time": 4,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "blog",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1743045686/languagesai/lectures/gnetpzvykfhjflj0vqxv.webp",
@@ -372,7 +372,7 @@
   {
     "_id": "67e9e2107b74cfd417a66de0",
     "time": 3,
-    "level": "B2",
+    "level": "easy",
     "typeWrite": "blog",
     "language": "en",
     "img": "https://res.cloudinary.com/dv8wurqdp/image/upload/v1743382157/languagesai/lectures/dnvumwvoswyjf7pky0hn.png",

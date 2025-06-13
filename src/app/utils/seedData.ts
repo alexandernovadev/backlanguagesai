@@ -5,14 +5,9 @@ import mongoose from "mongoose";
 export const seedData = async (): Promise<void> => {
   try {
     const collections = ["lectures", "words"];
-    const backupDir = path.join(
-      __dirname,
-      "..",
-      "..",
-      "..",
-      "labs_nova",
-      "databk"
-    );
+
+    // Usar process.cwd() para obtener el path raíz del proyecto
+    const backupDir = path.join(process.cwd(), "labs_nova", "databk");
 
     // Verificar si el folder existe
     if (!fs.existsSync(backupDir)) {

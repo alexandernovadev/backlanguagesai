@@ -14,8 +14,13 @@ export const seedData = async (): Promise<void> => {
       "databk"
     );
 
+    // Verificar si el folder existe
+    if (!fs.existsSync(backupDir)) {
+      console.warn(`⚠️ Backup directory not found at ${backupDir}`);
+      return;
+    }
+
     for (const collectionName of collections) {
-      // Buscar el archivo más reciente de la colección
       const files = fs
         .readdirSync(backupDir)
         .filter(
@@ -34,12 +39,14 @@ export const seedData = async (): Promise<void> => {
       const fileContent = fs.readFileSync(filePath, "utf-8");
       const documents = JSON.parse(fileContent);
 
-      // Borrar y luego insertar
       const collection = mongoose.connection.db.collection(collectionName);
-      await collection.deleteMany({});
-      await collection.insertMany(documents);
 
-      console.log(`✅ ${collectionName} seeded from ${latestFile}`);
+      await collection.deleteMany({});
+      const result = await collection.insertMany(documents);
+
+      console.log(
+        `✅ ${collectionName} seeded from ${latestFile} | ${result.insertedCount} documents inserted`
+      );
     }
   } catch (error) {
     console.error("❌ Error seeding data:", error);

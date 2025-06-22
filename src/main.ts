@@ -33,7 +33,15 @@ const VERSION = process.env.VERSION || "V. March 8 2025 4:40 PM";
 app.use(express.json());
 
 // Middleware to handle CORS
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://languages-ai.alexandernova.pro",
+    ],
+    credentials: true,
+  })
+);
 
 // Middleware to log requests
 app.use(requestLogger);

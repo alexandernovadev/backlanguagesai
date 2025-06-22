@@ -14,7 +14,38 @@ export const AuthController = {
       const user = await AuthService.validateUserFromDB(username, password);
       if (user) {
         const token = AuthService.generateToken(user);
-        return successResponse(res, "Login successful", { token });
+
+        const {
+          _id,
+          username,
+          email,
+          role,
+          firstName,
+          lastName,
+          image,
+          isActive,
+          createdAt,
+          updatedAt,
+        } = user;
+
+        const userInfo = {
+          id: _id,
+          username,
+          email,
+          role,
+          firstName,
+          lastName,
+          image,
+          isActive,
+          createdAt,
+          updatedAt,
+        };
+
+        return successResponse(res, "Login successful", {
+          token,
+          user: userInfo,
+        });
+        
       } else {
         return errorResponse(res, "Invalid credentials", 401);
       }

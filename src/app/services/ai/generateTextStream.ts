@@ -53,6 +53,7 @@ export const generateTextStreamService = async ({
           ${promptWords}
 
           - Length MUST BE between ${rangeMin} and ${rangeMax} characters.
+          - Must make a subtitle and not just put "subtitle" or "subtitle 1" or "subtitle 2".
     
           Learning aids:
           - For C1-C2 levels, include a brief summary of the main points.

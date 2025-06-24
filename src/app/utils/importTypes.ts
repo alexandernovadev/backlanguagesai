@@ -38,7 +38,7 @@ export interface BatchResult {
   inserted: number;
   updated: number;
   skipped: number;
-  results: ProcessingResult[];
+  results?: ProcessingResult[];
 }
 
 // Resultado final de la importación

@@ -276,6 +276,79 @@ paths:
         '500':
           description: Internal server error
 
+  /api/lectures/import-file:
+    post:
+      summary: Import lectures from JSON file
+      tags:
+        - Lectures
+      description: Import lectures from a JSON file with various duplicate handling strategies
+      parameters:
+        - in: query
+          name: duplicateStrategy
+          schema:
+            type: string
+            enum: [skip, overwrite, error, merge]
+            default: skip
+          description: Strategy to handle duplicate lectures
+        - in: query
+          name: validateOnly
+          schema:
+            type: boolean
+            default: false
+          description: If true, only validates the file without importing
+        - in: query
+          name: batchSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of lectures to process in each batch
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: JSON file containing lectures to import
+      responses:
+        '200':
+          description: Import completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Import completed successfully"
+                  data:
+                    $ref: '#/components/schemas/ImportResult'
+        '400':
+          description: Bad request - Invalid file format or parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid JSON file format"
+        '500':
+          description: Internal server error during import
+
 components:
   schemas:
     Lecture:
@@ -299,10 +372,14 @@ components:
           example: "en"
         img:
           type: string
+          nullable: true
           example: "https://res.cloudinary.com/example/image/upload/v1234567890/lecture.png"
+          description: Optional image URL (can be empty or null)
         urlAudio:
           type: string
+          nullable: true
           example: "/audios/1713469637492.wav"
+          description: Optional audio URL (can be empty or null)
         content:
           type: string
           example: "# The Importance of Renewable Energy\n\nRenewable energy sources are becoming increasingly important..."
@@ -320,3 +397,128 @@ components:
         - typeWrite
         - language
         - content
+
+    ImportResult:
+      type: object
+      properties:
+        totalLectures:
+          type: integer
+          example: 39
+        totalBatches:
+          type: integer
+          example: 4
+        totalValid:
+          type: integer
+          example: 35
+        totalInvalid:
+          type: integer
+          example: 2
+        totalDuplicates:
+          type: integer
+          example: 2
+        totalErrors:
+          type: integer
+          example: 0
+        totalInserted:
+          type: integer
+          example: 33
+        totalUpdated:
+          type: integer
+          example: 2
+        totalSkipped:
+          type: integer
+          example: 4
+        batches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchResult'
+        summary:
+          $ref: '#/components/schemas/ImportSummary'
+
+    BatchResult:
+      type: object
+      properties:
+        batchIndex:
+          type: integer
+          example: 0
+        processed:
+          type: integer
+          example: 10
+        valid:
+          type: integer
+          example: 9
+        invalid:
+          type: integer
+          example: 1
+        duplicates:
+          type: integer
+          example: 0
+        errors:
+          type: integer
+          example: 0
+        inserted:
+          type: integer
+          example: 9
+        updated:
+          type: integer
+          example: 0
+        skipped:
+          type: integer
+          example: 1
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProcessingResult'
+          description: Optional detailed results for each lecture in the batch
+
+    ProcessingResult:
+      type: object
+      properties:
+        index:
+          type: integer
+          example: 0
+        lecture:
+          $ref: '#/components/schemas/Lecture'
+        status:
+          type: string
+          enum: [valid, invalid, duplicate, error]
+          example: "valid"
+        validationResult:
+          $ref: '#/components/schemas/ValidationResult'
+        error:
+          type: string
+          example: "Database connection error"
+        action:
+          type: string
+          enum: [skipped, inserted, updated, merged]
+          example: "inserted"
+
+    ValidationResult:
+      type: object
+      properties:
+        isValid:
+          type: boolean
+          example: true
+        errors:
+          type: array
+          items:
+            type: string
+          example: []
+        warnings:
+          type: array
+          items:
+            type: string
+          example: ["Content is very long (>10,000 characters)"]
+
+    ImportSummary:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Import completed. 33 inserted, 2 updated, 4 skipped, 0 errors"
+        duration:
+          type: integer
+          example: 1250

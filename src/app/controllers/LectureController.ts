@@ -147,14 +147,14 @@ export const exportLecturesToJSON = async (
 ): Promise<Response> => {
   try {
     const lectures = await lectureService.getAllLecturesForExport();
-    
+
     // Set headers for file download
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const filename = `lectures-export-${timestamp}.json`;
-    
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
     // Send the JSON data
     return res.json({
       success: true,
@@ -162,8 +162,8 @@ export const exportLecturesToJSON = async (
       data: {
         totalLectures: lectures.length,
         exportDate: new Date().toISOString(),
-        lectures: lectures
-      }
+        lectures: lectures,
+      },
     });
   } catch (error) {
     return errorResponse(
@@ -172,5 +172,100 @@ export const exportLecturesToJSON = async (
       500,
       error
     );
+  }
+};
+
+export const importLecturesFromFile = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.file) {
+      return errorResponse(res, "No file uploaded", 400);
+    }
+
+    // Parse the JSON file content
+    let fileData: any;
+    try {
+      const fileContent = req.file.buffer.toString("utf-8");
+      fileData = JSON.parse(fileContent);
+    } catch (parseError) {
+      return errorResponse(res, "Invalid JSON file format", 400);
+    }
+
+    // Validate file structure
+    if (
+      !fileData.data ||
+      !fileData.data.lectures ||
+      !Array.isArray(fileData.data.lectures)
+    ) {
+      return errorResponse(
+        res,
+        "Invalid file structure. Expected 'data.lectures' array",
+        400
+      );
+    }
+
+    const lectures = fileData.data.lectures;
+    const {
+      duplicateStrategy = "skip",
+      validateOnly = false,
+      batchSize = 10,
+    } = req.query;
+
+    // Validate duplicateStrategy
+    const validStrategies = ["skip", "overwrite", "error", "merge"];
+    if (!validStrategies.includes(duplicateStrategy as string)) {
+      return errorResponse(
+        res,
+        `Invalid duplicateStrategy. Must be one of: ${validStrategies.join(
+          ", "
+        )}`,
+        400
+      );
+    }
+
+    // Validate batchSize
+    const batchSizeNum = parseInt(batchSize as string);
+    if (isNaN(batchSizeNum) || batchSizeNum < 1 || batchSizeNum > 100) {
+      return errorResponse(
+        res,
+        "Invalid batchSize. Must be a number between 1 and 100",
+        400
+      );
+    }
+
+    // Convert validateOnly to boolean
+    const validateOnlyBool = validateOnly === "true";
+
+    // If validateOnly is true, just validate without importing
+    if (validateOnlyBool) {
+      const validationResults = await lectureService.validateLectures(lectures);
+      const validCount = validationResults.filter(
+        (r) => r.status === "valid"
+      ).length;
+      const invalidCount = validationResults.filter(
+        (r) => r.status === "invalid"
+      ).length;
+
+      return successResponse(res, "Validation completed", {
+        totalLectures: lectures.length,
+        valid: validCount,
+        invalid: invalidCount,
+        validationResults,
+      });
+    }
+
+    // Import lectures
+    const importResult = await lectureService.importLectures(lectures, {
+      duplicateStrategy: duplicateStrategy as any,
+      validateOnly: false,
+      batchSize: batchSizeNum,
+    });
+
+    return successResponse(res, "Import completed successfully", importResult);
+  } catch (error) {
+    console.error("Import error:", error);
+    return errorResponse(res, "Error importing lectures", 500, error);
   }
 };

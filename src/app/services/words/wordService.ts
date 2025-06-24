@@ -200,6 +200,14 @@ export class WordService {
     // Return the result with counts for each level and the total word count
     return result[0];
   }
+
+  // Get all words for JSON export (without pagination)
+  async getAllWordsForExport(): Promise<IWord[]> {
+    return await Word.find({})
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+  }
 }
 
 export default new WordService();

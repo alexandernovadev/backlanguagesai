@@ -196,3 +196,126 @@ paths:
           description: Word level updated
         '404':
           description: Word not found
+
+  /api/words/export-json:
+    get:
+      summary: Export all words to JSON file
+      tags:
+        - Words
+      description: Downloads a JSON file containing all words in the database
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: JSON file with all words
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exported 150 words successfully"
+                  data:
+                    type: object
+                    properties:
+                      totalWords:
+                        type: number
+                        example: 150
+                      exportDate:
+                        type: string
+                        format: date-time
+                        example: "2025-01-15T10:30:00.000Z"
+                      words:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Word'
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    Word:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        word:
+          type: string
+          example: "challenge"
+        definition:
+          type: string
+          example: "A difficult task or situation that requires effort to overcome."
+        examples:
+          type: array
+          items:
+            type: string
+          example:
+            - "Starting a new job comes with its own set of challenges."
+            - "The project presented several challenges."
+        type:
+          type: array
+          items:
+            type: string
+          example: ["noun", "verb"]
+        IPA:
+          type: string
+          example: "/ˈtʃæl.ɪn.dʒ/"
+        seen:
+          type: number
+          example: 5
+        img:
+          type: string
+          example: "https://res.cloudinary.com/example/image/upload/v1234567890/challenge.png"
+        level:
+          type: string
+          enum: [easy, medium, hard]
+          example: "medium"
+        sinonyms:
+          type: array
+          items:
+            type: string
+          example: ["difficulty", "obstacle", "hurdle"]
+        codeSwitching:
+          type: array
+          items:
+            type: string
+          example:
+            - "Enfrentamos varios challenges al implementar el proyecto."
+            - "La vida está llena de challenges que nos ayudan a crecer."
+        language:
+          type: string
+          example: "en"
+        spanish:
+          type: object
+          properties:
+            definition:
+              type: string
+              example: "Situaciones o tareas difíciles que requieren esfuerzo y determinación para superarse."
+            word:
+              type: string
+              example: "desafío"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+      required:
+        - word
+        - definition
+        - language
+
+tags:
+  - name: Words
+    description: Word management endpoints

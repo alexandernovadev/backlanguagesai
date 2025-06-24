@@ -215,3 +215,37 @@ export const updateIncrementWordSeens = async (
     );
   }
 };
+
+export const exportWordsToJSON = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const words = await wordService.getAllWordsForExport();
+    
+    // Set headers for file download
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `words-export-${timestamp}.json`;
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    
+    // Send the JSON data
+    return res.json({
+      success: true,
+      message: `Exported ${words.length} words successfully`,
+      data: {
+        totalWords: words.length,
+        exportDate: new Date().toISOString(),
+        words: words
+      }
+    });
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while exporting words to JSON",
+      500,
+      error
+    );
+  }
+};

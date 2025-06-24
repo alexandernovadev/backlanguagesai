@@ -92,38 +92,37 @@ export const updateImageLecureById = async (req: Request, res: Response) => {
 export const updateUrlAudioLectureByIdByGPT = async (
   req: Request,
   res: Response
-) => {
-  const ID = req.params.idlecture;
-  const oldUrl = req.params.oldUrl;
-
+): Promise<Response> => {
   try {
-    // 1. Buscar la lecture
-    const lecture = await lectureService.getLectureById(ID);
+    const { idlecture } = req.params;
+    const lecture = await lectureService.getLectureById(idlecture);
 
     if (!lecture) {
       return errorResponse(res, "Lecture not found", 404);
     }
 
-    // 2. Usar lecture.content como prompt para generar el audio
-    const { audio } = await generateAudioFromTextService({
-      prompt: lecture.content, // <- acá va el contenido real
-      voice: req.body.voice, // si querés dejar configurable la voz
+    const audioUrl = await generateAudioFromTextService({
+      prompt: lecture.content,
+      voice: "nova",
     });
 
-    // 3. Guardar solo el path relativo para servir desde frontend (ej: /audios/123.wav)
-    const audioUrl = `/audios/${path.basename(audio)}`;
-
-    // 4. Actualizar la lecture con la nueva URL de audio
-    const updatedLecture = await lectureService.updateUrlAudio(ID, audioUrl);
+    const updatedLecture = await lectureService.updateUrlAudio(
+      idlecture,
+      audioUrl.audio
+    );
 
     return successResponse(
       res,
-      "Lecture updated with new audio successfully",
+      "Lecture audio generated successfully",
       updatedLecture
     );
   } catch (error) {
-    console.error(error);
-    return errorResponse(res, "Error updating lecture audio", 500, error);
+    return errorResponse(
+      res,
+      "An error occurred while generating lecture audio",
+      500,
+      error
+    );
   }
 };
 
@@ -139,5 +138,39 @@ export const getAllLectures = async (
     return successResponse(res, "Lecture listed successfully", lectures);
   } catch (error) {
     return errorResponse(res, "Error fetching lectures", 500, error);
+  }
+};
+
+export const exportLecturesToJSON = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const lectures = await lectureService.getAllLecturesForExport();
+    
+    // Set headers for file download
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `lectures-export-${timestamp}.json`;
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    
+    // Send the JSON data
+    return res.json({
+      success: true,
+      message: `Exported ${lectures.length} lectures successfully`,
+      data: {
+        totalLectures: lectures.length,
+        exportDate: new Date().toISOString(),
+        lectures: lectures
+      }
+    });
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while exporting lectures to JSON",
+      500,
+      error
+    );
   }
 };

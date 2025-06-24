@@ -134,4 +134,12 @@ export class LectureService {
     // Return the result with counts for each level and the total lecture count
     return result[0];
   }
+
+  // Get all lectures for JSON export (without pagination)
+  async getAllLecturesForExport(): Promise<ILecture[]> {
+    return await Lecture.find({})
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+  }
 }

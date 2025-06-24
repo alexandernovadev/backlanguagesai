@@ -9,11 +9,13 @@ import {
   updateWordLevel,
   getRecentHardOrMediumWords,
   updateIncrementWordSeens,
+  exportWordsToJSON,
 } from "../controllers/wordController";
 
 const router = Router();
 
 router.get("/get-cards-anki", getRecentHardOrMediumWords);
+router.get("/export-json", exportWordsToJSON);
 router.get("/", getWords);
 router.get("/:id", getWordById);
 router.get("/word/:word", getWordByName);

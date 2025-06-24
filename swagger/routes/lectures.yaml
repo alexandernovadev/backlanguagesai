@@ -232,3 +232,91 @@ paths:
           description: Lecture image updated successfully
         "404":
           description: Lecture not found
+
+  /api/lectures/export-json:
+    get:
+      summary: Export all lectures to JSON file
+      tags:
+        - Lectures
+      description: Downloads a JSON file containing all lectures in the database
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: JSON file with all lectures
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exported 25 lectures successfully"
+                  data:
+                    type: object
+                    properties:
+                      totalLectures:
+                        type: number
+                        example: 25
+                      exportDate:
+                        type: string
+                        format: date-time
+                        example: "2025-01-15T10:30:00.000Z"
+                      lectures:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Lecture'
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    Lecture:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        time:
+          type: number
+          example: 45
+        level:
+          type: string
+          enum: [A1, A2, B1, B2, C1, C2]
+          example: "B2"
+        typeWrite:
+          type: string
+          example: "Academic Article"
+        language:
+          type: string
+          example: "en"
+        img:
+          type: string
+          example: "https://res.cloudinary.com/example/image/upload/v1234567890/lecture.png"
+        urlAudio:
+          type: string
+          example: "/audios/1713469637492.wav"
+        content:
+          type: string
+          example: "# The Importance of Renewable Energy\n\nRenewable energy sources are becoming increasingly important..."
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+      required:
+        - time
+        - level
+        - typeWrite
+        - language
+        - content

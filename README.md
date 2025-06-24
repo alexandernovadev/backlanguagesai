@@ -388,15 +388,6 @@ curl http://localhost:3000/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Documentation**: [Swagger UI](http://localhost:3000/api-docs)
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- **Email**: your-email@example.com
 
 ## 🙏 Acknowledgments
 

@@ -222,14 +222,14 @@ export const exportWordsToJSON = async (
 ): Promise<Response> => {
   try {
     const words = await wordService.getAllWordsForExport();
-    
+
     // Set headers for file download
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const filename = `words-export-${timestamp}.json`;
-    
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
     // Send the JSON data
     return res.json({
       success: true,
@@ -237,8 +237,8 @@ export const exportWordsToJSON = async (
       data: {
         totalWords: words.length,
         exportDate: new Date().toISOString(),
-        words: words
-      }
+        words: words,
+      },
     });
   } catch (error) {
     return errorResponse(
@@ -247,5 +247,100 @@ export const exportWordsToJSON = async (
       500,
       error
     );
+  }
+};
+
+export const importWordsFromFile = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.file) {
+      return errorResponse(res, "No file uploaded", 400);
+    }
+
+    // Parse the JSON file content
+    let fileData: any;
+    try {
+      const fileContent = req.file.buffer.toString("utf-8");
+      fileData = JSON.parse(fileContent);
+    } catch (parseError) {
+      return errorResponse(res, "Invalid JSON file format", 400);
+    }
+
+    // Validate file structure
+    if (
+      !fileData.data ||
+      !fileData.data.words ||
+      !Array.isArray(fileData.data.words)
+    ) {
+      return errorResponse(
+        res,
+        "Invalid file structure. Expected 'data.words' array",
+        400
+      );
+    }
+
+    const words = fileData.data.words;
+    const {
+      duplicateStrategy = "skip",
+      validateOnly = false,
+      batchSize = 10,
+    } = req.query;
+
+    // Validate duplicateStrategy
+    const validStrategies = ["skip", "overwrite", "error", "merge"];
+    if (!validStrategies.includes(duplicateStrategy as string)) {
+      return errorResponse(
+        res,
+        `Invalid duplicateStrategy. Must be one of: ${validStrategies.join(
+          ", "
+        )}`,
+        400
+      );
+    }
+
+    // Validate batchSize
+    const batchSizeNum = parseInt(batchSize as string);
+    if (isNaN(batchSizeNum) || batchSizeNum < 1 || batchSizeNum > 100) {
+      return errorResponse(
+        res,
+        "Invalid batchSize. Must be a number between 1 and 100",
+        400
+      );
+    }
+
+    // Convert validateOnly to boolean
+    const validateOnlyBool = validateOnly === "true";
+
+    // If validateOnly is true, just validate without importing
+    if (validateOnlyBool) {
+      const validationResults = await wordService.validateWords(words);
+      const validCount = validationResults.filter(
+        (r) => r.status === "valid"
+      ).length;
+      const invalidCount = validationResults.filter(
+        (r) => r.status === "invalid"
+      ).length;
+
+      return successResponse(res, "Validation completed", {
+        totalWords: words.length,
+        valid: validCount,
+        invalid: invalidCount,
+        validationResults,
+      });
+    }
+
+    // Import words
+    const importResult = await wordService.importWords(words, {
+      duplicateStrategy: duplicateStrategy as any,
+      validateOnly: false,
+      batchSize: batchSizeNum,
+    });
+
+    return successResponse(res, "Import completed successfully", importResult);
+  } catch (error) {
+    console.error("Import error:", error);
+    return errorResponse(res, "Error importing words", 500, error);
   }
 };

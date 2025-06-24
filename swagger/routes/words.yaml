@@ -240,6 +240,79 @@ paths:
         '500':
           description: Internal server error
 
+  /api/words/import-file:
+    post:
+      summary: Import words from JSON file
+      tags:
+        - Words
+      description: Import words from a JSON file with various duplicate handling strategies
+      parameters:
+        - in: query
+          name: duplicateStrategy
+          schema:
+            type: string
+            enum: [skip, overwrite, error, merge]
+            default: skip
+          description: Strategy to handle duplicate words
+        - in: query
+          name: validateOnly
+          schema:
+            type: boolean
+            default: false
+          description: If true, only validates the file without importing
+        - in: query
+          name: batchSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of words to process in each batch
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: JSON file containing words to import
+      responses:
+        '200':
+          description: Import completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Import completed successfully"
+                  data:
+                    $ref: '#/components/schemas/ImportResult'
+        '400':
+          description: Bad request - Invalid file format or parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid JSON file format"
+        '500':
+          description: Internal server error during import
+
 components:
   schemas:
     Word:
@@ -274,7 +347,9 @@ components:
           example: 5
         img:
           type: string
+          nullable: true
           example: "https://res.cloudinary.com/example/image/upload/v1234567890/challenge.png"
+          description: Optional image URL (can be empty or null)
         level:
           type: string
           enum: [easy, medium, hard]
@@ -315,6 +390,131 @@ components:
         - word
         - definition
         - language
+
+    ImportResult:
+      type: object
+      properties:
+        totalLectures:
+          type: integer
+          example: 314
+        totalBatches:
+          type: integer
+          example: 32
+        totalValid:
+          type: integer
+          example: 310
+        totalInvalid:
+          type: integer
+          example: 2
+        totalDuplicates:
+          type: integer
+          example: 2
+        totalErrors:
+          type: integer
+          example: 0
+        totalInserted:
+          type: integer
+          example: 308
+        totalUpdated:
+          type: integer
+          example: 2
+        totalSkipped:
+          type: integer
+          example: 4
+        batches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchResult'
+        summary:
+          $ref: '#/components/schemas/ImportSummary'
+
+    BatchResult:
+      type: object
+      properties:
+        batchIndex:
+          type: integer
+          example: 0
+        processed:
+          type: integer
+          example: 10
+        valid:
+          type: integer
+          example: 9
+        invalid:
+          type: integer
+          example: 1
+        duplicates:
+          type: integer
+          example: 0
+        errors:
+          type: integer
+          example: 0
+        inserted:
+          type: integer
+          example: 9
+        updated:
+          type: integer
+          example: 0
+        skipped:
+          type: integer
+          example: 1
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProcessingResult'
+          description: Optional detailed results for each word in the batch
+
+    ProcessingResult:
+      type: object
+      properties:
+        index:
+          type: integer
+          example: 0
+        lecture:
+          $ref: '#/components/schemas/Word'
+        status:
+          type: string
+          enum: [valid, invalid, duplicate, error]
+          example: "valid"
+        validationResult:
+          $ref: '#/components/schemas/ValidationResult'
+        error:
+          type: string
+          example: "Database connection error"
+        action:
+          type: string
+          enum: [skipped, inserted, updated, merged]
+          example: "inserted"
+
+    ValidationResult:
+      type: object
+      properties:
+        isValid:
+          type: boolean
+          example: true
+        errors:
+          type: array
+          items:
+            type: string
+          example: []
+        warnings:
+          type: array
+          items:
+            type: string
+          example: ["Definition is very long (>1,000 characters)"]
+
+    ImportSummary:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Import completed. 308 inserted, 2 updated, 4 skipped, 0 errors"
+        duration:
+          type: integer
+          example: 1250
 
 tags:
   - name: Words

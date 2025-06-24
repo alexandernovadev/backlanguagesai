@@ -1,4 +1,12 @@
 import Word, { IWord } from "../../db/models/Word";
+import {
+  ImportConfig,
+  ValidationResult,
+  ProcessingResult,
+  BatchResult,
+  ImportResult,
+} from "../../utils/importTypes";
+import logger from "../../utils/logger";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -203,10 +211,485 @@ export class WordService {
 
   // Get all words for JSON export (without pagination)
   async getAllWordsForExport(): Promise<IWord[]> {
-    return await Word.find({})
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    return await Word.find({}).sort({ createdAt: -1 }).lean().exec();
+  }
+
+  // Validate a single word
+  private validateWord(word: Partial<IWord>, index: number): ValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    // Required fields validation
+    if (
+      !word.word ||
+      typeof word.word !== "string" ||
+      word.word.trim().length === 0
+    ) {
+      errors.push("Word is required and must be a non-empty string");
+    }
+
+    if (
+      !word.definition ||
+      typeof word.definition !== "string" ||
+      word.definition.trim().length === 0
+    ) {
+      errors.push("Definition is required and must be a non-empty string");
+    }
+
+    if (
+      !word.language ||
+      typeof word.language !== "string" ||
+      word.language.trim().length === 0
+    ) {
+      errors.push("Language is required and must be a non-empty string");
+    }
+
+    // Optional field validations
+    if (
+      word.seen !== undefined &&
+      (typeof word.seen !== "number" || word.seen < 0)
+    ) {
+      errors.push("Seen must be a non-negative number");
+    }
+
+    // img is optional and can be empty
+    if (
+      word.img !== undefined &&
+      word.img !== null &&
+      typeof word.img !== "string"
+    ) {
+      errors.push("Img must be a string");
+    }
+
+    // Validate level if provided
+    if (word.level && !["easy", "medium", "hard"].includes(word.level)) {
+      errors.push("Level must be one of: easy, medium, hard");
+    }
+
+    // Validate type array if provided
+    if (word.type && Array.isArray(word.type)) {
+      const validTypes = [
+        "noun",
+        "verb",
+        "adjective",
+        "adverb",
+        "personal pronoun",
+        "possessive pronoun",
+        "preposition",
+        "conjunction",
+        "determiner",
+        "article",
+        "quantifier",
+        "interjection",
+        "auxiliary verb",
+        "modal verb",
+        "infinitive",
+        "participle",
+        "gerund",
+        "other",
+        "phrasal verb",
+      ];
+
+      for (const type of word.type) {
+        if (!validTypes.includes(type)) {
+          errors.push(
+            `Invalid type: ${type}. Must be one of: ${validTypes.join(", ")}`
+          );
+        }
+      }
+    }
+
+    // Validate arrays are actually arrays
+    if (word.examples && !Array.isArray(word.examples)) {
+      errors.push("Examples must be an array");
+    }
+
+    if (word.sinonyms && !Array.isArray(word.sinonyms)) {
+      errors.push("Synonyms must be an array");
+    }
+
+    if (word.codeSwitching && !Array.isArray(word.codeSwitching)) {
+      errors.push("CodeSwitching must be an array");
+    }
+
+    // Validate spanish object if provided
+    if (word.spanish) {
+      if (typeof word.spanish !== "object") {
+        errors.push("Spanish must be an object");
+      } else {
+        if (
+          word.spanish.definition &&
+          typeof word.spanish.definition !== "string"
+        ) {
+          errors.push("Spanish definition must be a string");
+        }
+        if (word.spanish.word && typeof word.spanish.word !== "string") {
+          errors.push("Spanish word must be a string");
+        }
+      }
+    }
+
+    // Content length warnings
+    if (word.definition && word.definition.length > 1000) {
+      warnings.push("Definition is very long (>1,000 characters)");
+    }
+
+    if (word.word && word.word.length > 100) {
+      warnings.push("Word is very long (>100 characters)");
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings,
+    };
+  }
+
+  // Validate multiple words
+  async validateWords(words: Partial<IWord>[]): Promise<ProcessingResult[]> {
+    const results: ProcessingResult[] = [];
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const validationResult = this.validateWord(word, i);
+
+      results.push({
+        index: i,
+        lecture: word as any, // Using lecture field for compatibility
+        status: validationResult.isValid ? "valid" : "invalid",
+        validationResult,
+      });
+    }
+
+    return results;
+  }
+
+  // Check for duplicate words
+  private async checkDuplicate(word: Partial<IWord>): Promise<IWord | null> {
+    if (!word.word) return null;
+
+    // Check for exact word match (case insensitive)
+    return await Word.findOne({
+      word: { $regex: `^${word.word}$`, $options: "i" },
+    });
+  }
+
+  // Process a single word based on duplicate strategy
+  private async processWord(
+    word: Partial<IWord>,
+    index: number,
+    config: ImportConfig
+  ): Promise<ProcessingResult> {
+    try {
+      // Validate word
+      const validationResult = this.validateWord(word, index);
+
+      if (!validationResult.isValid) {
+        logger.warn(`Word ${index} validation failed:`, {
+          index,
+          errors: validationResult.errors,
+          warnings: validationResult.warnings,
+          wordText: word.word,
+        });
+
+        return {
+          index,
+          lecture: word as any,
+          status: "invalid",
+          validationResult,
+          action: "skipped",
+        };
+      }
+
+      // Check for duplicates
+      const existingWord = await this.checkDuplicate(word);
+
+      if (existingWord) {
+        logger.info(`Duplicate word found at index ${index}`, {
+          index,
+          existingId: existingWord._id,
+          word: word.word,
+          strategy: config.duplicateStrategy,
+        });
+
+        switch (config.duplicateStrategy) {
+          case "error":
+            logger.error(`Duplicate word error at index ${index}`, {
+              index,
+              existingId: existingWord._id,
+              word: word.word,
+            });
+            return {
+              index,
+              lecture: word as any,
+              status: "duplicate",
+              validationResult,
+              error: "Duplicate word found",
+              action: "skipped",
+            };
+
+          case "skip":
+            return {
+              index,
+              lecture: word as any,
+              status: "duplicate",
+              validationResult,
+              action: "skipped",
+            };
+
+          case "overwrite":
+            const updatedWord = await Word.findByIdAndUpdate(
+              existingWord._id,
+              { ...word, updatedAt: new Date() },
+              { new: true }
+            );
+            logger.info(`Word ${index} overwritten`, {
+              index,
+              existingId: existingWord._id,
+              word: word.word,
+            });
+            return {
+              index,
+              lecture: word as any,
+              status: "valid",
+              validationResult,
+              action: "updated",
+            };
+
+          case "merge":
+            // For merge, we could implement more sophisticated logic
+            // For now, just overwrite
+            await Word.findByIdAndUpdate(
+              existingWord._id,
+              { ...word, updatedAt: new Date() },
+              { new: true }
+            );
+            logger.info(`Word ${index} merged`, {
+              index,
+              existingId: existingWord._id,
+              word: word.word,
+            });
+            return {
+              index,
+              lecture: word as any,
+              status: "valid",
+              validationResult,
+              action: "merged",
+            };
+        }
+      }
+
+      // Create new word
+      const newWord = new Word(word);
+      await newWord.save();
+
+      logger.info(`Word ${index} inserted successfully`, {
+        index,
+        newId: newWord._id,
+        word: word.word,
+        level: word.level,
+        language: word.language,
+      });
+
+      return {
+        index,
+        lecture: word as any,
+        status: "valid",
+        validationResult,
+        action: "inserted",
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      const errorStack = error instanceof Error ? error.stack : undefined;
+
+      logger.error(`Error processing word ${index}:`, {
+        index,
+        error: errorMessage,
+        stack: errorStack,
+        word: word.word,
+        wordData: {
+          level: word.level,
+          language: word.language,
+          definition: word.definition?.substring(0, 100) + "...",
+        },
+      });
+
+      return {
+        index,
+        lecture: word as any,
+        status: "error",
+        error: errorMessage,
+        action: "skipped",
+      };
+    }
+  }
+
+  // Import words in batches
+  async importWords(
+    words: Partial<IWord>[],
+    config: ImportConfig
+  ): Promise<ImportResult> {
+    const startTime = Date.now();
+    const batches: BatchResult[] = [];
+
+    logger.info("Starting word import process", {
+      totalWords: words.length,
+      config: {
+        duplicateStrategy: config.duplicateStrategy,
+        validateOnly: config.validateOnly,
+        batchSize: config.batchSize,
+      },
+    });
+
+    let totalValid = 0;
+    let totalInvalid = 0;
+    let totalDuplicates = 0;
+    let totalErrors = 0;
+    let totalInserted = 0;
+    let totalUpdated = 0;
+    let totalSkipped = 0;
+
+    // Process in batches
+    for (let i = 0; i < words.length; i += config.batchSize) {
+      const batchWords = words.slice(i, i + config.batchSize);
+      const batchIndex = Math.floor(i / config.batchSize);
+
+      logger.info(
+        `Processing batch ${batchIndex + 1}/${Math.ceil(
+          words.length / config.batchSize
+        )}`,
+        {
+          batchIndex,
+          batchSize: batchWords.length,
+          startIndex: i,
+          endIndex: i + batchWords.length - 1,
+        }
+      );
+
+      const batchResults: ProcessingResult[] = [];
+      let batchValid = 0;
+      let batchInvalid = 0;
+      let batchDuplicates = 0;
+      let batchErrors = 0;
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
+
+      // Process each word in the batch
+      for (let j = 0; j < batchWords.length; j++) {
+        const result = await this.processWord(batchWords[j], i + j, config);
+        batchResults.push(result);
+
+        // Update counters
+        switch (result.status) {
+          case "valid":
+            batchValid++;
+            totalValid++;
+            break;
+          case "invalid":
+            batchInvalid++;
+            totalInvalid++;
+            break;
+          case "duplicate":
+            batchDuplicates++;
+            totalDuplicates++;
+            break;
+          case "error":
+            batchErrors++;
+            totalErrors++;
+            break;
+        }
+
+        switch (result.action) {
+          case "inserted":
+            batchInserted++;
+            totalInserted++;
+            break;
+          case "updated":
+            batchUpdated++;
+            totalUpdated++;
+            break;
+          case "merged":
+            batchUpdated++;
+            totalUpdated++;
+            break;
+          case "skipped":
+            batchSkipped++;
+            totalSkipped++;
+            break;
+        }
+      }
+
+      logger.info(`Batch ${batchIndex + 1} completed`, {
+        batchIndex,
+        processed: batchWords.length,
+        valid: batchValid,
+        invalid: batchInvalid,
+        duplicates: batchDuplicates,
+        errors: batchErrors,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
+      });
+
+      batches.push({
+        batchIndex,
+        processed: batchWords.length,
+        valid: batchValid,
+        invalid: batchInvalid,
+        duplicates: batchDuplicates,
+        errors: batchErrors,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
+      });
+    }
+
+    const duration = Date.now() - startTime;
+
+    const summary = {
+      success: totalErrors === 0,
+      message: `Import completed. ${totalInserted} inserted, ${totalUpdated} updated, ${totalSkipped} skipped, ${totalErrors} errors`,
+      duration,
+    };
+
+    logger.info("Word import process completed", {
+      summary,
+      totals: {
+        totalWords: words.length,
+        totalBatches: batches.length,
+        totalValid,
+        totalInvalid,
+        totalDuplicates,
+        totalErrors,
+        totalInserted,
+        totalUpdated,
+        totalSkipped,
+      },
+      duration,
+    });
+
+    if (totalErrors > 0) {
+      logger.error("Import completed with errors", {
+        totalErrors,
+        summary,
+      });
+    }
+
+    return {
+      totalLectures: words.length, // Using totalLectures for compatibility
+      totalBatches: batches.length,
+      totalValid,
+      totalInvalid,
+      totalDuplicates,
+      totalErrors,
+      totalInserted,
+      totalUpdated,
+      totalSkipped,
+      batches,
+      summary,
+    };
   }
 }
 

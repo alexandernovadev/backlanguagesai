@@ -23,11 +23,11 @@ paths:
               properties:
                 username:
                   type: string
-                  example: johndoe
+                  example: novask88
                 password:
                   type: string
                   format: password
-                  example: secret123
+                  example: sashateamomucho
       responses:
         '200':
           description: Successful login

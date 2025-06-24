@@ -23,8 +23,8 @@ export const arreglosmaricasrapidos = async (
 
     // await backupCollections();
 
-    // await Word.deleteMany({});
-    // await Lecture.deleteMany({});
+    await Word.deleteMany({});
+    await Lecture.deleteMany({});
 
     return successResponse(res, "FIxed quick done", "Data borrada");
   } catch (error) {

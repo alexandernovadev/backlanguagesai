@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import Word from "../db/models/Word";
+import Lecture from "../db/models/Lecture";
 // import Word, { IWord } from "../db/models/Word";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { seedAdminUser } from "../services/seed/user";
@@ -17,11 +19,14 @@ export const arreglosmaricasrapidos = async (
 
     // const seedUser = await seedAdminUser()
 
-    await seedData();
+    // await seedData();
 
     // await backupCollections();
 
-    return successResponse(res, "FIxed quick done", "Dara exportada");
+    // await Word.deleteMany({});
+    // await Lecture.deleteMany({});
+
+    return successResponse(res, "FIxed quick done", "Data borrada");
   } catch (error) {
     return errorResponse(res, "Error updating words level", 404, error);
   }

@@ -127,6 +127,13 @@ const QuestionSchema = new Schema<IQuestion>(
   }
 );
 
+// 🚀 Índices para optimizar consultas
+QuestionSchema.index({ level: 1, type: 1 }); // Consultas por nivel y tipo
+QuestionSchema.index({ topic: 1 }); // Consultas por tema
+QuestionSchema.index({ tags: 1 }); // Consultas por tags
+QuestionSchema.index({ difficulty: 1, level: 1 }); // Consultas por dificultad y nivel
+QuestionSchema.index({ createdAt: -1 }); // Ordenamiento por fecha de creación
+
 // Crear el modelo
 const Question = mongoose.model<IQuestion>("Question", QuestionSchema);
 

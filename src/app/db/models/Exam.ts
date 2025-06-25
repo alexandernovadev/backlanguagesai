@@ -120,6 +120,13 @@ const ExamSchema = new Schema<IExam>(
   }
 );
 
+// 🚀 Índices para optimizar consultas
+ExamSchema.index({ level: 1, language: 1 }); // Consultas por nivel e idioma
+ExamSchema.index({ topic: 1 }); // Consultas por tema
+ExamSchema.index({ createdBy: 1 }); // Consultas por creador
+ExamSchema.index({ source: 1 }); // Consultas por fuente
+ExamSchema.index({ createdAt: -1 }); // Ordenamiento por fecha
+
 // Crear el modelo
 const Exam = mongoose.model<IExam>("Exam", ExamSchema);
 

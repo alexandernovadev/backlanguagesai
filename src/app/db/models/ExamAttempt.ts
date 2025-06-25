@@ -144,6 +144,14 @@ const ExamAttemptSchema = new Schema<IExamAttempt>(
   }
 );
 
+// 🚀 Índices para optimizar consultas
+ExamAttemptSchema.index({ user: 1, exam: 1 }); // Consultas por usuario y examen
+ExamAttemptSchema.index({ exam: 1, status: 1 }); // Consultas por examen y estado
+ExamAttemptSchema.index({ user: 1, status: 1 }); // Consultas por usuario y estado
+ExamAttemptSchema.index({ startedAt: -1 }); // Ordenamiento por fecha de inicio
+ExamAttemptSchema.index({ submittedAt: -1 }); // Ordenamiento por fecha de envío
+ExamAttemptSchema.index({ cefrEstimated: 1 }); // Consultas por nivel CEFR estimado
+
 // Crear el modelo
 const ExamAttempt = mongoose.model<IExamAttempt>("ExamAttempt", ExamAttemptSchema);
 

@@ -36,107 +36,114 @@ export class QuestionService {
       createdBefore?: string;
     } = {}
   ): Promise<PaginatedResult<IQuestion>> {
-    const {
-      page = 1,
-      limit = 10,
-      level,
-      type,
-      topic,
-      tags,
-      difficulty,
-      hasMedia,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
-      createdAfter,
-      createdBefore
-    } = filters;
+    try {
+      const {
+        page = 1,
+        limit = 10,
+        level,
+        type,
+        topic,
+        tags,
+        difficulty,
+        hasMedia,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+        createdAfter,
+        createdBefore
+      } = filters;
 
-    const filter: Record<string, any> = {};
+      const filter: Record<string, any> = {};
 
-    // Filter by level
-    if (level) {
-      if (Array.isArray(level)) {
-        filter.level = { $in: level };
-      } else {
-        filter.level = level;
+      // Filter by level
+      if (level) {
+        if (Array.isArray(level)) {
+          filter.level = { $in: level };
+        } else {
+          filter.level = level;
+        }
       }
-    }
 
-    // Filter by type
-    if (type) {
-      if (Array.isArray(type)) {
-        filter.type = { $in: type };
-      } else {
-        filter.type = type;
+      // Filter by type
+      if (type) {
+        if (Array.isArray(type)) {
+          filter.type = { $in: type };
+        } else {
+          filter.type = type;
+        }
       }
-    }
 
-    // Filter by topic
-    if (topic) {
-      filter.topic = { $regex: topic, $options: 'i' };
-    }
-
-    // Filter by tags
-    if (tags && tags.length > 0) {
-      filter.tags = { $in: tags };
-    }
-
-    // Filter by difficulty
-    if (difficulty) {
-      if (typeof difficulty === 'number') {
-        filter.difficulty = difficulty;
-      } else {
-        filter.difficulty = { $gte: difficulty.min, $lte: difficulty.max };
+      // Filter by topic
+      if (topic) {
+        filter.topic = { $regex: topic, $options: 'i' };
       }
-    }
 
-    // Filter by media presence
-    if (hasMedia !== undefined) {
-      if (hasMedia) {
-        filter.$or = [
-          { 'media.audio': { $exists: true, $ne: '' } },
-          { 'media.image': { $exists: true, $ne: '' } },
-          { 'media.video': { $exists: true, $ne: '' } }
-        ];
-      } else {
-        filter.$and = [
-          { 'media.audio': { $exists: false } },
-          { 'media.image': { $exists: false } },
-          { 'media.video': { $exists: false } }
-        ];
+      // Filter by tags
+      if (tags && tags.length > 0) {
+        filter.tags = { $in: tags };
       }
-    }
 
-    // Date filters
-    if (createdAfter || createdBefore) {
-      const createdAtFilter: Record<string, Date> = {};
-      if (createdAfter) {
-        createdAtFilter.$gte = new Date(createdAfter);
+      // Filter by difficulty
+      if (difficulty) {
+        if (typeof difficulty === 'number') {
+          filter.difficulty = difficulty;
+        } else {
+          filter.difficulty = { $gte: difficulty.min, $lte: difficulty.max };
+        }
       }
-      if (createdBefore) {
-        createdAtFilter.$lte = new Date(createdBefore);
+
+      // Filter by media presence
+      if (hasMedia !== undefined) {
+        if (hasMedia) {
+          filter.$or = [
+            { 'media.audio': { $exists: true, $ne: '' } },
+            { 'media.image': { $exists: true, $ne: '' } },
+            { 'media.video': { $exists: true, $ne: '' } }
+          ];
+        } else {
+          filter.$and = [
+            { 'media.audio': { $exists: false } },
+            { 'media.image': { $exists: false } },
+            { 'media.video': { $exists: false } }
+          ];
+        }
       }
-      filter.createdAt = createdAtFilter;
+
+      // Date filters
+      if (createdAfter || createdBefore) {
+        const createdAtFilter: Record<string, Date> = {};
+        if (createdAfter) {
+          createdAtFilter.$gte = new Date(createdAfter);
+        }
+        if (createdBefore) {
+          createdAtFilter.$lte = new Date(createdBefore);
+        }
+        filter.createdAt = createdAtFilter;
+      }
+
+      // Calculate pagination
+      const skip = (page - 1) * limit;
+      const sort: Record<string, 1 | -1> = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
+
+      // Execute queries sequentially like in wordService
+      const total = await Question.countDocuments(filter);
+      const pages = Math.ceil(total / limit);
+
+      const data = await Question.find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .exec();
+
+      return {
+        data,
+        total,
+        page,
+        pages
+      };
+    } catch (error) {
+      console.error('Error in getQuestions:', error);
+      throw error;
     }
-
-    // Calculate pagination
-    const skip = (page - 1) * limit;
-    const sort: Record<string, 1 | -1> = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
-
-    // Execute queries
-    const [data, total] = await Promise.all([
-      Question.find(filter).sort(sort).skip(skip).limit(limit),
-      Question.countDocuments(filter)
-    ]);
-
-    const pages = Math.ceil(total / limit);
-
-    return {
-      data,
-      total,
-      page,
-      pages
-    };
   }
 
   // Update a question
@@ -221,4 +228,6 @@ export class QuestionService {
       withMedia
     };
   }
-} 
+}
+
+export default new QuestionService(); 

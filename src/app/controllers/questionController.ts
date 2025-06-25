@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
-import { QuestionService } from "../services/questions/questionService";
+import questionService from "../services/questions/questionService";
 import { QuestionValidator } from "../utils/validators/questionValidator";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
-
-const questionService = new QuestionService();
 
 export const createQuestion = async (
   req: Request,

@@ -1,265 +1,150 @@
-import { QuestionService } from "../questions/questionService";
-import { QuestionValidator } from "../../utils/validators/questionValidator";
-import questionsData from "../../../../scripts/data/questions-seed.json";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import Question from "../../db/models/Question";
 import logger from "../../utils/logger";
-import { IQuestion } from "../../db/models/Question";
+import fs from "fs";
+import path from "path";
 
-export class SeedQuestionsService {
-  private questionService: QuestionService;
+dotenv.config();
 
-  constructor() {
-    this.questionService = new QuestionService();
-  }
-
-  private transformQuestionData(rawQuestion: any): IQuestion {
-    return {
-      text: rawQuestion.text,
-      type: rawQuestion.type as IQuestion['type'],
-      isSingleAnswer: rawQuestion.type === 'multiple_choice' || rawQuestion.type === 'true_false',
-      level: rawQuestion.cefrLevel as IQuestion['level'],
-      topic: rawQuestion.metadata?.topic,
-      difficulty: this.mapDifficultyToNumber(rawQuestion.difficulty),
-      options: rawQuestion.options ? rawQuestion.options.map((option: string, index: number) => ({
-        value: option,
-        label: option,
-        isCorrect: option === rawQuestion.correctAnswer
-      })) : undefined,
-      correctAnswers: rawQuestion.correctAnswer ? [rawQuestion.correctAnswer] : undefined,
-      explanation: rawQuestion.explanation,
-      tags: rawQuestion.tags,
-      media: {
-        audio: rawQuestion.audioUrl || undefined,
-        image: rawQuestion.imageUrl || undefined
-      }
-    } as IQuestion;
-  }
-
-  private mapDifficultyToNumber(difficulty: string): number {
-    switch (difficulty) {
-      case 'beginner': return 1;
-      case 'intermediate': return 3;
-      case 'advanced': return 5;
-      default: return 2;
-    }
-  }
-
-  async seedQuestions(): Promise<{
-    success: boolean;
-    total: number;
-    created: number;
-    errors: string[];
-    warnings: string[];
-  }> {
-    const result = {
-      success: false,
-      total: questionsData.length,
-      created: 0,
-      errors: [] as string[],
-      warnings: [] as string[]
-    };
-
-    try {
-      logger.info("Starting questions seed process", {
-        totalQuestions: questionsData.length
-      });
-
-      // Transform and validate all questions first
-      const transformedQuestions = questionsData.map(q => this.transformQuestionData(q));
-      const validations = QuestionValidator.validateQuestions(transformedQuestions);
-      
-      // Collect validation errors and warnings
-      validations.forEach((validation, index) => {
-        if (!validation.isValid) {
-          result.errors.push(`Question ${index + 1}: ${validation.errors.join(', ')}`);
-        }
-        if (validation.warnings.length > 0) {
-          result.warnings.push(`Question ${index + 1}: ${validation.warnings.join(', ')}`);
-        }
-      });
-
-      // If there are validation errors, stop the process
-      if (result.errors.length > 0) {
-        logger.error("Questions validation failed", {
-          errors: result.errors,
-          warnings: result.warnings
-        });
-        return result;
-      }
-
-      // Check if questions already exist
-      const existingQuestions = await this.questionService.getQuestions({ limit: 1 });
-      if (existingQuestions.total > 0) {
-        logger.warn("Questions already exist in database", {
-          existingCount: existingQuestions.total
-        });
-        result.warnings.push("Questions already exist in database. Skipping seed process.");
-        result.success = true;
-        return result;
-      }
-
-      // Create questions
-      for (let i = 0; i < transformedQuestions.length; i++) {
-        try {
-          const question = transformedQuestions[i];
-          
-          // Create the question
-          const createdQuestion = await this.questionService.createQuestion(question);
-          
-          if (createdQuestion) {
-            result.created++;
-            logger.info(`Created question ${i + 1}/${transformedQuestions.length}`, {
-              questionId: createdQuestion._id,
-              text: question.text?.substring(0, 50) + "..."
-            });
-          } else {
-            result.errors.push(`Failed to create question ${i + 1}: ${question.text?.substring(0, 50)}...`);
-          }
-        } catch (error) {
-          const errorMessage = `Error creating question ${i + 1}: ${error.message}`;
-          result.errors.push(errorMessage);
-          logger.error(errorMessage, { error });
-        }
-      }
-
-      // Determine success
-      result.success = result.created === questionsData.length && result.errors.length === 0;
-
-      if (result.success) {
-        logger.info("Questions seed completed successfully", {
-          total: result.total,
-          created: result.created,
-          warnings: result.warnings.length
-        });
-      } else {
-        logger.warn("Questions seed completed with issues", {
-          total: result.total,
-          created: result.created,
-          errors: result.errors.length,
-          warnings: result.warnings.length
-        });
-      }
-
-      return result;
-
-    } catch (error) {
-      const errorMessage = "Unexpected error during questions seed process";
-      result.errors.push(errorMessage);
-      logger.error(errorMessage, { error });
-      return result;
-    }
-  }
-
-  async clearQuestions(): Promise<{
-    success: boolean;
-    deleted: number;
-    error?: string;
-  }> {
-    try {
-      logger.info("Starting questions clear process");
-      
-      // Get all questions and delete them one by one
-      const questions = await this.questionService.getQuestions({ limit: 1000 });
-      let deleted = 0;
-      
-      for (const question of questions.data) {
-        try {
-          await this.questionService.deleteQuestion(question._id.toString());
-          deleted++;
-        } catch (error) {
-          logger.error(`Error deleting question ${question._id}`, { error });
-        }
-      }
-      
-      logger.info("Questions clear completed", {
-        deleted
-      });
-
-      return {
-        success: true,
-        deleted
-      };
-
-    } catch (error) {
-      const errorMessage = "Error clearing questions";
-      logger.error(errorMessage, { error });
-      
-      return {
-        success: false,
-        deleted: 0,
-        error: errorMessage
-      };
-    }
-  }
-
-  async resetQuestions(): Promise<{
-    success: boolean;
-    cleared: number;
-    created: number;
-    errors: string[];
-    warnings: string[];
-  }> {
-    try {
-      logger.info("Starting questions reset process");
-
-      // Clear existing questions
-      const clearResult = await this.clearQuestions();
-      if (!clearResult.success) {
-        return {
-          success: false,
-          cleared: 0,
-          created: 0,
-          errors: [clearResult.error || "Failed to clear questions"],
-          warnings: []
-        };
-      }
-
-      // Seed new questions
-      const seedResult = await this.seedQuestions();
-
-      return {
-        success: seedResult.success,
-        cleared: clearResult.deleted,
-        created: seedResult.created,
-        errors: seedResult.errors,
-        warnings: seedResult.warnings
-      };
-
-    } catch (error) {
-      const errorMessage = "Unexpected error during questions reset process";
-      logger.error(errorMessage, { error });
-      
-      return {
-        success: false,
-        cleared: 0,
-        created: 0,
-        errors: [errorMessage],
-        warnings: []
-      };
-    }
-  }
-
-  async getSeedStatus(): Promise<{
-    totalInSeed: number;
-    totalInDatabase: number;
-    needsSeeding: boolean;
-    lastCreated?: Date;
-  }> {
-    try {
-      const dbQuestions = await this.questionService.getQuestions({ limit: 1000 });
-      
-      return {
-        totalInSeed: questionsData.length,
-        totalInDatabase: dbQuestions.total,
-        needsSeeding: dbQuestions.total === 0,
-        lastCreated: dbQuestions.data.length > 0 ? dbQuestions.data[0].createdAt : undefined
-      };
-
-    } catch (error) {
-      logger.error("Error getting seed status", { error });
-      throw error;
-    }
-  }
+interface QuestionData {
+  text: string;
+  type: string;
+  options?: string[] | null;
+  correctAnswer: string;
+  explanation: string;
+  difficulty: string;
+  category: string;
+  tags: string[];
+  cefrLevel: string;
+  points: number;
+  timeLimit: number;
+  imageUrl?: string | null;
+  audioUrl?: string | null;
+  metadata: {
+    topic: string;
+    subtopic: string;
+    languageFocus: string;
+  };
 }
 
-// Export singleton instance
-export const seedQuestionsService = new SeedQuestionsService(); 
+export const seedQuestions = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URL!);
+
+    // Limpiar preguntas existentes
+    await Question.deleteMany({});
+    logger.info("Existing questions deleted");
+
+    // Leer el archivo JSON de preguntas
+    const questionsPath = path.join(
+      process.cwd(),
+      "scripts",
+      "data",
+      "questions-seed.json"
+    );
+    const questionsData: QuestionData[] = JSON.parse(
+      fs.readFileSync(questionsPath, "utf8")
+    );
+
+    // Transformar los datos del JSON al formato del modelo
+    const transformedQuestions = questionsData.map((questionData) => {
+      // Mapear el tipo de pregunta
+      let questionType:
+        | "multiple_choice"
+        | "fill_blank"
+        | "translate"
+        | "true_false"
+        | "writing";
+      switch (questionData.type) {
+        case "multiple_choice":
+          questionType = "multiple_choice";
+          break;
+        case "fill_blank":
+          questionType = "fill_blank";
+          break;
+        case "audio_question":
+        case "image_description":
+        case "speaking_practice":
+        case "ordering":
+          questionType = "multiple_choice"; // Mapear a multiple_choice por ahora
+          break;
+        default:
+          questionType = "multiple_choice";
+      }
+
+      // Mapear el nivel CEFR
+      let level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+      switch (questionData.cefrLevel) {
+        case "A1":
+        case "A2":
+        case "B1":
+        case "B2":
+        case "C1":
+        case "C2":
+          level = questionData.cefrLevel;
+          break;
+        default:
+          level = "A1";
+      }
+
+      // Crear las opciones si existen
+      const options =
+        questionData.options?.map((option, index) => ({
+          value: option,
+          label: option,
+          isCorrect: option === questionData.correctAnswer,
+        })) || [];
+
+      // Crear las respuestas correctas
+      const correctAnswers = [questionData.correctAnswer];
+
+      // Mapear la dificultad
+      let difficulty: number;
+      switch (questionData.difficulty) {
+        case "beginner":
+          difficulty = 1;
+          break;
+        case "intermediate":
+          difficulty = 3;
+          break;
+        case "advanced":
+          difficulty = 5;
+          break;
+        default:
+          difficulty = 2;
+      }
+
+      return {
+        text: questionData.text,
+        type: questionType,
+        isSingleAnswer: true,
+        level,
+        topic: questionData.metadata.topic,
+        difficulty,
+        options,
+        correctAnswers,
+        explanation: questionData.explanation,
+        tags: questionData.tags,
+        media: {
+          audio: questionData.audioUrl || undefined,
+          image: questionData.imageUrl || undefined,
+        },
+      };
+    });
+
+    // Insertar las preguntas en la base de datos
+    const result = await Question.insertMany(transformedQuestions);
+
+    logger.info(
+      `Questions seeded successfully. ${result.length} questions created.`
+    );
+    return result;
+  } catch (error) {
+    console.error("Error seeding questions:", error);
+    logger.error("Error seeding questions:", error);
+    throw new Error("Failed to seed questions");
+  } finally {
+    mongoose.connection.close();
+  }
+};

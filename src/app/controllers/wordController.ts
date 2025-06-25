@@ -114,13 +114,18 @@ export const getWords = async (
     const updatedAfter = req.query.updatedAfter as string;
     const updatedBefore = req.query.updatedBefore as string;
 
+    // Procesar filtros que pueden tener múltiples valores
+    const levels = level ? level.split(',').map(l => l.trim()) : undefined;
+    const languages = language ? language.split(',').map(l => l.trim()) : undefined;
+    const types = type ? type.split(',').map(t => t.trim()) : undefined;
+
     const wordList = await wordService.getWords({
       page,
       limit,
       wordUser,
-      level,
-      language,
-      type,
+      level: levels,
+      language: languages,
+      type: types,
       seenMin,
       seenMax,
       sortBy,

@@ -43,18 +43,18 @@ paths:
           schema:
             type: string
             enum: [easy, medium, hard]
-          description: Filter words by difficulty level
+          description: Filter words by difficulty level(s). Multiple values separated by commas (e.g., easy,medium)
         - in: query
           name: language
           schema:
             type: string
-          description: Filter words by language (case insensitive)
+          description: Filter words by language(s). Multiple values separated by commas (e.g., english,spanish)
         - in: query
           name: type
           schema:
             type: string
             enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
-          description: Filter words by grammatical type
+          description: Filter words by grammatical type(s). Multiple values separated by commas (e.g., verb,noun,adjective)
         - in: query
           name: seenMin
           schema:

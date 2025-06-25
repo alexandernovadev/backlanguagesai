@@ -18,12 +18,27 @@ GET /api/words?level=medium
 
 # Solo palabras difíciles
 GET /api/words?level=hard
+
+# Múltiples niveles (fáciles y medianas)
+GET /api/words?level=easy,medium
+
+# Todos los niveles
+GET /api/words?level=easy,medium,hard
 ```
 
 ### 3. **Filtro por Idioma**
 ```bash
+# Solo inglés
 GET /api/words?language=english
+
+# Solo español
 GET /api/words?language=spanish
+
+# Múltiples idiomas
+GET /api/words?language=english,spanish
+
+# Tres idiomas
+GET /api/words?language=english,spanish,french
 ```
 
 ### 4. **Filtro por Tipo Gramatical**
@@ -36,6 +51,12 @@ GET /api/words?type=noun
 
 # Solo adjetivos
 GET /api/words?type=adjective
+
+# Múltiples tipos (verbos y sustantivos)
+GET /api/words?type=verb,noun
+
+# Tres tipos gramaticales
+GET /api/words?type=verb,noun,adjective
 ```
 
 ### 5. **Filtro por Rango de Vistas**
@@ -171,6 +192,26 @@ GET /api/words?spanishWord=correr&hasExamples=true
 ### Palabras actualizadas en la última semana con IPA
 ```bash
 GET /api/words?updatedAfter=2024-01-15T00:00:00.000Z&IPA=/r/
+```
+
+### Palabras fáciles y medianas en inglés con imagen, ordenadas alfabéticamente
+```bash
+GET /api/words?level=easy,medium&language=english&hasImage=true&sortBy=word&sortOrder=asc
+```
+
+### Verbos y sustantivos difíciles vistos más de 10 veces con ejemplos
+```bash
+GET /api/words?level=hard&type=verb,noun&seenMin=10&hasExamples=true
+```
+
+### Palabras en inglés y español con code-switching, ordenadas por fecha de creación
+```bash
+GET /api/words?language=english,spanish&hasCodeSwitching=true&sortBy=createdAt&sortOrder=desc
+```
+
+### Palabras fáciles y medianas con verbos, sustantivos y adjetivos
+```bash
+GET /api/words?level=easy,medium&type=verb,noun,adjective&hasImage=true
 ```
 
 ## Campos de Ordenamiento Disponibles

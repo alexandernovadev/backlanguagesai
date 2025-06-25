@@ -33,9 +33,9 @@ export class WordService {
       page?: number;
       limit?: number;
       wordUser?: string;
-      level?: string;
-      language?: string;
-      type?: string;
+      level?: string | string[];
+      language?: string | string[];
+      type?: string | string[];
       seenMin?: number;
       seenMax?: number;
       sortBy?: string;
@@ -87,18 +87,42 @@ export class WordService {
     }
 
     // Nuevo filtro por nivel
-    if (level && ['easy', 'medium', 'hard'].includes(level)) {
-      filter.level = level;
+    if (level) {
+      if (Array.isArray(level)) {
+        // Múltiples niveles
+        const validLevels = level.filter(l => ['easy', 'medium', 'hard'].includes(l));
+        if (validLevels.length > 0) {
+          filter.level = { $in: validLevels };
+        }
+      } else {
+        // Un solo nivel
+        if (['easy', 'medium', 'hard'].includes(level)) {
+          filter.level = level;
+        }
+      }
     }
 
     // Nuevo filtro por idioma
     if (language) {
-      filter.language = { $regex: language, $options: "i" };
+      if (Array.isArray(language)) {
+        // Múltiples idiomas
+        const languageRegex = language.map(lang => new RegExp(lang, 'i'));
+        filter.language = { $in: languageRegex };
+      } else {
+        // Un solo idioma
+        filter.language = { $regex: language, $options: "i" };
+      }
     }
 
     // Nuevo filtro por tipo gramatical
     if (type) {
-      filter.type = { $in: [type] };
+      if (Array.isArray(type)) {
+        // Múltiples tipos
+        filter.type = { $in: type };
+      } else {
+        // Un solo tipo
+        filter.type = { $in: [type] };
+      }
     }
 
     // Nuevo filtro por rango de vistas

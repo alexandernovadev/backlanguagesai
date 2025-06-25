@@ -4,6 +4,7 @@ import Lecture from "../db/models/Lecture";
 // import Word, { IWord } from "../db/models/Word";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { seedAdminUser } from "../services/seed/user";
+import { seedQuestions } from "../services/seed/seedQuestions";
 import { backupCollections } from "../utils/backupCollections";
 import { seedData } from "../utils/seedData";
 
@@ -23,11 +24,14 @@ export const arreglosmaricasrapidos = async (
 
     // await backupCollections();
 
-    await Word.deleteMany({});
-    await Lecture.deleteMany({});
+    // await Word.deleteMany({});
+    // await Lecture.deleteMany({});
 
-    return successResponse(res, "FIxed quick done", "Data borrada");
+    // Seed questions from JSON
+    const seededQuestions = await seedQuestions();
+
+    return successResponse(res, "Questions seeded successfully", seededQuestions);
   } catch (error) {
-    return errorResponse(res, "Error updating words level", 404, error);
+    return errorResponse(res, "Error seeding questions", 404, error);
   }
 };

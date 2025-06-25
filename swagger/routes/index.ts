@@ -22,6 +22,10 @@ export const examsSwagger = yaml.load(
   readFileSync(join(__dirname, "./exams.yaml"), "utf8")
 ) as object;
 
+export const examAttemptsSwagger = yaml.load(
+  readFileSync(join(__dirname, "./examAttempts.yaml"), "utf8")
+) as object;
+
 export const lectureswagger = yaml.load(
   readFileSync(join(__dirname, "./lectures.yaml"), "utf8")
 ) as object;

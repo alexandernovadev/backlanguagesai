@@ -1,0 +1,1001 @@
+openapi: 3.0.0
+info:
+  title: Exam Attempts API
+  description: API for managing exam attempts
+  version: 1.0.0
+
+paths:
+  /api/exam-attempts:
+    get:
+      summary: Get all exam attempts
+      description: Retrieve a paginated list of exam attempts with optional filters
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number (default 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page (default 10)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: userId
+          in: query
+          description: Filter by user ID
+          required: false
+          schema:
+            type: string
+        - name: examId
+          in: query
+          description: Filter by exam ID
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by status (in_progress, submitted, graded)
+          required: false
+          schema:
+            type: string
+            enum: [in_progress, submitted, graded]
+        - name: cefrEstimated
+          in: query
+          description: Filter by CEFR level
+          required: false
+          schema:
+            type: string
+            enum: [A1, A2, B1, B2, C1, C2]
+        - name: passed
+          in: query
+          description: Filter by passed status
+          required: false
+          schema:
+            type: boolean
+        - name: sortBy
+          in: query
+          description: Sort field (default startedAt)
+          required: false
+          schema:
+            type: string
+            default: startedAt
+        - name: sortOrder
+          in: query
+          description: Sort order (default desc)
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: startedAfter
+          in: query
+          description: Filter by start date (ISO string)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: startedBefore
+          in: query
+          description: Filter by start date (ISO string)
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Exam attempts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempts retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ExamAttempt'
+                      total:
+                        type: integer
+                        example: 50
+                      page:
+                        type: integer
+                        example: 1
+                      pages:
+                        type: integer
+                        example: 5
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create a new exam attempt
+      description: Create a new exam attempt for a user
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user
+                - exam
+              properties:
+                user:
+                  type: string
+                  description: User ID
+                  example: 507f1f77bcf86cd799439011
+                exam:
+                  type: string
+                  description: Exam ID
+                  example: 507f1f77bcf86cd799439012
+                attemptNumber:
+                  type: integer
+                  description: Attempt number (default 1)
+                  minimum: 1
+                  maximum: 100
+                  example: 1
+                answers:
+                  type: array
+                  description: Array of answers
+                  items:
+                    type: object
+                    properties:
+                      question:
+                        type: string
+                        description: Question ID
+                      answer:
+                        type: object
+                        description: Answer data (mixed type)
+                      isCorrect:
+                        type: boolean
+                        description: Whether the answer is correct
+                      score:
+                        type: number
+                        description: Score for this answer (0-100)
+                        minimum: 0
+                        maximum: 100
+                      feedback:
+                        type: string
+                        description: Feedback for this answer
+                        maxLength: 1000
+                      submittedAt:
+                        type: string
+                        format: date-time
+                        description: When this answer was submitted
+                status:
+                  type: string
+                  enum: [in_progress, submitted, graded]
+                  description: Attempt status (default in_progress)
+                  example: in_progress
+                passed:
+                  type: boolean
+                  description: Whether the attempt was passed
+                cefrEstimated:
+                  type: string
+                  enum: [A1, A2, B1, B2, C1, C2]
+                  description: Estimated CEFR level
+                aiEvaluation:
+                  type: object
+                  properties:
+                    grammar:
+                      type: number
+                      description: Grammar score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    fluency:
+                      type: number
+                      description: Fluency score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    coherence:
+                      type: number
+                      description: Coherence score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    vocabulary:
+                      type: number
+                      description: Vocabulary score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    comments:
+                      type: string
+                      description: AI evaluation comments
+                      maxLength: 2000
+                aiNotes:
+                  type: string
+                  description: AI notes about the attempt
+                  maxLength: 3000
+                userNotes:
+                  type: string
+                  description: User notes about the attempt
+                  maxLength: 1000
+      responses:
+        '201':
+          description: Exam attempt created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempt created successfully
+                  data:
+                    $ref: '#/components/schemas/ExamAttempt'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/stats:
+    get:
+      summary: Get exam attempt statistics
+      description: Retrieve overall statistics for exam attempts
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempt statistics retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 1000
+                      byStatus:
+                        type: object
+                        properties:
+                          in_progress:
+                            type: integer
+                            example: 50
+                          submitted:
+                            type: integer
+                            example: 200
+                          graded:
+                            type: integer
+                            example: 750
+                      byCEFR:
+                        type: object
+                        properties:
+                          A1:
+                            type: integer
+                            example: 100
+                          A2:
+                            type: integer
+                            example: 200
+                          B1:
+                            type: integer
+                            example: 300
+                          B2:
+                            type: integer
+                            example: 250
+                          C1:
+                            type: integer
+                            example: 100
+                          C2:
+                            type: integer
+                            example: 50
+                      passed:
+                        type: integer
+                        example: 800
+                      averageScore:
+                        type: number
+                        example: 75.5
+                      averageDuration:
+                        type: number
+                        example: 1800
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/status/{status}:
+    get:
+      summary: Get attempts by status
+      description: Retrieve all exam attempts with a specific status
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: path
+          required: true
+          description: Status to filter by
+          schema:
+            type: string
+            enum: [in_progress, submitted, graded]
+      responses:
+        '200':
+          description: Attempts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempts by status retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExamAttempt'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/passed:
+    get:
+      summary: Get passed attempts
+      description: Retrieve all exam attempts that were passed
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Passed attempts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Passed exam attempts retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExamAttempt'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/user/{userId}/exam/{examId}:
+    get:
+      summary: Get attempts by user and exam
+      description: Retrieve all attempts for a specific user and exam
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+        - name: examId
+          in: path
+          required: true
+          description: Exam ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User exam attempts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User exam attempts retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExamAttempt'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/user/{userId}/stats:
+    get:
+      summary: Get user attempt statistics
+      description: Retrieve statistics for a specific user's attempts
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User attempt statistics retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      totalAttempts:
+                        type: integer
+                        example: 25
+                      passedAttempts:
+                        type: integer
+                        example: 20
+                      avgScore:
+                        type: number
+                        example: 82.5
+                      totalDuration:
+                        type: number
+                        example: 45000
+                      byExam:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                      byStatus:
+                        type: object
+                        additionalProperties:
+                          type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/{id}:
+    get:
+      summary: Get exam attempt by ID
+      description: Retrieve a specific exam attempt by its ID
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Exam attempt ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exam attempt retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempt retrieved successfully
+                  data:
+                    $ref: '#/components/schemas/ExamAttempt'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update exam attempt
+      description: Update an existing exam attempt
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Exam attempt ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                attemptNumber:
+                  type: integer
+                  description: Attempt number
+                  minimum: 1
+                  maximum: 100
+                answers:
+                  type: array
+                  description: Array of answers
+                  items:
+                    type: object
+                    properties:
+                      question:
+                        type: string
+                        description: Question ID
+                      answer:
+                        type: object
+                        description: Answer data (mixed type)
+                      isCorrect:
+                        type: boolean
+                        description: Whether the answer is correct
+                      score:
+                        type: number
+                        description: Score for this answer (0-100)
+                        minimum: 0
+                        maximum: 100
+                      feedback:
+                        type: string
+                        description: Feedback for this answer
+                        maxLength: 1000
+                      submittedAt:
+                        type: string
+                        format: date-time
+                        description: When this answer was submitted
+                status:
+                  type: string
+                  enum: [in_progress, submitted, graded]
+                  description: Attempt status
+                passed:
+                  type: boolean
+                  description: Whether the attempt was passed
+                cefrEstimated:
+                  type: string
+                  enum: [A1, A2, B1, B2, C1, C2]
+                  description: Estimated CEFR level
+                aiEvaluation:
+                  type: object
+                  properties:
+                    grammar:
+                      type: number
+                      description: Grammar score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    fluency:
+                      type: number
+                      description: Fluency score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    coherence:
+                      type: number
+                      description: Coherence score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    vocabulary:
+                      type: number
+                      description: Vocabulary score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    comments:
+                      type: string
+                      description: AI evaluation comments
+                      maxLength: 2000
+                aiNotes:
+                  type: string
+                  description: AI notes about the attempt
+                  maxLength: 3000
+                userNotes:
+                  type: string
+                  description: User notes about the attempt
+                  maxLength: 1000
+      responses:
+        '200':
+          description: Exam attempt updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempt updated successfully
+                  data:
+                    $ref: '#/components/schemas/ExamAttempt'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete exam attempt
+      description: Delete an exam attempt by ID
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Exam attempt ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exam attempt deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempt deleted successfully
+                  data:
+                    $ref: '#/components/schemas/ExamAttempt'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/{id}/submit:
+    post:
+      summary: Submit exam attempt
+      description: Submit an exam attempt (change status to submitted)
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Exam attempt ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exam attempt submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempt submitted successfully
+                  data:
+                    $ref: '#/components/schemas/ExamAttempt'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/{id}/grade:
+    post:
+      summary: Grade exam attempt
+      description: Grade an exam attempt with AI evaluation
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Exam attempt ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                aiEvaluation:
+                  type: object
+                  properties:
+                    grammar:
+                      type: number
+                      description: Grammar score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    fluency:
+                      type: number
+                      description: Fluency score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    coherence:
+                      type: number
+                      description: Coherence score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    vocabulary:
+                      type: number
+                      description: Vocabulary score (0-100)
+                      minimum: 0
+                      maximum: 100
+                    comments:
+                      type: string
+                      description: AI evaluation comments
+                      maxLength: 2000
+                aiNotes:
+                  type: string
+                  description: AI notes about the attempt
+                  maxLength: 3000
+                cefrEstimated:
+                  type: string
+                  enum: [A1, A2, B1, B2, C1, C2]
+                  description: Estimated CEFR level
+      responses:
+        '200':
+          description: Exam attempt graded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Exam attempt graded successfully
+                  data:
+                    $ref: '#/components/schemas/ExamAttempt'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    ExamAttempt:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Exam attempt ID
+          example: 507f1f77bcf86cd799439013
+        user:
+          type: string
+          description: User ID
+          example: 507f1f77bcf86cd799439011
+        exam:
+          type: string
+          description: Exam ID
+          example: 507f1f77bcf86cd799439012
+        attemptNumber:
+          type: integer
+          description: Attempt number
+          example: 1
+        answers:
+          type: array
+          description: Array of answers
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+                description: Question ID
+              answer:
+                type: object
+                description: Answer data (mixed type)
+              isCorrect:
+                type: boolean
+                description: Whether the answer is correct
+              score:
+                type: number
+                description: Score for this answer (0-100)
+              feedback:
+                type: string
+                description: Feedback for this answer
+              submittedAt:
+                type: string
+                format: date-time
+                description: When this answer was submitted
+        startedAt:
+          type: string
+          format: date-time
+          description: When the attempt started
+        submittedAt:
+          type: string
+          format: date-time
+          description: When the attempt was submitted
+        duration:
+          type: number
+          description: Duration in seconds
+          example: 1800
+        status:
+          type: string
+          enum: [in_progress, submitted, graded]
+          description: Attempt status
+          example: graded
+        passed:
+          type: boolean
+          description: Whether the attempt was passed
+          example: true
+        cefrEstimated:
+          type: string
+          enum: [A1, A2, B1, B2, C1, C2]
+          description: Estimated CEFR level
+          example: B2
+        aiEvaluation:
+          type: object
+          properties:
+            grammar:
+              type: number
+              description: Grammar score (0-100)
+              example: 85
+            fluency:
+              type: number
+              description: Fluency score (0-100)
+              example: 78
+            coherence:
+              type: number
+              description: Coherence score (0-100)
+              example: 82
+            vocabulary:
+              type: number
+              description: Vocabulary score (0-100)
+              example: 90
+            comments:
+              type: string
+              description: AI evaluation comments
+        aiNotes:
+          type: string
+          description: AI notes about the attempt
+        userNotes:
+          type: string
+          description: User notes about the attempt
+        createdAt:
+          type: string
+          format: date-time
+          description: When the attempt was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the attempt was last updated
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Validation error
+              error:
+                type: string
+                example: Invalid data provided
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Unauthorized access
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Exam attempt not found
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: An error occurred while processing the request
+              error:
+                type: string
+                example: Internal server error
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 

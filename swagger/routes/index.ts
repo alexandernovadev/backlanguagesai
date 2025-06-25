@@ -18,6 +18,10 @@ export const questionsSwagger = yaml.load(
   readFileSync(join(__dirname, "./questions.yaml"), "utf8")
 ) as object;
 
+export const examsSwagger = yaml.load(
+  readFileSync(join(__dirname, "./exams.yaml"), "utf8")
+) as object;
+
 export const lectureswagger = yaml.load(
   readFileSync(join(__dirname, "./lectures.yaml"), "utf8")
 ) as object;
@@ -32,4 +36,4 @@ export const authswagger = yaml.load(
 
 export const logsswagger = yaml.load(
   readFileSync(join(__dirname, "./logs.yaml"), "utf8")
-) as object;
+) as object; 

@@ -1,0 +1,993 @@
+openapi: 3.0.0
+info:
+  title: Exam API
+  description: API for managing exams
+  version: 1.0.0
+
+paths:
+  /api/exams:
+    get:
+      summary: Get all exams
+      description: Retrieve a paginated list of exams with optional filtering
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number (default 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page (default 10)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: level
+          in: query
+          description: Filter by level(s) - comma separated (A1,A2,B1,B2,C1,C2)
+          required: false
+          schema:
+            type: string
+        - name: language
+          in: query
+          description: Filter by language(s) - comma separated
+          required: false
+          schema:
+            type: string
+        - name: topic
+          in: query
+          description: Filter by topic
+          required: false
+          schema:
+            type: string
+        - name: source
+          in: query
+          description: Filter by source (manual, ai)
+          required: false
+          schema:
+            type: string
+            enum: [manual, ai]
+        - name: createdBy
+          in: query
+          description: Filter by creator ID
+          required: false
+          schema:
+            type: string
+        - name: adaptive
+          in: query
+          description: Filter by adaptive exams
+          required: false
+          schema:
+            type: string
+            enum: [true, false]
+        - name: sortBy
+          in: query
+          description: Sort field (default createdAt)
+          required: false
+          schema:
+            type: string
+            enum: [title, level, language, createdAt, updatedAt]
+        - name: sortOrder
+          in: query
+          description: Sort order (default desc)
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: createdAfter
+          in: query
+          description: Filter by creation date after (ISO string)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createdBefore
+          in: query
+          description: Filter by creation date before (ISO string)
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exams retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      exams:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Exam'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create a new exam
+      description: Create a new exam with the provided data
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExamRequest'
+      responses:
+        '201':
+          description: Exam created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exam created successfully"
+                  data:
+                    $ref: '#/components/schemas/Exam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/stats:
+    get:
+      summary: Get exam statistics
+      description: Retrieve statistics about exams
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Exam statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exam statistics retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      totalExams:
+                        type: number
+                        example: 150
+                      examsByLevel:
+                        type: object
+                        example:
+                          A1: 25
+                          A2: 30
+                          B1: 35
+                          B2: 30
+                          C1: 20
+                          C2: 10
+                      examsByLanguage:
+                        type: object
+                        example:
+                          english: 80
+                          spanish: 70
+                      adaptiveExams:
+                        type: number
+                        example: 45
+                      averageQuestionsPerExam:
+                        type: number
+                        example: 12.5
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/{id}:
+    get:
+      summary: Get exam by ID
+      description: Retrieve a specific exam by its ID
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Exam ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exam retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exam retrieved successfully"
+                  data:
+                    $ref: '#/components/schemas/Exam'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update exam
+      description: Update an existing exam
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Exam ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExamRequest'
+      responses:
+        '200':
+          description: Exam updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exam updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Exam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete exam
+      description: Delete an exam by ID
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Exam ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exam deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exam deleted successfully"
+                  data:
+                    $ref: '#/components/schemas/Exam'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/generate:
+    post:
+      summary: Generate exam from questions
+      description: Create a new exam from a list of question IDs
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questions
+                - title
+                - language
+                - level
+              properties:
+                questions:
+                  type: array
+                  description: Array of question IDs
+                  items:
+                    type: string
+                  minItems: 1
+                title:
+                  type: string
+                  description: Exam title
+                language:
+                  type: string
+                  description: Exam language
+                level:
+                  type: string
+                  enum: [A1, A2, B1, B2, C1, C2]
+                  description: Exam level
+                description:
+                  type: string
+                  description: Exam description
+                topic:
+                  type: string
+                  description: Exam topic
+                source:
+                  type: string
+                  enum: [manual, ai]
+                  default: manual
+                  description: Exam source
+                attemptsAllowed:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                  default: 3
+                  description: Number of attempts allowed
+                timeLimit:
+                  type: integer
+                  minimum: 1
+                  maximum: 480
+                  description: Time limit in minutes
+                adaptive:
+                  type: boolean
+                  default: false
+                  description: Whether the exam is adaptive
+                createdBy:
+                  type: string
+                  description: Creator user ID
+      responses:
+        '201':
+          description: Exam generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exam generated from questions successfully"
+                  data:
+                    $ref: '#/components/schemas/Exam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/level/{level}:
+    get:
+      summary: Get exams by level
+      description: Retrieve exams for a specific level
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: level
+          in: path
+          description: Exam level
+          required: true
+          schema:
+            type: string
+            enum: [A1, A2, B1, B2, C1, C2]
+        - name: limit
+          in: query
+          description: Number of exams to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Exams for level retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exams for level retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Exam'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/level/{level}/language/{language}:
+    get:
+      summary: Get exams by level and language
+      description: Retrieve exams for a specific level and language
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: level
+          in: path
+          description: Exam level
+          required: true
+          schema:
+            type: string
+            enum: [A1, A2, B1, B2, C1, C2]
+        - name: language
+          in: path
+          description: Exam language
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exams retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Exam'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/topic/{topic}:
+    get:
+      summary: Get exams by topic
+      description: Retrieve exams for a specific topic
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: topic
+          in: path
+          description: Exam topic
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exams retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Exam'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/creator/{creatorId}:
+    get:
+      summary: Get exams by creator
+      description: Retrieve exams created by a specific user
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: creatorId
+          in: path
+          description: Creator user ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exams retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Exam'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/{examId}/questions:
+    post:
+      summary: Add question to exam
+      description: Add a question to an existing exam
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: examId
+          in: path
+          description: Exam ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questionId
+              properties:
+                questionId:
+                  type: string
+                  description: Question ID to add
+                weight:
+                  type: number
+                  minimum: 0
+                  maximum: 10
+                  default: 1
+                  description: Question weight
+                order:
+                  type: integer
+                  minimum: 0
+                  description: Question order in exam
+      responses:
+        '200':
+          description: Question added to exam successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Question added to exam successfully"
+                  data:
+                    $ref: '#/components/schemas/Exam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/{examId}/questions/{questionId}:
+    delete:
+      summary: Remove question from exam
+      description: Remove a question from an exam
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: examId
+          in: path
+          description: Exam ID
+          required: true
+          schema:
+            type: string
+        - name: questionId
+          in: path
+          description: Question ID to remove
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Question removed from exam successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Question removed from exam successfully"
+                  data:
+                    $ref: '#/components/schemas/Exam'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Exam:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Exam ID
+        title:
+          type: string
+          description: Exam title
+        description:
+          type: string
+          description: Exam description
+        language:
+          type: string
+          description: Exam language
+        level:
+          type: string
+          enum: [A1, A2, B1, B2, C1, C2]
+          description: Exam level
+        topic:
+          type: string
+          description: Exam topic
+        source:
+          type: string
+          enum: [manual, ai]
+          description: Exam source
+        attemptsAllowed:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Number of attempts allowed
+        timeLimit:
+          type: integer
+          minimum: 1
+          maximum: 480
+          description: Time limit in minutes
+        adaptive:
+          type: boolean
+          description: Whether the exam is adaptive
+        version:
+          type: integer
+          minimum: 1
+          description: Exam version
+        questions:
+          type: array
+          description: Array of questions in the exam
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+                description: Question ID
+              weight:
+                type: number
+                minimum: 0
+                maximum: 10
+                description: Question weight
+              order:
+                type: integer
+                minimum: 0
+                description: Question order
+        createdBy:
+          type: string
+          description: Creator user ID
+        metadata:
+          type: object
+          properties:
+            difficultyScore:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: Difficulty score
+            estimatedDuration:
+              type: number
+              minimum: 1
+              maximum: 480
+              description: Estimated duration in minutes
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    CreateExamRequest:
+      type: object
+      required:
+        - title
+        - language
+        - level
+      properties:
+        title:
+          type: string
+          description: Exam title
+        description:
+          type: string
+          description: Exam description
+        language:
+          type: string
+          description: Exam language
+        level:
+          type: string
+          enum: [A1, A2, B1, B2, C1, C2]
+          description: Exam level
+        topic:
+          type: string
+          description: Exam topic
+        source:
+          type: string
+          enum: [manual, ai]
+          default: manual
+          description: Exam source
+        attemptsAllowed:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 3
+          description: Number of attempts allowed
+        timeLimit:
+          type: integer
+          minimum: 1
+          maximum: 480
+          description: Time limit in minutes
+        adaptive:
+          type: boolean
+          default: false
+          description: Whether the exam is adaptive
+        version:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Exam version
+        questions:
+          type: array
+          description: Array of questions in the exam
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+                description: Question ID
+              weight:
+                type: number
+                minimum: 0
+                maximum: 10
+                default: 1
+                description: Question weight
+              order:
+                type: integer
+                minimum: 0
+                description: Question order
+        createdBy:
+          type: string
+          description: Creator user ID
+        metadata:
+          type: object
+          properties:
+            difficultyScore:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: Difficulty score
+            estimatedDuration:
+              type: number
+              minimum: 1
+              maximum: 480
+              description: Estimated duration in minutes
+
+    UpdateExamRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Exam title
+        description:
+          type: string
+          description: Exam description
+        language:
+          type: string
+          description: Exam language
+        level:
+          type: string
+          enum: [A1, A2, B1, B2, C1, C2]
+          description: Exam level
+        topic:
+          type: string
+          description: Exam topic
+        source:
+          type: string
+          enum: [manual, ai]
+          description: Exam source
+        attemptsAllowed:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Number of attempts allowed
+        timeLimit:
+          type: integer
+          minimum: 1
+          maximum: 480
+          description: Time limit in minutes
+        adaptive:
+          type: boolean
+          description: Whether the exam is adaptive
+        version:
+          type: integer
+          minimum: 1
+          description: Exam version
+        questions:
+          type: array
+          description: Array of questions in the exam
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+                description: Question ID
+              weight:
+                type: number
+                minimum: 0
+                maximum: 10
+                description: Question weight
+              order:
+                type: integer
+                minimum: 0
+                description: Question order
+        metadata:
+          type: object
+          properties:
+            difficultyScore:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: Difficulty score
+            estimatedDuration:
+              type: number
+              minimum: 1
+              maximum: 480
+              description: Estimated duration in minutes
+
+    Pagination:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 5
+        totalItems:
+          type: integer
+          example: 50
+        itemsPerPage:
+          type: integer
+          example: 10
+        hasNextPage:
+          type: boolean
+          example: true
+        hasPrevPage:
+          type: boolean
+          example: false
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "Validation error: Title is required"
+              error:
+                type: string
+                example: "ValidationError"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "Exam not found"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "An error occurred while processing the request"
+              error:
+                type: string
+                example: "InternalServerError"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 

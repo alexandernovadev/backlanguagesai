@@ -13,6 +13,7 @@ import { generateRoutes } from "./app/routes/generatorIARoutes";
 import LectureRoutes from "./app/routes/lectureRoutes";
 import WordsRoutes from "./app/routes/wordsRoutes";
 import QuestionRoutes from "./app/routes/questionRoutes";
+import ExamRoutes from "./app/routes/examRoutes";
 import Arreglosquick from "./app/routes/arreglosquick";
 import StatisticsRoutes from "./app/routes/statisticsRoutes";
 import LogsRoutes from "./app/routes/logRoutes";
@@ -60,7 +61,9 @@ app.use("/api/ai", authMiddleware, generateRoutes);
 app.use("/api/lectures", authMiddleware, LectureRoutes);
 app.use("/api/words", authMiddleware, WordsRoutes);
 app.use("/api/questions", authMiddleware, QuestionRoutes);
+app.use("/api/exams", authMiddleware, ExamRoutes);
 app.use("/api/statistics", authMiddleware, StatisticsRoutes);
+
 
 // Logs
 app.use("/api/logs", authMiddleware, LogsRoutes);

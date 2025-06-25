@@ -7,11 +7,12 @@ import {
   statisticsSwagger,
   wordsSwagger,
   questionsSwagger,
+  examsSwagger,
   lectureswagger,
   generateaiswagger,
   authswagger,
   logsswagger,
-} from "./routes";
+} from "./routes/index";
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -46,6 +47,7 @@ const options: swaggerJsdoc.Options = {
       ...statisticsSwagger["paths"],
       ...wordsSwagger["paths"],
       ...questionsSwagger["paths"],
+      ...examsSwagger["paths"],
       ...lectureswagger["paths"],
       ...generateaiswagger["paths"],
       ...authswagger["paths"],

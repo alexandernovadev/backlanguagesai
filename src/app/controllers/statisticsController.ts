@@ -1,11 +1,11 @@
 import e, { Request, Response } from "express";
 
-import { LectureService } from "../services/lectures/LectureService";
-import { WordService } from "../services/words/wordService";
+import { LectureStatisticsService } from "../services/statistics/LectureStatisticsService";
+import { WordStatisticsService } from "../services/statistics/WordStatisticsService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 
-const lectureService = new LectureService();
-const wordService = new WordService();
+const lectureStatisticsService = new LectureStatisticsService();
+const wordStatisticsService = new WordStatisticsService();
 
 // V1
 export const BasicInformation = async (
@@ -14,8 +14,8 @@ export const BasicInformation = async (
 ): Promise<Response> => {
   try {
     const countByLevelAndTotalLectures =
-      await lectureService.getLectureCountsByLevel();
-    const countByLevelAndTotalWords = await wordService.getWordCountsByLevel();
+      await lectureStatisticsService.getLectureCountsByLevel();
+    const countByLevelAndTotalWords = await wordStatisticsService.getWordCountsByLevel();
 
     return successResponse(res, "Statitics successfully generated", {
       lectures: countByLevelAndTotalLectures,

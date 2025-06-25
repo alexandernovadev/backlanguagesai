@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import { WordService } from "../services/words/wordService";
-
+import { WordImportService } from "../services/import/WordImportService";
+import { WordStatisticsService } from "../services/statistics/WordStatisticsService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 
 const wordService = new WordService();
+const wordImportService = new WordImportService();
+const wordStatisticsService = new WordStatisticsService();
 
 export const getWordByName = async (
   req: Request,
@@ -370,7 +373,7 @@ export const importWordsFromFile = async (
 
     // If validateOnly is true, just validate without importing
     if (validateOnlyBool) {
-      const validationResults = await wordService.validateWords(words);
+      const validationResults = await wordImportService.validateWords(words);
       const validCount = validationResults.filter(
         (r) => r.status === "valid"
       ).length;
@@ -387,7 +390,7 @@ export const importWordsFromFile = async (
     }
 
     // Import words
-    const importResult = await wordService.importWords(words, {
+    const importResult = await wordImportService.importWords(words, {
       duplicateStrategy: duplicateStrategy as any,
       validateOnly: false,
       batchSize: batchSizeNum,

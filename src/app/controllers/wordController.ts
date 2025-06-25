@@ -86,8 +86,58 @@ export const getWords = async (
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit as string) || 10, 1);
 
+    // Filtros existentes
     const wordUser = req.query.wordUser as string;
-    const wordList = await wordService.getWords(page, limit, wordUser);
+    
+    // Nuevos filtros básicos
+    const level = req.query.level as string;
+    const language = req.query.language as string;
+    const type = req.query.type as string;
+    const seenMin = req.query.seenMin ? parseInt(req.query.seenMin as string) : undefined;
+    const seenMax = req.query.seenMax ? parseInt(req.query.seenMax as string) : undefined;
+    const sortBy = req.query.sortBy as string || 'createdAt';
+    const sortOrder = req.query.sortOrder as string || 'desc';
+
+    // Nuevos filtros de contenido
+    const definition = req.query.definition as string;
+    const IPA = req.query.IPA as string;
+    const hasImage = req.query.hasImage as string;
+    const hasExamples = req.query.hasExamples as string;
+    const hasSynonyms = req.query.hasSynonyms as string;
+    const hasCodeSwitching = req.query.hasCodeSwitching as string;
+    const spanishWord = req.query.spanishWord as string;
+    const spanishDefinition = req.query.spanishDefinition as string;
+
+    // Filtros de fecha
+    const createdAfter = req.query.createdAfter as string;
+    const createdBefore = req.query.createdBefore as string;
+    const updatedAfter = req.query.updatedAfter as string;
+    const updatedBefore = req.query.updatedBefore as string;
+
+    const wordList = await wordService.getWords({
+      page,
+      limit,
+      wordUser,
+      level,
+      language,
+      type,
+      seenMin,
+      seenMax,
+      sortBy,
+      sortOrder,
+      definition,
+      IPA,
+      hasImage,
+      hasExamples,
+      hasSynonyms,
+      hasCodeSwitching,
+      spanishWord,
+      spanishDefinition,
+      createdAfter,
+      createdBefore,
+      updatedAfter,
+      updatedBefore
+    });
 
     return successResponse(res, "Words sucessfully listed", wordList);
   } catch (error) {

@@ -17,7 +17,7 @@ paths:
 
   /api/words:
     get:
-      summary: Retrieve a list of words with pagination
+      summary: Retrieve a list of words with pagination and comprehensive filters
       tags:
         - Words
       parameters:
@@ -37,10 +37,150 @@ paths:
           name: wordUser
           schema:
             type: string
-          description: Filter words by user
+          description: Filter words by partial text match (case insensitive)
+        - in: query
+          name: level
+          schema:
+            type: string
+            enum: [easy, medium, hard]
+          description: Filter words by difficulty level
+        - in: query
+          name: language
+          schema:
+            type: string
+          description: Filter words by language (case insensitive)
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
+          description: Filter words by grammatical type
+        - in: query
+          name: seenMin
+          schema:
+            type: integer
+            minimum: 0
+          description: Minimum number of times the word has been seen
+        - in: query
+          name: seenMax
+          schema:
+            type: integer
+            minimum: 0
+          description: Maximum number of times the word has been seen
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, word, level, seen, language, definition]
+            default: createdAt
+          description: Field to sort by
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order (ascending or descending)
+        - in: query
+          name: definition
+          schema:
+            type: string
+          description: Filter words by definition content (case insensitive)
+        - in: query
+          name: IPA
+          schema:
+            type: string
+          description: Filter words by IPA phonetic transcription (case insensitive)
+        - in: query
+          name: hasImage
+          schema:
+            type: string
+            enum: [true, false]
+          description: Filter words that have or don't have an image
+        - in: query
+          name: hasExamples
+          schema:
+            type: string
+            enum: [true, false]
+          description: Filter words that have or don't have examples
+        - in: query
+          name: hasSynonyms
+          schema:
+            type: string
+            enum: [true, false]
+          description: Filter words that have or don't have synonyms
+        - in: query
+          name: hasCodeSwitching
+          schema:
+            type: string
+            enum: [true, false]
+          description: Filter words that have or don't have code-switching examples
+        - in: query
+          name: spanishWord
+          schema:
+            type: string
+          description: Filter words by Spanish translation (case insensitive)
+        - in: query
+          name: spanishDefinition
+          schema:
+            type: string
+          description: Filter words by Spanish definition (case insensitive)
+        - in: query
+          name: createdAfter
+          schema:
+            type: string
+            format: date-time
+          description: Filter words created after this date (ISO 8601 format)
+        - in: query
+          name: createdBefore
+          schema:
+            type: string
+            format: date-time
+          description: Filter words created before this date (ISO 8601 format)
+        - in: query
+          name: updatedAfter
+          schema:
+            type: string
+            format: date-time
+          description: Filter words updated after this date (ISO 8601 format)
+        - in: query
+          name: updatedBefore
+          schema:
+            type: string
+            format: date-time
+          description: Filter words updated before this date (ISO 8601 format)
       responses:
         '200':
           description: A paginated list of words
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Words sucessfully listed"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Word'
+                      total:
+                        type: integer
+                        example: 150
+                      page:
+                        type: integer
+                        example: 1
+                      pages:
+                        type: integer
+                        example: 15
+        '500':
+          description: Internal server error
     post:
       summary: Create a new word
       tags:

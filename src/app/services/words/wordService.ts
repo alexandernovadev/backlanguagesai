@@ -29,21 +29,188 @@ export class WordService {
 
   // Get all words with pagination, ordered by creation date
   async getWords(
-    page: number = 1,
-    limit: number = 10,
-    wordUser?: string
+    filters: {
+      page?: number;
+      limit?: number;
+      wordUser?: string;
+      level?: string;
+      language?: string;
+      type?: string;
+      seenMin?: number;
+      seenMax?: number;
+      sortBy?: string;
+      sortOrder?: string;
+      definition?: string;
+      IPA?: string;
+      hasImage?: string;
+      hasExamples?: string;
+      hasSynonyms?: string;
+      hasCodeSwitching?: string;
+      spanishWord?: string;
+      spanishDefinition?: string;
+      createdAfter?: string;
+      createdBefore?: string;
+      updatedAfter?: string;
+      updatedBefore?: string;
+    } = {}
   ): Promise<PaginatedResult<IWord>> {
-    const filter: Record<string, unknown> = {};
+    const {
+      page = 1,
+      limit = 10,
+      wordUser,
+      level,
+      language,
+      type,
+      seenMin,
+      seenMax,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      definition,
+      IPA,
+      hasImage,
+      hasExamples,
+      hasSynonyms,
+      hasCodeSwitching,
+      spanishWord,
+      spanishDefinition,
+      createdAfter,
+      createdBefore,
+      updatedAfter,
+      updatedBefore
+    } = filters;
 
+    const filter: Record<string, unknown> & { $or?: unknown[] } = {};
+
+    // Filtro por palabra (existente)
     if (wordUser) {
       filter.word = { $regex: wordUser, $options: "i" };
+    }
+
+    // Nuevo filtro por nivel
+    if (level && ['easy', 'medium', 'hard'].includes(level)) {
+      filter.level = level;
+    }
+
+    // Nuevo filtro por idioma
+    if (language) {
+      filter.language = { $regex: language, $options: "i" };
+    }
+
+    // Nuevo filtro por tipo gramatical
+    if (type) {
+      filter.type = { $in: [type] };
+    }
+
+    // Nuevo filtro por rango de vistas
+    if (seenMin !== undefined || seenMax !== undefined) {
+      const seenFilter: Record<string, number> = {};
+      if (seenMin !== undefined) {
+        seenFilter.$gte = seenMin;
+      }
+      if (seenMax !== undefined) {
+        seenFilter.$lte = seenMax;
+      }
+      filter.seen = seenFilter;
+    }
+
+    // Nuevo filtro por definición
+    if (definition) {
+      filter.definition = { $regex: definition, $options: "i" };
+    }
+
+    // Nuevo filtro por IPA
+    if (IPA) {
+      filter.IPA = { $regex: IPA, $options: "i" };
+    }
+
+    // Nuevo filtro por palabras con/sin imagen
+    if (hasImage === 'true') {
+      filter.img = { $exists: true, $ne: null, $ne: '' };
+    } else if (hasImage === 'false') {
+      filter.$or = [
+        { img: { $exists: false } },
+        { img: null },
+        { img: '' }
+      ];
+    }
+
+    // Nuevo filtro por palabras con/sin ejemplos
+    if (hasExamples === 'true') {
+      filter.examples = { $exists: true, $ne: [], $size: { $gt: 0 } };
+    } else if (hasExamples === 'false') {
+      filter.$or = [
+        { examples: { $exists: false } },
+        { examples: [] },
+        { examples: { $size: 0 } }
+      ];
+    }
+
+    // Nuevo filtro por palabras con/sin sinónimos
+    if (hasSynonyms === 'true') {
+      filter.sinonyms = { $exists: true, $ne: [], $size: { $gt: 0 } };
+    } else if (hasSynonyms === 'false') {
+      filter.$or = [
+        { sinonyms: { $exists: false } },
+        { sinonyms: [] },
+        { sinonyms: { $size: 0 } }
+      ];
+    }
+
+    // Nuevo filtro por palabras con/sin code-switching
+    if (hasCodeSwitching === 'true') {
+      filter.codeSwitching = { $exists: true, $ne: [], $size: { $gt: 0 } };
+    } else if (hasCodeSwitching === 'false') {
+      filter.$or = [
+        { codeSwitching: { $exists: false } },
+        { codeSwitching: [] },
+        { codeSwitching: { $size: 0 } }
+      ];
+    }
+
+    // Nuevo filtro por palabra en español
+    if (spanishWord) {
+      filter['spanish.word'] = { $regex: spanishWord, $options: "i" };
+    }
+
+    // Nuevo filtro por definición en español
+    if (spanishDefinition) {
+      filter['spanish.definition'] = { $regex: spanishDefinition, $options: "i" };
+    }
+
+    // Filtros de fecha para createdAt
+    if (createdAfter || createdBefore) {
+      const createdAtFilter: Record<string, Date> = {};
+      if (createdAfter) {
+        createdAtFilter.$gte = new Date(createdAfter);
+      }
+      if (createdBefore) {
+        createdAtFilter.$lte = new Date(createdBefore);
+      }
+      filter.createdAt = createdAtFilter;
+    }
+
+    // Filtros de fecha para updatedAt
+    if (updatedAfter || updatedBefore) {
+      const updatedAtFilter: Record<string, Date> = {};
+      if (updatedAfter) {
+        updatedAtFilter.$gte = new Date(updatedAfter);
+      }
+      if (updatedBefore) {
+        updatedAtFilter.$lte = new Date(updatedBefore);
+      }
+      filter.updatedAt = updatedAtFilter;
     }
 
     const total = await Word.countDocuments(filter);
     const pages = Math.ceil(total / limit);
 
+    // Configurar ordenamiento
+    const sortDirection = sortOrder === 'asc' ? 1 : -1;
+    const sortOptions: Record<string, 1 | -1> = {};
+    sortOptions[sortBy] = sortDirection as 1 | -1;
+
     const data = await Word.find(filter)
-      .sort({ createdAt: -1 })
+      .sort(sortOptions)
       .skip((page - 1) * limit)
       .limit(limit)
       .exec();

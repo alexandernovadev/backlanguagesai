@@ -1,0 +1,417 @@
+[
+  {
+    "text": "What is the correct form of the verb 'to be' in the present tense for 'he'?",
+    "type": "multiple_choice",
+    "options": ["am", "is", "are", "be"],
+    "correctAnswer": "is",
+    "explanation": "The verb 'to be' conjugates as: I am, you are, he/she/it is, we are, they are.",
+    "difficulty": "beginner",
+    "category": "grammar",
+    "tags": ["verb-to-be", "present-tense", "conjugation", "basic-grammar"],
+    "cefrLevel": "A1",
+    "points": 10,
+    "timeLimit": 30,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Basic Verbs",
+      "subtopic": "Present Tense",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "Complete the sentence: 'If I _____ rich, I would travel the world.'",
+    "type": "fill_blank",
+    "options": null,
+    "correctAnswer": "were",
+    "explanation": "In second conditional sentences, we use 'were' for all persons (I, you, he, she, it, we, they) in the if-clause.",
+    "difficulty": "intermediate",
+    "category": "grammar",
+    "tags": ["conditionals", "second-conditional", "subjunctive", "if-clauses"],
+    "cefrLevel": "B1",
+    "points": 15,
+    "timeLimit": 45,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Conditionals",
+      "subtopic": "Second Conditional",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "Listen to the audio and choose the correct pronunciation of the word 'schedule'.",
+    "type": "audio_question",
+    "options": ["shed-yool", "sked-yool", "shed-ule", "sked-ule"],
+    "correctAnswer": "shed-yool",
+    "explanation": "In British English, 'schedule' is pronounced 'shed-yool'. In American English, it's 'sked-yool'.",
+    "difficulty": "intermediate",
+    "category": "pronunciation",
+    "tags": ["pronunciation", "british-english", "american-english", "accent-differences"],
+    "cefrLevel": "B1",
+    "points": 12,
+    "timeLimit": 60,
+    "imageUrl": null,
+    "audioUrl": "https://example.com/audio/schedule.mp3",
+    "metadata": {
+      "topic": "Pronunciation",
+      "subtopic": "British vs American",
+      "languageFocus": "Speaking"
+    }
+  },
+  {
+    "text": "What does the idiom 'break a leg' mean?",
+    "type": "multiple_choice",
+    "options": ["To actually break your leg", "Good luck", "To work hard", "To give up"],
+    "correctAnswer": "Good luck",
+    "explanation": "'Break a leg' is a theatrical idiom meaning 'good luck'. It's commonly used in the entertainment industry.",
+    "difficulty": "intermediate",
+    "category": "vocabulary",
+    "tags": ["idioms", "theater", "good-luck", "expressions"],
+    "cefrLevel": "B2",
+    "points": 15,
+    "timeLimit": 30,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Idioms",
+      "subtopic": "Theatrical Expressions",
+      "languageFocus": "Vocabulary"
+    }
+  },
+  {
+    "text": "Arrange the words to form a correct sentence: 'yesterday / went / I / to / the / movies'",
+    "type": "ordering",
+    "options": ["I went to the movies yesterday", "Yesterday I went to the movies", "I yesterday went to the movies", "Went I yesterday to the movies"],
+    "correctAnswer": "I went to the movies yesterday",
+    "explanation": "The standard word order in English is Subject + Verb + Object + Time. 'Yesterday' can also go at the beginning for emphasis.",
+    "difficulty": "beginner",
+    "category": "grammar",
+    "tags": ["word-order", "sentence-structure", "past-tense", "basic-grammar"],
+    "cefrLevel": "A1",
+    "points": 10,
+    "timeLimit": 45,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Sentence Structure",
+      "subtopic": "Word Order",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "Look at the image and describe what you see in one sentence.",
+    "type": "image_description",
+    "options": null,
+    "correctAnswer": "A person walking in the rain with an umbrella",
+    "explanation": "This question tests your ability to describe visual information accurately and concisely.",
+    "difficulty": "beginner",
+    "category": "speaking",
+    "tags": ["descriptions", "visual-comprehension", "speaking-practice", "weather"],
+    "cefrLevel": "A2",
+    "points": 12,
+    "timeLimit": 60,
+    "imageUrl": "https://example.com/images/rainy-day.jpg",
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Descriptions",
+      "subtopic": "Visual Descriptions",
+      "languageFocus": "Speaking"
+    }
+  },
+  {
+    "text": "Choose the correct preposition: 'I'm interested _____ learning Spanish.'",
+    "type": "multiple_choice",
+    "options": ["in", "on", "at", "for"],
+    "correctAnswer": "in",
+    "explanation": "The adjective 'interested' is followed by the preposition 'in'.",
+    "difficulty": "intermediate",
+    "category": "grammar",
+    "tags": ["prepositions", "adjectives", "interested-in", "grammar-rules"],
+    "cefrLevel": "B1",
+    "points": 10,
+    "timeLimit": 30,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Prepositions",
+      "subtopic": "Adjective + Preposition",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "What is the past participle of the verb 'write'?",
+    "type": "multiple_choice",
+    "options": ["wrote", "written", "writed", "writing"],
+    "correctAnswer": "written",
+    "explanation": "'Write' is an irregular verb: write (present) - wrote (past) - written (past participle).",
+    "difficulty": "intermediate",
+    "category": "grammar",
+    "tags": ["irregular-verbs", "past-participle", "write-wrote-written", "verb-forms"],
+    "cefrLevel": "B1",
+    "points": 12,
+    "timeLimit": 30,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Irregular Verbs",
+      "subtopic": "Past Participle",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "Listen and repeat the sentence: 'The quick brown fox jumps over the lazy dog.'",
+    "type": "speaking_practice",
+    "options": null,
+    "correctAnswer": "The quick brown fox jumps over the lazy dog.",
+    "explanation": "This pangram contains every letter of the alphabet and is great for pronunciation practice.",
+    "difficulty": "intermediate",
+    "category": "speaking",
+    "tags": ["pronunciation", "speaking-practice", "pangram", "fluency"],
+    "cefrLevel": "B1",
+    "points": 15,
+    "timeLimit": 90,
+    "imageUrl": null,
+    "audioUrl": "https://example.com/audio/pangram.mp3",
+    "metadata": {
+      "topic": "Speaking Practice",
+      "subtopic": "Pronunciation",
+      "languageFocus": "Speaking"
+    }
+  },
+  {
+    "text": "What is the difference between 'affect' and 'effect'?",
+    "type": "multiple_choice",
+    "options": [
+      "There is no difference",
+      "Affect is a verb, effect is a noun",
+      "Effect is a verb, affect is a noun",
+      "They are both verbs"
+    ],
+    "correctAnswer": "Affect is a verb, effect is a noun",
+    "explanation": "'Affect' is usually a verb meaning 'to influence', while 'effect' is usually a noun meaning 'a result or consequence'.",
+    "difficulty": "advanced",
+    "category": "vocabulary",
+    "tags": ["confusing-words", "affect-effect", "vocabulary", "word-usage"],
+    "cefrLevel": "C1",
+    "points": 20,
+    "timeLimit": 45,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Confusing Words",
+      "subtopic": "Affect vs Effect",
+      "languageFocus": "Vocabulary"
+    }
+  },
+  {
+    "text": "Complete the phrasal verb: 'I need to _____ up early tomorrow for my flight.'",
+    "type": "fill_blank",
+    "options": null,
+    "correctAnswer": "wake",
+    "explanation": "'Wake up' is a phrasal verb meaning 'to stop sleeping'.",
+    "difficulty": "beginner",
+    "category": "vocabulary",
+    "tags": ["phrasal-verbs", "wake-up", "daily-routines", "basic-vocabulary"],
+    "cefrLevel": "A2",
+    "points": 10,
+    "timeLimit": 30,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Phrasal Verbs",
+      "subtopic": "Daily Routines",
+      "languageFocus": "Vocabulary"
+    }
+  },
+  {
+    "text": "What is the correct plural form of 'child'?",
+    "type": "multiple_choice",
+    "options": ["childs", "children", "childes", "child's"],
+    "correctAnswer": "children",
+    "explanation": "'Child' is an irregular noun that becomes 'children' in the plural form.",
+    "difficulty": "beginner",
+    "category": "grammar",
+    "tags": ["irregular-plurals", "nouns", "children", "basic-grammar"],
+    "cefrLevel": "A1",
+    "points": 8,
+    "timeLimit": 25,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Plural Forms",
+      "subtopic": "Irregular Plurals",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "Choose the correct article: '_____ sun rises in the east.'",
+    "type": "multiple_choice",
+    "options": ["A", "An", "The", "No article"],
+    "correctAnswer": "The",
+    "explanation": "We use 'the' with unique objects like the sun, the moon, the earth, etc.",
+    "difficulty": "intermediate",
+    "category": "grammar",
+    "tags": ["articles", "definite-article", "unique-objects", "the-sun"],
+    "cefrLevel": "B1",
+    "points": 12,
+    "timeLimit": 30,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Articles",
+      "subtopic": "Definite Article",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "What does the abbreviation 'ASAP' stand for?",
+    "type": "multiple_choice",
+    "options": [
+      "As Soon As Possible",
+      "Always Say A Prayer",
+      "After School Activities Program",
+      "All Students Are Present"
+    ],
+    "correctAnswer": "As Soon As Possible",
+    "explanation": "ASAP is a common abbreviation meaning 'As Soon As Possible', often used in business and informal communication.",
+    "difficulty": "intermediate",
+    "category": "vocabulary",
+    "tags": ["abbreviations", "business-english", "informal-language", "asap"],
+    "cefrLevel": "B2",
+    "points": 15,
+    "timeLimit": 30,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Abbreviations",
+      "subtopic": "Common Abbreviations",
+      "languageFocus": "Vocabulary"
+    }
+  },
+  {
+    "text": "Listen to the conversation and answer: What time is the meeting?",
+    "type": "listening_comprehension",
+    "options": ["2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"],
+    "correctAnswer": "3:00 PM",
+    "explanation": "The speakers mentioned that the meeting is scheduled for 3:00 PM tomorrow.",
+    "difficulty": "intermediate",
+    "category": "listening",
+    "tags": ["listening-comprehension", "time", "meetings", "conversation"],
+    "cefrLevel": "B1",
+    "points": 15,
+    "timeLimit": 120,
+    "imageUrl": null,
+    "audioUrl": "https://example.com/audio/meeting-conversation.mp3",
+    "metadata": {
+      "topic": "Listening Comprehension",
+      "subtopic": "Time and Schedules",
+      "languageFocus": "Listening"
+    }
+  },
+  {
+    "text": "What is the comparative form of 'good'?",
+    "type": "multiple_choice",
+    "options": ["gooder", "more good", "better", "best"],
+    "correctAnswer": "better",
+    "explanation": "'Good' is an irregular adjective: good - better - best.",
+    "difficulty": "beginner",
+    "category": "grammar",
+    "tags": ["comparatives", "irregular-adjectives", "good-better-best", "basic-grammar"],
+    "cefrLevel": "A2",
+    "points": 10,
+    "timeLimit": 25,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Comparatives",
+      "subtopic": "Irregular Adjectives",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "Write a short email to your boss requesting a day off.",
+    "type": "writing_practice",
+    "options": null,
+    "correctAnswer": "Dear [Boss's name], I am writing to request a day off on [date] due to [reason]. I will ensure all my work is completed before my absence. Thank you for your consideration. Best regards, [Your name]",
+    "explanation": "A professional email should include a greeting, clear request, reason, assurance of work completion, and polite closing.",
+    "difficulty": "intermediate",
+    "category": "writing",
+    "tags": ["email-writing", "business-english", "formal-language", "requests"],
+    "cefrLevel": "B2",
+    "points": 25,
+    "timeLimit": 300,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Email Writing",
+      "subtopic": "Formal Requests",
+      "languageFocus": "Writing"
+    }
+  },
+  {
+    "text": "What is the meaning of the word 'ubiquitous'?",
+    "type": "multiple_choice",
+    "options": [
+      "Very large",
+      "Present everywhere",
+      "Extremely expensive",
+      "Very old"
+    ],
+    "correctAnswer": "Present everywhere",
+    "explanation": "'Ubiquitous' means present, appearing, or found everywhere.",
+    "difficulty": "advanced",
+    "category": "vocabulary",
+    "tags": ["advanced-vocabulary", "ubiquitous", "formal-language", "academic-words"],
+    "cefrLevel": "C1",
+    "points": 20,
+    "timeLimit": 45,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Advanced Vocabulary",
+      "subtopic": "Academic Words",
+      "languageFocus": "Vocabulary"
+    }
+  },
+  {
+    "text": "Choose the correct modal verb: 'You _____ smoke in hospitals.'",
+    "type": "multiple_choice",
+    "options": ["can", "could", "must", "mustn't"],
+    "correctAnswer": "mustn't",
+    "explanation": "'Mustn't' expresses prohibition - something that is not allowed.",
+    "difficulty": "intermediate",
+    "category": "grammar",
+    "tags": ["modal-verbs", "prohibition", "mustnt", "rules"],
+    "cefrLevel": "B1",
+    "points": 15,
+    "timeLimit": 35,
+    "imageUrl": null,
+    "audioUrl": null,
+    "metadata": {
+      "topic": "Modal Verbs",
+      "subtopic": "Prohibition",
+      "languageFocus": "Grammar"
+    }
+  },
+  {
+    "text": "What is the correct pronunciation of 'queue'?",
+    "type": "multiple_choice",
+    "options": ["kwee", "kyoo", "kew", "koo"],
+    "correctAnswer": "kyoo",
+    "explanation": "'Queue' is pronounced 'kyoo' - it's one of the most unusual spellings in English.",
+    "difficulty": "intermediate",
+    "category": "pronunciation",
+    "tags": ["pronunciation", "unusual-spellings", "queue", "british-english"],
+    "cefrLevel": "B2",
+    "points": 15,
+    "timeLimit": 30,
+    "imageUrl": null,
+    "audioUrl": "https://example.com/audio/queue.mp3",
+    "metadata": {
+      "topic": "Pronunciation",
+      "subtopic": "Unusual Spellings",
+      "languageFocus": "Speaking"
+    }
+  }
+] 

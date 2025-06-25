@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Log Management API
-  description: API for retrieving and clearing application logs (Requires authentication)
+  description: API for retrieving, filtering, and analyzing application logs (Requires authentication)
   version: 1.0.0
 
 components:
@@ -17,8 +17,8 @@ security:
 paths:
   /api/logs:
     get:
-      summary: Retrieve application logs
-      description: Fetches error logs and application logs. Requires a valid token.
+      summary: Retrieve and filter application logs
+      description: Fetches error logs and application logs with filtering, pagination, and search capabilities. Requires a valid token.
       tags:
         - Logs
       security:
@@ -30,6 +30,63 @@ paths:
             type: string
           required: false
           description: Token can also be passed as a query parameter
+        - in: query
+          name: level
+          schema:
+            type: string
+            enum: [INFO, ERROR, UNKNOWN]
+          required: false
+          description: Filter by log level
+        - in: query
+          name: method
+          schema:
+            type: string
+            enum: [GET, POST, PUT, DELETE, PATCH]
+          required: false
+          description: Filter by HTTP method
+        - in: query
+          name: status
+          schema:
+            type: string
+          required: false
+          description: Filter by HTTP status code
+        - in: query
+          name: dateFrom
+          schema:
+            type: string
+            format: date
+          required: false
+          description: Filter logs from this date (YYYY-MM-DD)
+        - in: query
+          name: dateTo
+          schema:
+            type: string
+            format: date
+          required: false
+          description: Filter logs until this date (YYYY-MM-DD)
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Search in URL, IP, User-Agent, and other fields
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          required: false
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          required: false
+          description: Number of logs per page
       responses:
         '200':
           description: Logs retrieved successfully
@@ -44,12 +101,71 @@ paths:
                   data:
                     type: object
                     properties:
-                      errorLog:
-                        type: string
-                        example: "Error log content..."
-                      appLog:
-                        type: string
-                        example: "Formatted app log content..."
+                      logs:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            timestamp:
+                              type: string
+                            level:
+                              type: string
+                            method:
+                              type: string
+                            url:
+                              type: string
+                            status:
+                              type: integer
+                            responseTime:
+                              type: string
+                            clientIP:
+                              type: string
+                            userAgent:
+                              type: string
+                            type:
+                              type: string
+                              enum: [app, error]
+                      pagination:
+                        type: object
+                        properties:
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          total:
+                            type: integer
+                          totalPages:
+                            type: integer
+                      statistics:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          byType:
+                            type: object
+                          byLevel:
+                            type: object
+                          byMethod:
+                            type: object
+                          byStatus:
+                            type: object
+                          averageResponseTime:
+                            type: number
+                      filters:
+                        type: object
+                        properties:
+                          availableLevels:
+                            type: array
+                            items:
+                              type: string
+                          availableMethods:
+                            type: array
+                            items:
+                              type: string
+                          availableStatuses:
+                            type: array
+                            items:
+                              type: string
 
         '401':
           description: Token not provided
@@ -83,6 +199,127 @@ paths:
                   message:
                     type: string
                     example: Failed to retrieve logs
+
+  /api/logs/statistics:
+    get:
+      summary: Get log statistics
+      description: Retrieves comprehensive statistics about application logs including counts, averages, and top endpoints/errors. Requires a valid token.
+      tags:
+        - Logs
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: tokenAPI
+          schema:
+            type: string
+          required: false
+          description: Token can also be passed as a query parameter
+      responses:
+        '200':
+          description: Log statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Log statistics retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      byType:
+                        type: object
+                        properties:
+                          app:
+                            type: integer
+                          error:
+                            type: integer
+                      byLevel:
+                        type: object
+                      byMethod:
+                        type: object
+                      byStatus:
+                        type: object
+                      byTimeRange:
+                        type: object
+                        properties:
+                          last24h:
+                            type: integer
+                          last7d:
+                            type: integer
+                          last30d:
+                            type: integer
+                      averageResponseTime:
+                        type: number
+                      topEndpoints:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                            count:
+                              type: integer
+                      topErrorSources:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            source:
+                              type: string
+                            count:
+                              type: integer
+
+        '401':
+          description: Token not provided
+        '403':
+          description: Unauthorized access
+        '500':
+          description: Failed to retrieve log statistics
+
+  /api/logs/export:
+    get:
+      summary: Export logs
+      description: Exports logs in JSON or CSV format. Requires a valid token.
+      tags:
+        - Logs
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: tokenAPI
+          schema:
+            type: string
+          required: false
+          description: Token can also be passed as a query parameter
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum: [json, csv]
+            default: json
+          required: false
+          description: Export format
+      responses:
+        '200':
+          description: Logs exported successfully
+          content:
+            application/json:
+              schema:
+                type: array
+            text/csv:
+              schema:
+                type: string
+        '401':
+          description: Token not provided
+        '403':
+          description: Unauthorized access
+        '500':
+          description: Failed to export logs
 
   /api/logs/clear:
     get:

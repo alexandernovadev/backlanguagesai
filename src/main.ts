@@ -22,12 +22,15 @@ import { errorResponse, successResponse } from "./app/utils/responseHelpers";
 import { requestLogger } from "./app/utils/requestLogger";
 import { authMiddleware } from "./app/middlewares/authMiddleware";
 
+// Import package.json for version
+import packageJson from "../package.json";
+
 dotenv.config();
 
 const app = express();
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3000;
-const VERSION = process.env.VERSION || "V. March 8 2025 4:40 PM";
+const VERSION = `v${packageJson.version}-${NODE_ENV}`;
 
 // Middleware to parse JSON
 app.use(express.json());

@@ -125,7 +125,7 @@ export class WordService {
 
     // Nuevo filtro por palabras con/sin imagen
     if (hasImage === 'true') {
-      filter.img = { $exists: true, $ne: null, $ne: '' };
+      filter.img = { $exists: true, $nin: [null, ''] };
     } else if (hasImage === 'false') {
       filter.$or = [
         { img: { $exists: false } },

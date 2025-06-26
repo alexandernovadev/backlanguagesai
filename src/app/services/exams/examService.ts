@@ -204,6 +204,166 @@ export class ExamService {
     return exam.adaptive;
   }
 
+  // Get exams with attempt information for a specific user
+  async getExamsWithAttempts(
+    userId: string,
+    filters: {
+      page?: number;
+      limit?: number;
+      level?: string | string[];
+      language?: string | string[];
+      topic?: string;
+      source?: string;
+      createdBy?: string;
+      adaptive?: boolean;
+      sortBy?: string;
+      sortOrder?: string;
+      createdAfter?: string;
+      createdBefore?: string;
+    } = {}
+  ): Promise<PaginatedResult<any>> {
+    const {
+      page = 1,
+      limit = 10,
+      level,
+      language,
+      topic,
+      source,
+      createdBy,
+      adaptive,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      createdAfter,
+      createdBefore
+    } = filters;
+
+    const filter: Record<string, any> = {};
+
+    // Apply the same filters as getExams
+    if (level) {
+      if (Array.isArray(level)) {
+        filter.level = { $in: level };
+      } else {
+        filter.level = level;
+      }
+    }
+
+    if (language) {
+      if (Array.isArray(language)) {
+        filter.language = { $in: language };
+      } else {
+        filter.language = language;
+      }
+    }
+
+    if (topic) {
+      filter.topic = { $regex: topic, $options: 'i' };
+    }
+
+    if (source) {
+      filter.source = source;
+    }
+
+    if (createdBy) {
+      filter.createdBy = createdBy;
+    }
+
+    if (adaptive !== undefined) {
+      filter.adaptive = adaptive;
+    }
+
+    if (createdAfter || createdBefore) {
+      const createdAtFilter: Record<string, Date> = {};
+      if (createdAfter) {
+        createdAtFilter.$gte = new Date(createdAfter);
+      }
+      if (createdBefore) {
+        createdAtFilter.$lte = new Date(createdBefore);
+      }
+      filter.createdAt = createdAtFilter;
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+    const sort: Record<string, 1 | -1> = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
+
+    // Execute queries with aggregation to include attempt information
+    const [data, total] = await Promise.all([
+      Exam.aggregate([
+        { $match: filter },
+        {
+          $lookup: {
+            from: 'examattempts',
+            let: { examId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$exam', '$$examId'] },
+                      { $eq: ['$user', userId] }
+                    ]
+                  }
+                }
+              },
+              {
+                $sort: { startedAt: -1 }
+              }
+            ],
+            as: 'userAttempts'
+          }
+        },
+        {
+          $addFields: {
+            userAttempts: { $size: '$userAttempts' },
+            lastAttemptDate: {
+              $ifNull: [
+                { $arrayElemAt: ['$userAttempts.startedAt', 0] },
+                null
+              ]
+            },
+            bestScore: {
+              $max: {
+                $map: {
+                  input: '$userAttempts',
+                  as: 'attempt',
+                  in: {
+                    $avg: [
+                      '$$attempt.aiEvaluation.grammar',
+                      '$$attempt.aiEvaluation.fluency',
+                      '$$attempt.aiEvaluation.coherence',
+                      '$$attempt.aiEvaluation.vocabulary'
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        { $unset: 'userAttempts' },
+        { $sort: sort },
+        { $skip: skip },
+        { $limit: limit }
+      ]),
+      Exam.countDocuments(filter)
+    ]);
+
+    // Populate questions for each exam
+    const populatedData = await Exam.populate(data, {
+      path: 'questions.question',
+      model: 'Question'
+    });
+
+    const pages = Math.ceil(total / limit);
+
+    return {
+      data: populatedData,
+      total,
+      page,
+      pages
+    };
+  }
+
   // Get exam statistics
   async getExamStats(): Promise<{
     total: number;

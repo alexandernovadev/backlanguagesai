@@ -822,6 +822,137 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/exam-attempts/{id}/submit-answer:
+    post:
+      summary: Submit an answer for a question
+      description: Submit an individual answer during an exam attempt
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Exam attempt ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questionId
+                - answer
+              properties:
+                questionId:
+                  type: string
+                  description: Question ID
+                  example: 507f1f77bcf86cd799439013
+                answer:
+                  type: object
+                  description: Answer data (mixed type)
+                  example: "Yo voy al supermercado todos los días"
+                isCorrect:
+                  type: boolean
+                  description: Whether the answer is correct
+                score:
+                  type: number
+                  description: Score for this answer (0-100)
+                  minimum: 0
+                  maximum: 100
+                feedback:
+                  type: string
+                  description: Feedback for this answer
+                  maxLength: 1000
+      responses:
+        '200':
+          description: Answer submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Answer submitted successfully
+                  data:
+                    $ref: '#/components/schemas/ExamAttempt'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exam-attempts/user/{userId}/exam/{examId}/can-create:
+    get:
+      summary: Check if user can create a new attempt
+      description: Check if a user can create a new attempt for a specific exam
+      tags:
+        - Exam Attempts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+        - name: examId
+          in: path
+          description: Exam ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Check completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Can create attempt 2 of 3
+                  data:
+                    type: object
+                    properties:
+                      canCreate:
+                        type: boolean
+                        description: Whether the user can create a new attempt
+                        example: true
+                      currentAttempts:
+                        type: integer
+                        description: Number of attempts already made
+                        example: 1
+                      maxAttempts:
+                        type: integer
+                        description: Maximum attempts allowed for this exam
+                        example: 3
+                      nextAttemptNumber:
+                        type: integer
+                        description: Next attempt number if allowed
+                        example: 2
+                      message:
+                        type: string
+                        description: Human readable message
+                        example: Can create attempt 2 of 3
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 components:
   schemas:
     ExamAttempt:

@@ -13,7 +13,36 @@ interface PaginatedResult<T> {
 export class ExamAttemptService {
   // Create a new exam attempt
   async createExamAttempt(attemptData: IExamAttempt): Promise<IExamAttempt> {
-    const attempt = new ExamAttempt(attemptData);
+    // Get the exam to check attemptsAllowed
+    const exam = await Exam.findById(attemptData.exam);
+    if (!exam) {
+      throw new Error('Exam not found');
+    }
+
+    // Get existing attempts for this user and exam
+    const existingAttempts = await ExamAttempt.find({
+      user: attemptData.user,
+      exam: attemptData.exam
+    }).sort({ attemptNumber: -1 });
+
+    // Calculate next attempt number
+    const nextAttemptNumber = existingAttempts.length > 0 
+      ? existingAttempts[0].attemptNumber + 1 
+      : 1;
+
+    // Check if user has exceeded attemptsAllowed
+    if (exam.attemptsAllowed && nextAttemptNumber > exam.attemptsAllowed) {
+      throw new Error(`Maximum attempts (${exam.attemptsAllowed}) exceeded for this exam`);
+    }
+
+    // Create the attempt with calculated attemptNumber
+    const attempt = new ExamAttempt({
+      ...attemptData,
+      attemptNumber: nextAttemptNumber,
+      status: 'in_progress',
+      startedAt: new Date()
+    });
+
     return await attempt.save();
   }
 
@@ -377,6 +406,47 @@ export class ExamAttemptService {
       passed,
       averageScore: Math.round(avgScore[0]?.avgScore || 0),
       averageDuration: Math.round(avgDuration[0]?.avgDuration || 0)
+    };
+  }
+
+  // Check if user can create a new attempt for an exam
+  async canCreateAttempt(userId: string, examId: string): Promise<{
+    canCreate: boolean;
+    currentAttempts: number;
+    maxAttempts: number;
+    nextAttemptNumber: number;
+    message?: string;
+  }> {
+    const exam = await Exam.findById(examId);
+    if (!exam) {
+      return {
+        canCreate: false,
+        currentAttempts: 0,
+        maxAttempts: 0,
+        nextAttemptNumber: 1,
+        message: 'Exam not found'
+      };
+    }
+
+    const existingAttempts = await ExamAttempt.find({
+      user: userId,
+      exam: examId
+    }).sort({ attemptNumber: -1 });
+
+    const currentAttempts = existingAttempts.length;
+    const maxAttempts = exam.attemptsAllowed || 999; // Default to high number if not set
+    const nextAttemptNumber = currentAttempts + 1;
+
+    const canCreate = nextAttemptNumber <= maxAttempts;
+
+    return {
+      canCreate,
+      currentAttempts,
+      maxAttempts,
+      nextAttemptNumber,
+      message: canCreate 
+        ? `Can create attempt ${nextAttemptNumber} of ${maxAttempts}`
+        : `Maximum attempts (${maxAttempts}) exceeded`
     };
   }
 } 

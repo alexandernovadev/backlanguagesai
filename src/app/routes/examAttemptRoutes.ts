@@ -12,6 +12,8 @@ import {
   gradeExamAttempt,
   getAttemptStats,
   getUserStats,
+  submitAnswer,
+  checkCanCreateAttempt,
 } from "../controllers/examAttemptController";
 
 const router = Router();
@@ -34,9 +36,11 @@ router.get("/passed", getPassedAttempts);
 // User and exam specific routes
 router.get("/user/:userId/exam/:examId", getAttemptsByUserAndExam);
 router.get("/user/:userId/stats", getUserStats);
+router.get("/user/:userId/exam/:examId/can-create", checkCanCreateAttempt);
 
 // Action routes
 router.post("/:id/submit", submitExamAttempt);
+router.post("/:id/submit-answer", submitAnswer);
 router.post("/:id/grade", gradeExamAttempt);
 
 export default router; 

@@ -306,4 +306,60 @@ export const getUserStats = async (
       error
     );
   }
+};
+
+export const submitAnswer = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { id } = req.params;
+    const { questionId, answer, isCorrect, score, feedback } = req.body;
+    
+    if (!questionId || answer === undefined) {
+      return errorResponse(res, "questionId and answer are required", 400);
+    }
+
+    const updatedAttempt = await examAttemptService.submitAnswer(
+      id,
+      questionId,
+      answer,
+      isCorrect,
+      score,
+      feedback
+    );
+    
+    if (!updatedAttempt) {
+      return errorResponse(res, "Exam attempt not found", 404);
+    }
+
+    return successResponse(res, "Answer submitted successfully", updatedAttempt);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while submitting the answer",
+      500,
+      error
+    );
+  }
+};
+
+export const checkCanCreateAttempt = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { userId, examId } = req.params;
+    
+    const result = await examAttemptService.canCreateAttempt(userId, examId);
+    
+    return successResponse(res, result.message || "Check completed", result);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while checking attempt creation",
+      500,
+      error
+    );
+  }
 }; 

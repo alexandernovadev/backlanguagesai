@@ -349,4 +349,38 @@ export const generateExamFromQuestions = async (
       error
     );
   }
+};
+
+export const createExamWithQuestions = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { questions, ...examData } = req.body;
+    
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      return errorResponse(res, "Questions array is required and must not be empty", 400);
+    }
+
+    // Validate exam data (without questions for now)
+    const examValidation = ExamValidator.validateExam(examData, 0);
+    if (!examValidation.isValid) {
+      return errorResponse(res, `Exam validation error: ${examValidation.errors.join(', ')}`, 400);
+    }
+
+    // Create exam with questions
+    const newExam = await examService.createExamWithQuestions(questions, examData);
+    
+    return successResponse(res, "Exam with questions created successfully", newExam, 201);
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      return errorResponse(res, "Validation error: " + error.message, 400);
+    }
+    return errorResponse(
+      res,
+      "An error occurred while creating the exam with questions",
+      500,
+      error
+    );
+  }
 }; 

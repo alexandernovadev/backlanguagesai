@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import Exam, { IExam } from "../../db/models/Exam";
 import Question from "../../db/models/Question";
 
@@ -247,6 +248,32 @@ export class ExamService {
     const exam = new Exam({
       ...examData,
       questions: questions.map((questionId, index) => ({
+        question: questionId,
+        weight: 1,
+        order: index
+      }))
+    });
+
+    return await exam.save();
+  }
+
+  // Create exam with questions (creates questions first, then exam)
+  async createExamWithQuestions(
+    questionsData: any[],
+    examData: Partial<IExam>
+  ): Promise<IExam> {
+    // Create questions first
+    const createdQuestions = [];
+    for (const questionData of questionsData) {
+      const question = new Question(questionData);
+      const savedQuestion = await question.save();
+      createdQuestions.push(savedQuestion._id);
+    }
+
+    // Create exam with the created question IDs
+    const exam = new Exam({
+      ...examData,
+      questions: createdQuestions.map((questionId, index) => ({
         question: questionId,
         weight: 1,
         order: index

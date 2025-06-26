@@ -408,6 +408,92 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/exams/with-questions:
+    post:
+      summary: Create exam with questions
+      description: Create a new exam with questions included in the request
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questions
+                - title
+                - language
+                - level
+              properties:
+                questions:
+                  type: array
+                  description: Array of question objects to create
+                  items:
+                    $ref: '#/components/schemas/QuestionInput'
+                  minItems: 1
+                title:
+                  type: string
+                  description: Exam title
+                language:
+                  type: string
+                  description: Exam language
+                level:
+                  type: string
+                  enum: [A1, A2, B1, B2, C1, C2]
+                  description: Exam level
+                description:
+                  type: string
+                  description: Exam description
+                topic:
+                  type: string
+                  description: Exam topic
+                source:
+                  type: string
+                  enum: [manual, ai]
+                  default: manual
+                  description: Exam source
+                attemptsAllowed:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                  default: 3
+                  description: Number of attempts allowed
+                timeLimit:
+                  type: integer
+                  minimum: 1
+                  maximum: 480
+                  description: Time limit in minutes
+                adaptive:
+                  type: boolean
+                  default: false
+                  description: Whether the exam is adaptive
+                createdBy:
+                  type: string
+                  description: Creator user ID
+      responses:
+        '201':
+          description: Exam with questions created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exam with questions created successfully"
+                  data:
+                    $ref: '#/components/schemas/Exam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/exams/level/{level}:
     get:
       summary: Get exams by level

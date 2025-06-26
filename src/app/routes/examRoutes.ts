@@ -13,6 +13,7 @@ import {
   removeQuestionFromExam,
   getExamStats,
   generateExamFromQuestions,
+  createExamWithQuestions,
 } from "../controllers/examController";
 
 const router = Router();
@@ -20,6 +21,7 @@ const router = Router();
 // Basic CRUD routes
 router.get("/", getExams);
 router.post("/", createExam);
+router.post("/with-questions", createExamWithQuestions);
 
 // Specialized routes (must come before dynamic routes)
 router.get("/stats", getExamStats);

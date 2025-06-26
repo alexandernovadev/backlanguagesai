@@ -8,6 +8,7 @@ import { generateWordExamplesCodeSwithcingJson } from "../services/ai/generateWo
 import { generateWordTypesJson } from "../services/ai/generateWordTypesJson";
 import { generateWordSynomymsJson } from "../services/ai/generateWordSynomymsJson";
 import { generateImage } from "../services/ai/generateImage";
+import { generateExamStreamService } from "../services/ai/generateExamStream";
 import {
   deleteImageFromCloudinary,
   uploadImageToCloudinary,
@@ -364,5 +365,53 @@ export const updatedJSONWordSynonyms = async (req: Request, res: Response) => {
       500,
       error
     );
+  }
+};
+
+export const generateExamStream = async (req: Request, res: Response) => {
+  const {
+    level = "B1",
+    topic = "daily life",
+    numberOfQuestions = 10,
+    types = ["multiple_choice", "fill_blank", "true_false"],
+    difficulty = 3,
+    userLang = "es",
+  } = req.body;
+
+  if (!topic) {
+    return errorResponse(res, "Topic is required.", 400);
+  }
+
+  if (numberOfQuestions < 1 || numberOfQuestions > 50) {
+    return errorResponse(
+      res,
+      "Number of questions must be between 1 and 50.",
+      400
+    );
+  }
+
+  try {
+    const stream = await generateExamStreamService({
+      level,
+      topic,
+      numberOfQuestions,
+      types,
+      difficulty,
+      userLang,
+    });
+
+    res.setHeader("Content-Type", "application/json");
+    res.flushHeaders();
+
+    // Read the stream and send the data to the client
+    for await (const chunk of stream) {
+      const piece = chunk.choices[0].delta.content || "";
+      res.write(piece);
+    }
+
+    // Close the stream when done
+    res.end();
+  } catch (error) {
+    return errorResponse(res, "Failed to generate exam stream", 500, error);
   }
 };

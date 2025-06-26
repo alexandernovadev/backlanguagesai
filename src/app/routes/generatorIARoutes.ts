@@ -3,6 +3,7 @@ import {
   generateAudioFromText,
   generateJSONword,
   generateTextStream,
+  generateExamStream,
   updatedJSONWordExamples,
   updatedJSONWordExamplesCodeSwitching,
   updatedJSONWordSynonyms,
@@ -15,6 +16,7 @@ export const generateRoutes = Router();
 
 generateRoutes.post("/generate-text", generateTextStream);
 generateRoutes.post("/generate-wordJson", generateJSONword);
+generateRoutes.post("/generate-exam", generateExamStream);
 generateRoutes.post("/generate-image/:idword", updateImageWord);
 generateRoutes.post("/generate-image-lecture/:idlecture", updateImageLecture);
 

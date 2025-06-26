@@ -519,6 +519,182 @@ paths:
         '500':
           description: Internal server error
 
+  /api/ai/generate-exam:
+    post:
+      summary: Generate an exam with questions using AI
+      description: |
+        Generates a complete exam with questions based on specified parameters.
+        Returns a streamed JSON response with the generated questions.
+        
+        The AI will create questions appropriate for the specified CEFR level,
+        covering the given topic with the requested question types and difficulty.
+      tags:
+        - AI Generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                level:
+                  type: string
+                  enum: [A1, A2, B1, B2, C1, C2]
+                  default: "B1"
+                  description: CEFR level for the exam questions
+                  example: "B1"
+                topic:
+                  type: string
+                  description: Main topic or subject for the exam
+                  example: "daily life"
+                  minLength: 1
+                  maxLength: 200
+                numberOfQuestions:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                  default: 10
+                  description: Number of questions to generate
+                  example: 10
+                types:
+                  type: array
+                  items:
+                    type: string
+                    enum: [multiple_choice, fill_blank, true_false, translate, writing]
+                  default: ["multiple_choice", "fill_blank", "true_false"]
+                  description: Types of questions to include in the exam
+                  example: ["multiple_choice", "fill_blank", "true_false"]
+                difficulty:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  default: 3
+                  description: Difficulty level from 1 (easy) to 5 (hard)
+                  example: 3
+                userLang:
+                  type: string
+                  default: "es"
+                  description: Language for explanations (ISO 639-1 code)
+                  example: "es"
+              required:
+                - topic
+      responses:
+        '200':
+          description: |
+            Returns a streamed JSON response with generated questions.
+            The response is a JSON object with a questions array.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        text:
+                          type: string
+                          description: The question text
+                          example: "What is the capital of France?"
+                        type:
+                          type: string
+                          enum: [multiple_choice, fill_blank, true_false, translate, writing]
+                          description: Type of question
+                          example: "multiple_choice"
+                        isSingleAnswer:
+                          type: boolean
+                          description: Whether the question has only one correct answer
+                          example: true
+                        options:
+                          type: array
+                          description: Available options for multiple choice questions
+                          items:
+                            type: object
+                            properties:
+                              value:
+                                type: string
+                                description: Option identifier (A, B, C, etc.)
+                                example: "A"
+                              label:
+                                type: string
+                                description: Option text
+                                example: "London"
+                              isCorrect:
+                                type: boolean
+                                description: Whether this option is correct
+                                example: false
+                          example:
+                            - value: "A"
+                              label: "London"
+                              isCorrect: false
+                            - value: "B"
+                              label: "Paris"
+                              isCorrect: true
+                            - value: "C"
+                              label: "Berlin"
+                              isCorrect: false
+                        correctAnswers:
+                          type: array
+                          items:
+                            type: string
+                          description: Array of correct answer values
+                          example: ["B"]
+                        explanation:
+                          type: string
+                          description: Explanation of the correct answer in user's language with colorful HTML formatting and emojis (dark theme compatible)
+                          example: "🔴 <span style='color: #ff6b6b; font-weight: bold;'>AI</span> es singular, por lo tanto, usamos 🟦 <span style='color: #74b9ff; border: 1px solid #74b9ff; padding: 2px 4px; border-radius: 3px;'>has</span> 🟢 <span style='color: #00b894; text-decoration: underline;'>(no have)</span>"
+                        tags:
+                          type: array
+                          items:
+                            type: string
+                          description: Tags for categorizing the question
+                          example: ["grammar", "verb tenses"]
+                example:
+                  questions:
+                    - text: "Choose the correct verb form: AI ___ changed the way we work."
+                      type: "multiple_choice"
+                      isSingleAnswer: true
+                      options:
+                        - value: "A"
+                          label: "have"
+                          isCorrect: false
+                        - value: "B"
+                          label: "has"
+                          isCorrect: true
+                        - value: "C"
+                          label: "is"
+                          isCorrect: false
+                      correctAnswers: ["B"]
+                      explanation: "🔴 <span style='color: #ff6b6b; font-weight: bold;'>AI</span> es singular, por lo tanto, usamos 🟦 <span style='color: #74b9ff; border: 1px solid #74b9ff; padding: 2px 4px; border-radius: 3px;'>has</span> 🟢 <span style='color: #00b894; text-decoration: underline;'>(no have)</span>"
+                      tags: ["grammar", "verb tenses"]
+        '400':
+          description: Bad request - missing required fields or invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Topic is required."
+        '500':
+          description: Internal server error during exam generation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Failed to generate exam stream"
+
 components:
   schemas: {}
 

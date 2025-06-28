@@ -2,6 +2,7 @@ import ExamAttempt, { IExamAttempt } from "../../db/models/ExamAttempt";
 import Exam from "../../db/models/Exam";
 import User from "../../db/models/User";
 import mongoose from "mongoose";
+import Question, { IQuestion } from "../../db/models/Question";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -215,13 +216,9 @@ export class ExamAttemptService {
     byExam: Record<string, number>;
     byStatus: Record<string, number>;
   }> {
-    const [totalAttempts, passedAttempts, avgScore, totalDuration, byExam, byStatus] = await Promise.all([
+    const [totalAttempts, passedAttempts, totalDuration, byExam, byStatus] = await Promise.all([
       ExamAttempt.countDocuments({ user: userId }),
       ExamAttempt.countDocuments({ user: userId, passed: true }),
-      ExamAttempt.aggregate([
-        { $match: { user: userId } },
-        { $group: { _id: null, avgScore: { $avg: '$aiEvaluation.grammar' } } }
-      ]),
       ExamAttempt.aggregate([
         { $match: { user: userId } },
         { $group: { _id: null, totalDuration: { $sum: '$duration' } } }
@@ -236,14 +233,206 @@ export class ExamAttemptService {
       ])
     ]);
 
+    // Calculate average score using individual answer scores and AI evaluation
+    const attempts = await ExamAttempt.find({ user: userId });
+    let totalScore = 0;
+    let attemptCount = 0;
+
+    attempts.forEach(attempt => {
+      let attemptScore = 0;
+      
+      // Prefer AI evaluation if available, otherwise use individual scores
+      if (attempt.aiEvaluation && this.hasValidAIEvaluation(attempt.aiEvaluation)) {
+        attemptScore = this.getAverageAIScore(attempt);
+      } else {
+        attemptScore = this.getTotalScore(attempt);
+      }
+      
+      if (attemptScore > 0) {
+        totalScore += attemptScore;
+        attemptCount++;
+      }
+    });
+
+    const avgScore = attemptCount > 0 ? Math.round(totalScore / attemptCount) : 0;
+
     return {
       totalAttempts,
       passedAttempts,
-      avgScore: Math.round(avgScore[0]?.avgScore || 0),
+      avgScore,
       totalDuration: totalDuration[0]?.totalDuration || 0,
       byExam: byExam.reduce((acc, item) => ({ ...acc, [item._id.toString()]: item.count }), {}),
       byStatus: byStatus.reduce((acc, item) => ({ ...acc, [item._id]: item.count }), {})
     };
+  }
+
+  /**
+   * Check if AI evaluation has valid scores
+   */
+  private hasValidAIEvaluation(aiEvaluation: any): boolean {
+    return aiEvaluation && (
+      (aiEvaluation.grammar !== undefined && aiEvaluation.grammar > 0) ||
+      (aiEvaluation.fluency !== undefined && aiEvaluation.fluency > 0) ||
+      (aiEvaluation.coherence !== undefined && aiEvaluation.coherence > 0) ||
+      (aiEvaluation.vocabulary !== undefined && aiEvaluation.vocabulary > 0)
+    );
+  }
+
+  /**
+   * Evaluate a user's answer against the correct answers for a question
+   * Returns isCorrect boolean and score (0-100)
+   */
+  private evaluateAnswer(question: IQuestion, userAnswer: any): { isCorrect: boolean; score: number; feedback?: string; requiresAI?: boolean } {
+    if (!question || userAnswer === null || userAnswer === undefined || userAnswer === '') {
+      return { isCorrect: false, score: 0, feedback: 'Respuesta vacía' };
+    }
+
+    let isCorrect = false;
+    let feedback = '';
+    let requiresAI = false;
+
+    switch (question.type) {
+      case 'multiple_choice':
+      case 'true_false':
+        // ✅ EVALUACIÓN AUTOMÁTICA: Fácil match con respuesta correcta
+        if (question.options && question.options.length > 0) {
+          const selectedOption = question.options.find(option => option.value === userAnswer);
+          isCorrect = selectedOption ? selectedOption.isCorrect : false;
+          
+          if (!isCorrect) {
+            const correctOption = question.options.find(option => option.isCorrect);
+            feedback = correctOption ? `Respuesta correcta: ${correctOption.label}` : '';
+          } else {
+            feedback = '¡Correcto!';
+          }
+        }
+        break;
+
+      case 'fill_blank':
+        // ✅ EVALUACIÓN AUTOMÁTICA: Match simple con respuestas predefinidas
+        if (question.correctAnswers && question.correctAnswers.length > 0) {
+          const normalizedUserAnswer = this.normalizeText(userAnswer.toString());
+          const normalizedCorrectAnswers = question.correctAnswers.map(answer => this.normalizeText(answer));
+          
+          isCorrect = normalizedCorrectAnswers.some(correctAnswer => 
+            normalizedUserAnswer === correctAnswer ||
+            correctAnswer.includes(normalizedUserAnswer) ||
+            normalizedUserAnswer.includes(correctAnswer)
+          );
+
+          if (!isCorrect) {
+            feedback = `Respuesta correcta: ${question.correctAnswers[0]}`;
+          } else {
+            feedback = '¡Correcto!';
+          }
+        }
+        break;
+
+      case 'translate':
+        // 🤔 HÍBRIDO: Puede ser automático O requerir AI
+        if (question.correctAnswers && question.correctAnswers.length > 0) {
+          // Primero intentar evaluación automática
+          const normalizedUserAnswer = this.normalizeText(userAnswer.toString());
+          const normalizedCorrectAnswers = question.correctAnswers.map(answer => this.normalizeText(answer));
+          
+          isCorrect = normalizedCorrectAnswers.some(correctAnswer => 
+            normalizedUserAnswer === correctAnswer ||
+            this.calculateSimilarity(normalizedUserAnswer, correctAnswer) > 0.8
+          );
+
+          if (!isCorrect) {
+            // Si no hay match automático, marcar para evaluación AI
+            requiresAI = true;
+            feedback = 'Respuesta enviada para evaluación detallada';
+            // Dar puntuación temporal hasta evaluación AI
+            isCorrect = null; // Indicar que necesita evaluación
+          } else {
+            feedback = '¡Correcto!';
+          }
+        }
+        break;
+
+      case 'writing':
+        // 🤖 EVALUACIÓN CON AI: Siempre requiere análisis inteligente
+        requiresAI = true;
+        const userText = userAnswer.toString().trim();
+        
+        if (userText.length < 10) {
+          isCorrect = false;
+          feedback = 'Respuesta muy corta';
+        } else {
+          // Marcar como pendiente de evaluación AI
+          isCorrect = null; // Indicar que necesita evaluación
+          feedback = 'Respuesta enviada para evaluación detallada por AI';
+        }
+        break;
+
+      default:
+        isCorrect = false;
+        feedback = 'Tipo de pregunta no soportado';
+    }
+
+    // Calcular score
+    let score = 0;
+    if (isCorrect === true) {
+      score = 100;
+    } else if (isCorrect === false) {
+      score = 0;
+    } else if (isCorrect === null) {
+      // Respuesta pendiente de evaluación AI
+      score = 50; // Puntuación temporal
+    }
+
+    return { isCorrect: isCorrect === null ? false : isCorrect, score, feedback, requiresAI };
+  }
+
+  /**
+   * Calculate similarity between two strings (simple Levenshtein-based)
+   */
+  private calculateSimilarity(str1: string, str2: string): number {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    const distance = this.levenshteinDistance(longer, shorter);
+    return (longer.length - distance) / longer.length;
+  }
+
+  /**
+   * Calculate Levenshtein distance between two strings
+   */
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+
+    for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+    for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+    for (let j = 1; j <= str2.length; j++) {
+      for (let i = 1; i <= str1.length; i++) {
+        const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[j][i] = Math.min(
+          matrix[j][i - 1] + 1,
+          matrix[j - 1][i] + 1,
+          matrix[j - 1][i - 1] + indicator
+        );
+      }
+    }
+
+    return matrix[str2.length][str1.length];
+  }
+
+  /**
+   * Normalize text for comparison (remove accents, convert to lowercase, trim)
+   */
+  private normalizeText(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^\w\s]/g, '') // Remove punctuation
+      .replace(/\s+/g, ' '); // Normalize spaces
   }
 
   // Submit an answer
@@ -258,6 +447,54 @@ export class ExamAttemptService {
     const attempt = await ExamAttempt.findById(attemptId);
     if (!attempt) return null;
 
+    // If isCorrect and score are not provided, evaluate automatically
+    let finalIsCorrect = isCorrect;
+    let finalScore = score;
+    let finalFeedback = feedback;
+    let requiresAI = false;
+
+    if (isCorrect === undefined || score === undefined) {
+      try {
+        // Get the question to evaluate the answer
+        const question = await Question.findById(questionId);
+        if (question) {
+          console.log(`🔍 Evaluando pregunta tipo: ${question.type} | Respuesta: ${answer}`);
+          
+          const evaluation = this.evaluateAnswer(question, answer);
+          finalIsCorrect = evaluation.isCorrect;
+          finalScore = evaluation.score;
+          finalFeedback = evaluation.feedback || feedback;
+          requiresAI = evaluation.requiresAI || false;
+
+          console.log(`📊 Resultado evaluación:`, {
+            type: question.type,
+            isCorrect: finalIsCorrect,
+            score: finalScore,
+            requiresAI: requiresAI,
+            feedback: finalFeedback
+          });
+
+          // Si requiere AI, agregar metadata especial
+          if (requiresAI) {
+            finalFeedback = `${finalFeedback} [REQUIERE_AI]`;
+            console.log(`🤖 Marcando para evaluación AI: ${question.type}`);
+          }
+        } else {
+          // If question not found, default to incorrect
+          finalIsCorrect = false;
+          finalScore = 0;
+          finalFeedback = 'Pregunta no encontrada';
+          console.log(`❌ Pregunta no encontrada: ${questionId}`);
+        }
+      } catch (error) {
+        console.error('Error evaluating answer:', error);
+        // If evaluation fails, default to provided values or incorrect
+        finalIsCorrect = isCorrect ?? false;
+        finalScore = score ?? 0;
+        finalFeedback = feedback || 'Error al evaluar respuesta';
+      }
+    }
+
     // Find existing answer or create new one
     const existingAnswerIndex = attempt.answers.findIndex(
       a => a.question.toString() === questionId
@@ -266,9 +503,9 @@ export class ExamAttemptService {
     const answerData = {
       question: new mongoose.Types.ObjectId(questionId),
       answer,
-      isCorrect,
-      score,
-      feedback,
+      isCorrect: finalIsCorrect,
+      score: finalScore,
+      feedback: finalFeedback,
       submittedAt: new Date()
     };
 
@@ -278,7 +515,10 @@ export class ExamAttemptService {
       attempt.answers.push(answerData);
     }
 
-    return await attempt.save();
+    const savedAttempt = await attempt.save();
+    console.log(`✅ Respuesta guardada | Score: ${finalScore} | Correct: ${finalIsCorrect}`);
+    
+    return savedAttempt;
   }
 
   // Submit exam attempt
@@ -294,7 +534,61 @@ export class ExamAttemptService {
       attempt.duration = duration;
     }
 
-    return await attempt.save();
+    // Calculate if passed based on individual answer scores (70% threshold)
+    const totalScore = this.getTotalScore(attempt);
+    attempt.passed = totalScore >= 70;
+
+    // Check if any answers require AI evaluation
+    const answersRequiringAI = this.getAnswersRequiringAI(attempt);
+    if (answersRequiringAI.length > 0) {
+      console.log(`🤖 ${answersRequiringAI.length} respuestas requieren evaluación AI`);
+      // Note: AI evaluation would happen separately via the grade endpoint
+    }
+
+    const savedAttempt = await attempt.save();
+    console.log(`📋 Examen enviado | Score final: ${totalScore}% | Aprobado: ${attempt.passed}`);
+    
+    return savedAttempt;
+  }
+
+  /**
+   * Get answers that require AI evaluation
+   */
+  getAnswersRequiringAI(attempt: IExamAttempt): any[] {
+    return attempt.answers.filter(answer => 
+      answer.feedback && answer.feedback.includes('[REQUIERE_AI]')
+    );
+  }
+
+  /**
+   * Check if attempt has answers requiring AI evaluation
+   */
+  hasAnswersRequiringAI(attempt: IExamAttempt): boolean {
+    return this.getAnswersRequiringAI(attempt).length > 0;
+  }
+
+  /**
+   * Get attempt readiness status
+   */
+  getAttemptStatus(attempt: IExamAttempt): {
+    isComplete: boolean;
+    requiresAI: boolean;
+    totalAnswers: number;
+    answersRequiringAI: number;
+    autoEvaluatedAnswers: number;
+  } {
+    const answersRequiringAI = this.getAnswersRequiringAI(attempt);
+    const autoEvaluatedAnswers = attempt.answers.filter(answer => 
+      !answer.feedback?.includes('[REQUIERE_AI]')
+    );
+
+    return {
+      isComplete: attempt.status === 'submitted' || attempt.status === 'graded',
+      requiresAI: answersRequiringAI.length > 0,
+      totalAnswers: attempt.answers.length,
+      answersRequiringAI: answersRequiringAI.length,
+      autoEvaluatedAnswers: autoEvaluatedAnswers.length
+    };
   }
 
   // Grade exam attempt
@@ -382,7 +676,7 @@ export class ExamAttemptService {
     averageScore: number;
     averageDuration: number;
   }> {
-    const [total, byStatus, byCEFR, passed, avgScore, avgDuration] = await Promise.all([
+    const [total, byStatus, byCEFR, passed, avgDuration] = await Promise.all([
       ExamAttempt.countDocuments(),
       ExamAttempt.aggregate([
         { $group: { _id: '$status', count: { $sum: 1 } } }
@@ -392,19 +686,39 @@ export class ExamAttemptService {
       ]),
       ExamAttempt.countDocuments({ passed: true }),
       ExamAttempt.aggregate([
-        { $group: { _id: null, avgScore: { $avg: '$aiEvaluation.grammar' } } }
-      ]),
-      ExamAttempt.aggregate([
         { $group: { _id: null, avgDuration: { $avg: '$duration' } } }
       ])
     ]);
+
+    // Calculate average score using individual answer scores and AI evaluation
+    const attempts = await ExamAttempt.find({});
+    let totalScore = 0;
+    let attemptCount = 0;
+
+    attempts.forEach(attempt => {
+      let attemptScore = 0;
+      
+      // Prefer AI evaluation if available, otherwise use individual scores
+      if (attempt.aiEvaluation && this.hasValidAIEvaluation(attempt.aiEvaluation)) {
+        attemptScore = this.getAverageAIScore(attempt);
+      } else {
+        attemptScore = this.getTotalScore(attempt);
+      }
+      
+      if (attemptScore > 0) {
+        totalScore += attemptScore;
+        attemptCount++;
+      }
+    });
+
+    const averageScore = attemptCount > 0 ? Math.round(totalScore / attemptCount) : 0;
 
     return {
       total,
       byStatus: byStatus.reduce((acc, item) => ({ ...acc, [item._id]: item.count }), {}),
       byCEFR: byCEFR.reduce((acc, item) => ({ ...acc, [item._id]: item.count }), {}),
       passed,
-      averageScore: Math.round(avgScore[0]?.avgScore || 0),
+      averageScore,
       averageDuration: Math.round(avgDuration[0]?.avgDuration || 0)
     };
   }

@@ -344,6 +344,46 @@ export const submitAnswer = async (
   }
 };
 
+export const getAttemptEvaluationStatus = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { id } = req.params;
+    const attempt = await examAttemptService.getExamAttemptById(id);
+    
+    if (!attempt) {
+      return errorResponse(res, "Exam attempt not found", 404);
+    }
+
+    const status = examAttemptService.getAttemptStatus(attempt);
+    const answersRequiringAI = examAttemptService.getAnswersRequiringAI(attempt);
+
+    const response = {
+      attemptId: attempt._id,
+      status: attempt.status,
+      evaluationStatus: status,
+      answersRequiringAI: answersRequiringAI.map(answer => ({
+        questionId: answer.question,
+        answer: answer.answer,
+        feedback: answer.feedback,
+        type: 'requires_ai'
+      })),
+      totalScore: examAttemptService.getTotalScore(attempt),
+      accuracy: examAttemptService.getAccuracy(attempt)
+    };
+
+    return successResponse(res, "Evaluation status retrieved successfully", response);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving evaluation status",
+      500,
+      error
+    );
+  }
+};
+
 export const checkCanCreateAttempt = async (
   req: Request,
   res: Response

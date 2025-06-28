@@ -13,6 +13,7 @@ import {
   getAttemptStats,
   getUserStats,
   submitAnswer,
+  getAttemptEvaluationStatus,
   checkCanCreateAttempt,
 } from "../controllers/examAttemptController";
 
@@ -31,7 +32,7 @@ router.delete("/:id", deleteExamAttempt);
 
 // Specialized routes (must come before dynamic routes)
 router.get("/status/:status", getAttemptsByStatus);
-router.get("/passed", getPassedAttempts);
+router.get("/passed/all", getPassedAttempts);
 
 // User and exam specific routes
 router.get("/user/:userId/exam/:examId", getAttemptsByUserAndExam);
@@ -42,5 +43,8 @@ router.get("/user/:userId/exam/:examId/can-create", checkCanCreateAttempt);
 router.post("/:id/submit", submitExamAttempt);
 router.post("/:id/submit-answer", submitAnswer);
 router.post("/:id/grade", gradeExamAttempt);
+
+// Evaluation status
+router.get("/:id/evaluation-status", getAttemptEvaluationStatus);
 
 export default router; 

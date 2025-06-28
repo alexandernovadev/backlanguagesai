@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Exam, { IExam } from "../../db/models/Exam";
 import Question from "../../db/models/Question";
+import ExamAttempt from "../../db/models/ExamAttempt";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -237,9 +238,9 @@ export class ExamService {
       createdBefore
     } = filters;
 
-    const filter: Record<string, any> = {};
+    // Build filter object
+    const filter: any = {};
 
-    // Apply the same filters as getExams
     if (level) {
       if (Array.isArray(level)) {
         filter.level = { $in: level };
@@ -315,32 +316,15 @@ export class ExamService {
         },
         {
           $addFields: {
-            userAttempts: { $size: '$userAttempts' },
+            userAttemptsCount: { $size: '$userAttempts' },
             lastAttemptDate: {
               $ifNull: [
                 { $arrayElemAt: ['$userAttempts.startedAt', 0] },
                 null
               ]
-            },
-            bestScore: {
-              $max: {
-                $map: {
-                  input: '$userAttempts',
-                  as: 'attempt',
-                  in: {
-                    $avg: [
-                      '$$attempt.aiEvaluation.grammar',
-                      '$$attempt.aiEvaluation.fluency',
-                      '$$attempt.aiEvaluation.coherence',
-                      '$$attempt.aiEvaluation.vocabulary'
-                    ]
-                  }
-                }
-              }
             }
           }
         },
-        { $unset: 'userAttempts' },
         { $sort: sort },
         { $skip: skip },
         { $limit: limit }
@@ -348,8 +332,33 @@ export class ExamService {
       Exam.countDocuments(filter)
     ]);
 
+    // Post-process to calculate bestScore using hybrid logic
+    const processedData = await Promise.all(data.map(async (exam) => {
+      let bestScore = 0;
+      
+      if (exam.userAttempts && exam.userAttempts.length > 0) {
+        const scores = exam.userAttempts.map((attempt: any) => {
+          // Use AI evaluation if available and valid, otherwise use individual scores
+          if (attempt.aiEvaluation && this.hasValidAIEvaluation(attempt.aiEvaluation)) {
+            return this.getAverageAIScore(attempt.aiEvaluation);
+          } else if (attempt.answers && attempt.answers.length > 0) {
+            return this.getTotalScoreFromAnswers(attempt.answers);
+          }
+          return 0;
+        });
+        
+        bestScore = Math.max(...scores.filter(score => score > 0), 0);
+      }
+
+      return {
+        ...exam,
+        userAttempts: exam.userAttemptsCount,
+        bestScore
+      };
+    }));
+
     // Populate questions for each exam
-    const populatedData = await Exam.populate(data, {
+    const populatedData = await Exam.populate(processedData, {
       path: 'questions.question',
       model: 'Question'
     });
@@ -362,6 +371,43 @@ export class ExamService {
       page,
       pages
     };
+  }
+
+  /**
+   * Check if AI evaluation has valid scores
+   */
+  private hasValidAIEvaluation(aiEvaluation: any): boolean {
+    return aiEvaluation && (
+      (aiEvaluation.grammar !== undefined && aiEvaluation.grammar > 0) ||
+      (aiEvaluation.fluency !== undefined && aiEvaluation.fluency > 0) ||
+      (aiEvaluation.coherence !== undefined && aiEvaluation.coherence > 0) ||
+      (aiEvaluation.vocabulary !== undefined && aiEvaluation.vocabulary > 0)
+    );
+  }
+
+  /**
+   * Calculate average AI score
+   */
+  private getAverageAIScore(aiEvaluation: any): number {
+    if (!aiEvaluation) return 0;
+    const scores = [
+      aiEvaluation.grammar,
+      aiEvaluation.fluency,
+      aiEvaluation.coherence,
+      aiEvaluation.vocabulary
+    ].filter(score => score !== undefined && score > 0);
+    
+    if (scores.length === 0) return 0;
+    return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+  }
+
+  /**
+   * Calculate total score from individual answers
+   */
+  private getTotalScoreFromAnswers(answers: any[]): number {
+    if (!answers || answers.length === 0) return 0;
+    const totalScore = answers.reduce((sum, answer) => sum + (answer.score || 0), 0);
+    return Math.round(totalScore / answers.length);
   }
 
   // Get exam statistics

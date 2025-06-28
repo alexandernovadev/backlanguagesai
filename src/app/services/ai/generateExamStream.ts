@@ -120,11 +120,13 @@ ${levelNotes}
 - Multiple Choice: "Choose the correct verb forms/words/grammar structures (multiple answers)"
 - Fill Blank: "Complete with the appropriate word/verb form"
 - True/False: "Is this sentence grammatically correct?"
+- Translate: "Translate from ${userLang === 'es' ? 'Spanish' : userLang} to English" (never translate to the same language as userLang)
 
 🏠 ANY topic is valid - adapt the language level to ${level}, not the topic complexity
 
 🚫 Constraints:
-- Only one correct answer per question
+- For questions of type "single_choice", "multiple_choice", or "fill_blank": generate between 4 and 6 options per question (no less than 4, no more than 6).
+- Only one correct answer for single_choice and fill_blank. Multiple correct answers allowed for multiple_choice.
 - Match answer format: if correctAnswer is "B", it must match options
 - Use clear, realistic language per level
 - Avoid ambiguous answers

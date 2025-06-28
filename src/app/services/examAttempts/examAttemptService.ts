@@ -292,7 +292,7 @@ export class ExamAttemptService {
     let requiresAI = false;
 
     switch (question.type) {
-      case 'multiple_choice':
+      case 'single_choice':
       case 'true_false':
         // ✅ EVALUACIÓN AUTOMÁTICA: Fácil match con respuesta correcta
         if (question.options && question.options.length > 0) {
@@ -302,6 +302,28 @@ export class ExamAttemptService {
           if (!isCorrect) {
             const correctOption = question.options.find(option => option.isCorrect);
             feedback = correctOption ? `Respuesta correcta: ${correctOption.label}` : '';
+          } else {
+            feedback = '¡Correcto!';
+          }
+        }
+        break;
+
+      case 'multiple_choice':
+        // ✅ EVALUACIÓN AUTOMÁTICA: Verificar que todas las opciones seleccionadas sean correctas
+        if (question.options && question.options.length > 0) {
+          const selectedAnswers = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
+          const correctOptions = question.options.filter(option => option.isCorrect);
+          const selectedOptions = question.options.filter(option => selectedAnswers.includes(option.value));
+          
+          // Verificar que todas las seleccionadas sean correctas y que se hayan seleccionado todas las correctas
+          const allSelectedAreCorrect = selectedOptions.every(option => option.isCorrect);
+          const allCorrectAreSelected = correctOptions.every(option => selectedAnswers.includes(option.value));
+          
+          isCorrect = allSelectedAreCorrect && allCorrectAreSelected;
+          
+          if (!isCorrect) {
+            const correctLabels = correctOptions.map(option => option.label).join(', ');
+            feedback = `Respuestas correctas: ${correctLabels}`;
           } else {
             feedback = '¡Correcto!';
           }

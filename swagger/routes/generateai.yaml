@@ -567,7 +567,7 @@ paths:
                   type: array
                   items:
                     type: string
-                    enum: [multiple_choice, fill_blank, true_false, translate, writing]
+                    enum: [single_choice, multiple_choice, fill_blank, true_false, translate, writing]
                   default: ["multiple_choice", "fill_blank", "true_false"]
                   description: Types of questions to include in the exam
                   example: ["multiple_choice", "fill_blank", "true_false"]
@@ -606,7 +606,7 @@ paths:
                           example: "What is the capital of France?"
                         type:
                           type: string
-                          enum: [multiple_choice, fill_blank, true_false, translate, writing]
+                          enum: [single_choice, multiple_choice, fill_blank, true_false, translate, writing]
                           description: Type of question
                           example: "multiple_choice"
                         options:

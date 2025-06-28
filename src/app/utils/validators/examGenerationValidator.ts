@@ -60,7 +60,7 @@ export class ExamGenerationValidator {
       if (!Array.isArray(params.types)) {
         errors.push('Types must be an array');
       } else {
-        const validTypes = ['multiple_choice', 'fill_blank', 'true_false', 'translate', 'writing'];
+        const validTypes = ['single_choice', 'multiple_choice', 'fill_blank', 'true_false', 'translate', 'writing'];
         params.types.forEach((type, index) => {
           if (!validTypes.includes(type)) {
             errors.push(`Type ${index + 1} must be one of: ${validTypes.join(', ')}`);

@@ -116,12 +116,31 @@ ${levelNotes}
 
 🌐 Write explanations in: **${userLang.toUpperCase()}**
 
-🎨 EXPLANATIONS: Use colorful HTML styling:
+🎨 EXPLANATIONS: Create DETAILED, EDUCATIONAL explanations in ENGLISH:
 - <span style='color: #ff6b6b; font-weight: bold;'>Keywords</span> in red bold
 - <span style='color: #74b9ff; border: 1px solid #74b9ff; padding: 2px 4px; border-radius: 3px;'>Grammar rules</span> in blue with border
 - <span style='color: #00b894; text-decoration: underline;'>Important concepts</span> in green underlined
 - <span style='color: #fdcb6e; font-style: italic;'>Examples</span> in yellow italic
 - Use emojis: 🔴 🟦 🟢 🟡 for visual appeal
+
+📚 EXPLANATION REQUIREMENTS:
+- Write explanations in ENGLISH (not ${userLang})
+- Explain WHY the answer is correct (specific grammar rules)
+- Mention why the other options are wrong
+- Give examples of the grammar concept
+- Connect to broader grammar topics
+- Use clear, educational language that actually teaches
+- Focus on English grammar learning
+
+❌ AVOID vague explanations like:
+- "This is correct because it uses the grammar properly"
+- "The sentence uses the correct form"
+- "This option is right because it's grammatically correct"
+
+✅ PROVIDE detailed explanations like:
+- "We use 'that' instead of 'which' because this is a restrictive relative clause that identifies specific information"
+- "The Present Perfect 'has learned' indicates an action completed in the past with present relevance"
+- "In the Second Conditional, the 'if' clause uses the past simple 'had' to express a hypothetical condition"
 
 🎯 CRITICAL: Generate ONLY language learning questions:
 - Grammar: verb tenses, articles, prepositions, word order, sentence structure
@@ -162,10 +181,13 @@ ${grammarInstructions}
         { "value": "B", "label": "Correct answer", "isCorrect": true }
       ],
       "correctAnswers": ["B"],
-      "explanation": "Explicación en ${userLang.toUpperCase()} con HTML colorido y estilos:
-       <span style='color: #ff6b6b; font-weight: bold;'>palabras clave</span>, 
-       <span style='color: #74b9ff; border: 1px solid #74b9ff; padding: 2px 4px; border-radius: 3px;'>gramática</span>, 
-       <span style='color: #00b894; text-decoration: underline;'>reglas importantes</span>",
+      "explanation": "Detailed explanation in ENGLISH with colorful HTML:
+       <span style='color: #ff6b6b; font-weight: bold;'>key words</span>, 
+       <span style='color: #74b9ff; border: 1px solid #74b9ff; padding: 2px 4px; border-radius: 3px;'>specific grammar rule</span>, 
+       <span style='color: #00b894; text-decoration: underline;'>important concept</span>,
+       <span style='color: #fdcb6e; font-style: italic;'>additional example</span>.
+       
+       Explain WHY it's correct, mention the specific grammar rule, and why other options are wrong.",
       "tags": ["grammar", "vocabulary"]
     }
   ]
@@ -189,6 +211,16 @@ ${grammarInstructions}
         ${grammarTopics.length > 0 ? `MANDATORY: Include questions covering these grammar topics: ${grammarTopics.join(', ')}. ` : ''}
         Focus on grammar, vocabulary, and language patterns regardless of the topic. 
         Use these types: ${types.join(", ")}. Difficulty: ${difficulty}/5. 
+        
+        🎓 CRITICAL: Provide DETAILED, EDUCATIONAL explanations in ENGLISH that actually teach:
+        - Write explanations in ENGLISH (not ${userLang})
+        - Explain WHY the answer is correct (specific grammar rules)
+        - Mention why other options are wrong
+        - Give examples of the grammar concept
+        - Connect to broader grammar topics
+        - Focus on English grammar learning
+        - Avoid vague statements like "this is correct because it's grammatically correct"
+        
         The response must contain exactly ${numberOfQuestions} questions in the JSON object. 
         ANY topic is valid - adapt the language complexity to ${level}.`,
       },

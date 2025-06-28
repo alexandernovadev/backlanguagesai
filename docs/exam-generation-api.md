@@ -54,6 +54,7 @@ const examData = await response.json();
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `topic` | `string` | ✅ Yes | - | Main topic or subject for the exam (1-200 chars) |
+| `grammarTopics` | `string[]` | ❌ No | `[]` | List of mandatory grammar topics to include (max 10) |
 | `level` | `string` | ❌ No | `"B1"` | CEFR level: `"A1"`, `"A2"`, `"B1"`, `"B2"`, `"C1"`, `"C2"` |
 | `numberOfQuestions` | `number` | ❌ No | `10` | Number of questions (1-50) |
 | `types` | `string[]` | ❌ No | `["multiple_choice", "fill_blank", "true_false"]` | Question types to include |
@@ -105,6 +106,7 @@ Explanations include colorful HTML styling (dark theme compatible):
 ```javascript
 const grammarExam = {
   topic: "grammar basics",
+  grammarTopics: ["Present Simple", "Articles", "Prepositions"],
   level: "A2",
   numberOfQuestions: 5,
   types: ["multiple_choice", "fill_blank"],
@@ -113,10 +115,11 @@ const grammarExam = {
 };
 ```
 
-### Example 2: Advanced Vocabulary Exam
+### Example 2: Advanced Vocabulary Exam with Grammar Focus
 ```javascript
 const vocabExam = {
   topic: "business vocabulary",
+  grammarTopics: ["Modal Verbs", "Passive Voice", "Conditionals"],
   level: "B2",
   numberOfQuestions: 15,
   types: ["multiple_choice", "true_false"],
@@ -125,10 +128,11 @@ const vocabExam = {
 };
 ```
 
-### Example 3: Mixed Skills Exam
+### Example 3: Mixed Skills Exam with Specific Grammar
 ```javascript
 const mixedExam = {
   topic: "travel and tourism",
+  grammarTopics: ["Future Tenses", "Comparative Adjectives", "Phrasal Verbs"],
   level: "B1",
   numberOfQuestions: 20,
   types: ["multiple_choice", "fill_blank", "true_false", "translate"],

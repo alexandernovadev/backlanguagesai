@@ -19,6 +19,7 @@ import { imageWordPrompt } from "./helpers/ImagePrompt";
 import { promptAddEasyWords } from "./helpers/promptAddEasyWords";
 import { LectureService } from "../services/lectures/LectureService";
 import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
+import { ExamGenerationValidator } from "../utils/validators/examGenerationValidator";
 
 const wordService = new WordService();
 const lectureService = new LectureService();
@@ -372,28 +373,38 @@ export const generateExamStream = async (req: Request, res: Response) => {
   const {
     level = "B1",
     topic = "daily life",
+    grammarTopics = [],
     numberOfQuestions = 10,
     types = ["multiple_choice", "fill_blank", "true_false"],
     difficulty = 3,
     userLang = "es",
   } = req.body;
 
-  if (!topic) {
-    return errorResponse(res, "Topic is required.", 400);
+  // Validar parámetros usando el nuevo validador
+  const validation = ExamGenerationValidator.validateExamGeneration({
+    topic,
+    grammarTopics,
+    level,
+    numberOfQuestions,
+    types,
+    difficulty,
+    userLang,
+  });
+
+  if (!validation.isValid) {
+    return errorResponse(res, `Validation error: ${validation.errors.join(', ')}`, 400);
   }
 
-  if (numberOfQuestions < 1 || numberOfQuestions > 50) {
-    return errorResponse(
-      res,
-      "Number of questions must be between 1 and 50.",
-      400
-    );
+  // Mostrar warnings si existen
+  if (validation.warnings.length > 0) {
+    console.warn('Exam generation warnings:', validation.warnings);
   }
 
   try {
     const stream = await generateExamStreamService({
       level,
       topic,
+      grammarTopics,
       numberOfQuestions,
       types,
       difficulty,

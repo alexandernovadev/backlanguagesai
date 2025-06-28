@@ -5,6 +5,7 @@ import { IExam } from "../../db/models/Exam";
 interface ExamOptions {
   level?: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
   topic?: string;
+  grammarTopics?: string[];
   numberOfQuestions?: number;
   types?: string[];
   difficulty?: number;
@@ -38,6 +39,7 @@ interface ExamGenerationResult {
 export const generateExamStreamService = async ({
   level = "B1",
   topic = "daily life",
+  grammarTopics = [],
   numberOfQuestions = 10,
   types = ["multiple_choice", "fill_blank", "true_false"],
   difficulty = 3,
@@ -94,6 +96,18 @@ export const generateExamStreamService = async ({
 
   const levelNotes = levelToneMap[level] || "";
 
+  const grammarInstructions = grammarTopics.length > 0 
+    ? `
+🎯 GRAMMAR TOPICS REQUIREMENT:
+You MUST include questions covering these specific grammar topics: ${grammarTopics.join(', ')}
+- Each grammar topic must appear in at least one question
+- Distribute grammar topics evenly throughout the exam
+- Ensure questions test the specific grammar concepts requested
+- The topic "${topic}" is the main theme, but grammar topics are MANDATORY
+- If you have ${grammarTopics.length} grammar topics and ${numberOfQuestions} questions, try to include each grammar topic in ${Math.ceil(numberOfQuestions / grammarTopics.length)} questions
+`
+    : "";
+
   const systemPrompt = `
 You are an AI specialized in generating CEFR-aligned English LANGUAGE LEARNING questions.
 
@@ -114,6 +128,8 @@ ${levelNotes}
 - Vocabulary: word meanings, synonyms, antonyms, collocations, phrasal verbs
 - Reading: comprehension of language patterns and structures
 - NO general knowledge, history, science, geography, literature, or culture
+
+${grammarInstructions}
 
 📝 Question Types Focus:
 - Single Choice: "Choose the correct verb form/word/grammar structure (one answer)"
@@ -170,6 +186,7 @@ ${levelNotes}
         role: "user",
         content: `You MUST generate EXACTLY ${numberOfQuestions} questions - no more, no less! 
         Create ${level} level LANGUAGE LEARNING questions about "${topic}". 
+        ${grammarTopics.length > 0 ? `MANDATORY: Include questions covering these grammar topics: ${grammarTopics.join(', ')}. ` : ''}
         Focus on grammar, vocabulary, and language patterns regardless of the topic. 
         Use these types: ${types.join(", ")}. Difficulty: ${difficulty}/5. 
         The response must contain exactly ${numberOfQuestions} questions in the JSON object. 

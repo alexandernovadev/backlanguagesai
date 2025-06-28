@@ -549,6 +549,13 @@ paths:
                   example: "daily life"
                   minLength: 1
                   maxLength: 200
+                grammarTopics:
+                  type: array
+                  items:
+                    type: string
+                  description: List of mandatory grammar topics to include in the exam
+                  example: ["Present Simple", "Modal Verbs", "Prepositions"]
+                  maxItems: 10
                 numberOfQuestions:
                   type: integer
                   minimum: 1

@@ -3,8 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 // Definir la interfaz del documento
 export interface IQuestion extends Document {
   text: string;
-  type: 'multiple_choice' | 'fill_blank' | 'translate' | 'true_false' | 'writing';
-  isSingleAnswer: boolean;
+  type: 'single_choice' | 'multiple_choice' | 'fill_blank' | 'translate' | 'true_false' | 'writing';
   level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
   topic?: string;
   difficulty?: number;
@@ -36,12 +35,8 @@ const QuestionSchema = new Schema<IQuestion>(
     },
     type: {
       type: String,
-      enum: ['multiple_choice', 'fill_blank', 'translate', 'true_false', 'writing'],
+      enum: ['single_choice', 'multiple_choice', 'fill_blank', 'translate', 'true_false', 'writing'],
       required: true,
-    },
-    isSingleAnswer: {
-      type: Boolean,
-      default: true,
     },
     level: {
       type: String,

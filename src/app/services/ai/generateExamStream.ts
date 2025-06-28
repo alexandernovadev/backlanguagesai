@@ -14,12 +14,12 @@ interface ExamOptions {
 interface GeneratedQuestion {
   text: string;
   type:
+    | "single_choice"
     | "multiple_choice"
     | "fill_blank"
     | "translate"
     | "true_false"
     | "writing";
-  isSingleAnswer: boolean;
   options?: Array<{
     value: string;
     label: string;
@@ -116,7 +116,8 @@ ${levelNotes}
 - NO general knowledge, history, science, geography, literature, or culture
 
 📝 Question Types Focus:
-- Multiple Choice: "Choose the correct verb form/word/grammar structure"
+- Single Choice: "Choose the correct verb form/word/grammar structure (one answer)"
+- Multiple Choice: "Choose the correct verb forms/words/grammar structures (multiple answers)"
 - Fill Blank: "Complete with the appropriate word/verb form"
 - True/False: "Is this sentence grammatically correct?"
 
@@ -137,8 +138,7 @@ ${levelNotes}
   "questions": [
     {
       "text": "Question text (language-focused only)",
-      "type": "multiple_choice" | "fill_blank" | "true_false" | "translate" | "writing",
-      "isSingleAnswer": true,
+      "type": "single_choice" | "multiple_choice" | "fill_blank" | "true_false" | "translate" | "writing",
       "options": [
         { "value": "A", "label": "Option A", "isCorrect": false },
         { "value": "B", "label": "Correct answer", "isCorrect": true }

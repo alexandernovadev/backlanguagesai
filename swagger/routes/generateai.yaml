@@ -602,28 +602,23 @@ paths:
                           enum: [multiple_choice, fill_blank, true_false, translate, writing]
                           description: Type of question
                           example: "multiple_choice"
-                        isSingleAnswer:
-                          type: boolean
-                          description: Whether the question has only one correct answer
-                          example: true
                         options:
                           type: array
-                          description: Available options for multiple choice questions
                           items:
                             type: object
                             properties:
                               value:
                                 type: string
-                                description: Option identifier (A, B, C, etc.)
+                                description: Option identifier
                                 example: "A"
                               label:
                                 type: string
                                 description: Option text
-                                example: "London"
+                                example: "Correct answer"
                               isCorrect:
                                 type: boolean
                                 description: Whether this option is correct
-                                example: false
+                                example: true
                           example:
                             - value: "A"
                               label: "London"
@@ -654,7 +649,6 @@ paths:
                   questions:
                     - text: "Choose the correct verb form: AI ___ changed the way we work."
                       type: "multiple_choice"
-                      isSingleAnswer: true
                       options:
                         - value: "A"
                           label: "have"

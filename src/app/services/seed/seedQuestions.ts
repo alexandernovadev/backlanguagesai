@@ -118,7 +118,6 @@ export const seedQuestions = async () => {
       return {
         text: questionData.text,
         type: questionType,
-        isSingleAnswer: true,
         level,
         topic: questionData.metadata.topic,
         difficulty,

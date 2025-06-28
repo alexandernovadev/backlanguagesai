@@ -6,21 +6,24 @@ export class QuestionValidator {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    // Required fields
-    if (!question.text || typeof question.text !== 'string' || question.text.trim().length === 0) {
-      errors.push('Text is required and must be a non-empty string');
+    // Validate required fields
+    if (!question.text || question.text.trim().length === 0) {
+      errors.push('Question text is required');
     }
-    if (!question.type || !['multiple_choice', 'fill_blank', 'translate', 'true_false', 'writing'].includes(question.type)) {
-      errors.push('Type is required and must be one of: multiple_choice, fill_blank, translate, true_false, writing');
+
+    if (!question.type) {
+      errors.push('Question type is required');
+    } else if (!['single_choice', 'multiple_choice', 'fill_blank', 'translate', 'true_false', 'writing'].includes(question.type)) {
+      errors.push('Invalid question type');
     }
-    if (!question.level || !['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(question.level)) {
-      errors.push('Level is required and must be one of: A1, A2, B1, B2, C1, C2');
+
+    if (!question.level) {
+      errors.push('Question level is required');
+    } else if (!['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(question.level)) {
+      errors.push('Invalid question level');
     }
 
     // Optional fields validation
-    if (question.isSingleAnswer !== undefined && typeof question.isSingleAnswer !== 'boolean') {
-      errors.push('isSingleAnswer must be a boolean');
-    }
     if (question.topic !== undefined && typeof question.topic !== 'string') {
       errors.push('Topic must be a string');
     }
@@ -84,7 +87,7 @@ export class QuestionValidator {
     }
 
     // Type-specific validations
-    if (question.type === 'multiple_choice' || question.type === 'true_false') {
+    if (question.type === 'single_choice' || question.type === 'multiple_choice' || question.type === 'true_false') {
       if (!question.options || question.options.length === 0) {
         errors.push(`${question.type} questions must have options`);
       }

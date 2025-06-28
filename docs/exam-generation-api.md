@@ -32,17 +32,16 @@ const examData = await response.json();
 {
   "questions": [
     {
-      "text": "Choose the correct verb form: AI ___ changed the way we work.",
+      "text": "What is the correct form of the verb 'to be' for 'I'?",
       "type": "multiple_choice",
-      "isSingleAnswer": true,
       "options": [
-        { "value": "A", "label": "have", "isCorrect": false },
-        { "value": "B", "label": "has", "isCorrect": true },
-        { "value": "C", "label": "is", "isCorrect": false }
+        { "value": "A", "label": "am", "isCorrect": true },
+        { "value": "B", "label": "is", "isCorrect": false },
+        { "value": "C", "label": "are", "isCorrect": false }
       ],
-      "correctAnswers": ["B"],
-      "explanation": "🔴 <span style='color: #e74c3c; font-weight: bold;'>AI</span> es singular, por lo tanto, usamos 🟦 <span style='color: #3498db; background-color: #ecf0f1; padding: 2px 4px; border-radius: 3px;'>has</span> 🟢 <span style='color: #27ae60; text-decoration: underline;'>(no have)</span>",
-      "tags": ["grammar", "verb tenses"]
+      "correctAnswers": ["A"],
+      "explanation": "The correct form of 'to be' for first person singular is 'am'.",
+      "tags": ["grammar", "present_tense"]
     }
   ]
 }
@@ -77,7 +76,6 @@ const examData = await response.json();
 interface Question {
   text: string;                    // Question text
   type: QuestionType;              // Question type
-  isSingleAnswer: boolean;         // Single answer flag
   options?: Option[];              // Available options (for multiple choice)
   correctAnswers: string[];        // Correct answer values
   explanation: string;             // HTML-formatted explanation

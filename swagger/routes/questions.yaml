@@ -498,14 +498,13 @@ components:
         type:
           type: string
           enum: [multiple_choice, fill_blank, translate, true_false, writing]
+          description: Type of question
           example: "multiple_choice"
-        isSingleAnswer:
-          type: boolean
-          example: true
         level:
           type: string
           enum: [A1, A2, B1, B2, C1, C2]
-          example: "A1"
+          description: CEFR level
+          example: "B1"
         topic:
           type: string
           example: "Present Tense"
@@ -576,9 +575,6 @@ components:
           type: string
           enum: [multiple_choice, fill_blank, translate, true_false, writing]
           example: "multiple_choice"
-        isSingleAnswer:
-          type: boolean
-          example: true
         level:
           type: string
           enum: [A1, A2, B1, B2, C1, C2]

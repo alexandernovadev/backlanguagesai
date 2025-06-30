@@ -6,14 +6,14 @@ export class ExamValidator {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    // Required fields
-    if (!exam.title || typeof exam.title !== 'string' || exam.title.trim().length === 0) {
+    // Required fields (only validate if they are provided)
+    if (exam.title !== undefined && (!exam.title || typeof exam.title !== 'string' || exam.title.trim().length === 0)) {
       errors.push('Title is required and must be a non-empty string');
     }
-    if (!exam.language || typeof exam.language !== 'string' || exam.language.trim().length === 0) {
+    if (exam.language !== undefined && (!exam.language || typeof exam.language !== 'string' || exam.language.trim().length === 0)) {
       errors.push('Language is required and must be a non-empty string');
     }
-    if (!exam.level || !['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(exam.level)) {
+    if (exam.level !== undefined && (!exam.level || !['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(exam.level))) {
       errors.push('Level is required and must be one of: A1, A2, B1, B2, C1, C2');
     }
 

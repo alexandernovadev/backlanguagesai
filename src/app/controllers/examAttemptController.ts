@@ -8,8 +8,9 @@ export class ExamAttemptController {
   async startAttempt(req: Request, res: Response) {
     try {
       const { examId } = req.body;
-      // @ts-ignore
-      const userId = req.user?.id; // Del middleware de auth
+      const userId = req.user?.id || req.user?._id; // Del middleware de auth
+
+      console.log('🎯 startAttempt called:', { examId, userId, user: req.user });
 
       if (!examId) {
         return res.status(400).json({
@@ -106,7 +107,7 @@ export class ExamAttemptController {
     try {
       const { examId } = req.params;
       // @ts-ignore
-      const userId = req.user?.id;
+      const userId = req.user?.id || req.user?._id;
 
       const attempt = await this.examAttemptService.getInProgressAttempt(examId, userId);
       

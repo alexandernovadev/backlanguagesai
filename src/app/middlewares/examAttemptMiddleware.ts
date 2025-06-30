@@ -8,9 +8,10 @@ export const validateExamAccess = async (
   next: NextFunction
 ) => {
   try {
-    const { examId } = req.params;
+    // For /start route, examId is in body; for other routes, it's in params
+    const examId = req.params.examId || req.body.examId;
       // @ts-ignore
-    const userId = req.user?.id;
+    const userId = req.user?.id || req.user?._id;
 
     if (!examId) {
       return res.status(400).json({
@@ -59,7 +60,7 @@ export const validateAttemptAccess = async (
   try {
     const { id } = req.params;
       // @ts-ignore
-    const userId = req.user?.id;
+    const userId = req.user?.id || req.user?._id;
 
     if (!id) {
       return res.status(400).json({

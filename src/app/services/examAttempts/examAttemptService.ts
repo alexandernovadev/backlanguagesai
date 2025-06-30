@@ -15,6 +15,8 @@ export class ExamAttemptService {
 
   // 1. INICIAR INTENTO (con validación de límites)
   async startAttempt(examId: string, userId: string): Promise<IExamAttempt> {
+    console.log('🚀 ExamAttemptService.startAttempt called:', { examId, userId });
+    
     const exam = await Exam.findById(examId);
     if (!exam) throw new Error('Exam not found');
 
@@ -42,6 +44,8 @@ export class ExamAttemptService {
 
     const maxScore = exam.questions.reduce((total, q) => total + q.weight, 0);
 
+    console.log('📝 Creating new attempt:', { examId, userId, maxScore });
+
     const attempt = new ExamAttempt({
       exam: examId,
       user: userId,
@@ -50,7 +54,10 @@ export class ExamAttemptService {
       maxScore
     });
 
-    return await attempt.save();
+    console.log('💾 Saving attempt...');
+    const savedAttempt = await attempt.save();
+    console.log('✅ Attempt saved successfully:', savedAttempt._id);
+    return savedAttempt;
   }
 
   // 2. ENVIAR RESPUESTAS (sin questionWeight)

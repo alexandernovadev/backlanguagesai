@@ -581,7 +581,7 @@ paths:
                 userLang:
                   type: string
                   default: "es"
-                  description: Language for explanations (ISO 639-1 code)
+                  description: User's native language (ISO 639-1 code)
                   example: "es"
               required:
                 - topic
@@ -642,10 +642,6 @@ paths:
                             type: string
                           description: Array of correct answer values
                           example: ["B"]
-                        explanation:
-                          type: string
-                          description: Explanation of the correct answer in user's language with colorful HTML formatting and emojis (dark theme compatible)
-                          example: "🔴 <span style='color: #ff6b6b; font-weight: bold;'>AI</span> es singular, por lo tanto, usamos 🟦 <span style='color: #74b9ff; border: 1px solid #74b9ff; padding: 2px 4px; border-radius: 3px;'>has</span> 🟢 <span style='color: #00b894; text-decoration: underline;'>(no have)</span>"
                         tags:
                           type: array
                           items:
@@ -667,7 +663,6 @@ paths:
                           label: "is"
                           isCorrect: false
                       correctAnswers: ["B"]
-                      explanation: "🔴 <span style='color: #ff6b6b; font-weight: bold;'>AI</span> es singular, por lo tanto, usamos 🟦 <span style='color: #74b9ff; border: 1px solid #74b9ff; padding: 2px 4px; border-radius: 3px;'>has</span> 🟢 <span style='color: #00b894; text-decoration: underline;'>(no have)</span>"
                       tags: ["grammar", "verb tenses"]
         '400':
           description: Bad request - missing required fields or invalid parameters

@@ -9,11 +9,9 @@ import {
   getAttemptsByStatus,
   getPassedAttempts,
   submitExamAttempt,
-  gradeExamAttempt,
   getAttemptStats,
   getUserStats,
   submitAnswer,
-  getAttemptEvaluationStatus,
   checkCanCreateAttempt,
 } from "../controllers/examAttemptController";
 
@@ -21,30 +19,25 @@ const router = Router();
 
 // Basic CRUD routes
 router.get("/", getExamAttempts);
-router.get("/stats", getAttemptStats);
-router.get("/:id", getExamAttemptById);
-
 router.post("/", createExamAttempt);
-
+router.get("/:id", getExamAttemptById);
 router.put("/:id", updateExamAttempt);
-
 router.delete("/:id", deleteExamAttempt);
 
-// Specialized routes (must come before dynamic routes)
+// Specific routes
+router.get("/user/:userId/exam/:examId", getAttemptsByUserAndExam);
 router.get("/status/:status", getAttemptsByStatus);
 router.get("/passed/all", getPassedAttempts);
 
-// User and exam specific routes
-router.get("/user/:userId/exam/:examId", getAttemptsByUserAndExam);
-router.get("/user/:userId/stats", getUserStats);
-router.get("/user/:userId/exam/:examId/can-create", checkCanCreateAttempt);
-
-// Action routes
-router.post("/:id/submit", submitExamAttempt);
+// Exam attempt actions
 router.post("/:id/submit-answer", submitAnswer);
-router.post("/:id/grade", gradeExamAttempt);
+router.post("/:id/submit", submitExamAttempt);
 
-// Evaluation status
-router.get("/:id/evaluation-status", getAttemptEvaluationStatus);
+// Statistics
+router.get("/stats/overview", getAttemptStats);
+router.get("/stats/user/:userId", getUserStats);
+
+// Validation
+router.get("/can-create/:userId/:examId", checkCanCreateAttempt);
 
 export default router; 

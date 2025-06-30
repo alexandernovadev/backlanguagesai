@@ -50,13 +50,6 @@ paths:
           schema:
             type: string
             enum: [in_progress, submitted, graded]
-        - name: cefrEstimated
-          in: query
-          description: Filter by CEFR level
-          required: false
-          schema:
-            type: string
-            enum: [A1, A2, B1, B2, C1, C2]
         - name: passed
           in: query
           description: Filter by passed status
@@ -170,18 +163,6 @@ paths:
                       answer:
                         type: object
                         description: Answer data (mixed type)
-                      isCorrect:
-                        type: boolean
-                        description: Whether the answer is correct
-                      score:
-                        type: number
-                        description: Score for this answer (0-100)
-                        minimum: 0
-                        maximum: 100
-                      feedback:
-                        type: string
-                        description: Feedback for this answer
-                        maxLength: 1000
                       submittedAt:
                         type: string
                         format: date-time
@@ -194,41 +175,6 @@ paths:
                 passed:
                   type: boolean
                   description: Whether the attempt was passed
-                cefrEstimated:
-                  type: string
-                  enum: [A1, A2, B1, B2, C1, C2]
-                  description: Estimated CEFR level
-                aiEvaluation:
-                  type: object
-                  properties:
-                    grammar:
-                      type: number
-                      description: Grammar score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    fluency:
-                      type: number
-                      description: Fluency score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    coherence:
-                      type: number
-                      description: Coherence score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    vocabulary:
-                      type: number
-                      description: Vocabulary score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    comments:
-                      type: string
-                      description: AI evaluation comments
-                      maxLength: 2000
-                aiNotes:
-                  type: string
-                  description: AI notes about the attempt
-                  maxLength: 3000
                 userNotes:
                   type: string
                   description: User notes about the attempt
@@ -578,18 +524,6 @@ paths:
                       answer:
                         type: object
                         description: Answer data (mixed type)
-                      isCorrect:
-                        type: boolean
-                        description: Whether the answer is correct
-                      score:
-                        type: number
-                        description: Score for this answer (0-100)
-                        minimum: 0
-                        maximum: 100
-                      feedback:
-                        type: string
-                        description: Feedback for this answer
-                        maxLength: 1000
                       submittedAt:
                         type: string
                         format: date-time
@@ -601,41 +535,6 @@ paths:
                 passed:
                   type: boolean
                   description: Whether the attempt was passed
-                cefrEstimated:
-                  type: string
-                  enum: [A1, A2, B1, B2, C1, C2]
-                  description: Estimated CEFR level
-                aiEvaluation:
-                  type: object
-                  properties:
-                    grammar:
-                      type: number
-                      description: Grammar score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    fluency:
-                      type: number
-                      description: Fluency score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    coherence:
-                      type: number
-                      description: Coherence score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    vocabulary:
-                      type: number
-                      description: Vocabulary score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    comments:
-                      type: string
-                      description: AI evaluation comments
-                      maxLength: 2000
-                aiNotes:
-                  type: string
-                  description: AI notes about the attempt
-                  maxLength: 3000
                 userNotes:
                   type: string
                   description: User notes about the attempt
@@ -740,88 +639,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /api/exam-attempts/{id}/grade:
-    post:
-      summary: Grade exam attempt
-      description: Grade an exam attempt with AI evaluation
-      tags:
-        - Exam Attempts
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Exam attempt ID
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                aiEvaluation:
-                  type: object
-                  properties:
-                    grammar:
-                      type: number
-                      description: Grammar score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    fluency:
-                      type: number
-                      description: Fluency score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    coherence:
-                      type: number
-                      description: Coherence score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    vocabulary:
-                      type: number
-                      description: Vocabulary score (0-100)
-                      minimum: 0
-                      maximum: 100
-                    comments:
-                      type: string
-                      description: AI evaluation comments
-                      maxLength: 2000
-                aiNotes:
-                  type: string
-                  description: AI notes about the attempt
-                  maxLength: 3000
-                cefrEstimated:
-                  type: string
-                  enum: [A1, A2, B1, B2, C1, C2]
-                  description: Estimated CEFR level
-      responses:
-        '200':
-          description: Exam attempt graded successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Exam attempt graded successfully
-                  data:
-                    $ref: '#/components/schemas/ExamAttempt'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
   /api/exam-attempts/{id}/submit-answer:
     post:
       summary: Submit an answer for a question
@@ -855,18 +672,6 @@ paths:
                   type: object
                   description: Answer data (mixed type)
                   example: "Yo voy al supermercado todos los días"
-                isCorrect:
-                  type: boolean
-                  description: Whether the answer is correct
-                score:
-                  type: number
-                  description: Score for this answer (0-100)
-                  minimum: 0
-                  maximum: 100
-                feedback:
-                  type: string
-                  description: Feedback for this answer
-                  maxLength: 1000
       responses:
         '200':
           description: Answer submitted successfully
@@ -986,15 +791,6 @@ components:
               answer:
                 type: object
                 description: Answer data (mixed type)
-              isCorrect:
-                type: boolean
-                description: Whether the answer is correct
-              score:
-                type: number
-                description: Score for this answer (0-100)
-              feedback:
-                type: string
-                description: Feedback for this answer
               submittedAt:
                 type: string
                 format: date-time
@@ -1020,36 +816,6 @@ components:
           type: boolean
           description: Whether the attempt was passed
           example: true
-        cefrEstimated:
-          type: string
-          enum: [A1, A2, B1, B2, C1, C2]
-          description: Estimated CEFR level
-          example: B2
-        aiEvaluation:
-          type: object
-          properties:
-            grammar:
-              type: number
-              description: Grammar score (0-100)
-              example: 85
-            fluency:
-              type: number
-              description: Fluency score (0-100)
-              example: 78
-            coherence:
-              type: number
-              description: Coherence score (0-100)
-              example: 82
-            vocabulary:
-              type: number
-              description: Vocabulary score (0-100)
-              example: 90
-            comments:
-              type: string
-              description: AI evaluation comments
-        aiNotes:
-          type: string
-          description: AI notes about the attempt
         userNotes:
           type: string
           description: User notes about the attempt

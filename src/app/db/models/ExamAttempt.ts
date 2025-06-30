@@ -8,9 +8,6 @@ export interface IExamAttempt extends Document {
   answers: Array<{
     question: mongoose.Types.ObjectId;
     answer: any; // Mixed type for flexible answers
-    isCorrect?: boolean;
-    score?: number;
-    feedback?: string;
     submittedAt: Date;
   }>;
   startedAt: Date;
@@ -18,15 +15,6 @@ export interface IExamAttempt extends Document {
   duration?: number;
   status: 'in_progress' | 'submitted' | 'graded';
   passed?: boolean;
-  cefrEstimated?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
-  aiEvaluation?: {
-    grammar?: number;
-    fluency?: number;
-    coherence?: number;
-    vocabulary?: number;
-    comments?: string;
-  };
-  aiNotes?: string;
   userNotes?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -62,18 +50,6 @@ const ExamAttemptSchema = new Schema<IExamAttempt>(
           type: Schema.Types.Mixed,
           required: true,
         },
-        isCorrect: {
-          type: Boolean,
-        },
-        score: {
-          type: Number,
-          min: 0,
-          max: 100,
-        },
-        feedback: {
-          type: String,
-          maxlength: 1000,
-        },
         submittedAt: {
           type: Date,
           default: Date.now,
@@ -100,40 +76,6 @@ const ExamAttemptSchema = new Schema<IExamAttempt>(
     passed: {
       type: Boolean,
     },
-    cefrEstimated: {
-      type: String,
-      enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
-    },
-    aiEvaluation: {
-      grammar: {
-        type: Number,
-        min: 0,
-        max: 100,
-      },
-      fluency: {
-        type: Number,
-        min: 0,
-        max: 100,
-      },
-      coherence: {
-        type: Number,
-        min: 0,
-        max: 100,
-      },
-      vocabulary: {
-        type: Number,
-        min: 0,
-        max: 100,
-      },
-      comments: {
-        type: String,
-        maxlength: 2000,
-      },
-    },
-    aiNotes: {
-      type: String,
-      maxlength: 3000,
-    },
     userNotes: {
       type: String,
       maxlength: 1000,
@@ -146,13 +88,9 @@ const ExamAttemptSchema = new Schema<IExamAttempt>(
 
 // 🚀 Índices para optimizar consultas
 ExamAttemptSchema.index({ user: 1, exam: 1 }); // Consultas por usuario y examen
-ExamAttemptSchema.index({ exam: 1, status: 1 }); // Consultas por examen y estado
-ExamAttemptSchema.index({ user: 1, status: 1 }); // Consultas por usuario y estado
-ExamAttemptSchema.index({ startedAt: -1 }); // Ordenamiento por fecha de inicio
-ExamAttemptSchema.index({ submittedAt: -1 }); // Ordenamiento por fecha de envío
-ExamAttemptSchema.index({ cefrEstimated: 1 }); // Consultas por nivel CEFR estimado
+ExamAttemptSchema.index({ status: 1 }); // Consultas por estado
+ExamAttemptSchema.index({ startedAt: -1 }); // Consultas por fecha de inicio
+ExamAttemptSchema.index({ submittedAt: -1 }); // Consultas por fecha de envío
+ExamAttemptSchema.index({ passed: 1 }); // Consultas por aprobación
 
-// Crear el modelo
-const ExamAttempt = mongoose.model<IExamAttempt>("ExamAttempt", ExamAttemptSchema);
-
-export default ExamAttempt; 
+export const ExamAttempt = mongoose.model<IExamAttempt>('ExamAttempt', ExamAttemptSchema); 

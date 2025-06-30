@@ -15,7 +15,6 @@ export interface IExam extends Document {
   createdBy?: mongoose.Types.ObjectId;
   source: 'manual' | 'ai';
   timeLimit?: number;
-  attemptsAllowed: number;
   adaptive: boolean;
   metadata?: {
     difficultyScore?: number;
@@ -86,12 +85,6 @@ const ExamSchema = new Schema<IExam>(
       type: Number,
       min: 1, // Mínimo 1 minuto
       max: 480, // Máximo 8 horas
-    },
-    attemptsAllowed: {
-      type: Number,
-      default: 1,
-      min: 1,
-      max: 10,
     },
     adaptive: {
       type: Boolean,

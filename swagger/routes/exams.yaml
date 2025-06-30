@@ -369,12 +369,6 @@ paths:
                   enum: [manual, ai]
                   default: manual
                   description: Exam source
-                attemptsAllowed:
-                  type: integer
-                  minimum: 1
-                  maximum: 10
-                  default: 3
-                  description: Number of attempts allowed
                 timeLimit:
                   type: integer
                   minimum: 1
@@ -455,12 +449,6 @@ paths:
                   enum: [manual, ai]
                   default: manual
                   description: Exam source
-                attemptsAllowed:
-                  type: integer
-                  minimum: 1
-                  maximum: 10
-                  default: 3
-                  description: Number of attempts allowed
                 timeLimit:
                   type: integer
                   minimum: 1
@@ -785,11 +773,6 @@ components:
           type: string
           enum: [manual, ai]
           description: Exam source
-        attemptsAllowed:
-          type: integer
-          minimum: 1
-          maximum: 10
-          description: Number of attempts allowed
         timeLimit:
           type: integer
           minimum: 1
@@ -873,12 +856,6 @@ components:
           enum: [manual, ai]
           default: manual
           description: Exam source
-        attemptsAllowed:
-          type: integer
-          minimum: 1
-          maximum: 10
-          default: 3
-          description: Number of attempts allowed
         timeLimit:
           type: integer
           minimum: 1
@@ -952,11 +929,6 @@ components:
           type: string
           enum: [manual, ai]
           description: Exam source
-        attemptsAllowed:
-          type: integer
-          minimum: 1
-          maximum: 10
-          description: Number of attempts allowed
         timeLimit:
           type: integer
           minimum: 1

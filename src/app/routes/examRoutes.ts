@@ -14,7 +14,6 @@ import {
   getExamStats,
   generateExamFromQuestions,
   createExamWithQuestions,
-  getExamsWithAttempts,
 } from "../controllers/examController";
 
 const router = Router();
@@ -39,9 +38,6 @@ router.get("/creator/:creatorId", getExamsByCreator);
 // Question management routes
 router.post("/:examId/questions", addQuestionToExam);
 router.delete("/:examId/questions/:questionId", removeQuestionFromExam);
-
-// User specific routes (must come before dynamic routes)
-router.get("/user/:userId/with-attempts", getExamsWithAttempts);
 
 // Dynamic routes (must come last)
 router.get("/:id", getExamById);

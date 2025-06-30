@@ -27,9 +27,6 @@ export class ExamValidator {
     if (exam.source !== undefined && !['manual', 'ai'].includes(exam.source)) {
       errors.push('Source must be one of: manual, ai');
     }
-    if (exam.attemptsAllowed !== undefined && (typeof exam.attemptsAllowed !== 'number' || exam.attemptsAllowed < 1 || exam.attemptsAllowed > 10)) {
-      errors.push('Attempts allowed must be a number between 1 and 10');
-    }
     if (exam.timeLimit !== undefined && (typeof exam.timeLimit !== 'number' || exam.timeLimit < 1 || exam.timeLimit > 480)) {
       errors.push('Time limit must be a number between 1 and 480 minutes');
     }

@@ -14,7 +14,6 @@ import LectureRoutes from "./app/routes/lectureRoutes";
 import WordsRoutes from "./app/routes/wordsRoutes";
 import QuestionRoutes from "./app/routes/questionRoutes";
 import ExamRoutes from "./app/routes/examRoutes";
-import ExamAttemptRoutes from "./app/routes/examAttemptRoutes";
 import Arreglosquick from "./app/routes/arreglosquick";
 import StatisticsRoutes from "./app/routes/statisticsRoutes";
 import LogsRoutes from "./app/routes/logRoutes";
@@ -63,7 +62,6 @@ app.use("/api/lectures", authMiddleware, LectureRoutes);
 app.use("/api/words", authMiddleware, WordsRoutes);
 app.use("/api/questions", authMiddleware, QuestionRoutes);
 app.use("/api/exams", authMiddleware, ExamRoutes);
-app.use("/api/exam-attempts", authMiddleware, ExamAttemptRoutes);
 app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 
 // Logs
@@ -78,6 +76,7 @@ app.use("/", (req, res) => {
     version: VERSION,
   });
 });
+
 
 // Error-handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {

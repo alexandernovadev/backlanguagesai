@@ -14,12 +14,15 @@ import {
   getExamStats,
   generateExamFromQuestions,
   createExamWithQuestions,
+  getExamsWithAttempts,
+  getExamAttemptStats,
 } from "../controllers/examController";
 
 const router = Router();
 
 // Basic CRUD routes
 router.get("/", getExams);
+router.get("/with-attempts", getExamsWithAttempts); // Nueva ruta para exámenes con intentos
 router.post("/", createExam);
 router.post("/with-questions", createExamWithQuestions);
 
@@ -38,6 +41,9 @@ router.get("/creator/:creatorId", getExamsByCreator);
 // Question management routes
 router.post("/:examId/questions", addQuestionToExam);
 router.delete("/:examId/questions/:questionId", removeQuestionFromExam);
+
+// Attempt stats routes
+router.get("/:id/attempt-stats", getExamAttemptStats);
 
 // Dynamic routes (must come last)
 router.get("/:id", getExamById);

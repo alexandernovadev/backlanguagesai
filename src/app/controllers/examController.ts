@@ -11,11 +11,15 @@ export const createExam = async (
 ): Promise<Response> => {
   try {
     const examData = req.body;
-    
+
     // Validate exam data
     const validation = ExamValidator.validateExam(examData, 0);
     if (!validation.isValid) {
-      return errorResponse(res, `Validation error: ${validation.errors.join(', ')}`, 400);
+      return errorResponse(
+        res,
+        `Validation error: ${validation.errors.join(", ")}`,
+        400
+      );
     }
 
     const newExam = await examService.createExam(examData);
@@ -40,7 +44,7 @@ export const getExamById = async (
   try {
     const { id } = req.params;
     const exam = await examService.getExamById(id);
-    
+
     if (!exam) {
       return errorResponse(res, "Exam not found", 404);
     }
@@ -71,20 +75,22 @@ export const getExams = async (
     const source = req.query.source as string;
     const createdBy = req.query.createdBy as string;
     const adaptive = req.query.adaptive as string;
-    const sortBy = req.query.sortBy as string || 'createdAt';
-    const sortOrder = req.query.sortOrder as string || 'desc';
+    const sortBy = (req.query.sortBy as string) || "createdAt";
+    const sortOrder = (req.query.sortOrder as string) || "desc";
     const createdAfter = req.query.createdAfter as string;
     const createdBefore = req.query.createdBefore as string;
 
     // Process filters that can have multiple values
-    const levels = level ? level.split(',').map(l => l.trim()) : undefined;
-    const languages = language ? language.split(',').map(l => l.trim()) : undefined;
-    
+    const levels = level ? level.split(",").map((l) => l.trim()) : undefined;
+    const languages = language
+      ? language.split(",").map((l) => l.trim())
+      : undefined;
+
     // Process adaptive filter
     let adaptiveFilter: boolean | undefined;
-    if (adaptive === 'true') {
+    if (adaptive === "true") {
       adaptiveFilter = true;
-    } else if (adaptive === 'false') {
+    } else if (adaptive === "false") {
       adaptiveFilter = false;
     }
 
@@ -100,7 +106,7 @@ export const getExams = async (
       sortBy,
       sortOrder,
       createdAfter,
-      createdBefore
+      createdBefore,
     });
 
     return successResponse(res, "Exams retrieved successfully", exams);
@@ -125,7 +131,11 @@ export const updateExam = async (
     // Validate update data
     const validation = ExamValidator.validateExam(updateData, 0);
     if (!validation.isValid) {
-      return errorResponse(res, `Validation error: ${validation.errors.join(', ')}`, 400);
+      return errorResponse(
+        res,
+        `Validation error: ${validation.errors.join(", ")}`,
+        400
+      );
     }
 
     const updatedExam = await examService.updateExam(id, updateData);
@@ -151,7 +161,7 @@ export const deleteExam = async (
   try {
     const { id } = req.params;
     const deletedExam = await examService.deleteExam(id);
-    
+
     if (!deletedExam) {
       return errorResponse(res, "Exam not found", 404);
     }
@@ -174,7 +184,7 @@ export const getExamsByLevelAndLanguage = async (
   try {
     const { level, language } = req.params;
     const exams = await examService.findByLevelAndLanguage(level, language);
-    
+
     return successResponse(res, "Exams retrieved successfully", exams);
   } catch (error) {
     return errorResponse(
@@ -193,7 +203,7 @@ export const getExamsByTopic = async (
   try {
     const { topic } = req.params;
     const exams = await examService.findByTopic(topic);
-    
+
     return successResponse(res, "Exams retrieved successfully", exams);
   } catch (error) {
     return errorResponse(
@@ -212,7 +222,7 @@ export const getExamsByCreator = async (
   try {
     const { creatorId } = req.params;
     const exams = await examService.findByCreator(creatorId);
-    
+
     return successResponse(res, "Exams retrieved successfully", exams);
   } catch (error) {
     return errorResponse(
@@ -231,10 +241,14 @@ export const getExamsForLevel = async (
   try {
     const { level } = req.params;
     const limit = Math.max(parseInt(req.query.limit as string) || 10, 1);
-    
+
     const exams = await examService.getExamsForLevel(level, limit);
-    
-    return successResponse(res, "Exams for level retrieved successfully", exams);
+
+    return successResponse(
+      res,
+      "Exams for level retrieved successfully",
+      exams
+    );
   } catch (error) {
     return errorResponse(
       res,
@@ -252,23 +266,27 @@ export const addQuestionToExam = async (
   try {
     const { examId } = req.params;
     const { questionId, weight, order } = req.body;
-    
+
     if (!questionId) {
       return errorResponse(res, "Question ID is required", 400);
     }
 
     const updatedExam = await examService.addQuestionToExam(
-      examId, 
-      questionId, 
-      weight || 1, 
+      examId,
+      questionId,
+      weight || 1,
       order
     );
-    
+
     if (!updatedExam) {
       return errorResponse(res, "Exam not found", 404);
     }
 
-    return successResponse(res, "Question added to exam successfully", updatedExam);
+    return successResponse(
+      res,
+      "Question added to exam successfully",
+      updatedExam
+    );
   } catch (error) {
     return errorResponse(
       res,
@@ -285,14 +303,21 @@ export const removeQuestionFromExam = async (
 ): Promise<Response> => {
   try {
     const { examId, questionId } = req.params;
-    
-    const updatedExam = await examService.removeQuestionFromExam(examId, questionId);
-    
+
+    const updatedExam = await examService.removeQuestionFromExam(
+      examId,
+      questionId
+    );
+
     if (!updatedExam) {
       return errorResponse(res, "Exam not found", 404);
     }
 
-    return successResponse(res, "Question removed from exam successfully", updatedExam);
+    return successResponse(
+      res,
+      "Question removed from exam successfully",
+      updatedExam
+    );
   } catch (error) {
     return errorResponse(
       res,
@@ -309,8 +334,12 @@ export const getExamStats = async (
 ): Promise<Response> => {
   try {
     const stats = await examService.getExamStats();
-    
-    return successResponse(res, "Exam statistics retrieved successfully", stats);
+
+    return successResponse(
+      res,
+      "Exam statistics retrieved successfully",
+      stats
+    );
   } catch (error) {
     return errorResponse(
       res,
@@ -327,20 +356,36 @@ export const generateExamFromQuestions = async (
 ): Promise<Response> => {
   try {
     const { questions, ...examData } = req.body;
-    
+
     if (!questions || !Array.isArray(questions) || questions.length === 0) {
-      return errorResponse(res, "Questions array is required and must not be empty", 400);
+      return errorResponse(
+        res,
+        "Questions array is required and must not be empty",
+        400
+      );
     }
 
     // Validate exam data
     const validation = ExamValidator.validateExam(examData, 0);
     if (!validation.isValid) {
-      return errorResponse(res, `Validation error: ${validation.errors.join(', ')}`, 400);
+      return errorResponse(
+        res,
+        `Validation error: ${validation.errors.join(", ")}`,
+        400
+      );
     }
 
-    const newExam = await examService.generateExamFromQuestions(questions, examData);
-    
-    return successResponse(res, "Exam generated from questions successfully", newExam, 201);
+    const newExam = await examService.generateExamFromQuestions(
+      questions,
+      examData
+    );
+
+    return successResponse(
+      res,
+      "Exam generated from questions successfully",
+      newExam,
+      201
+    );
   } catch (error) {
     return errorResponse(
       res,
@@ -357,21 +402,37 @@ export const createExamWithQuestions = async (
 ): Promise<Response> => {
   try {
     const { questions, ...examData } = req.body;
-    
+
     if (!questions || !Array.isArray(questions) || questions.length === 0) {
-      return errorResponse(res, "Questions array is required and must not be empty", 400);
+      return errorResponse(
+        res,
+        "Questions array is required and must not be empty",
+        400
+      );
     }
 
     // Validate exam data (without questions for now)
     const examValidation = ExamValidator.validateExam(examData, 0);
     if (!examValidation.isValid) {
-      return errorResponse(res, `Exam validation error: ${examValidation.errors.join(', ')}`, 400);
+      return errorResponse(
+        res,
+        `Exam validation error: ${examValidation.errors.join(", ")}`,
+        400
+      );
     }
 
     // Create exam with questions
-    const newExam = await examService.createExamWithQuestions(questions, examData);
-    
-    return successResponse(res, "Exam with questions created successfully", newExam, 201);
+    const newExam = await examService.createExamWithQuestions(
+      questions,
+      examData
+    );
+
+    return successResponse(
+      res,
+      "Exam with questions created successfully",
+      newExam,
+      201
+    );
   } catch (error) {
     if (error.name === "ValidationError") {
       return errorResponse(res, "Validation error: " + error.message, 400);
@@ -383,4 +444,99 @@ export const createExamWithQuestions = async (
       error
     );
   }
-}; 
+};
+
+// NUEVOS MÉTODOS PARA INTENTOS
+
+export const getExamsWithAttempts = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit as string) || 10, 1);
+    // @ts-ignore
+    const userId = req.user?.id; // Del middleware de auth
+
+    // Filters
+    const level = req.query.level as string;
+    const language = req.query.language as string;
+    const topic = req.query.topic as string;
+    const source = req.query.source as string;
+    const createdBy = req.query.createdBy as string;
+    const adaptive = req.query.adaptive as string;
+    const sortBy = (req.query.sortBy as string) || "createdAt";
+    const sortOrder = (req.query.sortOrder as string) || "desc";
+    const createdAfter = req.query.createdAfter as string;
+    const createdBefore = req.query.createdBefore as string;
+
+    // Process filters that can have multiple values
+    const levels = level ? level.split(",").map((l) => l.trim()) : undefined;
+    const languages = language
+      ? language.split(",").map((l) => l.trim())
+      : undefined;
+
+    // Process adaptive filter
+    let adaptiveFilter: boolean | undefined;
+    if (adaptive === "true") {
+      adaptiveFilter = true;
+    } else if (adaptive === "false") {
+      adaptiveFilter = false;
+    }
+
+    const exams = await examService.getExamsWithAttempts({
+      page,
+      limit,
+      level: levels,
+      language: languages,
+      topic,
+      source,
+      createdBy,
+      adaptive: adaptiveFilter,
+      sortBy,
+      sortOrder,
+      createdAfter,
+      createdBefore,
+      userId,
+    });
+
+    return successResponse(
+      res,
+      "Exams with attempts retrieved successfully",
+      exams
+    );
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving exams with attempts",
+      500,
+      error
+    );
+  }
+};
+
+export const getExamAttemptStats = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { id } = req.params;
+    // @ts-ignore
+    const userId = req.user?.id; // Del middleware de auth
+
+    const stats = await examService.getExamAttemptStats(id, userId);
+
+    return successResponse(
+      res,
+      "Exam attempt stats retrieved successfully",
+      stats
+    );
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving exam attempt stats",
+      500,
+      error
+    );
+  }
+};

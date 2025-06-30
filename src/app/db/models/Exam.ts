@@ -16,6 +16,7 @@ export interface IExam extends Document {
   source: 'manual' | 'ai';
   timeLimit?: number;
   adaptive: boolean;
+  maxAttempts?: number; // NUEVO: máximo de intentos permitidos
   metadata?: {
     difficultyScore?: number;
     estimatedDuration?: number;
@@ -89,6 +90,12 @@ const ExamSchema = new Schema<IExam>(
     adaptive: {
       type: Boolean,
       default: false,
+    },
+    maxAttempts: {
+      type: Number,
+      min: 1,
+      max: 10,
+      default: 3, // Por defecto 3 intentos
     },
     metadata: {
       difficultyScore: {

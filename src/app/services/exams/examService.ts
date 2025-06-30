@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Exam, { IExam } from "../../db/models/Exam";
 import Question from "../../db/models/Question";
+import ExamAttempt from "../../db/models/ExamAttempt";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -281,5 +282,82 @@ export class ExamService {
     });
 
     return await exam.save();
+  }
+
+  // NUEVOS MÉTODOS PARA INTENTOS
+
+  // Obtener exámenes con información de intentos
+  async getExamsWithAttempts(
+    filters: {
+      page?: number;
+      limit?: number;
+      level?: string | string[];
+      language?: string | string[];
+      topic?: string;
+      source?: string;
+      createdBy?: string;
+      adaptive?: boolean;
+      sortBy?: string;
+      sortOrder?: string;
+      createdAfter?: string;
+      createdBefore?: string;
+      userId?: string; // Para obtener intentos del usuario
+    } = {}
+  ): Promise<PaginatedResult<IExam & { userAttempts?: any[] }>> {
+    const {
+      userId,
+      ...otherFilters
+    } = filters;
+
+    const result = await this.getExams(otherFilters);
+
+    // Si se especifica userId, agregar información de intentos
+    if (userId) {
+      const examIds = result.data.map(exam => exam._id);
+      const attempts = await ExamAttempt.find({
+        exam: { $in: examIds },
+        user: userId
+      }).sort({ createdAt: -1 });
+
+      // Agrupar intentos por examen
+      const attemptsByExam = attempts.reduce((acc, attempt) => {
+        if (!acc[attempt.exam.toString()]) {
+          acc[attempt.exam.toString()] = [];
+        }
+        acc[attempt.exam.toString()].push(attempt);
+        return acc;
+      }, {} as any);
+
+      // Agregar intentos a cada examen
+      result.data = result.data.map(exam => ({
+        ...exam.toObject(),
+        userAttempts: attemptsByExam[exam._id.toString()] || []
+      }));
+    }
+
+    return result;
+  }
+
+  // Obtener estadísticas de intentos por examen
+  async getExamAttemptStats(examId: string, userId?: string): Promise<any> {
+    const filter: any = { exam: examId };
+    if (userId) filter.user = userId;
+
+    const attempts = await ExamAttempt.find(filter);
+    
+    return {
+      totalAttempts: attempts.length,
+      completedAttempts: attempts.filter(a => a.status === 'graded').length,
+      inProgressAttempts: attempts.filter(a => a.status === 'in_progress').length,
+      averageScore: attempts.length > 0 
+        ? attempts.reduce((sum, a) => sum + (a.score || 0), 0) / attempts.length 
+        : 0,
+      bestScore: attempts.length > 0 
+        ? Math.max(...attempts.map(a => a.score || 0)) 
+        : 0,
+      lastAttempt: attempts.length > 0 
+        ? attempts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        : null
+    };
   }
 } 

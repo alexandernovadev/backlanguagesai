@@ -208,6 +208,167 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/exams/with-attempts:
+    get:
+      summary: Get exams with user attempts
+      description: Retrieve a paginated list of exams with user attempt information
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number (default 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page (default 10)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: level
+          in: query
+          description: Filter by level(s) - comma separated (A1,A2,B1,B2,C1,C2)
+          required: false
+          schema:
+            type: string
+        - name: language
+          in: query
+          description: Filter by language(s) - comma separated
+          required: false
+          schema:
+            type: string
+        - name: topic
+          in: query
+          description: Filter by topic
+          required: false
+          schema:
+            type: string
+        - name: source
+          in: query
+          description: Filter by source (manual, ai)
+          required: false
+          schema:
+            type: string
+            enum: [manual, ai]
+        - name: createdBy
+          in: query
+          description: Filter by creator ID
+          required: false
+          schema:
+            type: string
+        - name: adaptive
+          in: query
+          description: Filter by adaptive exams
+          required: false
+          schema:
+            type: string
+            enum: [true, false]
+        - name: sortBy
+          in: query
+          description: Sort field (default createdAt)
+          required: false
+          schema:
+            type: string
+            enum: [title, level, language, createdAt, updatedAt]
+        - name: sortOrder
+          in: query
+          description: Sort order (default desc)
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: createdAfter
+          in: query
+          description: Filter by creation date after (ISO string)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createdBefore
+          in: query
+          description: Filter by creation date before (ISO string)
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Exams with attempts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exams with attempts retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/Exam'
+                            - type: object
+                              properties:
+                                userAttempts:
+                                  type: array
+                                  items:
+                                    $ref: '#/components/schemas/ExamAttempt'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/exams/{id}/attempt-stats:
+    get:
+      summary: Get exam attempt statistics
+      description: Retrieve statistics about attempts for a specific exam
+      tags:
+        - Exams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Exam ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exam attempt statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exam attempt statistics retrieved successfully"
+                  data:
+                    $ref: '#/components/schemas/AttemptStats'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/exams/{id}:
     get:
       summary: Get exam by ID
@@ -994,6 +1155,116 @@ components:
         hasPrevPage:
           type: boolean
           example: false
+
+    ExamAttempt:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439012"
+        exam:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        user:
+          type: string
+          example: "507f1f77bcf86cd799439013"
+        status:
+          type: string
+          enum: [in_progress, submitted, graded, abandoned]
+          example: "graded"
+        startTime:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        submittedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        gradedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:31:00Z"
+        score:
+          type: number
+          example: 85
+        maxScore:
+          type: number
+          example: 100
+        aiFeedback:
+          type: string
+          example: "Excelente trabajo en gramática básica, pero necesitas mejorar en vocabulario avanzado."
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamAnswer'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ExamAnswer:
+      type: object
+      properties:
+        questionId:
+          type: string
+          example: "507f1f77bcf86cd799439014"
+        questionText:
+          type: string
+          example: "¿Cuál es la forma correcta del verbo 'to be' en presente simple para 'he'?"
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionOption'
+        userAnswer:
+          type: array
+          items:
+            type: string
+          example: ["is"]
+        aiComment:
+          type: string
+          example: "¡Perfecto! Has identificado correctamente que 'is' es la forma correcta para 'he'."
+        isCorrect:
+          type: boolean
+          example: true
+        points:
+          type: number
+          example: 2
+
+    QuestionOption:
+      type: object
+      properties:
+        value:
+          type: string
+          example: "is"
+        label:
+          type: string
+          example: "is"
+        isCorrect:
+          type: boolean
+          example: true
+
+    AttemptStats:
+      type: object
+      properties:
+        totalAttempts:
+          type: number
+          example: 5
+        completedAttempts:
+          type: number
+          example: 3
+        inProgressAttempts:
+          type: number
+          example: 1
+        averageScore:
+          type: number
+          example: 82.5
+        bestScore:
+          type: number
+          example: 95
+        lastAttempt:
+          $ref: '#/components/schemas/ExamAttempt'
 
   responses:
     BadRequest:

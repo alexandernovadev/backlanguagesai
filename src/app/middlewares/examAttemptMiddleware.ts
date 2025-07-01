@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Exam from "../db/models/Exam";
 import ExamAttempt from "../db/models/ExamAttempt";
+import { errorResponse } from "../utils/responseHelpers";
 
 export const validateExamAccess = async (
   req: Request,
@@ -14,18 +15,12 @@ export const validateExamAccess = async (
     const userId = req.user?.id || req.user?._id;
 
     if (!examId) {
-      return res.status(400).json({
-        success: false,
-        error: "Exam ID is required",
-      });
+      return errorResponse(res, "Exam ID is required", 400);
     }
 
     const exam = await Exam.findById(examId);
     if (!exam) {
-      return res.status(404).json({
-        success: false,
-        error: "Exam not found",
-      });
+      return errorResponse(res, "Exam not found", 404);
     }
 
     // Verificar límite de intentos
@@ -36,19 +31,13 @@ export const validateExamAccess = async (
     });
 
     if (exam.maxAttempts && attempts >= exam.maxAttempts) {
-      return res.status(403).json({
-        success: false,
-        error: `Maximum attempts (${exam.maxAttempts}) reached for this exam`,
-      });
+      return errorResponse(res, `Maximum attempts (${exam.maxAttempts}) reached for this exam`, 403);
     }
 
     next();
   } catch (error) {
     console.error("Error in validateExamAccess:", error);
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    return errorResponse(res, "Internal server error", 500, error);
   }
 };
 
@@ -63,35 +52,23 @@ export const validateAttemptAccess = async (
     const userId = req.user?.id || req.user?._id;
 
     if (!id) {
-      return res.status(400).json({
-        success: false,
-        error: "Attempt ID is required",
-      });
+      return errorResponse(res, "Attempt ID is required", 400);
     }
 
     const attempt = await ExamAttempt.findById(id);
     if (!attempt) {
-      return res.status(404).json({
-        success: false,
-        error: "Attempt not found",
-      });
+      return errorResponse(res, "Attempt not found", 404);
     }
 
     // Verificar que el usuario sea el propietario del intento
     if (attempt.user.toString() !== userId) {
-      return res.status(403).json({
-        success: false,
-        error: "Access denied: You can only access your own attempts",
-      });
+      return errorResponse(res, "Access denied: You can only access your own attempts", 403);
     }
 
     next();
   } catch (error) {
     console.error("Error in validateAttemptAccess:", error);
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    return errorResponse(res, "Internal server error", 500, error);
   }
 };
 
@@ -102,28 +79,17 @@ export const validateAttemptState = (allowedStates: string[]) => {
 
       const attempt = await ExamAttempt.findById(id);
       if (!attempt) {
-        return res.status(404).json({
-          success: false,
-          error: "Attempt not found",
-        });
+        return errorResponse(res, "Attempt not found", 404);
       }
 
       if (!allowedStates.includes(attempt.status)) {
-        return res.status(400).json({
-          success: false,
-          error: `Invalid attempt state. Allowed states: ${allowedStates.join(
-            ", "
-          )}`,
-        });
+        return errorResponse(res, `Invalid attempt state. Allowed states: ${allowedStates.join(", ")}`, 400);
       }
 
       next();
     } catch (error) {
       console.error("Error in validateAttemptState:", error);
-      res.status(500).json({
-        success: false,
-        error: "Internal server error",
-      });
+      return errorResponse(res, "Internal server error", 500, error);
     }
   };
 };

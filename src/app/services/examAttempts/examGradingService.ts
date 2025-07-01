@@ -64,41 +64,74 @@ Respuesta del estudiante: ${answer.userAnswer.join(', ')}
     const targetLanguage = exam.language; // Idioma del examen
 
     return `
-Eres un profesor experto en ${targetLanguage} nivel ${exam.level}.
+You are an experienced and demanding ${targetLanguage} teacher at ${exam.level} level with over 15 years of experience teaching languages. Your approach is direct, honest, and constructive. You are not condescending or overly positive when students make serious mistakes.
 
-Título del examen: ${exam.title}
-Puntuación máxima: ${attempt.maxScore}
-Idioma del examen: ${targetLanguage}
-Idioma para el feedback: ${feedbackLanguage}
+Exam Title: ${exam.title}
+Maximum Score: ${attempt.maxScore}
+Exam Language: ${targetLanguage}
+Feedback Language: ${feedbackLanguage}
 
-IMPORTANTE: Debes dar el feedback en ${feedbackLanguage}, pero el examen es de ${targetLanguage}.
+IMPORTANT: You must provide feedback in ${feedbackLanguage}, but the exam is in ${targetLanguage}.
 
-Por favor califica las siguientes respuestas del estudiante:
+Please grade the following student responses:
 
 ${questionsWithWeights}
 
-INSTRUCCIONES:
-1. Analiza cada respuesta considerando el peso de cada pregunta
-2. Determina si cada respuesta es correcta o incorrecta
-3. Asigna puntos según el peso de la pregunta (si es correcta = peso completo, si es incorrecta = 0)
-4. Proporciona comentarios constructivos para cada pregunta EN ${feedbackLanguage}
-5. Calcula la puntuación total
-6. Da un feedback general EN ${feedbackLanguage}
+DETAILED INSTRUCTIONS:
 
-Responde en el siguiente formato JSON:
+1. **ANALYSIS OF EACH QUESTION:**
+   - Determine if each answer is correct or incorrect
+   - Assign points according to question weight (correct = full weight, incorrect = 0)
+   - For each question, provide an EXTREMELY DETAILED aiComment in rich HTML format
+
+2. **aiComment FORMAT (RICH HTML):**
+   - Minimum 200 words per comment
+   - Use HTML tags: <strong>, <em>, <u>, <br>, <ul>, <li>, <span style="color: #color">
+   - Include:
+     * <strong>Error Analysis</strong>: Why is it wrong? What concept doesn't the student understand?
+     * <strong>Detailed Explanation</strong>: Grammar rules, vocabulary, context
+     * <strong>Correct Examples</strong>: Multiple examples of correct usage
+     * <strong>Specific Tips</strong>: How to avoid this error in the future
+     * <strong>Study Resources</strong>: What topics should be reviewed
+     * <strong>Error Severity Level</strong>: Whether it's a basic, intermediate, or advanced error
+
+3. **GENERAL FEEDBACK (RICH HTML):**
+   - Minimum 400 words
+   - Be REALISTIC and DIRECT:
+     * If student lost many points: Be critical but constructive
+     * If student barely passed: Acknowledge effort but point out weaknesses
+     * If student got good score: Congratulate but identify areas for improvement
+   - Include:
+     * <strong>Overall Performance Assessment</strong>
+     * <strong>Identified Strengths</strong> (if any)
+     * <strong>Critical Weaknesses</strong> that need to be corrected
+     * <strong>Specific Improvement Plan</strong> with concrete steps
+     * <strong>Expectations for Next Exam</strong>
+     * <strong>Recommended Study Resources</strong>
+
+4. **FEEDBACK TONE:**
+   - If score < 60%: Be direct about deficiencies
+   - If score 60-80%: Acknowledge progress but point out important errors
+   - If score > 80%: Congratulate but maintain high standards
+
+5. **CALCULATE TOTAL SCORE** by adding all points earned
+
+Respond in the following JSON format:
 {
-  "score": número,
-  "feedback": "feedback general en ${feedbackLanguage}",
+  "score": number,
+  "feedback": "<div>elaborate general feedback in rich HTML in ${feedbackLanguage}</div>",
   "questionAnalysis": [
     {
-      "questionId": "id de la pregunta",
-      "userAnswer": ["respuesta del usuario"],
+      "questionId": "question id",
+      "userAnswer": ["user answer"],
       "isCorrect": true/false,
-      "points": número de puntos obtenidos,
-      "aiComment": "comentario específico para esta pregunta en ${feedbackLanguage}"
+      "points": points earned,
+      "aiComment": "<div>elaborate specific comment in rich HTML for this question in ${feedbackLanguage}</div>"
     }
   ]
 }
+
+REMEMBER: Comments must be substantial, educational, and realistic. Don't be superficial or overly positive when there are serious errors.
 `;
   }
 
@@ -126,7 +159,7 @@ Responde en el siguiente formato JSON:
         messages: [
           {
             role: "system",
-            content: "You are an expert language teacher. Grade the exam responses accurately and provide constructive feedback."
+            content: "You are an experienced, demanding language teacher with 15+ years of experience. You provide detailed, honest, and constructive feedback. You are not overly positive when students make serious mistakes. Your feedback is comprehensive, educational, and realistic. You use rich HTML formatting to make feedback clear and structured. You always provide substantial analysis with specific examples and actionable advice. You are direct and critical when necessary, but always constructive. Your comments are thorough and educational, not superficial."
           },
           {
             role: "user",
@@ -134,7 +167,7 @@ Responde en el siguiente formato JSON:
           }
         ],
         temperature: 0.3,
-        max_tokens: 2000
+        max_tokens: 4000
       });
       
       return response.choices[0]?.message?.content || '';

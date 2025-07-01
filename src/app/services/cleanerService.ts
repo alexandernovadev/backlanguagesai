@@ -3,15 +3,19 @@ import Exam from "../db/models/Exam";
 import Question from "../db/models/Question";
 
 export class CleanerService {
-  // Borrar todos los intentos de examen del usuario
-  static async cleanExamAttempts(userId: string) {
+  // Borrar TODOS los intentos de examen
+  static async cleanExamAttempts() {
     try {
-      const result = await ExamAttempt.deleteMany({ user: userId });
+      // Contar antes de borrar para logging
+      const countBefore = await ExamAttempt.countDocuments({});
       
-      console.log(`Deleted ${result.deletedCount} exam attempts for user ${userId}`);
+      const result = await ExamAttempt.deleteMany({});
+      
+      console.log(`Found ${countBefore} exam attempts total, deleted ${result.deletedCount}`);
       
       return {
         deletedCount: result.deletedCount,
+        totalFound: countBefore,
         success: true
       };
     } catch (error) {
@@ -20,26 +24,26 @@ export class CleanerService {
     }
   }
 
-  // Borrar todos los exámenes del usuario y sus intentos asociados
-  static async cleanExams(userId: string) {
+  // Borrar TODOS los exámenes y sus intentos asociados
+  static async cleanExams() {
     try {
-      // Primero, obtener todos los exámenes del usuario
-      const userExams = await Exam.find({ createdBy: userId });
-      const examIds = userExams.map(exam => exam._id);
+      // Contar antes de borrar para logging
+      const examsCountBefore = await Exam.countDocuments({});
+      const attemptsCountBefore = await ExamAttempt.countDocuments({});
 
-      // Borrar todos los intentos asociados a estos exámenes
-      const attemptsResult = await ExamAttempt.deleteMany({
-        exam: { $in: examIds }
-      });
+      // Borrar TODOS los intentos primero
+      const attemptsResult = await ExamAttempt.deleteMany({});
 
-      // Borrar todos los exámenes del usuario
-      const examsResult = await Exam.deleteMany({ createdBy: userId });
+      // Borrar TODOS los exámenes
+      const examsResult = await Exam.deleteMany({});
 
-      console.log(`Deleted ${examsResult.deletedCount} exams and ${attemptsResult.deletedCount} attempts for user ${userId}`);
+      console.log(`Found ${examsCountBefore} exams and ${attemptsCountBefore} attempts total, deleted ${examsResult.deletedCount} exams and ${attemptsResult.deletedCount} attempts`);
 
       return {
         deletedExams: examsResult.deletedCount,
         deletedAttempts: attemptsResult.deletedCount,
+        totalExamsFound: examsCountBefore,
+        totalAttemptsFound: attemptsCountBefore,
         success: true
       };
     } catch (error) {
@@ -48,34 +52,20 @@ export class CleanerService {
     }
   }
 
-  // Borrar todas las preguntas del usuario
-  static async cleanQuestions(userId: string) {
+  // Borrar TODAS las preguntas
+  static async cleanQuestions() {
     try {
-      // Nota: Las preguntas no tienen un campo createdBy por defecto
-      // Por ahora, borraremos todas las preguntas que no estén siendo usadas en exámenes
-      // En el futuro, se puede agregar un campo createdBy a las preguntas
-
-      // Obtener todas las preguntas que están siendo usadas en exámenes
-      const exams = await Exam.find({}).populate('questions.question');
-      const usedQuestionIds = new Set();
+      // Contar todas las preguntas antes de borrar
+      const totalQuestionsBefore = await Question.countDocuments({});
       
-      exams.forEach(exam => {
-        exam.questions.forEach((q: any) => {
-          if (q.question) {
-            usedQuestionIds.add(q.question._id.toString());
-          }
-        });
-      });
+      // Borrar TODAS las preguntas
+      const result = await Question.deleteMany({});
 
-      // Borrar preguntas que no están siendo usadas
-      const result = await Question.deleteMany({
-        _id: { $nin: Array.from(usedQuestionIds) }
-      });
-
-      console.log(`Deleted ${result.deletedCount} unused questions`);
+      console.log(`Total questions before: ${totalQuestionsBefore}, Deleted ${result.deletedCount} questions`);
 
       return {
         deletedCount: result.deletedCount,
+        totalQuestionsBefore,
         success: true
       };
     } catch (error) {

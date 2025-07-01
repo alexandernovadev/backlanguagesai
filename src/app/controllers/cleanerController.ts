@@ -3,21 +3,20 @@ import { successResponse, errorResponse } from "../utils/responseHelpers";
 import { CleanerService } from "../services/cleanerService";
 
 export class CleanerController {
-  // Borrar todos los intentos de examen del usuario
+  // Borrar TODOS los intentos de examen
   static async cleanExamAttempts(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
-      
-      // Verificar que el usuario solo puede borrar sus propios datos
-      if (req.user?._id.toString() !== userId) {
-        return errorResponse(res, "No tienes permisos para realizar esta acción", 403);
+      // Verificar que el usuario esté autenticado
+      if (!req.user?._id) {
+        return errorResponse(res, "Usuario no autenticado", 401);
       }
 
-      const result = await CleanerService.cleanExamAttempts(userId);
+      const result = await CleanerService.cleanExamAttempts();
       
-      return successResponse(res, "Intentos de examen eliminados exitosamente", {
+      return successResponse(res, "TODOS los intentos de examen han sido eliminados exitosamente", {
         deletedCount: result.deletedCount,
-        message: `Se eliminaron ${result.deletedCount} intentos de examen`
+        totalFound: result.totalFound,
+        message: `Se eliminaron ${result.deletedCount} intentos de examen de un total de ${result.totalFound}`
       });
     } catch (error) {
       console.error("Error cleaning exam attempts:", error);
@@ -25,21 +24,21 @@ export class CleanerController {
     }
   }
 
-  // Borrar todos los exámenes del usuario
+  // Borrar TODOS los exámenes
   static async cleanExams(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
-      
-      // Verificar que el usuario solo puede borrar sus propios datos
-      if (req.user?._id.toString() !== userId) {
-        return errorResponse(res, "No tienes permisos para realizar esta acción", 403);
+      // Verificar que el usuario esté autenticado
+      if (!req.user?._id) {
+        return errorResponse(res, "Usuario no autenticado", 401);
       }
 
-      const result = await CleanerService.cleanExams(userId);
+      const result = await CleanerService.cleanExams();
       
-      return successResponse(res, "Exámenes eliminados exitosamente", {
+      return successResponse(res, "TODOS los exámenes han sido eliminados exitosamente", {
         deletedExams: result.deletedExams,
         deletedAttempts: result.deletedAttempts,
+        totalExamsFound: result.totalExamsFound,
+        totalAttemptsFound: result.totalAttemptsFound,
         message: `Se eliminaron ${result.deletedExams} exámenes y ${result.deletedAttempts} intentos asociados`
       });
     } catch (error) {
@@ -48,21 +47,20 @@ export class CleanerController {
     }
   }
 
-  // Borrar todas las preguntas del usuario
+  // Borrar TODAS las preguntas
   static async cleanQuestions(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
-      
-      // Verificar que el usuario solo puede borrar sus propios datos
-      if (req.user?._id.toString() !== userId) {
-        return errorResponse(res, "No tienes permisos para realizar esta acción", 403);
+      // Verificar que el usuario esté autenticado
+      if (!req.user?._id) {
+        return errorResponse(res, "Usuario no autenticado", 401);
       }
 
-      const result = await CleanerService.cleanQuestions(userId);
+      const result = await CleanerService.cleanQuestions();
       
-      return successResponse(res, "Preguntas eliminadas exitosamente", {
+      return successResponse(res, "TODAS las preguntas han sido eliminadas exitosamente", {
         deletedCount: result.deletedCount,
-        message: `Se eliminaron ${result.deletedCount} preguntas`
+        totalQuestionsBefore: result.totalQuestionsBefore,
+        message: `Se eliminaron ${result.deletedCount} preguntas de un total de ${result.totalQuestionsBefore}`
       });
     } catch (error) {
       console.error("Error cleaning questions:", error);

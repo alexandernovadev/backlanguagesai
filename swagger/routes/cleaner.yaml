@@ -5,22 +5,14 @@ info:
   version: 1.0.0
 
 paths:
-  /api/cleaner/exam-attempts/{userId}:
+  /api/cleaner/exam-attempts:
     delete:
       tags:
         - Cleaner
-      summary: Borrar todos los intentos de examen del usuario
-      description: Elimina todos los intentos de examen realizados por el usuario especificado
+      summary: Borrar todos los intentos de examen
+      description: Elimina TODOS los intentos de examen de la base de datos
       security:
         - bearerAuth: []
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID del usuario
-          example: "507f1f77bcf86cd799439012"
       responses:
         '200':
           description: Intentos eliminados exitosamente
@@ -34,18 +26,21 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Intentos de examen eliminados exitosamente"
+                    example: "TODOS los intentos de examen han sido eliminados exitosamente"
                   data:
                     type: object
                     properties:
                       deletedCount:
                         type: number
                         example: 25
+                      totalFound:
+                        type: number
+                        example: 25
                       message:
                         type: string
-                        example: "Se eliminaron 25 intentos de examen"
-        '403':
-          description: No tienes permisos para realizar esta acción
+                        example: "Se eliminaron 25 intentos de examen de un total de 25"
+        '401':
+          description: Usuario no autenticado
           content:
             application/json:
               schema:
@@ -56,7 +51,7 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "No tienes permisos para realizar esta acción"
+                    example: "Usuario no autenticado"
         '500':
           description: Error interno del servidor
           content:
@@ -71,22 +66,14 @@ paths:
                     type: string
                     example: "Error al eliminar los intentos de examen"
 
-  /api/cleaner/exams/{userId}:
+  /api/cleaner/exams:
     delete:
       tags:
         - Cleaner
-      summary: Borrar todos los exámenes del usuario
-      description: Elimina todos los exámenes creados por el usuario y sus intentos asociados
+      summary: Borrar todos los exámenes
+      description: Elimina TODOS los exámenes y sus intentos asociados de la base de datos
       security:
         - bearerAuth: []
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID del usuario
-          example: "507f1f77bcf86cd799439012"
       responses:
         '200':
           description: Exámenes eliminados exitosamente
@@ -100,7 +87,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Exámenes eliminados exitosamente"
+                    example: "TODOS los exámenes han sido eliminados exitosamente"
                   data:
                     type: object
                     properties:
@@ -110,11 +97,17 @@ paths:
                       deletedAttempts:
                         type: number
                         example: 50
+                      totalExamsFound:
+                        type: number
+                        example: 10
+                      totalAttemptsFound:
+                        type: number
+                        example: 50
                       message:
                         type: string
                         example: "Se eliminaron 10 exámenes y 50 intentos asociados"
-        '403':
-          description: No tienes permisos para realizar esta acción
+        '401':
+          description: Usuario no autenticado
           content:
             application/json:
               schema:
@@ -125,7 +118,7 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "No tienes permisos para realizar esta acción"
+                    example: "Usuario no autenticado"
         '500':
           description: Error interno del servidor
           content:
@@ -140,22 +133,14 @@ paths:
                     type: string
                     example: "Error al eliminar los exámenes"
 
-  /api/cleaner/questions/{userId}:
+  /api/cleaner/questions:
     delete:
       tags:
         - Cleaner
-      summary: Borrar todas las preguntas no utilizadas
-      description: Elimina todas las preguntas que no están siendo utilizadas en exámenes
+      summary: Borrar todas las preguntas
+      description: Elimina TODAS las preguntas de la base de datos
       security:
         - bearerAuth: []
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID del usuario
-          example: "507f1f77bcf86cd799439012"
       responses:
         '200':
           description: Preguntas eliminadas exitosamente
@@ -169,18 +154,21 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Preguntas eliminadas exitosamente"
+                    example: "TODAS las preguntas han sido eliminadas exitosamente"
                   data:
                     type: object
                     properties:
                       deletedCount:
                         type: number
                         example: 100
+                      totalQuestionsBefore:
+                        type: number
+                        example: 100
                       message:
                         type: string
-                        example: "Se eliminaron 100 preguntas"
-        '403':
-          description: No tienes permisos para realizar esta acción
+                        example: "Se eliminaron 100 preguntas de un total de 100"
+        '401':
+          description: Usuario no autenticado
           content:
             application/json:
               schema:
@@ -191,7 +179,7 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "No tienes permisos para realizar esta acción"
+                    example: "Usuario no autenticado"
         '500':
           description: Error interno del servidor
           content:

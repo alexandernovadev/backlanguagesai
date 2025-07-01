@@ -7,13 +7,13 @@ const router = Router();
 // Aplicar middleware de autenticación a todas las rutas
 router.use(authMiddleware);
 
-// Borrar todos los intentos de examen del usuario
-router.delete("/exam-attempts/:userId", CleanerController.cleanExamAttempts);
+// Borrar todos los intentos de examen
+router.delete("/exam-attempts", CleanerController.cleanExamAttempts);
 
-// Borrar todos los exámenes del usuario
-router.delete("/exams/:userId", CleanerController.cleanExams);
+// Borrar todos los exámenes
+router.delete("/exams", CleanerController.cleanExams);
 
-// Borrar todas las preguntas del usuario
-router.delete("/questions/:userId", CleanerController.cleanQuestions);
+// Borrar todas las preguntas
+router.delete("/questions", CleanerController.cleanQuestions);
 
 export default router; 

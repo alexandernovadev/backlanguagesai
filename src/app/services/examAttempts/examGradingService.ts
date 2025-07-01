@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import Exam, { IExam } from '../../db/models/Exam';
-import { IExamAttempt } from '../../db/models/ExamAttempt';
+import Exam, { IExam } from "../../db/models/Exam";
+import { IExamAttempt } from "../../db/models/ExamAttempt";
 
 export interface AIGradingResult {
   score: number;
@@ -15,49 +15,63 @@ export interface AIGradingResult {
 }
 
 export class ExamGradingService {
-  async gradeExamWithAI(attempt: IExamAttempt, userLanguage: string = 'es'): Promise<AIGradingResult> {
+  async gradeExamWithAI(
+    attempt: IExamAttempt,
+    userLanguage: string = "es"
+  ): Promise<AIGradingResult> {
     // Obtener el examen con las preguntas y pesos
-    const exam = await Exam.findById(attempt.exam).populate('questions.question');
-    
+    const exam = await Exam.findById(attempt.exam).populate(
+      "questions.question"
+    );
+
     if (!exam) {
-      throw new Error('Exam not found');
+      throw new Error("Exam not found");
     }
 
     // Preparar el prompt para AI
     const prompt = this.buildGradingPrompt(attempt, exam, userLanguage);
-    
+
     try {
-      console.log('Calling AI for exam grading...');
+      console.log("Calling AI for exam grading...");
       const aiResponse = await this.callAI(prompt);
-      console.log('AI response received successfully');
-      
+      console.log("AI response received successfully");
+
       // Parsear la respuesta de AI
       const parsedResponse = this.parseAIResponse(aiResponse);
-      
+
       return parsedResponse;
     } catch (error) {
-      console.error('Error calling AI for grading:', error);
-      throw new Error('Failed to grade exam with AI');
+      console.error("Error calling AI for grading:", error);
+      throw new Error("Failed to grade exam with AI");
     }
   }
 
-  private buildGradingPrompt(attempt: IExamAttempt, exam: IExam, userLanguage: string): string {
-    const questionsWithWeights = attempt.answers.map((answer, index) => {
-      const examQuestion = exam.questions.find((q: any) => 
-        q.question._id.toString() === answer.questionId.toString()
-      );
-      const weight = examQuestion ? examQuestion.weight : 1;
-      
-      return `
+  private buildGradingPrompt(
+    attempt: IExamAttempt,
+    exam: IExam,
+    userLanguage: string
+  ): string {
+    const questionsWithWeights = attempt.answers
+      .map((answer, index) => {
+        const examQuestion = exam.questions.find(
+          (q: any) => q.question._id.toString() === answer.questionId.toString()
+        );
+        const weight = examQuestion ? examQuestion.weight : 1;
+
+        return `
 Pregunta ${index + 1} (Peso: ${weight} puntos):
 Texto: ${answer.questionText}
 Opciones disponibles:
-${answer.options.map((opt, optIndex) => 
-  `${optIndex + 1}. ${opt.label} ${opt.isCorrect ? '(CORRECTA)' : ''}`
-).join('\n')}
-Respuesta del estudiante: ${answer.userAnswer.join(', ')}
+${answer.options
+  .map(
+    (opt, optIndex) =>
+      `${optIndex + 1}. ${opt.label} ${opt.isCorrect ? "(CORRECTA)" : ""}`
+  )
+  .join("\n")}
+Respuesta del estudiante: ${answer.userAnswer.join(", ")}
 `;
-    }).join('\n');
+      })
+      .join("\n");
 
     // Determinar el idioma del feedback basado en el idioma del usuario
     const feedbackLanguage = this.getFeedbackLanguage(userLanguage);
@@ -137,15 +151,15 @@ REMEMBER: Comments must be substantial, educational, and realistic. Don't be sup
 
   private getFeedbackLanguage(userLanguage: string): string {
     const languageMap: { [key: string]: string } = {
-      'es': 'español',
-      'en': 'inglés',
-      'fr': 'francés',
-      'de': 'alemán',
-      'it': 'italiano',
-      'pt': 'portugués'
+      es: "español",
+      en: "inglés",
+      fr: "francés",
+      de: "alemán",
+      it: "italiano",
+      pt: "portugués",
     };
-    
-    return languageMap[userLanguage] || 'español';
+
+    return languageMap[userLanguage] || "español";
   }
 
   private async callAI(prompt: string): Promise<string> {
@@ -159,21 +173,21 @@ REMEMBER: Comments must be substantial, educational, and realistic. Don't be sup
         messages: [
           {
             role: "system",
-            content: "You are an experienced, demanding language teacher with 15+ years of experience. You provide detailed, honest, and constructive feedback. You are not overly positive when students make serious mistakes. Your feedback is comprehensive, educational, and realistic. You use rich HTML formatting to make feedback clear and structured. You always provide substantial analysis with specific examples and actionable advice. You are direct and critical when necessary, but always constructive. Your comments are thorough and educational, not superficial."
+            content:
+              "You are an experienced, demanding language teacher with 15+ years of experience. You provide detailed, honest, and constructive feedback. You are not overly positive when students make serious mistakes. Your feedback is comprehensive, educational, and realistic. You use rich HTML formatting to make feedback clear and structured. You always provide substantial analysis with specific examples and actionable advice. You are direct and critical when necessary, but always constructive. Your comments are thorough and educational, not superficial.",
           },
           {
             role: "user",
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         temperature: 0.3,
-        max_tokens: 4000
       });
-      
-      return response.choices[0]?.message?.content || '';
+
+      return response.choices[0]?.message?.content || "";
     } catch (error) {
-      console.error('AI service error:', error);
-      return '';
+      console.error("AI service error:", error);
+      return "";
     }
   }
 
@@ -186,14 +200,14 @@ REMEMBER: Comments must be substantial, educational, and realistic. Don't be sup
         return {
           score: parsed.score || 0,
           feedback: parsed.feedback || "No feedback available",
-          questionAnalysis: parsed.questionAnalysis || []
+          questionAnalysis: parsed.questionAnalysis || [],
         };
       }
-      
+
       // Si no se puede parsear, usar fallback
       return this.getFallbackResponse();
     } catch (error) {
-      console.error('Error parsing AI response:', error);
+      console.error("Error parsing AI response:", error);
       return this.getFallbackResponse();
     }
   }
@@ -201,8 +215,9 @@ REMEMBER: Comments must be substantial, educational, and realistic. Don't be sup
   private getFallbackResponse(): AIGradingResult {
     return {
       score: 0,
-      feedback: "No se pudo calificar automáticamente. Por favor, revisa manualmente.",
-      questionAnalysis: []
+      feedback:
+        "No se pudo calificar automáticamente. Por favor, revisa manualmente.",
+      questionAnalysis: [],
     };
   }
-} 
+}

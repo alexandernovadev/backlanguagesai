@@ -60,25 +60,52 @@ export class ExamAttemptService {
     return savedAttempt;
   }
 
-  // 2. ENVIAR RESPUESTAS (sin questionWeight)
+  // 2. ENVIAR RESPUESTAS (obtener questionText y options del examen)
   async submitAttempt(attemptId: string, answers: any[]): Promise<IExamAttempt> {
-    const attempt = await ExamAttempt.findById(attemptId);
+    const attempt = await ExamAttempt.findById(attemptId).populate({
+      path: 'exam',
+      populate: {
+        path: 'questions.question'
+      }
+    });
+    
     if (!attempt) throw new Error('Attempt not found');
 
     if (attempt.status !== 'in_progress') {
       throw new Error('Attempt is not in progress');
     }
 
-    // Guardar respuestas sin questionWeight
-    attempt.answers = answers.map(answer => ({
-      questionId: answer.questionId,
-      questionText: answer.questionText,
-      options: answer.options, // value, label, isCorrect
-      userAnswer: answer.userAnswer,
-      aiComment: '',
-      isCorrect: false,
-      points: 0
-    }));
+    // Obtener información completa de las preguntas del examen
+    const exam = attempt.exam as any;
+    if (!exam || !exam.questions) {
+      throw new Error('Exam not found or has no questions');
+    }
+
+    // Mapear respuestas con información completa de las preguntas
+    attempt.answers = answers.map(answer => {
+      const examQuestion = exam.questions.find((q: any) => {
+        const questionId = typeof q.question === 'string' ? q.question : q.question._id;
+        return questionId.toString() === answer.questionId;
+      });
+
+      if (!examQuestion) {
+        throw new Error(`Question ${answer.questionId} not found in exam`);
+      }
+
+      const questionData = typeof examQuestion.question === 'string' 
+        ? { text: '', options: [] }
+        : examQuestion.question;
+
+      return {
+        questionId: answer.questionId,
+        questionText: answer.questionText || questionData.text || '',
+        options: answer.options || questionData.options || [],
+        userAnswer: answer.userAnswer,
+        aiComment: '',
+        isCorrect: false,
+        points: 0
+      };
+    });
 
     attempt.status = 'submitted';
     attempt.submittedAt = new Date();

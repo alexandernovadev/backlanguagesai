@@ -39,8 +39,8 @@ export class ExamAttemptController {
 
       // Validar que cada respuesta tenga la estructura correcta
       for (const answer of answers) {
-        if (!answer.questionId || !answer.questionText || !answer.options || !answer.userAnswer) {
-          return errorResponse(res, 'Each answer must have questionId, questionText, options, and userAnswer', 400);
+        if (!answer.questionId || !answer.userAnswer) {
+          return errorResponse(res, 'Each answer must have questionId and userAnswer', 400);
         }
       }
 

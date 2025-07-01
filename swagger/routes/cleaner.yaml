@@ -1,0 +1,214 @@
+openapi: 3.0.0
+info:
+  title: Cleaner API
+  description: API para limpiar datos masivamente
+  version: 1.0.0
+
+paths:
+  /api/cleaner/exam-attempts/{userId}:
+    delete:
+      tags:
+        - Cleaner
+      summary: Borrar todos los intentos de examen del usuario
+      description: Elimina todos los intentos de examen realizados por el usuario especificado
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del usuario
+          example: "507f1f77bcf86cd799439012"
+      responses:
+        '200':
+          description: Intentos eliminados exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Intentos de examen eliminados exitosamente"
+                  data:
+                    type: object
+                    properties:
+                      deletedCount:
+                        type: number
+                        example: 25
+                      message:
+                        type: string
+                        example: "Se eliminaron 25 intentos de examen"
+        '403':
+          description: No tienes permisos para realizar esta acción
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "No tienes permisos para realizar esta acción"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Error al eliminar los intentos de examen"
+
+  /api/cleaner/exams/{userId}:
+    delete:
+      tags:
+        - Cleaner
+      summary: Borrar todos los exámenes del usuario
+      description: Elimina todos los exámenes creados por el usuario y sus intentos asociados
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del usuario
+          example: "507f1f77bcf86cd799439012"
+      responses:
+        '200':
+          description: Exámenes eliminados exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exámenes eliminados exitosamente"
+                  data:
+                    type: object
+                    properties:
+                      deletedExams:
+                        type: number
+                        example: 10
+                      deletedAttempts:
+                        type: number
+                        example: 50
+                      message:
+                        type: string
+                        example: "Se eliminaron 10 exámenes y 50 intentos asociados"
+        '403':
+          description: No tienes permisos para realizar esta acción
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "No tienes permisos para realizar esta acción"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Error al eliminar los exámenes"
+
+  /api/cleaner/questions/{userId}:
+    delete:
+      tags:
+        - Cleaner
+      summary: Borrar todas las preguntas no utilizadas
+      description: Elimina todas las preguntas que no están siendo utilizadas en exámenes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del usuario
+          example: "507f1f77bcf86cd799439012"
+      responses:
+        '200':
+          description: Preguntas eliminadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Preguntas eliminadas exitosamente"
+                  data:
+                    type: object
+                    properties:
+                      deletedCount:
+                        type: number
+                        example: 100
+                      message:
+                        type: string
+                        example: "Se eliminaron 100 preguntas"
+        '403':
+          description: No tienes permisos para realizar esta acción
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "No tienes permisos para realizar esta acción"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Error al eliminar las preguntas"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 

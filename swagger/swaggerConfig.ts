@@ -13,6 +13,7 @@ import {
   generateaiswagger,
   authswagger,
   logsswagger,
+  cleanerSwagger,
 } from "./routes/index";
 
 const options: swaggerJsdoc.Options = {
@@ -54,6 +55,7 @@ const options: swaggerJsdoc.Options = {
       ...generateaiswagger["paths"],
       ...authswagger["paths"],
       ...logsswagger["paths"],
+      ...cleanerSwagger["paths"],
     },
   },
   apis: ["./src/app/routes/*.ts"],

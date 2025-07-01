@@ -121,7 +121,6 @@ DETAILED INSTRUCTIONS:
      * <strong>Critical Weaknesses</strong> that need to be corrected
      * <strong>Specific Improvement Plan</strong> with concrete steps
      * <strong>Expectations for Next Exam</strong>
-     * <strong>Recommended Study Resources</strong>
 
 4. **FEEDBACK TONE:**
    - If score < 60%: Be direct about deficiencies

@@ -141,6 +141,14 @@ ${grammarInstructions}
 
 🔢 MANDATORY: Generate EXACTLY ${numberOfQuestions} questions - no more, no less!
 
+📚 EXPLANATION FIELD (REQUIRED):
+Each question MUST include an "explanation" field with rich HTML grammar explanation:
+- Use colors: #3b82f6 (blue), #f59e0b (orange), #22d3ee (cyan), #f43f5e (pink), #fff (white)
+- Include: grammar rule name, structure, examples, and key reminders
+- Format: compact, visual, easy to scan
+- Use: <strong>, <em>, <span style="color:...">, <ul>, <li>, <br>
+- Keep it concise but informative
+
 🛠️ Output: JSON object with questions array containing EXACTLY ${numberOfQuestions} items
 {
   "questions": [
@@ -152,7 +160,8 @@ ${grammarInstructions}
         { "value": "B", "label": "Correct answer", "isCorrect": true }
       ],
       "correctAnswers": ["B"],
-      "tags": ["grammar", "vocabulary"]
+      "tags": ["grammar", "vocabulary"],
+      "explanation": "<div><strong style='font-size:1.1em; color:#3b82f6;'>Grammar Rule</strong> explanation with <span style='color:#f59e0b; font-weight:bold; text-decoration:underline;'>Structure:</span> <span style='color:#22d3ee; font-weight:bold;'>Subject + Verb</span> (+<span style='color:#f43f5e;'>s/es</span> for he/she/it)<br><ul style='margin:4px 0 0 18px;'><li><em>Example 1</em></li><li><em>Example 2</em></li></ul><span style='color: #f59e0b;'>Remember:</span> key point</div>"
     }
   ]
 }
@@ -175,6 +184,8 @@ ${grammarInstructions}
         ${grammarTopics.length > 0 ? `MANDATORY: Include questions covering these grammar topics: ${grammarTopics.join(', ')}. ` : ''}
         Focus on grammar, vocabulary, and language patterns regardless of the topic. 
         Use these types: ${types.join(", ")}. Difficulty: ${difficulty}/5. 
+        
+        IMPORTANT: Each question MUST include a rich HTML "explanation" field that explains the grammar rule being tested. Make it visual with colors, clear structure, and helpful examples.
         
         The response must contain exactly ${numberOfQuestions} questions in the JSON object. 
         ANY topic is valid - adapt the language complexity to ${level}.`,

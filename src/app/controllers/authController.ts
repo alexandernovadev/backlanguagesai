@@ -14,6 +14,7 @@ export const AuthController = {
       const user = await AuthService.validateUserFromDB(username, password);
       if (user) {
         const token = AuthService.generateToken(user);
+        const refreshToken = AuthService.generateRefreshToken(user);
 
         const {
           _id,
@@ -43,6 +44,7 @@ export const AuthController = {
 
         return successResponse(res, "Login successful", {
           token,
+          refreshToken,
           user: userInfo,
         });
         
@@ -51,6 +53,22 @@ export const AuthController = {
       }
     } catch (error) {
       return errorResponse(res, "Authentication failed", 500, error);
+    }
+  },
+
+  refresh: async (req: Request, res: Response) => {
+    const { refreshToken } = req.body;
+
+    try {
+      if (!refreshToken) {
+        return errorResponse(res, "Refresh token is required", 400);
+      }
+
+      const result = await AuthService.refreshAccessToken(refreshToken);
+      
+      return successResponse(res, "Token refreshed successfully", result);
+    } catch (error) {
+      return errorResponse(res, "Failed to refresh token", 401, error);
     }
   },
 };

@@ -4,11 +4,17 @@ import bcrypt from "bcryptjs";
 import logger from "../../utils/logger";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_secret_key";
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "refresh_secret_key";
 
 export const AuthService = {
   // Generate a JWT token
   generateToken: (user: IUser) => {
     return jwt.sign({ user }, JWT_SECRET, { expiresIn: "7d" });
+  },
+
+  // Generate a refresh token (longer expiration)
+  generateRefreshToken: (user: IUser) => {
+    return jwt.sign({ userId: user._id }, REFRESH_TOKEN_SECRET, { expiresIn: "30d" });
   },
 
   // Verify a JWT token
@@ -17,6 +23,49 @@ export const AuthService = {
       return jwt.verify(token, JWT_SECRET);
     } catch (error) {
       throw new Error("Invalid token");
+    }
+  },
+
+  // Verify a refresh token
+  verifyRefreshToken: (refreshToken: string) => {
+    try {
+      return jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+    } catch (error) {
+      throw new Error("Invalid refresh token");
+    }
+  },
+
+  // Refresh access token using refresh token
+  refreshAccessToken: async (refreshToken: string) => {
+    try {
+      const decoded = AuthService.verifyRefreshToken(refreshToken) as any;
+      const user = await User.findById(decoded.userId);
+      
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const newAccessToken = AuthService.generateToken(user);
+      const newRefreshToken = AuthService.generateRefreshToken(user);
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          image: user.image,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        }
+      };
+    } catch (error) {
+      throw new Error("Failed to refresh token");
     }
   },
 

@@ -65,7 +65,7 @@ app.use("/api/words", authMiddleware, WordsRoutes);
 app.use("/api/questions", authMiddleware, QuestionRoutes);
 app.use("/api/exams", authMiddleware, ExamRoutes);
 app.use("/api/exam-attempts", authMiddleware, ExamAttemptRoutes);
-app.use("/api/statistics", authMiddleware, StatisticsRoutes);
+app.use("/api/statistics", StatisticsRoutes);
 
 // Logs
 app.use("/api/logs", authMiddleware, LogsRoutes);

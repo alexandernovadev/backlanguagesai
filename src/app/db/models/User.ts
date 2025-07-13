@@ -8,8 +8,11 @@ export interface IUser extends Document {
   firstName?: string;
   lastName?: string;
   image?: string;
-  language: string; // NUEVO: idioma preferido del usuario
+  language: string;
   isActive: boolean;
+  address?: string;
+  phone?: string;
+  lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,14 +25,18 @@ const UserSchema: Schema = new Schema(
     role: { type: String, enum: ["admin", "user"], default: "user" },
     firstName: { type: String },
     lastName: { type: String },
-    language: { 
-      type: String, 
-      default: "es", // Español por defecto
-      enum: ["es", "en", "fr", "de", "it", "pt"] // Idiomas soportados
+    language: {
+      type: String,
+      default: "es",
+      enum: ["es", "en", "fr", "de", "it", "pt"],
     },
     isActive: { type: Boolean, default: true },
+    address: { type: String },
+    phone: { type: String },
+    lastLogin: { type: Date },
+    image: { type: String },
   },
-  { timestamps: true } // Automatically adds createdAt and updatedAt fields
+  { timestamps: true }
 );
 
 export default mongoose.model<IUser>("User", UserSchema);

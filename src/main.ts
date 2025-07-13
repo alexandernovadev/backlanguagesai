@@ -20,6 +20,7 @@ import StatisticsRoutes from "./app/routes/statisticsRoutes";
 import LogsRoutes from "./app/routes/logRoutes";
 import AuthRoutes from "./app/routes/authRoutes";
 import CleanerRoutes from "./app/routes/cleanerRoutes";
+import UserRoutes from "./app/routes/userRoutes";
 
 import { setupSwagger } from "../swagger/swaggerConfig";
 import { errorResponse, successResponse } from "./app/utils/responseHelpers";
@@ -72,6 +73,9 @@ app.use("/api/logs", authMiddleware, LogsRoutes);
 
 // Cleaner routes
 app.use("/api/cleaner", CleanerRoutes);
+
+// Users routes
+app.use("/api/users", UserRoutes);
 
 // Just for testing purposes
 app.use("/api/fixes", Arreglosquick);

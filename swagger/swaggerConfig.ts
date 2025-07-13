@@ -14,6 +14,7 @@ import {
   authswagger,
   logsswagger,
   cleanerSwagger,
+  usersSwagger,
 } from "./routes/index";
 
 const options: swaggerJsdoc.Options = {
@@ -42,6 +43,18 @@ const options: swaggerJsdoc.Options = {
           name: "tokenAPI",
         },
       },
+      ...fixesSwagger["components"],
+      ...statisticsSwagger["components"],
+      ...wordsSwagger["components"],
+      ...questionsSwagger["components"],
+      ...examsSwagger["components"],
+      ...examAttemptsSwagger["components"],
+      ...lectureswagger["components"],
+      ...generateaiswagger["components"],
+      ...authswagger["components"],
+      ...logsswagger["components"],
+      ...cleanerSwagger["components"],
+      ...usersSwagger["components"],
     },
     security: [{ BearerAuth: [] }, { TokenQuery: [] }],
     paths: {
@@ -56,6 +69,7 @@ const options: swaggerJsdoc.Options = {
       ...authswagger["paths"],
       ...logsswagger["paths"],
       ...cleanerSwagger["paths"],
+      ...usersSwagger["paths"],
     },
   },
   apis: ["./src/app/routes/*.ts"],

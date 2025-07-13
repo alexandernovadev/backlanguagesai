@@ -44,4 +44,8 @@ export const logsswagger = yaml.load(
 
 export const cleanerSwagger = yaml.load(
   readFileSync(join(__dirname, "./cleaner.yaml"), "utf8")
+) as object;
+
+export const usersSwagger = yaml.load(
+  readFileSync(join(__dirname, "./users.yaml"), "utf8")
 ) as object; 

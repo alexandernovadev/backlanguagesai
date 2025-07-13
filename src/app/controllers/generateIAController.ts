@@ -164,7 +164,15 @@ export const updateImageWord = async (req: Request, res: Response) => {
 };
 
 export const generateTextStream = async (req: Request, res: Response) => {
-  const { prompt, level, typeWrite, addEasyWords } = req.body;
+  const {
+    prompt,
+    level,
+    typeWrite,
+    addEasyWords,
+    language,
+    rangeMin,
+    rangeMax,
+  } = req.body;
 
   if (!prompt) {
     return errorResponse(res, "Prompt is required.", 400);
@@ -184,6 +192,9 @@ export const generateTextStream = async (req: Request, res: Response) => {
       level,
       typeWrite,
       promptWords,
+      language,
+      rangeMin,
+      rangeMax,
     });
 
     res.setHeader("Content-Type", "application/json");
@@ -392,12 +403,16 @@ export const generateExamStream = async (req: Request, res: Response) => {
   });
 
   if (!validation.isValid) {
-    return errorResponse(res, `Validation error: ${validation.errors.join(', ')}`, 400);
+    return errorResponse(
+      res,
+      `Validation error: ${validation.errors.join(", ")}`,
+      400
+    );
   }
 
   // Mostrar warnings si existen
   if (validation.warnings.length > 0) {
-    console.warn('Exam generation warnings:', validation.warnings);
+    console.warn("Exam generation warnings:", validation.warnings);
   }
 
   try {

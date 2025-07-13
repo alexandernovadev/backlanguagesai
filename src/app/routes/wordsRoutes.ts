@@ -11,6 +11,9 @@ import {
   updateIncrementWordSeens,
   exportWordsToJSON,
   importWordsFromFile,
+  getWordsForReview,
+  updateWordReview,
+  getReviewStats,
 } from "../controllers/wordController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
@@ -18,22 +21,18 @@ const router = Router();
 
 // Routes
 router.get("/get-cards-anki", getRecentHardOrMediumWords);
-router.get("/export-json", exportWordsToJSON);
-router.get("/", getWords);
+router.get("/get-words-for-review", getWordsForReview);
+router.get("/get-review-stats", getReviewStats);
+router.post("/:wordId/update-review", updateWordReview);
+router.get("/:word/word", getWordByName);
 router.get("/:id", getWordById);
-router.get("/word/:word", getWordByName);
-
+router.get("/", getWords);
 router.post("/", createWord);
-router.post(
-  "/import-file",
-  ...createJsonUploadMiddleware(),
-  importWordsFromFile
-);
-
+router.put("/:id", updateWord);
+router.delete("/:id", deleteWord);
 router.put("/:id/level", updateWordLevel);
 router.put("/:id/increment-seen", updateIncrementWordSeens);
-router.put("/:id", updateWord);
-
-router.delete("/:id", deleteWord);
+router.get("/export/json", exportWordsToJSON);
+router.post("/import/json", ...createJsonUploadMiddleware(), importWordsFromFile);
 
 export default router;

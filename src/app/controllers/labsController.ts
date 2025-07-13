@@ -7,6 +7,9 @@ import { seedAdminUser } from "../services/seed/user";
 import { seedQuestions } from "../services/seed/seedQuestions";
 import { backupCollections } from "../utils/backupCollections";
 import { seedData } from "../utils/seedData";
+// import { MigrationService } from "../services/migration/migrationService";
+
+// const migrationService = new MigrationService();
 
 export const arreglosmaricasrapidos = async (
   req: Request,
@@ -28,10 +31,13 @@ export const arreglosmaricasrapidos = async (
     // await Lecture.deleteMany({});
 
     // Seed questions from JSON
-    const seededQuestions = await seedQuestions();
+    // const seededQuestions = await seedQuestions();
+    
+    // const migrationResult = await migrationService.migrateWordsToReviewSystem();
 
-    return successResponse(res, "Questions seeded successfully", seededQuestions);
+    return successResponse(res, "Migración completada", "migrationResult");
   } catch (error) {
-    return errorResponse(res, "Error seeding questions", 404, error);
+    return errorResponse(res, "Error durante la migración", 404, error);
   }
 };
+

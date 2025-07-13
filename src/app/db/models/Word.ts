@@ -16,6 +16,13 @@ export interface IWord extends Document {
     definition: string;
     word: string;
   };
+  // Campos para sistema de repaso inteligente
+  lastReviewed?: Date;
+  nextReview?: Date;
+  reviewCount?: number;
+  difficulty?: number; // 1-5, donde 1 es muy fácil y 5 es muy difícil
+  interval?: number; // Intervalo en días para el próximo repaso
+  easeFactor?: number; // Factor de facilidad (similar a Anki)
 }
 
 const WordSchema: Schema = new Schema<IWord>(
@@ -107,6 +114,33 @@ const WordSchema: Schema = new Schema<IWord>(
         minlength: 1,
         maxlength: 100,
       },
+    },
+    // Campos para sistema de repaso inteligente
+    lastReviewed: {
+      type: Date,
+      default: null,
+    },
+    nextReview: {
+      type: Date,
+      default: null,
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+    },
+    difficulty: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: 3,
+    },
+    interval: {
+      type: Number,
+      default: 1, // 1 día por defecto
+    },
+    easeFactor: {
+      type: Number,
+      default: 2.5, // Factor de facilidad inicial (similar a Anki)
     },
   },
   { timestamps: true }

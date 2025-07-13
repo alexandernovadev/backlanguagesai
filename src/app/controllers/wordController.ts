@@ -247,6 +247,89 @@ export const getRecentHardOrMediumWords = async (
   }
 };
 
+// Nuevo endpoint para obtener palabras para repaso inteligente
+export const getWordsForReview = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+    const words = await wordService.getWordsForReview(limit);
+    return successResponse(
+      res,
+      "Words for review retrieved successfully",
+      words
+    );
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving words for review",
+      500,
+      error
+    );
+  }
+};
+
+// Nuevo endpoint para actualizar el progreso de repaso de una palabra
+export const updateWordReview = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { wordId } = req.params;
+    const { difficulty, quality } = req.body;
+
+    if (!wordId || !difficulty || !quality) {
+      return errorResponse(res, "wordId, difficulty, and quality are required", 400);
+    }
+
+    if (difficulty < 1 || difficulty > 5 || quality < 1 || quality > 5) {
+      return errorResponse(res, "difficulty and quality must be between 1 and 5", 400);
+    }
+
+    const updatedWord = await wordService.updateWordReview(wordId, difficulty, quality);
+    
+    if (!updatedWord) {
+      return errorResponse(res, "Word not found", 404);
+    }
+
+    return successResponse(
+      res,
+      "Word review updated successfully",
+      updatedWord
+    );
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while updating word review",
+      500,
+      error
+    );
+  }
+};
+
+// Nuevo endpoint para obtener estadísticas de repaso
+export const getReviewStats = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const stats = await wordService.getReviewStats();
+    return successResponse(
+      res,
+      "Review statistics retrieved successfully",
+      stats
+    );
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving review statistics",
+      500,
+      error
+    );
+  }
+};
+
 export const updateIncrementWordSeens = async (
   req: Request,
   res: Response

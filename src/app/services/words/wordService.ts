@@ -302,6 +302,156 @@ export class WordService {
       .lean();
   }
 
+  // Nuevo método para obtener palabras para repaso inteligente
+  async getWordsForReview(limit: number = 20): Promise<IWord[]> {
+    const now = new Date();
+    
+    // Obtener palabras que necesitan repaso (nextReview <= now) o nunca han sido revisadas
+    const wordsForReview = await Word.find({
+      $or: [
+        { nextReview: { $lte: now } },
+        { nextReview: null },
+        { lastReviewed: null }
+      ],
+      level: { $in: ["hard", "medium"] }
+    })
+    .sort({ 
+      // Priorizar por: 1) Nunca revisadas, 2) Más tiempo sin revisar, 3) Más difíciles
+      lastReviewed: 1,
+      difficulty: -1,
+      nextReview: 1
+    })
+    .limit(limit)
+    .lean();
+
+    // Si no hay suficientes palabras para repaso, agregar algunas nuevas
+    if (wordsForReview.length < limit) {
+      const remainingLimit = limit - wordsForReview.length;
+      const additionalWords = await Word.find({
+        level: { $in: ["hard", "medium"] },
+        _id: { $nin: wordsForReview.map(w => w._id) }
+      })
+      .sort({ createdAt: -1 })
+      .limit(remainingLimit)
+      .lean();
+
+      return [...wordsForReview, ...additionalWords];
+    }
+
+    return wordsForReview;
+  }
+
+  // Método para actualizar el progreso de repaso de una palabra
+  async updateWordReview(
+    wordId: string, 
+    difficulty: number, 
+    quality: number // 1-5, donde 1 es "olvidé completamente" y 5 es "muy fácil"
+  ): Promise<IWord | null> {
+    const word = await Word.findById(wordId);
+    if (!word) return null;
+
+    const now = new Date();
+    const oldEaseFactor = word.easeFactor || 2.5;
+    const oldInterval = word.interval || 1;
+    const oldReviewCount = word.reviewCount || 0;
+
+    // Calcular nuevo factor de facilidad (algoritmo similar a Anki)
+    let newEaseFactor = oldEaseFactor;
+    if (quality >= 4) {
+      // Respuesta correcta
+      newEaseFactor = Math.max(1.3, oldEaseFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+    } else if (quality <= 2) {
+      // Respuesta incorrecta
+      newEaseFactor = Math.max(1.3, oldEaseFactor - 0.2);
+    }
+
+    // Calcular nuevo intervalo
+    let newInterval: number;
+    if (quality >= 4) {
+      if (oldReviewCount === 0) {
+        newInterval = 1;
+      } else if (oldReviewCount === 1) {
+        newInterval = 6;
+      } else {
+        newInterval = Math.round(oldInterval * newEaseFactor);
+      }
+    } else {
+      // Respuesta incorrecta, volver a 1 día
+      newInterval = 1;
+    }
+
+    // Calcular próxima fecha de repaso
+    const nextReviewDate = new Date(now);
+    nextReviewDate.setDate(nextReviewDate.getDate() + newInterval);
+
+    // Actualizar palabra
+    const updatedWord = await Word.findByIdAndUpdate(
+      wordId,
+      {
+        lastReviewed: now,
+        nextReview: nextReviewDate,
+        reviewCount: oldReviewCount + 1,
+        difficulty: difficulty,
+        interval: newInterval,
+        easeFactor: newEaseFactor,
+        seen: (word.seen || 0) + 1
+      },
+      { new: true }
+    );
+
+    return updatedWord;
+  }
+
+  // Método para obtener estadísticas de repaso
+  async getReviewStats(): Promise<{
+    totalWords: number;
+    wordsReviewedToday: number;
+    wordsDueForReview: number;
+    averageEaseFactor: number;
+    averageInterval: number;
+  }> {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const [
+      totalWords,
+      wordsReviewedToday,
+      wordsDueForReview,
+      averageEaseFactor,
+      averageInterval
+    ] = await Promise.all([
+      Word.countDocuments({ level: { $in: ["hard", "medium"] } }),
+      Word.countDocuments({ 
+        level: { $in: ["hard", "medium"] },
+        lastReviewed: { $gte: startOfDay }
+      }),
+      Word.countDocuments({
+        level: { $in: ["hard", "medium"] },
+        $or: [
+          { nextReview: { $lte: now } },
+          { nextReview: null },
+          { lastReviewed: null }
+        ]
+      }),
+      Word.aggregate([
+        { $match: { level: { $in: ["hard", "medium"] } } },
+        { $group: { _id: null, avgEaseFactor: { $avg: "$easeFactor" } } }
+      ]),
+      Word.aggregate([
+        { $match: { level: { $in: ["hard", "medium"] } } },
+        { $group: { _id: null, avgInterval: { $avg: "$interval" } } }
+      ])
+    ]);
+
+    return {
+      totalWords,
+      wordsReviewedToday,
+      wordsDueForReview,
+      averageEaseFactor: averageEaseFactor[0]?.avgEaseFactor || 2.5,
+      averageInterval: averageInterval[0]?.avgInterval || 1
+    };
+  }
+
   async getLastEasyWords(): Promise<IWord[]> {
     return await Word.find({ level: "easy" })
       .sort({ createdAt: -1 })

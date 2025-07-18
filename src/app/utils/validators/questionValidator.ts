@@ -99,7 +99,20 @@ export class QuestionValidator {
       }
     }
 
-    if (question.type === 'fill_blank' || question.type === 'writing') {
+    if (question.type === 'fill_blank') {
+      // fill_blank questions can have either options OR correctAnswers
+      if ((!question.options || question.options.length === 0) && (!question.correctAnswers || question.correctAnswers.length === 0)) {
+        errors.push(`fill_blank questions must have either options or correct answers`);
+      }
+      if (question.options && question.options.length > 0) {
+        const correctOptions = question.options.filter(opt => opt.isCorrect);
+        if (correctOptions.length === 0) {
+          errors.push(`fill_blank questions with options must have at least one correct option`);
+        }
+      }
+    }
+
+    if (question.type === 'writing') {
       if (!question.correctAnswers || question.correctAnswers.length === 0) {
         errors.push(`${question.type} questions must have correct answers`);
       }

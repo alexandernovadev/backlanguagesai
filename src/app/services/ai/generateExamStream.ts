@@ -108,7 +108,7 @@ ${grammarInstructions}
 You MUST use ONLY these question types: ${types.join(', ')}
 - single_choice: "Choose the correct verb form/word/grammar structure (one answer)"
 - multiple_choice: "Choose the correct verb forms/words/grammar structures (multiple answers)"
-- fill_blank: "Complete with the appropriate word/verb form"
+- fill_blank: "Complete with the appropriate word/verb form or choose from given options"
 - true_false: "Is this sentence grammatically correct?"
 - translate: "Translate from ${userLang === 'es' ? 'Spanish' : userLang} to English"
 - writing: "Write a short response following the given instructions"
@@ -118,7 +118,8 @@ You MUST use ONLY these question types: ${types.join(', ')}
 🏠 ANY topic is valid - adapt the language level to ${level}, not the topic complexity
 
 🚫 Constraints:
-- For questions of type "single_choice", "multiple_choice", or "fill_blank": generate between 4 and 6 options per question (no less than 4, no more than 6).
+- For questions of type "single_choice" and "multiple_choice": generate between 4 and 6 options per question (no less than 4, no more than 6).
+- For questions of type "fill_blank": generate between 4 and 6 options per question (no less than 4, no more than 6) with word choices, verb forms, or yes/no options as appropriate for the context.
 - Only one correct answer for single_choice and fill_blank. Multiple correct answers allowed for multiple_choice.
 - Match answer format: if correctAnswer is "B", it must match options
 - Use clear, realistic language per level
@@ -160,7 +161,21 @@ Based on the topic "${topic}", generate:
       "correctAnswers": ["B"],
       "tags": ["grammar", "vocabulary"],
       "explanation": "<div><strong style='font-size:1.1em; color:#3b82f6;'>Grammar Rule</strong> explanation with <span style='color:#f59e0b; font-weight:bold; text-decoration:underline;'>Structure:</span> <span style='color:#22d3ee; font-weight:bold;'>Subject + Verb</span> (+<span style='color:#f43f5e;'>s/es</span> for he/she/it)<br><ul style='margin:4px 0 0 18px;'><li><em>Example 1</em></li><li><em>Example 2</em></li></ul><span style='color: #f59e0b;'>Remember:</span> key point</div>"
-    }
+    },
+    {
+      "text": "Complete the sentence: 'The new operational manual _____ (approve) by Peru last week.'",
+      "type": "fill_blank",
+      "options": [
+        { "value": "A", "label": "approved", "isCorrect": true },
+        { "value": "B", "label": "has approved", "isCorrect": false },
+        { "value": "C", "label": "approves", "isCorrect": false },
+        { "value": "D", "label": "will approve", "isCorrect": false }
+      ],
+      "correctAnswers": ["A"],
+      "tags": ["grammar", "passive_voice", "past_tense"],
+      "explanation": "<div><strong style='font-size:1.1em; color:#3b82f6;'>Passive Voice Rule</strong> explanation</div>"
+    },
+
   ]
 }
 

@@ -22,7 +22,13 @@ import AuthRoutes from "./app/routes/authRoutes";
 import CleanerRoutes from "./app/routes/cleanerRoutes";
 import UserRoutes from "./app/routes/userRoutes";
 
-import { setupSwagger } from "../swagger/swaggerConfig";
+// Swagger solo en desarrollo
+let setupSwagger: any = () => {};
+if (process.env.NODE_ENV === "development") {
+  import("../swagger/swaggerConfig").then(({ setupSwagger: swaggerSetup }) => {
+    setupSwagger = swaggerSetup;
+  });
+}
 import { errorResponse, successResponse } from "./app/utils/responseHelpers";
 import { requestLogger } from "./app/utils/requestLogger";
 import { authMiddleware } from "./app/middlewares/authMiddleware";
@@ -51,7 +57,7 @@ app.use(
 // Middleware to log requests
 app.use(requestLogger);
 
-// Swagger Conf
+// Swagger Conf (solo en desarrollo)
 setupSwagger(app);
 
 const publicPath = path.join(__dirname, "..", "public");

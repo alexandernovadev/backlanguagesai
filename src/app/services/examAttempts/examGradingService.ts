@@ -99,18 +99,16 @@ DETAILED INSTRUCTIONS:
    - For each question, provide an EXTREMELY DETAILED aiComment in rich HTML format
 
 2. **aiComment FORMAT (RICH HTML):**
-   - Minimum 200 words per comment
+   - Minimum 400 words per comment (much more detailed than before)
    - Use HTML tags: <strong>, <em>, <u>, <br>, <ul>, <li>, <span style="color: #color">
    - Include:
-     * <strong>Error Analysis</strong>: Why is it wrong? What concept doesn't the student understand?
-     * <strong>Detailed Explanation</strong>: Grammar rules, vocabulary, context
+     * <strong>Error Analysis</strong>: EXTREMELY DETAILED analysis of why the answer is wrong. Explain the specific linguistic concept the student is missing, the underlying grammar rule they don't understand, and the cognitive gap in their language learning. This should be a comprehensive breakdown of the error, not just a simple explanation.
+     * <strong>Detailed Explanation</strong>: COMPREHENSIVE explanation including: specific grammar rules with examples, vocabulary nuances, contextual usage, common misconceptions, and why this particular error occurs. Include multiple examples and variations to ensure complete understanding.
      * <strong>Correct Examples</strong>: Multiple examples of correct usage
      * <strong>Specific Tips</strong>: How to avoid this error in the future
-     * <strong>Study Resources</strong>: What topics should be reviewed
-     * <strong>Error Severity Level</strong>: Whether it's a basic, intermediate, or advanced error
 
 3. **GENERAL FEEDBACK (RICH HTML):**
-   - Minimum 400 words
+   - Minimum 600 words (much more comprehensive than before)
    - Be REALISTIC and DIRECT:
      * If student lost many points: Be critical but constructive
      * If student barely passed: Acknowledge effort but point out weaknesses
@@ -144,7 +142,16 @@ Respond in the following JSON format:
   ]
 }
 
-REMEMBER: Comments must be substantial, educational, and realistic. Don't be superficial or overly positive when there are serious errors.
+REMEMBER: Comments must be substantial, educational, and realistic. Don't be superficial or overly positive when there are serious errors. 
+
+CRITICAL REQUIREMENTS FOR DETAILED ANALYSIS:
+- Each aiComment must be a mini-lesson, not just a simple explanation
+- Include step-by-step breakdowns of grammar concepts
+- Provide multiple examples with different contexts
+- Explain the "why" behind each rule, not just the "what"
+- Address common misconceptions and why students make these specific errors
+- Include practical tips for remembering the correct usage
+- Make connections to other related grammar concepts when relevant
 `;
   }
 

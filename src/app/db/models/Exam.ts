@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 // Definir la interfaz del documento
 export interface IExam extends Document {
   title: string;
+  slug: string; // URL-friendly identifier
   description?: string;
   language: string;
   level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
@@ -34,6 +35,13 @@ const ExamSchema = new Schema<IExam>(
       required: true,
       minlength: 1,
       maxlength: 200,
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      minlength: 1,
+      maxlength: 100,
     },
     description: {
       type: String,
@@ -126,6 +134,7 @@ ExamSchema.index({ topic: 1 }); // Consultas por tema
 ExamSchema.index({ createdBy: 1 }); // Consultas por creador
 ExamSchema.index({ source: 1 }); // Consultas por fuente
 ExamSchema.index({ createdAt: -1 }); // Ordenamiento por fecha
+ExamSchema.index({ slug: 1 }, { unique: true }); // Índice único para slug
 
 // Crear el modelo
 const Exam = mongoose.model<IExam>("Exam", ExamSchema);

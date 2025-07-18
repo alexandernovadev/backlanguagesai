@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Exam, { IExam } from "../../db/models/Exam";
 import Question from "../../db/models/Question";
 import ExamAttempt from "../../db/models/ExamAttempt";
+import { generateSlugFromTitle } from "../../utils/slugGenerator";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -20,6 +21,11 @@ export class ExamService {
   // Get an exam by ID
   async getExamById(id: string): Promise<IExam | null> {
     return await Exam.findById(id).populate('questions.question');
+  }
+
+  // Get an exam by slug
+  async getExamBySlug(slug: string): Promise<IExam | null> {
+    return await Exam.findOne({ slug }).populate('questions.question');
   }
 
   // Get all exams with pagination and filters
@@ -271,9 +277,16 @@ export class ExamService {
       createdQuestions.push(savedQuestion._id);
     }
 
+    // Generate unique slug if not provided
+    let slug = examData.slug;
+    if (!slug && examData.title) {
+      slug = await generateSlugFromTitle(examData.title);
+    }
+
     // Create exam with the created question IDs
     const exam = new Exam({
       ...examData,
+      slug,
       questions: createdQuestions.map((questionId, index) => ({
         question: questionId,
         weight: 1,

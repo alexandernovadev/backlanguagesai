@@ -441,3 +441,25 @@ export const generateExamStream = async (req: Request, res: Response) => {
     return errorResponse(res, "Failed to generate exam stream", 500, error);
   }
 };
+
+// Nueva función para procesar la respuesta de la IA y extraer título y slug
+export const processExamGenerationResponse = (aiResponse: any) => {
+  try {
+    // La IA ahora devuelve un objeto con examTitle, examSlug y questions
+    const { examTitle, examSlug, questions } = aiResponse;
+    
+    return {
+      examTitle: examTitle || `Examen: ${aiResponse.topic || 'General'}`,
+      examSlug: examSlug || 'exam-general',
+      questions: questions || []
+    };
+  } catch (error) {
+    console.error('Error processing AI response:', error);
+    // Fallback si la IA no devuelve el formato esperado
+    return {
+      examTitle: `Examen: ${aiResponse.topic || 'General'}`,
+      examSlug: 'exam-general',
+      questions: aiResponse.questions || []
+    };
+  }
+};

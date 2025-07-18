@@ -60,6 +60,29 @@ export const getExamById = async (
   }
 };
 
+export const getExamBySlug = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { slug } = req.params;
+    const exam = await examService.getExamBySlug(slug);
+
+    if (!exam) {
+      return errorResponse(res, "Exam not found", 404);
+    }
+
+    return successResponse(res, "Exam retrieved successfully", exam);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving the exam",
+      500,
+      error
+    );
+  }
+};
+
 export const getExams = async (
   req: Request,
   res: Response

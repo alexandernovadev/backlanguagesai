@@ -140,8 +140,15 @@ Each question MUST include an "explanation" field with rich HTML grammar explana
 - Use: <strong>, <em>, <span style="color:...">, <ul>, <li>, <br>
 - Keep it concise but informative
 
-🛠️ Output: JSON object with questions array containing EXACTLY ${numberOfQuestions} items
+📝 EXAM TITLE AND SLUG GENERATION:
+Based on the topic "${topic}", generate:
+- A professional, descriptive title (max 100 characters)
+- A URL-friendly slug (lowercase, hyphens, no special chars, max 50 characters)
+
+🛠️ Output: JSON object with exam metadata and questions array containing EXACTLY ${numberOfQuestions} items
 {
+  "examTitle": "Professional title based on the topic",
+  "examSlug": "url-friendly-slug-based-on-topic",
   "questions": [
     {
       "text": "Question text (language-focused only)",
@@ -166,6 +173,7 @@ Each question MUST include an "explanation" field with rich HTML grammar explana
 - Test that the JSON is valid before responding
 - VERIFY that ALL question types are from the allowed list: ${types.join(', ')}
 - Ensure question types are distributed evenly throughout the exam
+- Generate a professional title and clean slug based on the topic
 `.trim();
 
   return await openai.chat.completions.create({
@@ -191,6 +199,11 @@ Each question MUST include an "explanation" field with rich HTML grammar explana
         Difficulty: ${difficulty}/5. 
         
         IMPORTANT: Each question MUST include a rich HTML "explanation" field that explains the grammar rule being tested. Make it visual with colors, clear structure, and helpful examples.
+        
+        📝 EXAM METADATA:
+        - Generate a professional, descriptive title based on the topic "${topic}" (max 100 characters)
+        - Generate a URL-friendly slug (lowercase, hyphens, no special chars, max 50 characters)
+        - The title should be educational and descriptive, not just "Exam: topic"
         
         The response must contain exactly ${numberOfQuestions} questions in the JSON object. 
         ANY topic is valid - adapt the language complexity to ${level}.`,

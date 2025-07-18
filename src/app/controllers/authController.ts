@@ -47,19 +47,20 @@ export const AuthController = {
         } = user;
 
         const userInfo = {
-          id: _id,
+          _id: _id,
           username,
           email,
           role,
           firstName,
           lastName,
           image,
+          language: user.language || 'es',
           isActive,
-          createdAt,
-          updatedAt,
           address,
           phone,
           lastLogin,
+          createdAt,
+          updatedAt,
         };
 
         return successResponse(res, "Login successful", {

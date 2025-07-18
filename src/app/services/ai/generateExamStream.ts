@@ -12,28 +12,7 @@ interface ExamOptions {
   userLang?: string;
 }
 
-interface GeneratedQuestion {
-  text: string;
-  type:
-    | "single_choice"
-    | "multiple_choice"
-    | "fill_blank"
-    | "translate"
-    | "true_false"
-    | "writing";
-  options?: Array<{
-    value: string;
-    label: string;
-    isCorrect: boolean;
-  }>;
-  correctAnswers?: string[];
-  tags?: string[];
-}
 
-interface ExamGenerationResult {
-  exam: Partial<IExam>;
-  questions: Partial<IQuestion>[];
-}
 
 export const generateExamStreamService = async ({
   level = "B1",
@@ -47,6 +26,10 @@ export const generateExamStreamService = async ({
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY || "",
   });
+
+  // Para usar modo razonador de forma más económica:
+  // - Usar gpt-4o-mini con temperature: 0.1
+  // - Agregar "Let me think step by step" al prompt
 
   const levelToneMap = {
     A1: `
@@ -121,12 +104,16 @@ ${levelNotes}
 
 ${grammarInstructions}
 
-📝 Question Types Focus:
-- Single Choice: "Choose the correct verb form/word/grammar structure (one answer)"
-- Multiple Choice: "Choose the correct verb forms/words/grammar structures (multiple answers)"
-- Fill Blank: "Complete with the appropriate word/verb form"
-- True/False: "Is this sentence grammatically correct?"
-- Translate: "Translate from ${userLang === 'es' ? 'Spanish' : userLang} to English" (never translate to the same language as userLang)
+📝 MANDATORY QUESTION TYPES (ONLY USE THESE):
+You MUST use ONLY these question types: ${types.join(', ')}
+- single_choice: "Choose the correct verb form/word/grammar structure (one answer)"
+- multiple_choice: "Choose the correct verb forms/words/grammar structures (multiple answers)"
+- fill_blank: "Complete with the appropriate word/verb form"
+- true_false: "Is this sentence grammatically correct?"
+- translate: "Translate from ${userLang === 'es' ? 'Spanish' : userLang} to English"
+- writing: "Write a short response following the given instructions"
+
+🚫 FORBIDDEN: Do NOT use any question types other than those specified above.
 
 🏠 ANY topic is valid - adapt the language level to ${level}, not the topic complexity
 
@@ -140,6 +127,10 @@ ${grammarInstructions}
 - DO NOT judge topic appropriateness - ANY topic is fine
 
 🔢 MANDATORY: Generate EXACTLY ${numberOfQuestions} questions - no more, no less!
+🎯 QUESTION TYPE DISTRIBUTION:
+- You MUST use ONLY the specified question types: ${types.join(', ')}
+- Distribute types evenly: approximately ${Math.ceil(numberOfQuestions / types.length)} questions per type
+- Do NOT use any question types not in the specified list
 
 📚 EXPLANATION FIELD (REQUIRED):
 Each question MUST include an "explanation" field with rich HTML grammar explanation:
@@ -166,12 +157,20 @@ Each question MUST include an "explanation" field with rich HTML grammar explana
   ]
 }
 
-⚠️ Respond ONLY with the raw JSON object containing EXACTLY ${numberOfQuestions} questions in the questions array.
+⚠️ CRITICAL REQUIREMENTS:
+- Respond ONLY with the raw JSON object containing EXACTLY ${numberOfQuestions} questions
+- Ensure ALL questions follow the exact format specified
+- Double-check that all required fields are present
+- Verify that explanations contain proper HTML formatting
+- Confirm that correctAnswers match the options array
+- Test that the JSON is valid before responding
+- VERIFY that ALL question types are from the allowed list: ${types.join(', ')}
+- Ensure question types are distributed evenly throughout the exam
 `.trim();
 
   return await openai.chat.completions.create({
     stream: true,
-    model: "gpt-4o-2024-08-06",
+    model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
@@ -183,7 +182,13 @@ Each question MUST include an "explanation" field with rich HTML grammar explana
         Create ${level} level LANGUAGE LEARNING questions about "${topic}". 
         ${grammarTopics.length > 0 ? `MANDATORY: Include questions covering these grammar topics: ${grammarTopics.join(', ')}. ` : ''}
         Focus on grammar, vocabulary, and language patterns regardless of the topic. 
-        Use these types: ${types.join(", ")}. Difficulty: ${difficulty}/5. 
+        
+        🎯 CRITICAL: You MUST use ONLY these question types: ${types.join(", ")}
+        - Do NOT use any other question types
+        - Distribute the question types evenly throughout the exam
+        - If you have ${types.length} types and ${numberOfQuestions} questions, try to include each type approximately ${Math.ceil(numberOfQuestions / types.length)} times
+        
+        Difficulty: ${difficulty}/5. 
         
         IMPORTANT: Each question MUST include a rich HTML "explanation" field that explains the grammar rule being tested. Make it visual with colors, clear structure, and helpful examples.
         
@@ -191,7 +196,7 @@ Each question MUST include an "explanation" field with rich HTML grammar explana
         ANY topic is valid - adapt the language complexity to ${level}.`,
       },
     ],
-    temperature: 0.7,
+    temperature: 0.3,
     response_format: {
       type: "json_object",
     },

@@ -23,9 +23,9 @@ generateRoutes.post("/generate-topic-stream", generateTopicStream);
 generateRoutes.post("/generate-image-lecture/:idlecture", updateImageLecture);
 generateRoutes.post("/generate-image-word/:idword", updateImageWord);
 
-generateRoutes.post("/update-word-examples", updatedJSONWordExamples);
-generateRoutes.post("/update-word-examples-code-switching", updatedJSONWordExamplesCodeSwitching);
-generateRoutes.post("/update-word-synonyms", updatedJSONWordSynonyms);
-generateRoutes.post("/update-word-types", updatedJSONWordTypes);
+generateRoutes.post("/update-word-examples/:idword", updatedJSONWordExamples);
+generateRoutes.post("/update-word-examples-code-switching/:idword", updatedJSONWordExamplesCodeSwitching);
+generateRoutes.post("/update-word-synonyms/:idword", updatedJSONWordSynonyms);
+generateRoutes.post("/update-word-types/:idword", updatedJSONWordTypes);
 
 generateRoutes.post("/generate-audio-from-text", generateAudioFromText);

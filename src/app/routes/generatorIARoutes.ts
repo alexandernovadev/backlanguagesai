@@ -10,6 +10,7 @@ import {
   updatedJSONWordTypes,
   updateImageLecture,
   updateImageWord,
+  generateTopicStream,
 } from "../controllers/generateIAController";
 
 export const generateRoutes = Router();
@@ -17,16 +18,14 @@ export const generateRoutes = Router();
 generateRoutes.post("/generate-text", generateTextStream);
 generateRoutes.post("/generate-wordJson", generateJSONword);
 generateRoutes.post("/generate-exam", generateExamStream);
-generateRoutes.post("/generate-image/:idword", updateImageWord);
+generateRoutes.post("/generate-topic-stream", generateTopicStream);
+
 generateRoutes.post("/generate-image-lecture/:idlecture", updateImageLecture);
+generateRoutes.post("/generate-image-word/:idword", updateImageWord);
 
-generateRoutes.put("/generate-word-examples/:idword", updatedJSONWordExamples);
-generateRoutes.put(
-  "/generate-code-switching/:idword",
-  updatedJSONWordExamplesCodeSwitching
-);
-
-generateRoutes.put("/generate-word-wordtypes/:idword", updatedJSONWordTypes);
-generateRoutes.put("/generate-code-synonyms/:idword", updatedJSONWordSynonyms);
+generateRoutes.post("/update-word-examples", updatedJSONWordExamples);
+generateRoutes.post("/update-word-examples-code-switching", updatedJSONWordExamplesCodeSwitching);
+generateRoutes.post("/update-word-synonyms", updatedJSONWordSynonyms);
+generateRoutes.post("/update-word-types", updatedJSONWordTypes);
 
 generateRoutes.post("/generate-audio-from-text", generateAudioFromText);

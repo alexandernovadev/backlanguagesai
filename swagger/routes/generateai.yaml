@@ -691,6 +691,70 @@ paths:
                     type: string
                     example: "Failed to generate exam stream"
 
+  /api/ai/generate-topic-stream:
+    post:
+      summary: Generate a random or contextual educational topic with streaming
+      description: |
+        Generates educational topics for lectures or exams with real-time streaming.
+        If existingText is provided, generates a related but different topic.
+        If no existingText, generates a completely random educational topic.
+      tags:
+        - AI Generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                existingText:
+                  type: string
+                  description: Optional existing text to use as reference for generating a related topic
+                  example: "gramática básica"
+                  maxLength: 220
+                  minLength: 140
+                type:
+                  type: string
+                  enum: [lecture, exam]
+                  description: Type of content to generate topic for
+                  example: "lecture"
+              required:
+                - type
+      responses:
+        '200':
+          description: Returns a streamed topic text (140-220 characters)
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Advanced verb tenses: Present Perfect vs Past Simple in everyday conversations"
+        '400':
+          description: Bad request - missing required fields or invalid type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Type is required and must be 'lecture' or 'exam'"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Error generating topic"
+
 components:
   schemas: {}
 

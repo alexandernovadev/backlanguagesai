@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 
 import { generateTextStreamService } from "../services/ai/generateTextStream";
-import { generateWordJson } from "../services/ai/generateWordJson";
+import { generateWordJson as generateWordJsonService } from "../services/ai/generateWordJson";
 import { WordService } from "../services/words/wordService";
-import { generateWordExamplesJson } from "../services/ai/generateWordExamplesJson";
-import { generateWordExamplesCodeSwithcingJson } from "../services/ai/generateWordExamplesCodeSwithcingJson";
-import { generateWordTypesJson } from "../services/ai/generateWordTypesJson";
-import { generateWordSynomymsJson } from "../services/ai/generateWordSynomymsJson";
+import { generateWordExamplesJson as generateWordExamplesJsonService } from "../services/ai/generateWordExamplesJson";
+import { generateWordExamplesCodeSwithcingJson as generateWordExamplesCodeSwithcingJsonService } from "../services/ai/generateWordExamplesCodeSwithcingJson";
+import { generateWordTypesJson as generateWordTypesJsonService } from "../services/ai/generateWordTypesJson";
+import { generateWordSynomymsJson as generateWordSynomymsJsonService } from "../services/ai/generateWordSynomymsJson";
 import { generateImage } from "../services/ai/generateImage";
 import { generateExamStreamService } from "../services/ai/generateExamStream";
 import {
@@ -111,19 +111,19 @@ export const updateImageLecture = async (req: Request, res: Response) => {
 };
 
 /**
- * Generate Image with AI Save in cloudinary and update Word
+ * Generate Image with AI, Save in Cloudinary, and Update Word
  */
 export const updateImageWord = async (req: Request, res: Response) => {
-  const { word, imgOld } = req.body;
+  const { wordString, imgOld } = req.body;
   const IDWord = req.params.idword;
 
-  if (!word) {
-    return errorResponse(res, "Prompt is required.", 400);
+  if (!wordString) {
+    return errorResponse(res, "Word prompt is required.", 400);
   }
 
   try {
-    // Generate image with DALL·E 3
-    const imageBase64 = await generateImage(imageWordPrompt(word));
+    // Generate image
+    const imageBase64 = await generateImage(imageWordPrompt(wordString));
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);
     }
@@ -134,33 +134,29 @@ export const updateImageWord = async (req: Request, res: Response) => {
       const parts = imgOld.split("/");
       let publicId = parts.pop();
 
-      // Handle casoes where there is not extenxion
+      // Remove extension if exists
       if (publicId.includes(".")) {
-        publicId = publicId.split(".")[0]; // Remove extenxion if exist
+        publicId = publicId.split(".")[0];
       }
 
-      // Make sure htat deleteImageFromCloudinary return promise type void
+      // Delete old image
       deleteOldImagePromise = deleteImageFromCloudinary(
         "languagesai/words/" + publicId
       ).then(() => {});
     }
 
-    // Upload new image on parallel whithin removig image
+    // Upload new image while deleting the old one
     const [_, urlImage] = await Promise.all([
       deleteOldImagePromise,
       uploadImageToCloudinary(imageBase64, "words"),
     ]);
 
-    // Update image
-    const updateImageWord = await wordService.updateWordImg(IDWord, urlImage);
+    // Update word image
+    const updatedWord = await wordService.updateImage(IDWord, urlImage);
 
-    return successResponse(
-      res,
-      "Word Image generated successfully",
-      updateImageWord
-    );
+    return successResponse(res, "Word image updated successfully", updatedWord);
   } catch (error) {
-    return errorResponse(res, "Error generating image ", 400, error);
+    return errorResponse(res, "Error generating word image", 500, error);
   }
 };
 
@@ -219,7 +215,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
   }
 };
 
-export const generateJSONword = async (req: Request, res: Response) => {
+export const generateWordJson = async (req: Request, res: Response) => {
   const { prompt, language } = req.body;
 
   if (!prompt) {
@@ -227,157 +223,86 @@ export const generateJSONword = async (req: Request, res: Response) => {
   }
 
   try {
-    const json = await generateWordJson(prompt, language);
-
-    const wordStructurefinal = {
-      ...json,
-      language: "en",
-      seen: 1,
-      level: "hard",
-      img: "",
-    };
-
-    const newWord = await wordService.createWord(wordStructurefinal);
-
-    return successResponse(res, "Generate word JSON successfully", newWord);
+    const wordData = await generateWordJsonService(prompt, language);
+    return successResponse(res, "Word generated successfully", wordData);
   } catch (error) {
-    return errorResponse(
-      res,
-      "Error trying to generate JSON word \n" + error,
-      500,
-      error
-    );
+    return errorResponse(res, "Error generating word", 500, error);
   }
 };
 
-export const updatedJSONWordExamples = async (req: Request, res: Response) => {
-  const { word, language, oldExamples } = req.body;
+export const generateWordExamplesJson = async (req: Request, res: Response) => {
+  const { prompt, language, oldExamples } = req.body;
 
-  if (!word) {
-    return errorResponse(res, "Word is required.", 400);
+  if (!prompt) {
+    return errorResponse(res, "Prompt is required.", 400);
   }
-  const IDWord = req.params.idword;
+
   try {
-    const { examples } = await generateWordExamplesJson(
-      word,
-      language,
-      oldExamples
-    );
-
-    const updateExamples = await wordService.updateWordExamples(
-      IDWord,
-      examples
-    );
-
-    return successResponse(
-      res,
-      "updated JSON Word Examples word JSON successfully",
-      updateExamples,
-      201
-    );
+    const wordData = await generateWordExamplesJsonService(prompt, language, oldExamples);
+    return successResponse(res, "Word examples generated successfully", wordData);
   } catch (error) {
-    return errorResponse(res, "Error trying to Update JSON Word", 500, error);
+    return errorResponse(res, "Error generating word examples", 500, error);
   }
 };
 
-export const updatedJSONWordExamplesCodeSwitching = async (
+export const generateWordExamplesCodeSwitchingJson = async (
   req: Request,
   res: Response
 ) => {
-  const { word, language, oldExamples } = req.body;
+  const { prompt, language, oldExamples } = req.body;
 
-  if (!word) {
-    return errorResponse(res, "Word is required.", 400);
+  if (!prompt) {
+    return errorResponse(res, "Prompt is required.", 400);
   }
-  const IDWord = req.params.idword;
+
   try {
-    const { codeSwitching } = await generateWordExamplesCodeSwithcingJson(
-      word,
+    const wordData = await generateWordExamplesCodeSwithcingJsonService(
+      prompt,
       language,
       oldExamples
     );
-
-    const updateExamples = await wordService.updateWordCodeSwitching(
-      IDWord,
-      codeSwitching
-    );
-
     return successResponse(
       res,
-      "updated JSON Code Swithing JSON successfully",
-      updateExamples,
-      201
+      "Word code switching examples generated successfully",
+      wordData
     );
   } catch (error) {
     return errorResponse(
       res,
-      "Error trying to Update JSON Word Examples ",
+      "Error generating word code switching examples",
       500,
       error
     );
   }
 };
 
-export const updatedJSONWordTypes = async (req: Request, res: Response) => {
-  const { word, language, oldExamples } = req.body;
+export const generateWordTypesJson = async (req: Request, res: Response) => {
+  const { prompt, language, oldExamples } = req.body;
 
-  if (!word) {
-    return errorResponse(res, "Word is required.", 400);
+  if (!prompt) {
+    return errorResponse(res, "Prompt is required.", 400);
   }
-  const IDWord = req.params.idword;
+
   try {
-    const { type } = await generateWordTypesJson(word, language, oldExamples);
-
-    const updateExamples = await wordService.updateWordType(IDWord, type);
-
-    return successResponse(
-      res,
-      "updated JSON Types successfully",
-      updateExamples,
-      201
-    );
+    const wordData = await generateWordTypesJsonService(prompt, language, oldExamples);
+    return successResponse(res, "Word types generated successfully", wordData);
   } catch (error) {
-    return errorResponse(
-      res,
-      "Error trying to Update JSON Word Types ",
-      500,
-      error
-    );
+    return errorResponse(res, "Error generating word types", 500, error);
   }
 };
 
-export const updatedJSONWordSynonyms = async (req: Request, res: Response) => {
-  const { word, language, oldExamples } = req.body;
+export const generateWordSynomymsJson = async (req: Request, res: Response) => {
+  const { prompt, language, oldExamples } = req.body;
 
-  if (!word) {
-    return errorResponse(res, "Word is required.", 400);
+  if (!prompt) {
+    return errorResponse(res, "Prompt is required.", 400);
   }
-  const IDWord = req.params.idword;
+
   try {
-    const { sinonyms } = await generateWordSynomymsJson(
-      word,
-      language,
-      oldExamples
-    );
-
-    const updateExamples = await wordService.updateWordSynonyms(
-      IDWord,
-      sinonyms
-    );
-
-    return successResponse(
-      res,
-      "Word Sinonyms generated successfully",
-      updateExamples,
-      201
-    );
+    const wordData = await generateWordSynomymsJsonService(prompt, language, oldExamples);
+    return successResponse(res, "Word synonyms generated successfully", wordData);
   } catch (error) {
-    return errorResponse(
-      res,
-      "Error trying to Update JSON Word Synonyms ",
-      500,
-      error
-    );
+    return errorResponse(res, "Error generating word synonyms", 500, error);
   }
 };
 
@@ -475,14 +400,14 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     }
 
     // Validate existingText length if provided
-    if (existingText && existingText.length > 220) {
-      return errorResponse(res, "Existing text cannot exceed 220 characters", 400);
+    if (existingText && existingText.length > 500) {
+      return errorResponse(res, "Existing text cannot exceed 500 characters", 400);
     }
 
-    // Validate minimum length for generated topic
-    if (existingText && existingText.length < 140) {
-      return errorResponse(res, "Existing text must be at least 140 characters", 400);
-    }
+    // Set headers for streaming
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
 
     // Generate topic stream
     const stream = await generateTopicStreamService({
@@ -490,28 +415,11 @@ export const generateTopicStream = async (req: Request, res: Response) => {
       type,
     });
 
-    // Set headers for streaming
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
-    // Stream the response with character limit enforcement
-    let totalCharacters = 0;
+    // Stream the response
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;
       if (content) {
-        // Check if adding this chunk would exceed 220 characters
-        if (totalCharacters + content.length > 220) {
-          // Only send the remaining characters up to 220
-          const remainingChars = 220 - totalCharacters;
-          if (remainingChars > 0) {
-            res.write(content.substring(0, remainingChars));
-          }
-          break; // Stop streaming
-        } else {
-          res.write(content);
-          totalCharacters += content.length;
-        }
+        res.write(content);
       }
     }
 
@@ -520,4 +428,4 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     console.error("Error generating topic stream:", error);
     return errorResponse(res, "Error generating topic", 500, error);
   }
-};
+}; 

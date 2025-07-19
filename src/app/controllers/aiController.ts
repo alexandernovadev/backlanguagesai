@@ -152,7 +152,7 @@ export const updateImageWord = async (req: Request, res: Response) => {
     ]);
 
     // Update word image
-    const updatedWord = await wordService.updateImage(IDWord, urlImage);
+    const updatedWord = await wordService.updateWordImg(IDWord, urlImage);
 
     return successResponse(res, "Word image updated successfully", updatedWord);
   } catch (error) {

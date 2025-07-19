@@ -474,16 +474,6 @@ export const generateTopicStream = async (req: Request, res: Response) => {
       return errorResponse(res, "Type is required and must be 'lecture' or 'exam'", 400);
     }
 
-    // Validate existingText length if provided
-    if (existingText && existingText.length > 220) {
-      return errorResponse(res, "Existing text cannot exceed 220 characters", 400);
-    }
-
-    // Validate minimum length for generated topic
-    if (existingText && existingText.length < 140) {
-      return errorResponse(res, "Existing text must be at least 140 characters", 400);
-    }
-
     // Generate topic stream
     const stream = await generateTopicStreamService({
       existingText: existingText || "",

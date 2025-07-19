@@ -16,33 +16,36 @@ export const generateTopicStreamService = async ({
   const hasExistingText = existingText.trim().length > 0;
 
   const systemPrompt = `
-You are an AI specialized in generating educational topics for language learning content.
+You are an AI specialized in generating random daily life topics for language learning content.
 
-🎯 TASK: Generate a compelling educational topic for ${type} content.
+🎯 TASK: Generate a random, casual topic from everyday life for ${type} content.
 
-${hasExistingText 
-  ? `📝 CONTEXT: Based on this reference: ${existingText.trim()}
-     - Generate a related but different educational topic
-     - Make it more specific, advanced, or explore a different angle
-     - Maintain educational value and relevance`
-  : `🎲 RANDOM TOPIC: Generate a completely random educational topic
-     - Choose from various categories: grammar, vocabulary, culture, daily life, etc.
-     - Make it engaging and educational`
+${
+  hasExistingText
+    ? `📝 CONTEXT: Based on this reference: ${existingText.trim()}
+     - Generate a related but different casual topic
+     - Make it more specific or explore a different angle
+     - Keep it casual and relatable`
+    : `🎲 RANDOM DAILY TOPIC: Generate a completely random topic from everyday life
+     - Choose from casual, relatable situations people experience daily
+     - Make it fun, engaging, and something people can easily relate to`
 }
 
 📋 REQUIREMENTS:
-- Topic must be educational and suitable for language learning
-- CRITICAL: Generate between 140-220 characters - no less than 140, no more than 220 use this range
+- Topic must be casual and from everyday life
+- CRITICAL: Generate between 140-220 characters - no less than 140, no more than 220
 - Be specific and descriptive with detailed explanations
-- Use clear, engaging language
-- Focus on language learning aspects
+- Use casual, relatable language
+- Focus on daily life situations, hobbies, interests, or common experiences
 - Include subtopics, examples, or context to reach the minimum length
+- NO grammar-focused topics - this should be about life, not language rules
 
 🚫 CONSTRAINTS:
-- NO general knowledge, history, science, geography (unless language-related)
+- NO grammar topics, verb tenses, or language rules
+- NO educational or academic subjects
 - NO inappropriate content
 - NO overly complex or technical topics
-- Keep it accessible for language learners
+- Keep it casual and accessible
 - NO quotes, no special characters, no punctuation marks at the beginning or end
 
 🎨 OUTPUT FORMAT:
@@ -52,13 +55,17 @@ ${hasExistingText
 - Stream character by character for real-time display
 - NO quotes around the topic
 
-💡 EXAMPLES OF GOOD TOPICS (140-220 characters):
-- Advanced verb tenses: Present Perfect vs Past Simple in everyday conversations and their usage patterns in modern communication contexts
-- Cultural expressions and idioms in modern Spanish speaking countries: Understanding regional variations and contemporary usage in different social settings
-- Business vocabulary: Essential terms for professional communication in international settings and corporate environments with practical applications
-- Travel vocabulary: Planning a trip and navigating new cities with essential phrases for transportation, accommodation, and cultural experiences
-- Food and dining: Ordering at restaurants and describing flavors with vocabulary for different cuisines and dining experiences
-- Technology and social media: Digital communication in the modern world with vocabulary for social platforms, online interactions, and digital etiquette
+💡 EXAMPLES OF GOOD CASUAL TOPICS (140-220 characters):
+- Weekend adventures: Planning spontaneous trips and discovering hidden gems in your city with friends and family for unforgettable memories
+- Coffee shop culture: Finding the perfect spot to work remotely while enjoying artisanal drinks and meeting interesting people in cozy environments
+- Pet care and companionship: Understanding your furry friend's needs and building a strong bond through daily routines and playful activities
+- Street food adventures: Exploring local food trucks and discovering authentic flavors from different cultures in your neighborhood
+- Movie night traditions: Creating the perfect atmosphere with snacks, blankets, and great films for memorable evenings with loved ones
+- Morning routines: Starting your day with energy and purpose through exercise, healthy breakfast, and positive mindset practices
+- Gardening basics: Growing your own herbs and vegetables in small spaces while connecting with nature and sustainable living practices
+- DIY home projects: Transforming your living space with creative ideas and simple crafts that reflect your personal style and taste
+- Music discovery: Finding new artists and genres that match your mood and creating personalized playlists for different activities
+- Fitness motivation: Staying active with fun workouts and finding exercise routines that fit your lifestyle and personal goals
 
 🔢 CRITICAL: Your response MUST be between 140-220 characters. Count carefully and ensure you meet this requirement.
 🔢 CRITICAL: STOP generating at exactly 220 characters. Do not exceed this limit under any circumstances.
@@ -67,7 +74,7 @@ ${hasExistingText
   return await openai.chat.completions.create({
     stream: true,
     model: "gpt-4o-mini",
-    temperature: 0.7, // Slightly more creative for topic generation
+    temperature: 0.8, // More creative for casual topic generation
     messages: [
       {
         role: "system",
@@ -75,8 +82,12 @@ ${hasExistingText
       },
       {
         role: "user",
-        content: `Generate a ${hasExistingText ? "related but different" : "random"} educational topic for ${type} content. ${hasExistingText ? `Based on: ${existingText.trim()}` : ""} Make it engaging and educational. MANDATORY: Generate between 140-220 characters. CRITICAL: Count your characters and STOP at exactly 220. Include detailed explanations, subtopics, or context to reach the minimum length. Do not use quotes or special characters.`,
+        content: `Generate a ${
+          hasExistingText ? "related but different" : "random"
+        } casual topic from everyday life for ${type} content. ${
+          hasExistingText ? `Based on: ${existingText.trim()}` : ""
+        } Make it fun and relatable. MANDATORY: Generate between 140-220 characters. CRITICAL: Count your characters and STOP at exactly 220. Include detailed explanations, subtopics, or context to reach the minimum length. Do not use quotes or special characters. NO grammar topics - focus on daily life situations.`,
       },
     ],
   });
-}; 
+};

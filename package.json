@@ -1,6 +1,6 @@
 {
   "name": "back",
-  "version": "2.6.13",
+  "version": "2.6.20",
   "main": "dist/main.js",
   "scripts": {
     "build": "rm -rf ./dist && tsc && cp -r public dist/public",

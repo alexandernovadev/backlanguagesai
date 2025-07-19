@@ -495,23 +495,11 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    // Stream the response with character limit enforcement
-    let totalCharacters = 0;
+    // Stream the response without character limit enforcement
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;
       if (content) {
-        // Check if adding this chunk would exceed 220 characters
-        if (totalCharacters + content.length > 220) {
-          // Only send the remaining characters up to 220
-          const remainingChars = 220 - totalCharacters;
-          if (remainingChars > 0) {
-            res.write(content.substring(0, remainingChars));
-          }
-          break; // Stop streaming
-        } else {
-          res.write(content);
-          totalCharacters += content.length;
-        }
+        res.write(content);
       }
     }
 

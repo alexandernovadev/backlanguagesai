@@ -229,6 +229,22 @@ export const generateJSONword = async (req: Request, res: Response) => {
   try {
     const json = await generateWordJson(prompt, language);
 
+    // Validar y limpiar los tipos gramaticales
+    const allowedTypes = [
+      "noun", "verb", "adjective", "adverb", "personal pronoun", 
+      "possessive pronoun", "preposition", "conjunction", "determiner", 
+      "article", "quantifier", "interjection", "auxiliary verb",
+      "modal verb", "infinitive", "participle", "gerund", "phrasal verb", "other"
+    ];
+
+    if (json.type && Array.isArray(json.type)) {
+      json.type = json.type.filter(type => allowedTypes.includes(type));
+      // Si no quedan tipos válidos, usar "other" como fallback
+      if (json.type.length === 0) {
+        json.type = ["other"];
+      }
+    }
+
     const wordStructurefinal = {
       ...json,
       language: "en",

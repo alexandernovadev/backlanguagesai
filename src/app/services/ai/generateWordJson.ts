@@ -23,7 +23,7 @@ export const generateWordJson = async (prompt: string, language = "en") => {
               "[5 example sentences in English using the word in realistic contexts that are understandable at B2 level, keep in mind if its homograph or homophone]"
           ],
           "type": [
-              "[one or more grammatical types, such as 'noun', 'adjective', or 'verb', selected only from the list below]"
+              "[one or more grammatical types, selected ONLY from this exact list: 'noun', 'verb', 'adjective', 'adverb', 'personal pronoun', 'possessive pronoun', 'preposition', 'conjunction', 'determiner', 'article', 'quantifier', 'interjection', 'auxiliary verb', 'modal verb', 'infinitive', 'participle', 'gerund', 'phrasal verb', 'other']"
           ],
           "IPA": "[IPA notation in standard format]",
           "codeSwitching": [
@@ -32,15 +32,15 @@ export const generateWordJson = async (prompt: string, language = "en") => {
           "spanish": {
               "definition": "[Clear and concise Spanish translation of the definition]",
               "word": "[Spanish equivalent of the word]"
-          }
+          },
           "sinonyms": [ List of sinonyms in english, minimum 5]
         }
 
         Make sure that Its So IMPORTANT all :
         - "type" can contain one or multiple values, but each must be selected only from the following allowed types:
-          ["noun", "verb",""adjective", "adverb", "personal pronoun", "possessive pronoun", "preposition", "conjunction",
+          ["noun", "verb", "adjective", "adverb", "personal pronoun", "possessive pronoun", "preposition", "conjunction",
            "determiner", "article", "quantifier", "interjection", "auxiliary verb",
-            "modal verb", "infinitive", "participle", "gerund","phrasal verb"].
+            "modal verb", "infinitive", "participle", "gerund", "phrasal verb", "other"].
 
         - "level" remains "B2" unless specified otherwise.
         - Every field contains accurate, B2-appropriate content with correct grammar and relevant contexts.

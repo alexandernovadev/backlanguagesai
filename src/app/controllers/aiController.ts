@@ -15,7 +15,7 @@ import {
 } from "../services/cloudinary/cloudinaryService";
 
 import { errorResponse, successResponse } from "../utils/responseHelpers";
-import { imageWordPrompt } from "./helpers/ImagePrompt";
+import { imageWordPrompt, imageLecturePrompt } from "./helpers/ImagePrompt";
 import { promptAddEasyWords } from "./helpers/promptAddEasyWords";
 import { LectureService } from "../services/lectures/LectureService";
 import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
@@ -64,9 +64,7 @@ export const updateImageLecture = async (req: Request, res: Response) => {
 
   try {
     // Generate image
-    const imageBase64 = await generateImage(
-      "Make an image that represents this lecture : \n" + lectureString
-    );
+    const imageBase64 = await generateImage(imageLecturePrompt(lectureString));
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);
     }

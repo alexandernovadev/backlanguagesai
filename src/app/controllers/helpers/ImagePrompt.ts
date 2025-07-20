@@ -1,36 +1,82 @@
 export const imageWordPrompt = (word: string) => {
   return `
-  Create a vivid, contextually accurate, and visually compelling illustration that clearly represents 
-  the meaning of the word "${word}" in a highly intuitive and unmistakable way. 
-  Avoid abstract or ambiguous interpretations, and ensure the scene aligns perfectly with 
-  the grammatical category of the word:
+  Create a clear, educational illustration for a language learning dictionary that represents the meaning of "${word}".
 
-  • Nouns: Depict objects, people, or abstract concepts directly tied to the word. Include distinctive details that make them instantly recognizable in their natural context, using realistic proportions, textures, and lighting.
-  • Adjectives: Illustrate the qualities or characteristics of the subject clearly. Emphasize contrasts, textures, and visual cues that convey the adjective's essence.
-  • Verbs: Show dynamic actions with clear movement, energy, and intent. Use motion effects, expressive poses, and vivid interactions to capture the essence of the action.
-  • Adverbs: Enhance the depiction of actions by visually representing intensity, speed, manner, or degree. Use elements like motion blur, light trails, or exaggerated gestures.
-  • Pronouns: Stylize figures or silhouettes to represent subjects generically, focusing on relationships and interactions rather than specific identities.
-  • Prepositions: Illustrate spatial or temporal relationships accurately, ensuring clear and logical positioning of objects to convey the meaning.
-  • Conjunctions: Visually represent connections, contrasts, or relationships. Use symbols like paths merging or objects linking logically.
-  • Articles: Subtly differentiate main objects to indicate specificity or generality, using focus effects or grouping similar objects.
-  • Interjections: Express intense emotions or reactions with exaggerated expressions, body language, or impactful visual effects.
+  GUIDELINES:
+  • Create a simple, clear visual that immediately communicates the word's meaning
+  • Use clean, uncluttered compositions suitable for educational materials
+  • Focus on the main concept - avoid complex scenes or multiple elements
+  • Use bright, clear colors and good contrast for visibility
+  • Make the illustration instantly understandable to language learners
 
-  CRITICAL PEOPLE REPRESENTATION RULES:
-  • When depicting people, show diverse, modern, casual individuals in everyday situations
-  • Use contemporary Western-style clothing: jeans, t-shirts, casual dresses, business attire
-  • Show people with natural, relaxed expressions and poses
-  • Avoid any traditional, cultural, or religious clothing items
-  • Do NOT show people wearing: headscarves, turbans, kufiyas, hijabs, burkas, traditional robes, or any cultural/religious attire
-  • Do NOT show people with covered heads unless it's a modern hat (baseball cap, beanie, etc.)
-  • Show people in modern, everyday environments: offices, homes, parks, streets, cafes
-  • Use natural skin tones and diverse but casual appearances
+  STYLE REQUIREMENTS:
+  • Clean, modern illustration style
+  • Simple backgrounds that don't distract from the main subject
+  • Clear, readable visual elements
+  • Professional appearance suitable for educational content
+  • Avoid text, symbols, or labels in the image
 
-  IMPORTANT RESTRICTIONS:
-  • Do NOT depict people wearing kufiyas, turbans, or culturally sensitive attire.
-  • Use visual storytelling and scene composition to communicate meaning without relying on text, symbols, or labels.
-  • Ensure the scene is clear, contextually accurate, and instantly understandable.
-  • Focus on modern, contemporary, everyday situations and appearances.
+  CONTENT FOCUS:
+  • Nouns: Show the object, person, or concept clearly
+  • Verbs: Show the action being performed
+  • Adjectives: Show the quality or characteristic
+  • Adverbs: Show the manner or degree of an action
+  • Other parts of speech: Create appropriate visual representations
 
-  Use lighting, color, and perspective to create a visually engaging and coherent illustration.
+  PEOPLE REPRESENTATION:
+  • If showing people, use modern, casual clothing and appearances
+  • Do NOT show people wearing headscarves, turbans, or traditional head coverings
+  • Avoid any cultural or religious head coverings
+  • Use diverse but neutral, modern appearances
+
+  EDUCATIONAL PURPOSE:
+  • The image should help language learners understand the word's meaning
+  • Keep it simple and direct - no abstract interpretations
+  • Ensure cultural neutrality and universal understanding
+  • Make it suitable for all ages and backgrounds
+
+  Create a dictionary-style illustration that clearly represents "${word}".
+  `.trim();
+};
+
+export const imageLecturePrompt = (lectureContent: string) => {
+  return `
+  Create an educational illustration for a language learning reading that represents the main theme or topic of this content:
+
+  "${lectureContent}"
+
+  GUIDELINES:
+  • Create a clear, engaging visual that represents the main theme of the reading
+  • Use clean, modern illustration style suitable for educational materials
+  • Focus on the primary concept or topic - avoid cluttered scenes
+  • Use bright, clear colors with good contrast for visibility
+  • Make the illustration instantly understandable to language learners
+
+  STYLE REQUIREMENTS:
+  • Clean, professional illustration style
+  • Simple, uncluttered backgrounds
+  • Clear visual elements that relate to the reading content
+  • Educational appearance suitable for language learning materials
+  • Avoid text, symbols, or labels in the image
+
+  CONTENT APPROACH:
+  • Identify the main theme or topic from the reading
+  • Create a visual that captures the essence of that theme
+  • Use universal symbols and concepts that are easily understood
+  • Keep it culturally neutral and appropriate for all audiences
+
+  PEOPLE REPRESENTATION:
+  • If showing people, use modern, casual clothing and appearances
+  • Do NOT show people wearing headscarves, turbans, or traditional head coverings
+  • Avoid any cultural or religious head coverings
+  • Use diverse but neutral, modern appearances
+
+  EDUCATIONAL PURPOSE:
+  • The image should help learners understand the reading's main topic
+  • Keep it simple and direct - no abstract interpretations
+  • Ensure cultural neutrality and universal understanding
+  • Make it suitable for all ages and backgrounds
+
+  Create an educational illustration that represents the main theme of this reading content.
   `.trim();
 };

@@ -168,11 +168,11 @@ export const generateTextStream = async (req: Request, res: Response) => {
     prompt,
     level,
     typeWrite,
-    addEasyWords,
     language,
     rangeMin,
     rangeMax,
     grammarTopics = [],
+    selectedWords = [],
   } = req.body;
 
   // Validar parámetros usando el nuevo validador
@@ -184,7 +184,6 @@ export const generateTextStream = async (req: Request, res: Response) => {
     rangeMin,
     rangeMax,
     grammarTopics,
-    addEasyWords,
   });
 
   if (!validation.isValid) {
@@ -203,10 +202,8 @@ export const generateTextStream = async (req: Request, res: Response) => {
   try {
     let promptWords = "";
 
-    if (addEasyWords) {
-      const getEasyWords = await wordService.getLastEasyWords();
-      const wordsArray = getEasyWords.map((item) => item.word);
-      promptWords = promptAddEasyWords(wordsArray);
+    if (selectedWords && selectedWords.length > 0) {
+      promptWords = promptAddEasyWords(selectedWords);
     }
 
     const stream = await generateTextStreamService({

@@ -99,7 +99,6 @@ export class LectureGenerationValidator {
     rangeMin?: number;
     rangeMax?: number;
     grammarTopics?: string[];
-    addEasyWords?: boolean;
   }): {
     isValid: boolean;
     errors: string[];

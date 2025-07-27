@@ -247,6 +247,94 @@ export const getRecentHardOrMediumWords = async (
   }
 };
 
+export const getWordsByType = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { type } = req.params;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.search as string;
+
+    const words = await wordService.getWordsByType(type, limit, search);
+    return successResponse(res, `Words of type ${type} retrieved successfully`, words);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving words by type",
+      500,
+      error
+    );
+  }
+};
+
+export const getWordsByTypeOptimized = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const type = req.query.type as string;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.wordUser as string;
+    const fields = req.query.fields as string;
+
+    if (!type) {
+      return errorResponse(res, "Type parameter is required", 400);
+    }
+
+    const words = await wordService.getWordsByTypeOptimized(type, limit, search, fields);
+    return successResponse(res, `Words of type ${type} retrieved successfully`, words);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving words by type",
+      500,
+      error
+    );
+  }
+};
+
+export const getWordsOnly = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit as string) || 10, 1);
+    const fields = req.query.fields as string;
+
+    // Filtros básicos
+    const wordUser = req.query.wordUser as string;
+    const level = req.query.level as string;
+    const language = req.query.language as string;
+    const type = req.query.type as string;
+
+    // Procesar filtros que pueden tener múltiples valores
+    const levels = level ? level.split(',').map(l => l.trim()) : undefined;
+    const languages = language ? language.split(',').map(l => l.trim()) : undefined;
+    const types = type ? type.split(',').map(t => t.trim()) : undefined;
+
+    const wordList = await wordService.getWordsOnly({
+      page,
+      limit,
+      wordUser,
+      level: levels,
+      language: languages,
+      type: types,
+      fields
+    });
+
+    return successResponse(res, "Words retrieved successfully", wordList);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while retrieving words",
+      500,
+      error
+    );
+  }
+};
+
 // Nuevo endpoint para obtener palabras para repaso inteligente
 export const getWordsForReview = async (
   req: Request,

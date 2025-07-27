@@ -14,6 +14,9 @@ import {
   getWordsForReview,
   updateWordReview,
   getReviewStats,
+  getWordsByType,
+  getWordsByTypeOptimized,
+  getWordsOnly,
 } from "../controllers/wordController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
@@ -24,6 +27,9 @@ router.get("/get-cards-anki", getRecentHardOrMediumWords);
 router.get("/get-words-for-review", getWordsForReview);
 router.get("/get-review-stats", getReviewStats);
 router.post("/:wordId/update-review", updateWordReview);
+router.get("/by-type/:type", getWordsByType);
+router.get("/by-type-optimized", getWordsByTypeOptimized);
+router.get("/words-only", getWordsOnly);
 router.get("/:word/word", getWordByName);
 router.get("/:id", getWordById);
 router.get("/", getWords);

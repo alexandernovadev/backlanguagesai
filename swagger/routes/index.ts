@@ -14,6 +14,10 @@ export const wordsSwagger = yaml.load(
   readFileSync(join(__dirname, "./words.yaml"), "utf8")
 ) as object;
 
+export const expressionsSwagger = yaml.load(
+  readFileSync(join(__dirname, "./expressions.yaml"), "utf8")
+) as object;
+
 export const questionsSwagger = yaml.load(
   readFileSync(join(__dirname, "./questions.yaml"), "utf8")
 ) as object;

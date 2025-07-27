@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "../services/auth/authService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import User from "../db/models/User";
-import { UserAuditService } from "../services/users/userAuditService";
+
 
 export const AuthController = {
   login: async (req: Request, res: Response) => {
@@ -19,13 +19,7 @@ export const AuthController = {
         user.lastLogin = new Date();
         await user.save();
 
-        // Log de auditoría para login
-        await UserAuditService.logAction(
-          user._id.toString(),
-          "LOGIN",
-          user._id.toString(),
-          req
-        );
+
 
         const token = AuthService.generateToken(user);
         const refreshToken = AuthService.generateRefreshToken(user);

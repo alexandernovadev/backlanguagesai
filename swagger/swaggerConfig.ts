@@ -12,7 +12,7 @@ import {
   lectureswagger,
   generateaiswagger,
   authswagger,
-  logsswagger,
+
   cleanerSwagger,
   usersSwagger,
 } from "./routes/index";
@@ -52,7 +52,7 @@ const options: swaggerJsdoc.Options = {
       ...lectureswagger["components"],
       ...generateaiswagger["components"],
       ...authswagger["components"],
-      ...logsswagger["components"],
+
       ...cleanerSwagger["components"],
       ...usersSwagger["components"],
     },
@@ -67,7 +67,7 @@ const options: swaggerJsdoc.Options = {
       ...lectureswagger["paths"],
       ...generateaiswagger["paths"],
       ...authswagger["paths"],
-      ...logsswagger["paths"],
+
       ...cleanerSwagger["paths"],
       ...usersSwagger["paths"],
     },

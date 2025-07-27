@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/users/userService";
-import { UserAuditService } from "../services/users/userAuditService";
+
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 
 const userService = new UserService();
@@ -53,40 +53,4 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserAuditLogs = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const { page = 1, limit = 20 } = req.query;
-    
-    const logs = await UserAuditService.getUserAuditLogs(
-      userId,
-      Number(page),
-      Number(limit)
-    );
-    
-    return successResponse(res, "User audit logs retrieved successfully", logs);
-  } catch (error) {
-    return errorResponse(res, "Error getting user audit logs", 500, error);
-  }
-};
-
-export const getAuditLogsByAction = async (req: Request, res: Response) => {
-  try {
-    const { action } = req.params;
-    const { page = 1, limit = 20 } = req.query;
-    
-    if (!["CREATE", "UPDATE", "DELETE", "LOGIN"].includes(action)) {
-      return errorResponse(res, "Invalid action type", 400);
-    }
-    
-    const logs = await UserAuditService.getAuditLogsByAction(
-      action as "CREATE" | "UPDATE" | "DELETE" | "LOGIN",
-      Number(page),
-      Number(limit)
-    );
-    
-    return successResponse(res, "Audit logs retrieved successfully", logs);
-  } catch (error) {
-    return errorResponse(res, "Error getting audit logs", 500, error);
-  }
-}; 
+ 

@@ -1,6 +1,6 @@
 import User, { IUser } from "../../db/models/User";
 import bcrypt from "bcryptjs";
-import { UserAuditService } from "./userAuditService";
+
 import { Request } from "express";
 
 export class UserService {
@@ -99,15 +99,7 @@ export class UserService {
     const user = new User({ ...data, password: hashedPassword });
     await user.save();
     
-    // Log de auditoría
-    if (performedBy) {
-      await UserAuditService.logAction(
-        user._id.toString(),
-        "CREATE",
-        performedBy,
-        req
-      );
-    }
+
     
     return user.toObject();
   }
@@ -125,24 +117,7 @@ export class UserService {
     
     const user = await User.findByIdAndUpdate(id, data, { new: true }).select("-password");
     
-    // Log de auditoría para campos específicos
-    if (user && performedBy) {
-      const fieldsToTrack = ['username', 'email', 'firstName', 'lastName', 'role', 'isActive', 'address', 'phone'];
-      
-      for (const field of fieldsToTrack) {
-        if (data[field] !== undefined && data[field] !== oldUser[field]) {
-          await UserAuditService.logAction(
-            id,
-            "UPDATE",
-            performedBy,
-            req,
-            field,
-            oldUser[field],
-            data[field]
-          );
-        }
-      }
-    }
+
     
     return user;
   }
@@ -151,15 +126,7 @@ export class UserService {
   async deleteUser(id: string, req?: Request, performedBy?: string) {
     const user = await User.findByIdAndDelete(id);
     
-    // Log de auditoría
-    if (user && performedBy) {
-      await UserAuditService.logAction(
-        id,
-        "DELETE",
-        performedBy,
-        req
-      );
-    }
+
     
     return user;
   }

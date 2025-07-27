@@ -17,7 +17,7 @@ import ExamRoutes from "./app/routes/examRoutes";
 import ExamAttemptRoutes from "./app/routes/examAttemptRoutes";
 import Arreglosquick from "./app/routes/arreglosquick";
 import StatisticsRoutes from "./app/routes/statisticsRoutes";
-import LogsRoutes from "./app/routes/logRoutes";
+
 import AuthRoutes from "./app/routes/authRoutes";
 import CleanerRoutes from "./app/routes/cleanerRoutes";
 import UserRoutes from "./app/routes/userRoutes";
@@ -74,8 +74,7 @@ app.use("/api/exams", authMiddleware, ExamRoutes);
 app.use("/api/exam-attempts", authMiddleware, ExamAttemptRoutes);
 app.use("/api/statistics", StatisticsRoutes);
 
-// Logs
-app.use("/api/logs", authMiddleware, LogsRoutes);
+
 
 // Cleaner routes
 app.use("/api/cleaner", CleanerRoutes);

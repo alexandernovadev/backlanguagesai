@@ -87,7 +87,7 @@ app.use("/api/fixes", Arreglosquick);
 
 app.use("/", (req, res) => {
   successResponse(res, "Server is running", {
-    date: new Date().toISOString(),
+    date: "2025-07-27T22:13:11.506Z",
     version: VERSION,
   });
 });

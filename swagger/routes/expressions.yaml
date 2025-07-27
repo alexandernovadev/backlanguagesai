@@ -1,226 +1,150 @@
 openapi: 3.0.0
 info:
-  title: Expression API
+  title: Expressions API
   version: 1.0.0
-  description: API for managing expressions and related properties
+  description: API for managing expressions (idioms and phrases)
+
 paths:
   /api/expressions:
     get:
-      summary: Retrieve a list of expressions with pagination and comprehensive filters
-      tags:
-        - Expressions
+      summary: Get all expressions with pagination and filters
+      tags: [Expressions]
       parameters:
-        - in: query
-          name: page
+        - name: page
+          in: query
           schema:
             type: integer
             default: 1
           description: Page number
-        - in: query
-          name: limit
+        - name: limit
+          in: query
           schema:
             type: integer
             default: 10
-          description: Number of expressions per page
-        - in: query
-          name: expression
+          description: Number of items per page
+        - name: search
+          in: query
           schema:
             type: string
-          description: Filter expressions by partial text match (case insensitive)
-        - in: query
-          name: definition
+          description: Search term for expression or definition
+        - name: type
+          in: query
           schema:
-            type: string
-          description: Filter expressions by definition content (case insensitive)
-        - in: query
-          name: difficulty
+            type: array
+            items:
+              type: string
+              enum: [idiom, phrase, collocation, slang, formal, informal]
+          description: Filter by expression type
+        - name: difficulty
+          in: query
           schema:
             type: string
             enum: [easy, medium, hard]
-          description: Filter expressions by difficulty level(s). Multiple values separated by commas (e.g., easy,medium)
-        - in: query
-          name: language
+          description: Filter by difficulty level
+        - name: language
+          in: query
           schema:
             type: string
-          description: Filter expressions by language(s). Multiple values separated by commas (e.g., english,spanish)
-        - in: query
-          name: type
-          schema:
-            type: string
-            enum: [idiom, phrase, collocation, slang, formal, informal]
-          description: Filter expressions by type(s). Multiple values separated by commas (e.g., idiom,phrase)
-        - in: query
-          name: context
-          schema:
-            type: string
-          description: Filter expressions by context (case insensitive)
-        - in: query
-          name: hasImage
+          description: Filter by language
+        - name: hasImage
+          in: query
           schema:
             type: string
             enum: [true, false]
-          description: Filter expressions that have or don't have an image
-        - in: query
-          name: hasExamples
-          schema:
-            type: string
-            enum: [true, false]
-          description: Filter expressions that have or don't have examples
-        - in: query
-          name: spanishExpression
-          schema:
-            type: string
-          description: Filter expressions by Spanish translation (case insensitive)
-        - in: query
-          name: spanishDefinition
-          schema:
-            type: string
-          description: Filter expressions by Spanish definition (case insensitive)
-        - in: query
-          name: createdAfter
-          schema:
-            type: string
-            format: date-time
-          description: Filter expressions created after this date (ISO 8601 format)
-        - in: query
-          name: createdBefore
-          schema:
-            type: string
-            format: date-time
-          description: Filter expressions created before this date (ISO 8601 format)
-        - in: query
-          name: updatedAfter
-          schema:
-            type: string
-            format: date-time
-          description: Filter expressions updated after this date (ISO 8601 format)
-        - in: query
-          name: updatedBefore
-          schema:
-            type: string
-            format: date-time
-          description: Filter expressions updated before this date (ISO 8601 format)
-        - in: query
-          name: sortBy
-          schema:
-            type: string
-            enum: [createdAt, updatedAt, expression, difficulty, language, definition]
-            default: createdAt
-          description: Field to sort by
-        - in: query
-          name: sortOrder
-          schema:
-            type: string
-            enum: [asc, desc]
-            default: desc
-          description: Sort order (ascending or descending)
+          description: Filter by whether expression has an image
       responses:
         '200':
-          description: A paginated list of expressions
+          description: List of expressions
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Expression'
-                  total:
-                    type: integer
-                    example: 150
-                  page:
-                    type: integer
-                    example: 1
-                  pages:
-                    type: integer
-                    example: 15
-        '500':
-          description: Internal server error
+                $ref: '#/components/schemas/PaginatedExpressions'
     post:
       summary: Create a new expression
-      tags:
-        - Expressions
+      tags: [Expressions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpressionInput'
+      responses:
+        '201':
+          description: Expression created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expression'
+
+  /api/expressions/generate:
+    post:
+      summary: Generate an expression using AI
+      tags: [Expressions]
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - prompt
               properties:
-                expression:
+                prompt:
                   type: string
-                  example: "Break a leg"
-                definition:
-                  type: string
-                  example: "Good luck"
-                examples:
-                  type: array
-                  items:
-                    type: string
-                  example: ["Break a leg on your exam!", "Break a leg in your presentation!"]
-                type:
-                  type: array
-                  items:
-                    type: string
-                    enum: [idiom, phrase, collocation, slang, formal, informal]
-                  example: ["idiom"]
-                context:
-                  type: string
-                  example: "Informal, encouraging"
-                difficulty:
-                  type: string
-                  enum: [easy, medium, hard]
-                  example: "medium"
-                img:
-                  type: string
-                  example: "https://example.com/image.jpg"
-                language:
-                  type: string
-                  example: "en"
-                spanish:
+                  description: The prompt to generate the expression
+                  example: "Create an idiom about success"
+                options:
                   type: object
                   properties:
-                    expression:
+                    language:
                       type: string
-                      example: "¡Buena suerte!"
-                    definition:
-                      type: string
-                      example: "Expresión de deseo de éxito"
-              required:
-                - expression
-                - definition
-                - language
+                      default: "en"
+                      description: Language for the generated expression
       responses:
-        '201':
-          description: Expression created successfully
+        '200':
+          description: Expression generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/ExpressionInput'
+                  message:
+                    type: string
         '400':
-          description: Validation error
+          description: Bad request - prompt is required
+        '500':
+          description: Internal server error
 
   /api/expressions/{id}:
     get:
-      summary: Get an expression by its ID
-      tags:
-        - Expressions
+      summary: Get expression by ID
+      tags: [Expressions]
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: string
           description: Expression ID
       responses:
         '200':
-          description: An expression object
+          description: Expression found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expression'
         '404':
           description: Expression not found
     put:
-      summary: Update an entire expression object
-      tags:
-        - Expressions
+      summary: Update an expression
+      tags: [Expressions]
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: string
@@ -230,19 +154,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Expression'
+              $ref: '#/components/schemas/ExpressionInput'
       responses:
         '200':
           description: Expression updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expression'
         '404':
           description: Expression not found
     delete:
-      summary: Delete an expression by ID
-      tags:
-        - Expressions
+      summary: Delete an expression
+      tags: [Expressions]
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: string
@@ -253,114 +180,13 @@ paths:
         '404':
           description: Expression not found
 
-  /api/expressions/{expression}/expression:
-    get:
-      summary: Find an expression by text (case insensitive)
-      tags:
-        - Expressions
-      parameters:
-        - in: path
-          name: expression
-          required: true
-          schema:
-            type: string
-          description: Expression to search
-      responses:
-        '200':
-          description: Expression object
-        '404':
-          description: Expression not found
-
-  /api/expressions/by-type/{type}:
-    get:
-      summary: Get expressions by type
-      tags:
-        - Expressions
-      parameters:
-        - in: path
-          name: type
-          required: true
-          schema:
-            type: string
-            enum: [idiom, phrase, collocation, slang, formal, informal]
-          description: Type of expression
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 10
-          description: Number of expressions to return
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search term for expressions
-      responses:
-        '200':
-          description: List of expressions by type
-        '500':
-          description: Internal server error
-
-  /api/expressions/expressions-only:
-    get:
-      summary: Get only expression names (for performance)
-      tags:
-        - Expressions
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-          description: Page number
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 10
-          description: Number of expressions per page
-        - in: query
-          name: expression
-          schema:
-            type: string
-          description: Filter expressions by partial text match
-        - in: query
-          name: difficulty
-          schema:
-            type: string
-            enum: [easy, medium, hard]
-          description: Filter by difficulty level
-        - in: query
-          name: language
-          schema:
-            type: string
-          description: Filter by language
-        - in: query
-          name: type
-          schema:
-            type: string
-            enum: [idiom, phrase, collocation, slang, formal, informal]
-          description: Filter by type
-        - in: query
-          name: fields
-          schema:
-            type: string
-            default: "expression"
-          description: Fields to return
-      responses:
-        '200':
-          description: Paginated list of expression names
-        '500':
-          description: Internal server error
-
   /api/expressions/{expressionId}/chat:
     post:
       summary: Add a chat message to an expression
-      tags:
-        - Expressions
+      tags: [Expressions]
       parameters:
-        - in: path
-          name: expressionId
+        - name: expressionId
+          in: path
           required: true
           schema:
             type: string
@@ -371,60 +197,50 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - message
               properties:
                 message:
                   type: string
-                  example: "Explícame esto más a detalle"
-              required:
-                - message
+                  description: The message to add to the chat
       responses:
         '200':
           description: Chat message added successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Chat message added successfully"
-                  expression:
-                    $ref: '#/components/schemas/Expression'
+                $ref: '#/components/schemas/Expression'
         '400':
-          description: Message is required
+          description: Bad request - message is required
         '404':
           description: Expression not found
-        '500':
-          description: Internal server error
     get:
       summary: Get chat history for an expression
-      tags:
-        - Expressions
+      tags: [Expressions]
       parameters:
-        - in: path
-          name: expressionId
+        - name: expressionId
+          in: path
           required: true
           schema:
             type: string
           description: Expression ID
       responses:
         '200':
-          description: Chat history
+          description: Chat history retrieved successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/ChatMessage'
-        '500':
-          description: Internal server error
+        '404':
+          description: Expression not found
     delete:
       summary: Clear chat history for an expression
-      tags:
-        - Expressions
+      tags: [Expressions]
       parameters:
-        - in: path
-          name: expressionId
+        - name: expressionId
+          in: path
           required: true
           schema:
             type: string
@@ -434,55 +250,123 @@ paths:
           description: Chat history cleared successfully
         '404':
           description: Expression not found
-        '500':
-          description: Internal server error
 
-  /api/expressions/export/json:
+  /api/expressions/by-type/{type}:
     get:
-      summary: Export all expressions to JSON file
-      tags:
-        - Expressions
-      description: Downloads a JSON file containing all expressions in the database
-      security:
-        - BearerAuth: []
+      summary: Get expressions by type
+      tags: [Expressions]
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [idiom, phrase, collocation, slang, formal, informal]
+          description: Expression type
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Maximum number of expressions to return
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term
       responses:
         '200':
-          description: JSON file with all expressions
+          description: List of expressions by type
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Expression'
-        '401':
-          description: Unauthorized - Token not provided
-        '403':
-          description: Forbidden - Invalid token
-        '500':
-          description: Internal server error
+
+  /api/expressions/expressions-only:
+    get:
+      summary: Get only expression names (for performance)
+      tags: [Expressions]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term
+      responses:
+        '200':
+          description: List of expression names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExpressionNames'
+
+  /api/expressions/{expression}/expression:
+    get:
+      summary: Find expression by expression text
+      tags: [Expressions]
+      parameters:
+        - name: expression
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Expression text to search for
+      responses:
+        '200':
+          description: Expression found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expression'
+        '404':
+          description: Expression not found
+
+  /api/expressions/export/json:
+    get:
+      summary: Export all expressions to JSON
+      tags: [Expressions]
+      responses:
+        '200':
+          description: Expressions exported successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expression'
 
   /api/expressions/import/json:
     post:
       summary: Import expressions from JSON file
-      tags:
-        - Expressions
-      description: Import expressions from a JSON file
+      tags: [Expressions]
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              required:
-                - file
               properties:
                 file:
                   type: string
                   format: binary
-                  description: JSON file containing expressions to import
+                  description: JSON file with expressions array
       responses:
         '200':
-          description: Import completed successfully
+          description: Expressions imported successfully
           content:
             application/json:
               schema:
@@ -490,26 +374,14 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Import completed. 10 expressions imported successfully."
                   imported:
                     type: integer
-                    example: 10
-                  errors:
-                    type: integer
-                    example: 0
-                  errorDetails:
+                  expressions:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        expression:
-                          type: string
-                        error:
-                          type: string
+                      $ref: '#/components/schemas/Expression'
         '400':
-          description: Bad request - Invalid file format
-        '500':
-          description: Internal server error during import
+          description: Bad request - invalid file format
 
 components:
   schemas:
@@ -518,91 +390,176 @@ components:
       properties:
         _id:
           type: string
-          example: "507f1f77bcf86cd799439011"
+          description: Unique identifier
         expression:
           type: string
+          description: The expression text
           example: "Break a leg"
         definition:
           type: string
+          description: Definition of the expression
           example: "Good luck"
         examples:
           type: array
           items:
             type: string
-          example:
-            - "Break a leg on your exam!"
-            - "Break a leg in your presentation!"
+          description: Example sentences using the expression
+          example: ["I hope you break a leg in your audition!", "Break a leg on your exam!"]
         type:
           type: array
           items:
             type: string
             enum: [idiom, phrase, collocation, slang, formal, informal]
+          description: Types of the expression
           example: ["idiom"]
         context:
           type: string
+          description: Context about when to use the expression
           example: "Informal, encouraging"
         difficulty:
           type: string
           enum: [easy, medium, hard]
+          description: Difficulty level
           example: "medium"
         img:
           type: string
-          nullable: true
-          example: "https://res.cloudinary.com/example/image/upload/v1234567890/break-a-leg.png"
-          description: Optional image URL (can be empty or null)
+          description: URL of the expression image
         language:
           type: string
+          description: Language of the expression
           example: "en"
         spanish:
           type: object
           properties:
-            expression:
-              type: string
-              example: "¡Buena suerte!"
             definition:
               type: string
-              example: "Expresión de deseo de éxito"
+              description: Spanish translation of the definition
+              example: "Buena suerte"
+            expression:
+              type: string
+              description: Spanish equivalent of the expression
+              example: "¡Que tengas suerte!"
         chat:
           type: array
           items:
             $ref: '#/components/schemas/ChatMessage'
-          example: []
+          description: Chat history with GPT
         createdAt:
           type: string
           format: date-time
-          example: "2025-01-15T10:30:00.000Z"
         updatedAt:
           type: string
           format: date-time
-          example: "2025-01-15T10:30:00.000Z"
+
+    ExpressionInput:
+      type: object
       required:
         - expression
         - definition
         - language
+      properties:
+        expression:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: The expression text
+        definition:
+          type: string
+          minLength: 5
+          maxLength: 1000
+          description: Definition of the expression
+        examples:
+          type: array
+          items:
+            type: string
+          description: Example sentences
+        type:
+          type: array
+          items:
+            type: string
+            enum: [idiom, phrase, collocation, slang, formal, informal]
+          description: Types of the expression
+        context:
+          type: string
+          maxLength: 500
+          description: Context about when to use the expression
+        img:
+          type: string
+          description: URL of the expression image
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+          default: hard
+          description: Difficulty level
+        language:
+          type: string
+          description: Language of the expression
+        spanish:
+          type: object
+          properties:
+            definition:
+              type: string
+              minLength: 5
+              maxLength: 1000
+              description: Spanish translation of the definition
+            expression:
+              type: string
+              minLength: 1
+              maxLength: 200
+              description: Spanish equivalent of the expression
 
     ChatMessage:
       type: object
       properties:
         id:
           type: string
-          example: "abc123def"
+          description: Unique message identifier
         role:
           type: string
           enum: [user, assistant]
-          example: "user"
+          description: Role of the message sender
         content:
           type: string
-          example: "Explícame esto más a detalle"
+          description: Message content
         timestamp:
           type: string
           format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-      required:
-        - id
-        - role
-        - content
-        - timestamp
+          description: Message timestamp
 
-tags:
-  - name: Expressions
-    description: Expression management endpoints 
+    PaginatedExpressions:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expression'
+        total:
+          type: integer
+          description: Total number of expressions
+        page:
+          type: integer
+          description: Current page number
+        pages:
+          type: integer
+          description: Total number of pages
+
+    PaginatedExpressionNames:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              expression:
+                type: string
+                description: Expression text
+        total:
+          type: integer
+          description: Total number of expressions
+        page:
+          type: integer
+          description: Current page number
+        pages:
+          type: integer
+          description: Total number of pages 

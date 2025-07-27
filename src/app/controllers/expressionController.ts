@@ -204,14 +204,30 @@ export const getChatHistory = async (req: Request, res: Response) => {
 
 export const clearChatHistory = async (req: Request, res: Response) => {
   try {
-    const { expressionId } = req.params;
-    const expression = await expressionService.clearChatHistory(expressionId);
+    const expression = await expressionService.clearChatHistory(req.params.expressionId);
     if (!expression) {
-      return res.status(404).json({ message: "Expression not found" });
+      return res.status(404).json({ error: "Expression not found" });
     }
     res.json({ message: "Chat history cleared successfully" });
   } catch (error: any) {
     logger.error("Error clearing chat history:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Nueva función para generar expresiones con AI
+export const generateExpression = async (req: Request, res: Response) => {
+  try {
+    const { prompt, options } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
+
+    const generatedExpression = await expressionService.generateExpression(prompt, options);
+    res.json(generatedExpression);
+  } catch (error: any) {
+    logger.error("Error generating expression:", error);
+    res.status(500).json({ error: error.message });
   }
 }; 

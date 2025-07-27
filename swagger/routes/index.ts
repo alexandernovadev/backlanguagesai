@@ -38,10 +38,8 @@ export const authswagger = yaml.load(
   readFileSync(join(__dirname, "./auth.yaml"), "utf8")
 ) as object;
 
-
-
-export const cleanerSwagger = yaml.load(
-  readFileSync(join(__dirname, "./cleaner.yaml"), "utf8")
+export const labsSwagger = yaml.load(
+  readFileSync(join(__dirname, "./labs.yaml"), "utf8")
 ) as object;
 
 export const usersSwagger = yaml.load(

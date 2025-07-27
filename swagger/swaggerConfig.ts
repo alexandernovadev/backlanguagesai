@@ -12,8 +12,7 @@ import {
   lectureswagger,
   generateaiswagger,
   authswagger,
-
-  cleanerSwagger,
+  labsSwagger,
   usersSwagger,
 } from "./routes/index";
 
@@ -52,8 +51,7 @@ const options: swaggerJsdoc.Options = {
       ...lectureswagger["components"],
       ...generateaiswagger["components"],
       ...authswagger["components"],
-
-      ...cleanerSwagger["components"],
+      ...labsSwagger["components"],
       ...usersSwagger["components"],
     },
     security: [{ BearerAuth: [] }, { TokenQuery: [] }],
@@ -67,8 +65,7 @@ const options: swaggerJsdoc.Options = {
       ...lectureswagger["paths"],
       ...generateaiswagger["paths"],
       ...authswagger["paths"],
-
-      ...cleanerSwagger["paths"],
+      ...labsSwagger["paths"],
       ...usersSwagger["paths"],
     },
   },

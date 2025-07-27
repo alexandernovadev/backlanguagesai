@@ -1,0 +1,476 @@
+openapi: 3.0.0
+info:
+  title: Labs API
+  description: API para operaciones de desarrollo, mantenimiento y utilidades de base de datos
+  version: 1.0.0
+
+paths:
+  # Database Operations
+  /api/fixes/words/update-level:
+    post:
+      tags:
+        - Labs - Database Operations
+      summary: Actualizar nivel de todas las palabras
+      description: Actualiza el campo level de todas las palabras a un valor específico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - level
+              properties:
+                level:
+                  type: string
+                  enum: [easy, medium, hard]
+                  description: Nivel a establecer para todas las palabras
+                  example: "easy"
+      responses:
+        '200':
+          description: Nivel actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Updated 150 words to level: easy"
+                  data:
+                    type: object
+                    properties:
+                      modifiedCount:
+                        type: number
+                        example: 150
+                      level:
+                        type: string
+                        example: "easy"
+        '400':
+          description: Nivel inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Level must be 'easy', 'medium', or 'hard'"
+        '500':
+          description: Error interno del servidor
+
+  /api/fixes/words/reset-seen:
+    post:
+      tags:
+        - Labs - Database Operations
+      summary: Resetear contador "seen" de todas las palabras
+      description: Establece el campo seen de todas las palabras a un valor específico
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seen:
+                  type: number
+                  minimum: 0
+                  default: 0
+                  description: Valor para el contador seen
+                  example: 0
+      responses:
+        '200':
+          description: Contador resetado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Reset seen count for 150 words to: 0"
+                  data:
+                    type: object
+                    properties:
+                      modifiedCount:
+                        type: number
+                        example: 150
+                      seen:
+                        type: number
+                        example: 0
+        '400':
+          description: Valor inválido
+        '500':
+          description: Error interno del servidor
+
+  # User Management
+  /api/fixes/users/create-admin:
+    post:
+      tags:
+        - Labs - User Management
+      summary: Crear usuario administrador
+      description: Crea un usuario administrador para desarrollo/pruebas
+      responses:
+        '200':
+          description: Usuario administrador creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Admin user created successfully"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          username:
+                            type: string
+                          role:
+                            type: string
+                            example: "admin"
+        '500':
+          description: Error interno del servidor
+
+  # Data Seeding
+  /api/fixes/seed/initial-data:
+    post:
+      tags:
+        - Labs - Data Seeding
+      summary: Seed de datos iniciales
+      description: Ejecuta el seed de datos iniciales para desarrollo
+      responses:
+        '200':
+          description: Datos iniciales sembrados exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Initial data seeded successfully"
+                  data:
+                    type: object
+        '500':
+          description: Error interno del servidor
+
+  /api/fixes/seed/questions:
+    post:
+      tags:
+        - Labs - Data Seeding
+      summary: Seed de preguntas desde JSON
+      description: Ejecuta el seed de preguntas desde archivo JSON
+      responses:
+        '200':
+          description: Preguntas sembradas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Questions seeded successfully"
+                  data:
+                    type: object
+                    properties:
+                      seededQuestions:
+                        type: array
+                        items:
+                          type: object
+        '500':
+          description: Error interno del servidor
+
+  # Backup and Maintenance
+  /api/fixes/backup/create:
+    post:
+      tags:
+        - Labs - Backup & Maintenance
+      summary: Crear backup de colecciones
+      description: Crea un backup de todas las colecciones de la base de datos
+      responses:
+        '200':
+          description: Backup creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Backup created successfully"
+                  data:
+                    type: object
+                    properties:
+                      backupResult:
+                        type: object
+        '500':
+          description: Error interno del servidor
+
+  /api/fixes/data/clear-all:
+    delete:
+      tags:
+        - Labs - Backup & Maintenance
+      summary: Limpiar todas las palabras y lecturas (PELIGROSO)
+      description: Elimina TODAS las palabras y lecturas de la base de datos
+      responses:
+        '200':
+          description: Datos eliminados exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "All data cleared successfully"
+                  data:
+                    type: object
+                    properties:
+                      deletedWords:
+                        type: number
+                        example: 150
+                      deletedLectures:
+                        type: number
+                        example: 25
+        '500':
+          description: Error interno del servidor
+
+  # Migration
+  /api/fixes/migrate/words-to-review:
+    post:
+      tags:
+        - Labs - Migration
+      summary: Migrar palabras al sistema de revisión
+      description: Migra las palabras al sistema de revisión (servicio no implementado aún)
+      responses:
+        '200':
+          description: Migración completada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Migration completed successfully"
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Migration service not yet implemented"
+        '500':
+          description: Error interno del servidor
+
+  # Statistics
+  /api/fixes/stats/database:
+    get:
+      tags:
+        - Labs - Statistics
+      summary: Obtener estadísticas de la base de datos
+      description: Obtiene estadísticas básicas de la base de datos para desarrollo
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Database statistics retrieved"
+                  data:
+                    type: object
+                    properties:
+                      totalWords:
+                        type: number
+                        example: 150
+                      totalLectures:
+                        type: number
+                        example: 25
+                      timestamp:
+                        type: string
+                        format: date-time
+                        example: "2024-01-15T10:30:00.000Z"
+        '500':
+          description: Error interno del servidor
+
+  # Cleaner Functions (DANGEROUS - requires authentication)
+  /api/cleaner/exam-attempts:
+    delete:
+      tags:
+        - Labs - Cleaner (DANGEROUS)
+      summary: Eliminar TODOS los intentos de examen
+      description: Elimina TODOS los intentos de examen de la base de datos (PELIGROSO)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Intentos eliminados exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "TODOS los intentos de examen han sido eliminados exitosamente"
+                  data:
+                    type: object
+                    properties:
+                      deletedCount:
+                        type: number
+                        example: 25
+                      totalFound:
+                        type: number
+                        example: 25
+                      message:
+                        type: string
+                        example: "Se eliminaron 25 intentos de examen de un total de 25"
+        '401':
+          description: Usuario no autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Usuario no autenticado"
+        '500':
+          description: Error interno del servidor
+
+  /api/cleaner/exams:
+    delete:
+      tags:
+        - Labs - Cleaner (DANGEROUS)
+      summary: Eliminar TODOS los exámenes
+      description: Elimina TODOS los exámenes y sus intentos asociados (PELIGROSO)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Exámenes eliminados exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "TODOS los exámenes han sido eliminados exitosamente"
+                  data:
+                    type: object
+                    properties:
+                      deletedExams:
+                        type: number
+                        example: 10
+                      deletedAttempts:
+                        type: number
+                        example: 50
+                      totalExamsFound:
+                        type: number
+                        example: 10
+                      totalAttemptsFound:
+                        type: number
+                        example: 50
+                      message:
+                        type: string
+                        example: "Se eliminaron 10 exámenes y 50 intentos asociados"
+        '401':
+          description: Usuario no autenticado
+        '500':
+          description: Error interno del servidor
+
+  /api/cleaner/questions:
+    delete:
+      tags:
+        - Labs - Cleaner (DANGEROUS)
+      summary: Eliminar TODAS las preguntas
+      description: Elimina TODAS las preguntas de la base de datos (PELIGROSO)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Preguntas eliminadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "TODAS las preguntas han sido eliminadas exitosamente"
+                  data:
+                    type: object
+                    properties:
+                      deletedCount:
+                        type: number
+                        example: 100
+                      totalQuestionsBefore:
+                        type: number
+                        example: 100
+                      message:
+                        type: string
+                        example: "Se eliminaron 100 preguntas de un total de 100"
+        '401':
+          description: Usuario no autenticado
+        '500':
+          description: Error interno del servidor
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 

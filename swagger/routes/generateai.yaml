@@ -79,6 +79,26 @@ paths:
                 addEasyWords:
                   type: boolean
                   example: true
+                language:
+                  type: string
+                  enum: [es, en, pt]
+                  example: "en"
+                rangeMin:
+                  type: number
+                  minimum: 100
+                  maximum: 100000
+                  example: 5200
+                rangeMax:
+                  type: number
+                  minimum: 100
+                  maximum: 100000
+                  example: 6500
+                grammarTopics:
+                  type: array
+                  items:
+                    type: string
+                  description: "Optional array of grammar topics to include in the lecture"
+                  example: ["Present Perfect", "Modal Verbs (Can, Could, May, Might)"]
               required:
                 - prompt
       responses:

@@ -8,6 +8,7 @@ interface Options {
   promptWords: string;
   rangeMin?: number;
   rangeMax?: number;
+  grammarTopics?: string[];
 }
 
 export const generateTextStreamService = async ({
@@ -18,10 +19,25 @@ export const generateTextStreamService = async ({
   promptWords = "",
   rangeMin = 5200,
   rangeMax = 6500,
+  grammarTopics = [],
 }: Options) => {
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY || "",
   });
+
+  // Crear instrucciones de gramática si se proporcionan
+  const grammarInstructions = grammarTopics.length > 0 
+    ? `
+🎯 GRAMMAR TOPICS REQUIREMENT:
+You MUST include content covering these specific grammar topics: ${grammarTopics.join(', ')}
+- Each grammar topic must be naturally integrated into the reading content
+- Distribute grammar topics evenly throughout the text
+- Ensure the content demonstrates the specific grammar concepts requested
+- The topic "${prompt}" is the main theme, but grammar topics are MANDATORY
+- Include examples and explanations that use the requested grammar structures
+- Make the grammar learning contextual and natural within the reading
+`
+    : "";
 
   return await openai.chat.completions.create({
     stream: true,
@@ -57,6 +73,7 @@ export const generateTextStreamService = async ({
     
           Learning aids:
           - For C1-C2 levels, include a brief summary of the main points.
+          ${grammarInstructions}
              `.trim(),
       },
       {

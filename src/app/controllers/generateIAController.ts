@@ -21,6 +21,7 @@ import { LectureService } from "../services/lectures/LectureService";
 import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
 import { ExamGenerationValidator } from "../utils/validators/examGenerationValidator";
 import { generateTopicStreamService } from "../services/ai/generateTopicStream";
+import { LectureGenerationValidator } from "../utils/validators/lectureGenerationValidator";
 
 const wordService = new WordService();
 const lectureService = new LectureService();
@@ -171,10 +172,32 @@ export const generateTextStream = async (req: Request, res: Response) => {
     language,
     rangeMin,
     rangeMax,
+    grammarTopics = [],
   } = req.body;
 
-  if (!prompt) {
-    return errorResponse(res, "Prompt is required.", 400);
+  // Validar parámetros usando el nuevo validador
+  const validation = LectureGenerationValidator.validateLectureGeneration({
+    prompt,
+    level,
+    typeWrite,
+    language,
+    rangeMin,
+    rangeMax,
+    grammarTopics,
+    addEasyWords,
+  });
+
+  if (!validation.isValid) {
+    return errorResponse(
+      res,
+      `Validation error: ${validation.errors.join(", ")}`,
+      400
+    );
+  }
+
+  // Mostrar warnings si existen
+  if (validation.warnings.length > 0) {
+    console.warn("Lecture generation warnings:", validation.warnings);
   }
 
   try {
@@ -194,6 +217,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
       language,
       rangeMin,
       rangeMax,
+      grammarTopics,
     });
 
     res.setHeader("Content-Type", "application/json");

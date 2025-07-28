@@ -383,14 +383,16 @@ export const generateExpression = async (req: Request, res: Response) => {
       return errorResponse(res, "Prompt is required", 400);
     }
 
-    const generatedExpression = await expressionService.generateExpression(
+    const result = await expressionService.generateExpression(
       prompt,
       options
     );
+    
+    // Use successResponse wrapper for consistency
     return successResponse(
       res,
-      "Expression generated successfully",
-      generatedExpression
+      result.message || "Expression generated successfully",
+      result.data
     );
   } catch (error: any) {
     logger.error("Error generating expression:", error);

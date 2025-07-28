@@ -423,3 +423,174 @@ export const cleanQuestions = async (
     return errorResponse(res, "Error al eliminar las preguntas", 500, error);
   }
 };
+
+/**
+ * Delete ALL words (DANGEROUS - use with caution)
+ * Requires authentication
+ */
+export const cleanWords = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    // Verificar que el usuario esté autenticado
+    if (!req.user?._id) {
+      return errorResponse(res, "Usuario no autenticado", 401);
+    }
+
+    logger.warn("⚠️ Iniciando limpieza de palabras (PELIGROSO)", {
+      userId: req.user._id,
+      username: req.user.username
+    });
+
+    const wordsCountBefore = await Word.countDocuments();
+    const result = await Word.deleteMany({});
+    
+    logger.warn("✅ Limpieza de palabras completada", {
+      userId: req.user._id,
+      deletedCount: result.deletedCount,
+      totalBefore: wordsCountBefore
+    });
+
+    return successResponse(res, "TODAS las palabras han sido eliminadas exitosamente", {
+      deletedCount: result.deletedCount,
+      totalBefore: wordsCountBefore,
+      message: `Se eliminaron ${result.deletedCount} palabras de un total de ${wordsCountBefore}`
+    });
+  } catch (error) {
+    logger.error("❌ Error limpiando palabras", {
+      error: error.message,
+      stack: error.stack
+    });
+    return errorResponse(res, "Error al eliminar las palabras", 500, error);
+  }
+};
+
+/**
+ * Delete ALL lectures (DANGEROUS - use with caution)
+ * Requires authentication
+ */
+export const cleanLectures = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    // Verificar que el usuario esté autenticado
+    if (!req.user?._id) {
+      return errorResponse(res, "Usuario no autenticado", 401);
+    }
+
+    logger.warn("⚠️ Iniciando limpieza de lecturas (PELIGROSO)", {
+      userId: req.user._id,
+      username: req.user.username
+    });
+
+    const lecturesCountBefore = await Lecture.countDocuments();
+    const result = await Lecture.deleteMany({});
+    
+    logger.warn("✅ Limpieza de lecturas completada", {
+      userId: req.user._id,
+      deletedCount: result.deletedCount,
+      totalBefore: lecturesCountBefore
+    });
+
+    return successResponse(res, "TODAS las lecturas han sido eliminadas exitosamente", {
+      deletedCount: result.deletedCount,
+      totalBefore: lecturesCountBefore,
+      message: `Se eliminaron ${result.deletedCount} lecturas de un total de ${lecturesCountBefore}`
+    });
+  } catch (error) {
+    logger.error("❌ Error limpiando lecturas", {
+      error: error.message,
+      stack: error.stack
+    });
+    return errorResponse(res, "Error al eliminar las lecturas", 500, error);
+  }
+};
+
+/**
+ * Delete ALL expressions (DANGEROUS - use with caution)
+ * Requires authentication
+ */
+export const cleanExpressions = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    // Verificar que el usuario esté autenticado
+    if (!req.user?._id) {
+      return errorResponse(res, "Usuario no autenticado", 401);
+    }
+
+    logger.warn("⚠️ Iniciando limpieza de expresiones (PELIGROSO)", {
+      userId: req.user._id,
+      username: req.user.username
+    });
+
+    const expressionsCountBefore = await Expression.countDocuments();
+    const result = await Expression.deleteMany({});
+    
+    logger.warn("✅ Limpieza de expresiones completada", {
+      userId: req.user._id,
+      deletedCount: result.deletedCount,
+      totalBefore: expressionsCountBefore
+    });
+
+    return successResponse(res, "TODAS las expresiones han sido eliminadas exitosamente", {
+      deletedCount: result.deletedCount,
+      totalBefore: expressionsCountBefore,
+      message: `Se eliminaron ${result.deletedCount} expresiones de un total de ${expressionsCountBefore}`
+    });
+  } catch (error) {
+    logger.error("❌ Error limpiando expresiones", {
+      error: error.message,
+      stack: error.stack
+    });
+    return errorResponse(res, "Error al eliminar las expresiones", 500, error);
+  }
+};
+
+/**
+ * Delete ALL users except current user (DANGEROUS - use with caution)
+ * Requires authentication
+ */
+export const cleanUsers = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    // Verificar que el usuario esté autenticado
+    if (!req.user?._id) {
+      return errorResponse(res, "Usuario no autenticado", 401);
+    }
+
+    logger.warn("⚠️ Iniciando limpieza de usuarios (PELIGROSO)", {
+      userId: req.user._id,
+      username: req.user.username
+    });
+
+    const usersCountBefore = await User.countDocuments();
+    // No eliminar al usuario actual
+    const result = await User.deleteMany({ _id: { $ne: req.user._id } });
+    
+    logger.warn("✅ Limpieza de usuarios completada", {
+      userId: req.user._id,
+      deletedCount: result.deletedCount,
+      totalBefore: usersCountBefore,
+      preservedCurrentUser: true
+    });
+
+    return successResponse(res, "TODOS los usuarios han sido eliminados exitosamente (usuario actual preservado)", {
+      deletedCount: result.deletedCount,
+      totalBefore: usersCountBefore,
+      preservedCurrentUser: true,
+      message: `Se eliminaron ${result.deletedCount} usuarios de un total de ${usersCountBefore} (usuario actual preservado)`
+    });
+  } catch (error) {
+    logger.error("❌ Error limpiando usuarios", {
+      error: error.message,
+      stack: error.stack
+    });
+    return errorResponse(res, "Error al eliminar los usuarios", 500, error);
+  }
+};

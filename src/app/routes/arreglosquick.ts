@@ -11,7 +11,11 @@ import {
   getDatabaseStats,
   cleanExamAttempts,
   cleanExams,
-  cleanQuestions
+  cleanQuestions,
+  cleanWords,
+  cleanLectures,
+  cleanExpressions,
+  cleanUsers
 } from "../controllers/labsController";
 
 const routes = Router();
@@ -41,5 +45,9 @@ routes.get("/stats/database", getDatabaseStats);
 routes.delete("/clean/exam-attempts", cleanExamAttempts);
 routes.delete("/clean/exams", cleanExams);
 routes.delete("/clean/questions", cleanQuestions);
+routes.delete("/clean/words", cleanWords);
+routes.delete("/clean/lectures", cleanLectures);
+routes.delete("/clean/expressions", cleanExpressions);
+routes.delete("/clean/users", cleanUsers);
 
 export default routes;

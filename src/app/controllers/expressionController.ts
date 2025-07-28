@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ExpressionService } from "../services/expressions/expressionService";
 import { generateExpressionChatStream } from "../services/ai/generateExpressionChatStream";
+import { successResponse, errorResponse } from "../utils/responseHelpers";
 import logger from "../utils/logger";
 
 const expressionService = new ExpressionService();
@@ -9,10 +10,15 @@ const expressionService = new ExpressionService();
 export const createExpression = async (req: Request, res: Response) => {
   try {
     const expression = await expressionService.createExpression(req.body);
-    res.status(201).json(expression);
+    return successResponse(
+      res,
+      "Expression created successfully",
+      expression,
+      201
+    );
   } catch (error: any) {
     logger.error("Error creating expression:", error);
-    res.status(400).json({ message: error.message });
+    return errorResponse(res, error.message, 400, error);
   }
 };
 
@@ -21,12 +27,16 @@ export const getExpressionById = async (req: Request, res: Response) => {
   try {
     const expression = await expressionService.getExpressionById(req.params.id);
     if (!expression) {
-      return res.status(404).json({ message: "Expression not found" });
+      return errorResponse(res, "Expression not found", 404);
     }
-    res.json(expression);
+    return successResponse(
+      res,
+      "Expression retrieved successfully",
+      expression
+    );
   } catch (error: any) {
     logger.error("Error getting expression by ID:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -35,24 +45,27 @@ export const getExpressions = async (req: Request, res: Response) => {
   try {
     const filters = req.query;
     const result = await expressionService.getExpressions(filters);
-    res.json(result);
+    return successResponse(res, "Expressions retrieved successfully", result);
   } catch (error: any) {
     logger.error("Error getting expressions:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
 // Update an expression
 export const updateExpression = async (req: Request, res: Response) => {
   try {
-    const expression = await expressionService.updateExpression(req.params.id, req.body);
+    const expression = await expressionService.updateExpression(
+      req.params.id,
+      req.body
+    );
     if (!expression) {
-      return res.status(404).json({ message: "Expression not found" });
+      return errorResponse(res, "Expression not found", 404);
     }
-    res.json(expression);
+    return successResponse(res, "Expression updated successfully", expression);
   } catch (error: any) {
     logger.error("Error updating expression:", error);
-    res.status(400).json({ message: error.message });
+    return errorResponse(res, error.message, 400, error);
   }
 };
 
@@ -61,26 +74,35 @@ export const deleteExpression = async (req: Request, res: Response) => {
   try {
     const expression = await expressionService.deleteExpression(req.params.id);
     if (!expression) {
-      return res.status(404).json({ message: "Expression not found" });
+      return errorResponse(res, "Expression not found", 404);
     }
-    res.json({ message: "Expression deleted successfully" });
+    return successResponse(res, "Expression deleted successfully", {});
   } catch (error: any) {
     logger.error("Error deleting expression:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
 // Find expression by expression text
-export const getExpressionByExpression = async (req: Request, res: Response) => {
+export const getExpressionByExpression = async (
+  req: Request,
+  res: Response
+) => {
   try {
-    const expression = await expressionService.findExpressionByExpression(req.params.expression);
+    const expression = await expressionService.findExpressionByExpression(
+      req.params.expression
+    );
     if (!expression) {
-      return res.status(404).json({ message: "Expression not found" });
+      return errorResponse(res, "Expression not found", 404);
     }
-    res.json(expression);
+    return successResponse(
+      res,
+      "Expression retrieved successfully",
+      expression
+    );
   } catch (error: any) {
     logger.error("Error finding expression by expression text:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -94,10 +116,14 @@ export const getExpressionsByType = async (req: Request, res: Response) => {
       Number(limit),
       search as string
     );
-    res.json(expressions);
+    return successResponse(
+      res,
+      `Expressions of type ${type} retrieved successfully`,
+      expressions
+    );
   } catch (error: any) {
     logger.error("Error getting expressions by type:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -106,10 +132,10 @@ export const getExpressionsOnly = async (req: Request, res: Response) => {
   try {
     const filters = req.query;
     const result = await expressionService.getExpressionsOnly(filters);
-    res.json(result);
+    return successResponse(res, "Expressions retrieved successfully", result);
   } catch (error: any) {
     logger.error("Error getting expressions only:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -117,27 +143,42 @@ export const getExpressionsOnly = async (req: Request, res: Response) => {
 export const exportExpressionsToJSON = async (req: Request, res: Response) => {
   try {
     const expressions = await expressionService.getAllExpressionsForExport();
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Content-Disposition", `attachment; filename=expressions-${new Date().toISOString().split('T')[0]}.json`);
-    res.json(expressions);
+    return successResponse(
+      res,
+      "Expressions exported successfully",
+      expressions
+    );
   } catch (error: any) {
     logger.error("Error exporting expressions:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
 // Import expressions from JSON file
-export const importExpressionsFromFile = async (req: Request, res: Response) => {
+export const importExpressionsFromFile = async (
+  req: Request,
+  res: Response
+) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+      return errorResponse(res, "No file uploaded", 400);
     }
 
     const fileContent = req.file.buffer.toString();
-    const expressions = JSON.parse(fileContent);
+    let expressions;
+
+    try {
+      expressions = JSON.parse(fileContent);
+    } catch (parseError) {
+      return errorResponse(res, "Invalid JSON file format", 400);
+    }
 
     if (!Array.isArray(expressions)) {
-      return res.status(400).json({ message: "Invalid file format. Expected an array of expressions." });
+      return errorResponse(
+        res,
+        "Invalid file format. Expected an array of expressions.",
+        400
+      );
     }
 
     const results = [];
@@ -145,25 +186,30 @@ export const importExpressionsFromFile = async (req: Request, res: Response) => 
 
     for (const expressionData of expressions) {
       try {
-        const expression = await expressionService.createExpression(expressionData);
+        const expression = await expressionService.createExpression(
+          expressionData
+        );
         results.push(expression);
       } catch (error: any) {
         errors.push({
           expression: expressionData.expression,
-          error: error.message
+          error: error.message,
         });
       }
     }
 
-    res.json({
-      message: `Import completed. ${results.length} expressions imported successfully.`,
-      imported: results.length,
-      errors: errors.length,
-      errorDetails: errors
-    });
+    return successResponse(
+      res,
+      `Import completed. ${results.length} expressions imported successfully.`,
+      {
+        imported: results.length,
+        errors: errors.length,
+        errorDetails: errors,
+      }
+    );
   } catch (error: any) {
     logger.error("Error importing expressions:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -174,21 +220,23 @@ export const addChatMessage = async (req: Request, res: Response) => {
     const { message } = req.body;
 
     if (!message) {
-      return res.status(400).json({ message: "Message is required" });
+      return errorResponse(res, "Message is required", 400);
     }
 
-    const expression = await expressionService.addChatMessage(expressionId, message);
+    const expression = await expressionService.addChatMessage(
+      expressionId,
+      message
+    );
     if (!expression) {
-      return res.status(404).json({ message: "Expression not found" });
+      return errorResponse(res, "Expression not found", 404);
     }
 
-    res.json({ 
-      message: "Chat message added successfully",
-      expression 
+    return successResponse(res, "Chat message added successfully", {
+      expression,
     });
   } catch (error: any) {
     logger.error("Error adding chat message:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -196,23 +244,28 @@ export const getChatHistory = async (req: Request, res: Response) => {
   try {
     const { expressionId } = req.params;
     const chatHistory = await expressionService.getChatHistory(expressionId);
-    res.json(chatHistory);
+    return successResponse(
+      res,
+      "Chat history retrieved successfully",
+      chatHistory
+    );
   } catch (error: any) {
     logger.error("Error getting chat history:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
 export const clearChatHistory = async (req: Request, res: Response) => {
   try {
-    const expression = await expressionService.clearChatHistory(req.params.expressionId);
+    const { expressionId } = req.params;
+    const expression = await expressionService.clearChatHistory(expressionId);
     if (!expression) {
-      return res.status(404).json({ error: "Expression not found" });
+      return errorResponse(res, "Expression not found", 404);
     }
-    res.json({ message: "Chat history cleared successfully" });
+    return successResponse(res, "Chat history cleared successfully", {});
   } catch (error: any) {
     logger.error("Error clearing chat history:", error);
-    res.status(500).json({ error: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -223,23 +276,23 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     const { message } = req.body;
 
     if (!message) {
-      return res.status(400).json({ message: "Message is required" });
+      return errorResponse(res, "Message is required", 400);
     }
 
     const expression = await expressionService.getExpressionById(expressionId);
     if (!expression) {
-      return res.status(404).json({ message: "Expression not found" });
+      return errorResponse(res, "Expression not found", 404);
     }
 
     // Add user message first
     await expressionService.addUserMessage(expressionId, message);
 
     // Set up streaming
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     const stream = await generateExpressionChatStream(
       expression.expression,
@@ -248,10 +301,10 @@ export const streamChatResponse = async (req: Request, res: Response) => {
       expression.chat || []
     );
 
-    let fullResponse = '';
+    let fullResponse = "";
 
     for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content || '';
+      const content = chunk.choices[0]?.delta?.content || "";
       if (content) {
         fullResponse += content;
         res.write(content);
@@ -260,11 +313,11 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 
     // Save the complete AI response
     await expressionService.addAssistantMessage(expressionId, fullResponse);
-    
+
     res.end();
   } catch (error: any) {
     logger.error("Error streaming chat response:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -272,15 +325,22 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 export const generateExpression = async (req: Request, res: Response) => {
   try {
     const { prompt, options } = req.body;
-    
+
     if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
+      return errorResponse(res, "Prompt is required", 400);
     }
 
-    const generatedExpression = await expressionService.generateExpression(prompt, options);
-    res.json(generatedExpression);
+    const generatedExpression = await expressionService.generateExpression(
+      prompt,
+      options
+    );
+    return successResponse(
+      res,
+      "Expression generated successfully",
+      generatedExpression
+    );
   } catch (error: any) {
     logger.error("Error generating expression:", error);
-    res.status(500).json({ error: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
-}; 
+};

@@ -12,6 +12,7 @@ import { seedQuestions } from "../services/seed/seedQuestions";
 import { backupCollections } from "../utils/backupCollections";
 import { seedData } from "../utils/seedData";
 import { CleanerService } from "../services/cleanerService";
+import logger from "../utils/logger";
 // import { MigrationService } from "../services/migration/migrationService";
 
 // const migrationService = new MigrationService();
@@ -156,14 +157,41 @@ export const createBackup = async (
   res: Response
 ): Promise<Response> => {
   try {
+    logger.info("🔄 Iniciando backup de todas las colecciones");
+    
     const backupResult = await backupCollections();
+    
+    const totalDocuments = backupResult.backupResults.reduce(
+      (total: number, result: any) => total + (result.count || 0), 
+      0
+    );
+    
+    const successfulBackups = backupResult.backupResults.filter(
+      (result: any) => !result.error
+    ).length;
+    
+    logger.info("✅ Backup completado exitosamente", {
+      successfulBackups,
+      totalCollections: backupResult.totalCollections,
+      totalDocuments,
+      backupResults: backupResult.backupResults
+    });
     
     return successResponse(
       res, 
-      "Backup created successfully", 
-      { backupResult }
+      `Backup created successfully. ${successfulBackups}/${backupResult.totalCollections} collections backed up with ${totalDocuments} total documents.`, 
+      { 
+        backupResult,
+        totalDocuments,
+        successfulBackups,
+        totalCollections: backupResult.totalCollections
+      }
     );
   } catch (error) {
+    logger.error("❌ Error creando backup", {
+      error: error.message,
+      stack: error.stack
+    });
     return errorResponse(res, "Error creating backup", 500, error);
   }
 };
@@ -176,6 +204,8 @@ export const clearAllData = async (
   res: Response
 ): Promise<Response> => {
   try {
+    logger.warn("⚠️ Iniciando limpieza completa de la base de datos (PELIGROSO)");
+    
     // Get counts before deletion
     const wordsCountBefore = await Word.countDocuments();
     const lecturesCountBefore = await Lecture.countDocuments();
@@ -185,6 +215,16 @@ export const clearAllData = async (
     const expressionsCountBefore = await Expression.countDocuments();
     const usersCountBefore = await User.countDocuments();
     
+    logger.info("📊 Datos encontrados antes de la limpieza", {
+      words: wordsCountBefore,
+      lectures: lecturesCountBefore,
+      questions: questionsCountBefore,
+      exams: examsCountBefore,
+      examAttempts: examAttemptsCountBefore,
+      expressions: expressionsCountBefore,
+      users: usersCountBefore
+    });
+    
     // Delete all data from all collections
     const wordsResult = await Word.deleteMany({});
     const lecturesResult = await Lecture.deleteMany({});
@@ -193,6 +233,16 @@ export const clearAllData = async (
     const examAttemptsResult = await ExamAttempt.deleteMany({});
     const expressionsResult = await Expression.deleteMany({});
     const usersResult = await User.deleteMany({});
+    
+    logger.warn("✅ Limpieza completada exitosamente", {
+      deletedWords: wordsResult.deletedCount,
+      deletedLectures: lecturesResult.deletedCount,
+      deletedQuestions: questionsResult.deletedCount,
+      deletedExams: examsResult.deletedCount,
+      deletedExamAttempts: examAttemptsResult.deletedCount,
+      deletedExpressions: expressionsResult.deletedCount,
+      deletedUsers: usersResult.deletedCount
+    });
     
     return successResponse(
       res, 
@@ -215,6 +265,10 @@ export const clearAllData = async (
       }
     );
   } catch (error) {
+    logger.error("❌ Error durante la limpieza de datos", {
+      error: error.message,
+      stack: error.stack
+    });
     return errorResponse(res, "Error clearing data", 500, error);
   }
 };

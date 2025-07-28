@@ -3,6 +3,8 @@ import { WordService } from "../services/words/wordService";
 import { WordImportService } from "../services/import/WordImportService";
 import { WordStatisticsService } from "../services/statistics/WordStatisticsService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
+import { generateWordChatStream } from "../services/ai/generateWordChatStream";
+import logger from "../utils/logger";
 
 const wordService = new WordService();
 const wordImportService = new WordImportService();
@@ -571,5 +573,111 @@ export const importWordsFromFile = async (
   } catch (error) {
     console.error("Import error:", error);
     return errorResponse(res, "Error importing words", 500, error);
+  }
+};
+
+// Chat methods
+export const addChatMessage = async (req: Request, res: Response) => {
+  try {
+    const { wordId } = req.params;
+    const { message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+
+    const word = await wordService.addChatMessage(wordId, message);
+    if (!word) {
+      return res.status(404).json({ message: "Word not found" });
+    }
+
+    res.json({ 
+      message: "Chat message added successfully",
+      word 
+    });
+  } catch (error: any) {
+    logger.error("Error adding chat message:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getChatHistory = async (req: Request, res: Response) => {
+  try {
+    const { wordId } = req.params;
+    const chatHistory = await wordService.getChatHistory(wordId);
+    res.json(chatHistory);
+  } catch (error: any) {
+    logger.error("Error getting chat history:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const clearChatHistory = async (req: Request, res: Response) => {
+  try {
+    const { wordId } = req.params;
+    const word = await wordService.clearChatHistory(wordId);
+    if (!word) {
+      return res.status(404).json({ message: "Word not found" });
+    }
+
+    res.json({ 
+      message: "Chat history cleared successfully",
+      word 
+    });
+  } catch (error: any) {
+    logger.error("Error clearing chat history:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Streaming chat response
+export const streamChatResponse = async (req: Request, res: Response) => {
+  try {
+    const { wordId } = req.params;
+    const { message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+
+    const word = await wordService.getWordById(wordId);
+    if (!word) {
+      return res.status(404).json({ message: "Word not found" });
+    }
+
+    // Add user message first
+    await wordService.addUserMessage(wordId, message);
+
+    // Set up streaming
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    const stream = await generateWordChatStream(
+      word.word,
+      word.definition,
+      message,
+      word.chat || []
+    );
+
+    let fullResponse = '';
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content || '';
+      if (content) {
+        fullResponse += content;
+        res.write(content);
+      }
+    }
+
+    // Save the complete AI response
+    await wordService.addAssistantMessage(wordId, fullResponse);
+    
+    res.end();
+  } catch (error: any) {
+    logger.error("Error streaming chat response:", error);
+    res.status(500).json({ message: error.message });
   }
 };

@@ -1,4 +1,4 @@
-import Word, { IWord } from "../../db/models/Word";
+import Word, { IWord, ChatMessage } from "../../db/models/Word";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -577,6 +577,59 @@ export class WordService {
       .sort({ createdAt: -1 })
       .lean()
       .exec();
+  }
+
+  // Chat methods
+  async addChatMessage(wordId: string, message: string): Promise<IWord | null> {
+    // Este método ahora solo agrega el mensaje del usuario
+    // Las respuestas se manejan via streaming en el controlador
+    return await this.addUserMessage(wordId, message);
+  }
+
+  async addUserMessage(wordId: string, message: string): Promise<IWord | null> {
+    const word = await Word.findById(wordId);
+    if (!word) return null;
+
+    const userMessage: ChatMessage = {
+      id: Math.random().toString(36).substr(2, 9),
+      role: "user",
+      content: message,
+      timestamp: new Date()
+    };
+
+    word.chat = word.chat || [];
+    word.chat.push(userMessage);
+    return await word.save();
+  }
+
+  async addAssistantMessage(wordId: string, message: string): Promise<IWord | null> {
+    const word = await Word.findById(wordId);
+    if (!word) return null;
+
+    const assistantMessage: ChatMessage = {
+      id: Math.random().toString(36).substr(2, 9),
+      role: "assistant",
+      content: message,
+      timestamp: new Date()
+    };
+
+    word.chat = word.chat || [];
+    word.chat.push(assistantMessage);
+    return await word.save();
+  }
+
+  async getChatHistory(wordId: string): Promise<ChatMessage[]> {
+    const word = await Word.findById(wordId);
+    if (!word) return [];
+    return word.chat || [];
+  }
+
+  async clearChatHistory(wordId: string): Promise<IWord | null> {
+    const word = await Word.findById(wordId);
+    if (!word) return null;
+
+    word.chat = [];
+    return await word.save();
   }
 }
 

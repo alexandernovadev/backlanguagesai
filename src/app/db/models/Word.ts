@@ -1,5 +1,32 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
+
+const ChatMessageSchema: Schema = new Schema<ChatMessage>({
+  id: {
+    type: String,
+    required: true,
+  },
+  role: {
+    type: String,
+    enum: ["user", "assistant"],
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 export interface IWord extends Document {
   word: string;
   definition: string;
@@ -16,6 +43,7 @@ export interface IWord extends Document {
     definition: string;
     word: string;
   };
+  chat?: ChatMessage[];
   // Campos para sistema de repaso inteligente
   lastReviewed?: Date;
   nextReview?: Date;
@@ -141,6 +169,10 @@ const WordSchema: Schema = new Schema<IWord>(
     easeFactor: {
       type: Number,
       default: 2.5, // Factor de facilidad inicial (similar a Anki)
+    },
+    chat: {
+      type: [ChatMessageSchema],
+      default: [],
     },
   },
   { timestamps: true }

@@ -17,6 +17,10 @@ import {
   getWordsByType,
   getWordsByTypeOptimized,
   getWordsOnly,
+  addChatMessage,
+  getChatHistory,
+  clearChatHistory,
+  streamChatResponse,
 } from "../controllers/wordController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
@@ -40,5 +44,11 @@ router.put("/:id/level", updateWordLevel);
 router.put("/:id/increment-seen", updateIncrementWordSeens);
 router.get("/export/json", exportWordsToJSON);
 router.post("/import/json", ...createJsonUploadMiddleware(), importWordsFromFile);
+
+// Chat routes
+router.post("/:wordId/chat", addChatMessage);
+router.post("/:wordId/chat/stream", streamChatResponse);
+router.get("/:wordId/chat", getChatHistory);
+router.delete("/:wordId/chat", clearChatHistory);
 
 export default router;

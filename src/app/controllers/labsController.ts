@@ -594,3 +594,50 @@ export const cleanUsers = async (
     return errorResponse(res, "Error al eliminar los usuarios", 500, error);
   }
 };
+
+/**
+ * Update language for ALL lectures
+ * @param req.body.language - The language to set for all lectures
+ */
+export const updateLecturesLanguage = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { language } = req.body;
+    
+    if (!language) {
+      return errorResponse(res, "Language is required", 400);
+    }
+
+    logger.info("🔄 Iniciando actualización de idioma para todas las lecturas", {
+      language: language,
+      userId: req.user?._id
+    });
+
+    const lecturesCountBefore = await Lecture.countDocuments();
+    const result = await Lecture.updateMany({}, { language });
+    
+    logger.info("✅ Actualización de idioma completada", {
+      language: language,
+      modifiedCount: result.modifiedCount,
+      totalLectures: lecturesCountBefore
+    });
+
+    return successResponse(
+      res, 
+      `Language updated successfully for all lectures to: ${language}`, 
+      { 
+        language: language,
+        modifiedCount: result.modifiedCount,
+        totalLectures: lecturesCountBefore
+      }
+    );
+  } catch (error) {
+    logger.error("❌ Error actualizando idioma de lecturas", {
+      error: error.message,
+      stack: error.stack
+    });
+    return errorResponse(res, "Error updating lectures language", 500, error);
+  }
+};

@@ -13,6 +13,7 @@ import { backupCollections } from "../utils/backupCollections";
 import { seedData } from "../utils/seedData";
 import { CleanerService } from "../services/cleanerService";
 import logger from "../utils/logger";
+import bcrypt from "bcryptjs";
 // import { MigrationService } from "../services/migration/migrationService";
 
 // const migrationService = new MigrationService();
@@ -126,6 +127,156 @@ export const createAdminUser = async (
     );
   } catch (error) {
     return errorResponse(res, "Error creating admin user", 500, error);
+  }
+};
+
+/**
+ * Create 5 test users for development
+ */
+export const createTestUsers = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    logger.info("🔄 Iniciando creación de 5 usuarios de prueba");
+    
+    const testUsers = [
+      {
+        username: "testuser1",
+        email: "testuser1@example.com",
+        password: "password123",
+        role: "user",
+        firstName: "Test",
+        lastName: "User 1",
+        isActive: true,
+        language: "en"
+      },
+      {
+        username: "testuser2", 
+        email: "testuser2@example.com",
+        password: "password123",
+        role: "user",
+        firstName: "Test",
+        lastName: "User 2", 
+        isActive: true,
+        language: "es"
+      },
+      {
+        username: "testuser3",
+        email: "testuser3@example.com", 
+        password: "password123",
+        role: "user",
+        firstName: "Test",
+        lastName: "User 3",
+        isActive: true,
+        language: "pt"
+      },
+      {
+        username: "testuser4",
+        email: "testuser4@example.com",
+        password: "password123", 
+        role: "user",
+        firstName: "Test",
+        lastName: "User 4",
+        isActive: true,
+        language: "pt"
+      },
+      {
+        username: "testuser5",
+        email: "testuser5@example.com",
+        password: "password123",
+        role: "user", 
+        firstName: "Test",
+        lastName: "User 5",
+        isActive: true,
+        language: "pt"
+      }
+    ];
+
+    const createdUsers = [];
+    const errors = [];
+
+    for (const userData of testUsers) {
+      try {
+        // Check if user already exists
+        const existingUser = await User.findOne({ 
+          $or: [
+            { email: userData.email },
+            { username: userData.username }
+          ]
+        });
+
+        if (existingUser) {
+          logger.warn(`⚠️ Usuario ${userData.username} ya existe, saltando...`);
+          errors.push(`Usuario ${userData.username} ya existe`);
+          continue;
+        }
+
+        // Hash password using imported bcrypt
+        const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+        // Create user with all required fields
+        const newUser = new User({
+          username: userData.username,
+          email: userData.email,
+          password: hashedPassword,
+          role: userData.role,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          isActive: userData.isActive,
+          language: userData.language,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+
+        const savedUser = await newUser.save();
+        
+        logger.info(`✅ Usuario creado exitosamente: ${savedUser.username} (${savedUser.email})`);
+        
+        createdUsers.push({
+          username: savedUser.username,
+          email: savedUser.email,
+          role: savedUser.role,
+          language: savedUser.language,
+          firstName: savedUser.firstName,
+          lastName: savedUser.lastName
+        });
+      } catch (error) {
+        logger.error(`❌ Error creando usuario ${userData.username}:`, error);
+        errors.push(`Error creando ${userData.username}: ${error.message}`);
+      }
+    }
+
+    const result = {
+      createdUsers,
+      totalCreated: createdUsers.length,
+      totalErrors: errors.length,
+      errors,
+      totalAttempted: testUsers.length,
+      message: createdUsers.length > 0 
+        ? `Se crearon ${createdUsers.length} usuarios de prueba exitosamente`
+        : "No se crearon usuarios nuevos (todos ya existían o hubo errores)"
+    };
+
+    logger.info("✅ Creación de usuarios de prueba completada", {
+      totalCreated: createdUsers.length,
+      totalErrors: errors.length,
+      totalAttempted: testUsers.length,
+      createdUsers: createdUsers.map(u => u.username),
+      errors
+    });
+
+    return successResponse(
+      res,
+      result.message,
+      result
+    );
+  } catch (error) {
+    logger.error("❌ Error creando usuarios de prueba", {
+      error: error.message,
+      stack: error.stack
+    });
+    return errorResponse(res, "Error creating test users", 500, error);
   }
 };
 

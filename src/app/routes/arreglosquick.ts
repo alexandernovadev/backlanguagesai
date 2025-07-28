@@ -3,6 +3,7 @@ import {
   updateWordsLevel,
   resetWordsSeenCount,
   createAdminUser,
+  createTestUsers,
   seedInitialData,
   createBackup,
   clearAllData,
@@ -28,6 +29,8 @@ routes.post("/lectures/update-language", updateLecturesLanguage);
 
 // User management
 routes.post("/users/create-admin", createAdminUser);
+routes.post("/users/create-test-users", createTestUsers);
+routes.post("/users/create-test-users", createTestUsers);
 
 // Data seeding
 routes.post("/seed/initial-data", seedInitialData);

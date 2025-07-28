@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ExamAttemptController } from "../controllers/examAttemptController";
 import { validateExamAccess, validateAttemptAccess, validateAttemptState } from "../middlewares/examAttemptMiddleware";
+import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
 const examAttemptController = new ExamAttemptController();
@@ -28,5 +29,9 @@ router.post('/:id/abandon', validateAttemptAccess, validateAttemptState(['in_pro
 
 // Obtener estadísticas de intentos
 router.get('/stats/:userId', examAttemptController.getAttemptStats.bind(examAttemptController));
+
+// Export/Import routes
+router.get('/export-file', examAttemptController.exportExamAttemptsToJSON.bind(examAttemptController));
+router.post('/import-file', ...createJsonUploadMiddleware(), examAttemptController.importExamAttemptsFromFile.bind(examAttemptController));
 
 export default router; 

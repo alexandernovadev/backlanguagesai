@@ -31,7 +31,7 @@ router.put("/:id", updateExpression);
 router.delete("/:id", deleteExpression);
 
 // Import/Export routes
-router.get("/export/json", exportExpressionsToJSON);
-router.post("/import/json", ...createJsonUploadMiddleware(), importExpressionsFromFile);
+router.get("/export-file", exportExpressionsToJSON);
+router.post("/import-file", ...createJsonUploadMiddleware(), importExpressionsFromFile);
 
 export default router; 

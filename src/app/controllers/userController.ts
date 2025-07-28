@@ -53,4 +53,134 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
- 
+// Export all users to JSON
+export const exportUsersToJSON = async (req: Request, res: Response) => {
+  try {
+    const users = await userService.getAllUsersForExport();
+
+    // Set headers for file download
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const filename = `users-export-${timestamp}.json`;
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+    // Send the JSON data
+    return res.json({
+      success: true,
+      message: `Exported ${users.length} users successfully`,
+      data: {
+        totalUsers: users.length,
+        exportDate: new Date().toISOString(),
+        users: users,
+      },
+    });
+  } catch (error: any) {
+    return errorResponse(
+      res,
+      "An error occurred while exporting users to JSON",
+      500,
+      error
+    );
+  }
+};
+
+// Import users from JSON file
+export const importUsersFromFile = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return errorResponse(res, "No file uploaded", 400);
+    }
+
+    // Parse the JSON file content
+    let fileData: any;
+    try {
+      const fileContent = req.file.buffer.toString("utf-8");
+      fileData = JSON.parse(fileContent);
+    } catch (parseError) {
+      return errorResponse(res, "Invalid JSON file format", 400);
+    }
+
+    // Validate file structure
+    if (
+      !fileData.data ||
+      !fileData.data.users ||
+      !Array.isArray(fileData.data.users)
+    ) {
+      return errorResponse(
+        res,
+        "Invalid file structure. Expected 'data.users' array",
+        400
+      );
+    }
+
+    const users = fileData.data.users;
+    const {
+      duplicateStrategy = "skip",
+      validateOnly = false,
+      batchSize = 10,
+    } = req.query;
+
+    // Validate duplicateStrategy
+    const validStrategies = ["skip", "overwrite", "error", "merge"];
+    if (!validStrategies.includes(duplicateStrategy as string)) {
+      return errorResponse(
+        res,
+        `Invalid duplicateStrategy. Must be one of: ${validStrategies.join(
+          ", "
+        )}`,
+        400
+      );
+    }
+
+    // Validate batchSize
+    const batchSizeNum = parseInt(batchSize as string);
+    if (isNaN(batchSizeNum) || batchSizeNum < 1 || batchSizeNum > 100) {
+      return errorResponse(
+        res,
+        "Invalid batchSize. Must be a number between 1 and 100",
+        400
+      );
+    }
+
+    // Convert validateOnly to boolean
+    const validateOnlyBool = validateOnly === "true";
+
+    // If validateOnly is true, just validate without importing
+    if (validateOnlyBool) {
+      const validationResults = users.map((user: any, index: number) => ({
+        index,
+        data: user,
+        status: user.email && user.username ? 'valid' : 'invalid',
+        errors: !user.email ? ['Email is required'] : 
+                !user.username ? ['Username is required'] : []
+      }));
+
+      const validCount = validationResults.filter((r: any) => r.status === 'valid').length;
+      const invalidCount = validationResults.filter((r: any) => r.status === 'invalid').length;
+
+      return successResponse(res, "Validation completed", {
+        totalUsers: users.length,
+        valid: validCount,
+        invalid: invalidCount,
+        validationResults,
+        message: `Validation completed. ${validCount} valid, ${invalidCount} invalid`
+      });
+    }
+
+    // Import users
+    const importResult = await userService.importUsers(users, {
+      duplicateStrategy: duplicateStrategy as 'skip' | 'overwrite' | 'error' | 'merge',
+      batchSize: batchSizeNum
+    });
+
+    return successResponse(res, "Import completed successfully", importResult);
+  } catch (error: any) {
+    return errorResponse(
+      res,
+      "An error occurred while importing users",
+      500,
+      error
+    );
+  }
+};

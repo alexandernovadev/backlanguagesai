@@ -204,4 +204,115 @@ export class ExamAttemptService {
         : null
     };
   }
+
+  // Export all exam attempts for backup/transfer
+  async getAllExamAttemptsForExport(): Promise<IExamAttempt[]> {
+    return await ExamAttempt.find({})
+      .populate('exam')
+      .populate('user')
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+  }
+
+  // Import exam attempts from JSON data
+  async importExamAttempts(attempts: any[], config: {
+    duplicateStrategy: 'skip' | 'overwrite' | 'error' | 'merge';
+    batchSize?: number;
+  }): Promise<{
+    totalItems: number;
+    totalInserted: number;
+    totalUpdated: number;
+    totalSkipped: number;
+    totalErrors: number;
+    batches: any[];
+    summary: {
+      success: boolean;
+      message: string;
+      duration: number;
+    };
+  }> {
+    const startTime = Date.now();
+    const batches: any[] = [];
+    let totalInserted = 0;
+    let totalUpdated = 0;
+    let totalSkipped = 0;
+    let totalErrors = 0;
+
+    const batchSize = config.batchSize || 10;
+
+    for (let i = 0; i < attempts.length; i += batchSize) {
+      const batchAttempts = attempts.slice(i, i + batchSize);
+      const batchIndex = Math.floor(i / batchSize);
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
+      let batchErrors = 0;
+
+      for (const attemptData of batchAttempts) {
+        try {
+          // Check for duplicates by exam, user, and startTime
+          const existingAttempt = await ExamAttempt.findOne({
+            exam: attemptData.exam,
+            user: attemptData.user,
+            startTime: attemptData.startTime
+          });
+
+          if (existingAttempt) {
+            switch (config.duplicateStrategy) {
+              case 'error':
+                batchErrors++;
+                totalErrors++;
+                break;
+              case 'skip':
+                batchSkipped++;
+                totalSkipped++;
+                break;
+              case 'overwrite':
+              case 'merge':
+                // Remove _id to avoid conflicts
+                const { _id, ...updateData } = attemptData;
+                await ExamAttempt.findByIdAndUpdate(existingAttempt._id, updateData, { new: true });
+                batchUpdated++;
+                totalUpdated++;
+                break;
+            }
+          } else {
+            // Create new attempt
+            const newAttempt = new ExamAttempt(attemptData);
+            await newAttempt.save();
+            batchInserted++;
+            totalInserted++;
+          }
+        } catch (error) {
+          batchErrors++;
+          totalErrors++;
+        }
+      }
+
+      batches.push({
+        batchIndex,
+        processed: batchAttempts.length,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
+        errors: batchErrors,
+      });
+    }
+
+    const duration = Date.now() - startTime;
+    return {
+      totalItems: attempts.length,
+      totalInserted,
+      totalUpdated,
+      totalSkipped,
+      totalErrors,
+      batches,
+      summary: {
+        success: totalErrors === 0,
+        message: `Import completed. ${totalInserted} inserted, ${totalUpdated} updated, ${totalSkipped} skipped, ${totalErrors} errors`,
+        duration,
+      },
+    };
+  }
 } 

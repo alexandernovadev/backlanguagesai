@@ -143,11 +143,24 @@ export const getExpressionsOnly = async (req: Request, res: Response) => {
 export const exportExpressionsToJSON = async (req: Request, res: Response) => {
   try {
     const expressions = await expressionService.getAllExpressionsForExport();
-    return successResponse(
-      res,
-      "Expressions exported successfully",
-      expressions
-    );
+
+    // Set headers for file download
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const filename = `expressions-export-${timestamp}.json`;
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+    // Send the JSON data
+    return res.json({
+      success: true,
+      message: `Exported ${expressions.length} expressions successfully`,
+      data: {
+        totalExpressions: expressions.length,
+        exportDate: new Date().toISOString(),
+        expressions: expressions,
+      },
+    });
   } catch (error: any) {
     logger.error("Error exporting expressions:", error);
     return errorResponse(res, error.message, 500, error);
@@ -164,49 +177,89 @@ export const importExpressionsFromFile = async (
       return errorResponse(res, "No file uploaded", 400);
     }
 
-    const fileContent = req.file.buffer.toString();
-    let expressions;
-
+    // Parse the JSON file content
+    let fileData: any;
     try {
-      expressions = JSON.parse(fileContent);
+      const fileContent = req.file.buffer.toString("utf-8");
+      fileData = JSON.parse(fileContent);
     } catch (parseError) {
       return errorResponse(res, "Invalid JSON file format", 400);
     }
 
-    if (!Array.isArray(expressions)) {
+    // Validate file structure
+    if (
+      !fileData.data ||
+      !fileData.data.expressions ||
+      !Array.isArray(fileData.data.expressions)
+    ) {
       return errorResponse(
         res,
-        "Invalid file format. Expected an array of expressions.",
+        "Invalid file structure. Expected 'data.expressions' array",
         400
       );
     }
 
-    const results = [];
-    const errors = [];
+    const expressions = fileData.data.expressions;
+    const {
+      duplicateStrategy = "skip",
+      validateOnly = false,
+      batchSize = 10,
+    } = req.query;
 
-    for (const expressionData of expressions) {
-      try {
-        const expression = await expressionService.createExpression(
-          expressionData
-        );
-        results.push(expression);
-      } catch (error: any) {
-        errors.push({
-          expression: expressionData.expression,
-          error: error.message,
-        });
-      }
+    // Validate duplicateStrategy
+    const validStrategies = ["skip", "overwrite", "error", "merge"];
+    if (!validStrategies.includes(duplicateStrategy as string)) {
+      return errorResponse(
+        res,
+        `Invalid duplicateStrategy. Must be one of: ${validStrategies.join(
+          ", "
+        )}`,
+        400
+      );
     }
 
-    return successResponse(
-      res,
-      `Import completed. ${results.length} expressions imported successfully.`,
-      {
-        imported: results.length,
-        errors: errors.length,
-        errorDetails: errors,
-      }
-    );
+    // Validate batchSize
+    const batchSizeNum = parseInt(batchSize as string);
+    if (isNaN(batchSizeNum) || batchSizeNum < 1 || batchSizeNum > 100) {
+      return errorResponse(
+        res,
+        "Invalid batchSize. Must be a number between 1 and 100",
+        400
+      );
+    }
+
+    // Convert validateOnly to boolean
+    const validateOnlyBool = validateOnly === "true";
+
+    // If validateOnly is true, just validate without importing
+    if (validateOnlyBool) {
+      const validationResults = expressions.map((expression: any, index: number) => ({
+        index,
+        data: expression,
+        status: expression.expression && expression.definition ? 'valid' : 'invalid',
+        errors: !expression.expression ? ['Expression is required'] : 
+                !expression.definition ? ['Definition is required'] : []
+      }));
+
+      const validCount = validationResults.filter((r: any) => r.status === 'valid').length;
+      const invalidCount = validationResults.filter((r: any) => r.status === 'invalid').length;
+
+      return successResponse(res, "Validation completed", {
+        totalExpressions: expressions.length,
+        valid: validCount,
+        invalid: invalidCount,
+        validationResults,
+        message: `Validation completed. ${validCount} valid, ${invalidCount} invalid`
+      });
+    }
+
+    // Import expressions
+    const importResult = await expressionService.importExpressions(expressions, {
+      duplicateStrategy: duplicateStrategy as 'skip' | 'overwrite' | 'error' | 'merge',
+      batchSize: batchSizeNum
+    });
+
+    return successResponse(res, "Import completed successfully", importResult);
   } catch (error: any) {
     logger.error("Error importing expressions:", error);
     return errorResponse(res, error.message, 500, error);

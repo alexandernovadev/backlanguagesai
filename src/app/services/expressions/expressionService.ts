@@ -177,20 +177,109 @@ export class ExpressionService {
   }
 
   async getAllExpressionsForExport(): Promise<IExpression[]> {
-    return await Expression.find({}).sort({ createdAt: -1 });
+    return await Expression.find({})
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
   }
 
-  async importExpressions(expressions: any[]): Promise<IExpression[]> {
-    const results = [];
-    for (const expressionData of expressions) {
-      try {
-        const expression = await this.createExpression(expressionData);
-        results.push(expression);
-      } catch (error: any) {
-        console.error(`Error importing expression ${expressionData.expression}:`, error.message);
+  // Import expressions from JSON data
+  async importExpressions(expressions: any[], config: {
+    duplicateStrategy: 'skip' | 'overwrite' | 'error' | 'merge';
+    batchSize?: number;
+  }): Promise<{
+    totalItems: number;
+    totalInserted: number;
+    totalUpdated: number;
+    totalSkipped: number;
+    totalErrors: number;
+    batches: any[];
+    summary: {
+      success: boolean;
+      message: string;
+      duration: number;
+    };
+  }> {
+    const startTime = Date.now();
+    const batches: any[] = [];
+    let totalInserted = 0;
+    let totalUpdated = 0;
+    let totalSkipped = 0;
+    let totalErrors = 0;
+
+    const batchSize = config.batchSize || 10;
+
+    for (let i = 0; i < expressions.length; i += batchSize) {
+      const batchExpressions = expressions.slice(i, i + batchSize);
+      const batchIndex = Math.floor(i / batchSize);
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
+      let batchErrors = 0;
+
+      for (const expressionData of batchExpressions) {
+        try {
+          // Check for duplicates by expression text
+          const existingExpression = await Expression.findOne({
+            expression: expressionData.expression
+          });
+
+          if (existingExpression) {
+            switch (config.duplicateStrategy) {
+              case 'error':
+                batchErrors++;
+                totalErrors++;
+                break;
+              case 'skip':
+                batchSkipped++;
+                totalSkipped++;
+                break;
+              case 'overwrite':
+              case 'merge':
+                // Remove _id to avoid conflicts
+                const { _id, ...updateData } = expressionData;
+                await Expression.findByIdAndUpdate(existingExpression._id, updateData, { new: true });
+                batchUpdated++;
+                totalUpdated++;
+                break;
+            }
+          } else {
+            // Create new expression
+            const newExpression = new Expression(expressionData);
+            await newExpression.save();
+            batchInserted++;
+            totalInserted++;
+          }
+        } catch (error) {
+          batchErrors++;
+          totalErrors++;
+        }
       }
+
+      batches.push({
+        batchIndex,
+        processed: batchExpressions.length,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
+        errors: batchErrors,
+      });
     }
-    return results;
+
+    const duration = Date.now() - startTime;
+    return {
+      totalItems: expressions.length,
+      totalInserted,
+      totalUpdated,
+      totalSkipped,
+      totalErrors,
+      batches,
+      summary: {
+        success: totalErrors === 0,
+        message: `Import completed. ${totalInserted} inserted, ${totalUpdated} updated, ${totalSkipped} skipped, ${totalErrors} errors`,
+        duration,
+      },
+    };
   }
 
   async generateExpression(prompt: string, options: any = {}): Promise<any> {

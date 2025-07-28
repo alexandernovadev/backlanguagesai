@@ -130,4 +130,121 @@ export class UserService {
     
     return user;
   }
+
+  // Export all users for backup/transfer
+  async getAllUsersForExport(): Promise<IUser[]> {
+    return await User.find({})
+      .select("-password") // Never export passwords
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+  }
+
+  // Import users from JSON data
+  async importUsers(users: any[], config: {
+    duplicateStrategy: 'skip' | 'overwrite' | 'error' | 'merge';
+    batchSize?: number;
+  }): Promise<{
+    totalItems: number;
+    totalInserted: number;
+    totalUpdated: number;
+    totalSkipped: number;
+    totalErrors: number;
+    batches: any[];
+    summary: {
+      success: boolean;
+      message: string;
+      duration: number;
+    };
+  }> {
+    const startTime = Date.now();
+    const batches: any[] = [];
+    let totalInserted = 0;
+    let totalUpdated = 0;
+    let totalSkipped = 0;
+    let totalErrors = 0;
+
+    const batchSize = config.batchSize || 10;
+
+    for (let i = 0; i < users.length; i += batchSize) {
+      const batchUsers = users.slice(i, i + batchSize);
+      const batchIndex = Math.floor(i / batchSize);
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
+      let batchErrors = 0;
+
+      for (const userData of batchUsers) {
+        try {
+          // Check for duplicates by email
+          const existingUser = await User.findOne({
+            email: userData.email
+          });
+
+          if (existingUser) {
+            switch (config.duplicateStrategy) {
+              case 'error':
+                batchErrors++;
+                totalErrors++;
+                break;
+              case 'skip':
+                batchSkipped++;
+                totalSkipped++;
+                break;
+              case 'overwrite':
+              case 'merge':
+                // Remove _id and password to avoid conflicts
+                const { _id, password, ...updateData } = userData;
+                // Hash password if provided
+                if (userData.password) {
+                  updateData.password = await bcrypt.hash(userData.password, 10);
+                }
+                await User.findByIdAndUpdate(existingUser._id, updateData, { new: true });
+                batchUpdated++;
+                totalUpdated++;
+                break;
+            }
+          } else {
+            // Create new user
+            const { _id, ...userDataWithoutId } = userData;
+            // Hash password if provided
+            if (userData.password) {
+              userDataWithoutId.password = await bcrypt.hash(userData.password, 10);
+            }
+            const newUser = new User(userDataWithoutId);
+            await newUser.save();
+            batchInserted++;
+            totalInserted++;
+          }
+        } catch (error) {
+          batchErrors++;
+          totalErrors++;
+        }
+      }
+
+      batches.push({
+        batchIndex,
+        processed: batchUsers.length,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
+        errors: batchErrors,
+      });
+    }
+
+    const duration = Date.now() - startTime;
+    return {
+      totalItems: users.length,
+      totalInserted,
+      totalUpdated,
+      totalSkipped,
+      totalErrors,
+      batches,
+      summary: {
+        success: totalErrors === 0,
+        message: `Import completed. ${totalInserted} inserted, ${totalUpdated} updated, ${totalSkipped} skipped, ${totalErrors} errors`,
+        duration,
+      },
+    };
+  }
 } 

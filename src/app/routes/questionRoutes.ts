@@ -11,13 +11,20 @@ import {
   getRandomQuestions,
   getQuestionStats,
   getQuestionsForLevel,
+  exportQuestionsToJSON,
+  importQuestionsFromFile,
 } from "../controllers/questionController";
+import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
 
 // Basic CRUD routes
 router.get("/", getQuestions);
 router.get("/stats", getQuestionStats);
+
+// Export/Import routes
+router.get("/export-file", exportQuestionsToJSON);
+router.post("/import-file", ...createJsonUploadMiddleware(), importQuestionsFromFile);
 
 // Specialized routes (deben ir antes que las rutas con parámetros dinámicos)
 router.get("/level/:level", getQuestionsForLevel);

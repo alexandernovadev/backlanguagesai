@@ -373,4 +373,115 @@ export class ExamService {
         : null
     };
   }
+
+  // Export all exams for backup/transfer
+  async getAllExamsForExport(): Promise<IExam[]> {
+    return await Exam.find({})
+      .populate('questions.question')
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+  }
+
+  // Import exams from JSON data
+  async importExams(exams: any[], config: {
+    duplicateStrategy: 'skip' | 'overwrite' | 'error' | 'merge';
+    batchSize?: number;
+  }): Promise<{
+    totalItems: number;
+    totalInserted: number;
+    totalUpdated: number;
+    totalSkipped: number;
+    totalErrors: number;
+    batches: any[];
+    summary: {
+      success: boolean;
+      message: string;
+      duration: number;
+    };
+  }> {
+    const startTime = Date.now();
+    const batches: any[] = [];
+    let totalInserted = 0;
+    let totalUpdated = 0;
+    let totalSkipped = 0;
+    let totalErrors = 0;
+
+    const batchSize = config.batchSize || 10;
+
+    for (let i = 0; i < exams.length; i += batchSize) {
+      const batchExams = exams.slice(i, i + batchSize);
+      const batchIndex = Math.floor(i / batchSize);
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
+      let batchErrors = 0;
+
+      for (const examData of batchExams) {
+        try {
+          // Check for duplicates by title or slug
+          const existingExam = await Exam.findOne({
+            $or: [
+              { title: examData.title },
+              { slug: examData.slug }
+            ]
+          });
+
+          if (existingExam) {
+            switch (config.duplicateStrategy) {
+              case 'error':
+                batchErrors++;
+                totalErrors++;
+                break;
+              case 'skip':
+                batchSkipped++;
+                totalSkipped++;
+                break;
+              case 'overwrite':
+              case 'merge':
+                // Remove _id to avoid conflicts
+                const { _id, ...updateData } = examData;
+                await Exam.findByIdAndUpdate(existingExam._id, updateData, { new: true });
+                batchUpdated++;
+                totalUpdated++;
+                break;
+            }
+          } else {
+            // Create new exam
+            const newExam = new Exam(examData);
+            await newExam.save();
+            batchInserted++;
+            totalInserted++;
+          }
+        } catch (error) {
+          batchErrors++;
+          totalErrors++;
+        }
+      }
+
+      batches.push({
+        batchIndex,
+        processed: batchExams.length,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
+        errors: batchErrors,
+      });
+    }
+
+    const duration = Date.now() - startTime;
+    return {
+      totalItems: exams.length,
+      totalInserted,
+      totalUpdated,
+      totalSkipped,
+      totalErrors,
+      batches,
+      summary: {
+        success: totalErrors === 0,
+        message: `Import completed. ${totalInserted} inserted, ${totalUpdated} updated, ${totalSkipped} skipped, ${totalErrors} errors`,
+        duration,
+      },
+    };
+  }
 } 

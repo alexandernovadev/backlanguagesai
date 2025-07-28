@@ -298,4 +298,143 @@ export const getQuestionsForLevel = async (
       error
     );
   }
+};
+
+// Export all questions to JSON
+export const exportQuestionsToJSON = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const questions = await questionService.getAllQuestionsForExport();
+
+    // Set headers for file download
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const filename = `questions-export-${timestamp}.json`;
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+    // Send the JSON data
+    return res.json({
+      success: true,
+      message: `Exported ${questions.length} questions successfully`,
+      data: {
+        totalQuestions: questions.length,
+        exportDate: new Date().toISOString(),
+        questions: questions,
+      },
+    });
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while exporting questions to JSON",
+      500,
+      error
+    );
+  }
+};
+
+// Import questions from JSON file
+export const importQuestionsFromFile = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.file) {
+      return errorResponse(res, "No file uploaded", 400);
+    }
+
+    // Parse the JSON file content
+    let fileData: any;
+    try {
+      const fileContent = req.file.buffer.toString("utf-8");
+      fileData = JSON.parse(fileContent);
+    } catch (parseError) {
+      return errorResponse(res, "Invalid JSON file format", 400);
+    }
+
+    // Validate file structure
+    if (
+      !fileData.data ||
+      !fileData.data.questions ||
+      !Array.isArray(fileData.data.questions)
+    ) {
+      return errorResponse(
+        res,
+        "Invalid file structure. Expected 'data.questions' array",
+        400
+      );
+    }
+
+    const questions = fileData.data.questions;
+    const {
+      duplicateStrategy = "skip",
+      validateOnly = false,
+      batchSize = 10,
+    } = req.query;
+
+    // Validate duplicateStrategy
+    const validStrategies = ["skip", "overwrite", "error", "merge"];
+    if (!validStrategies.includes(duplicateStrategy as string)) {
+      return errorResponse(
+        res,
+        `Invalid duplicateStrategy. Must be one of: ${validStrategies.join(
+          ", "
+        )}`,
+        400
+      );
+    }
+
+    // Validate batchSize
+    const batchSizeNum = parseInt(batchSize as string);
+    if (isNaN(batchSizeNum) || batchSizeNum < 1 || batchSizeNum > 100) {
+      return errorResponse(
+        res,
+        "Invalid batchSize. Must be a number between 1 and 100",
+        400
+      );
+    }
+
+    // Convert validateOnly to boolean
+    const validateOnlyBool = validateOnly === "true";
+
+    // If validateOnly is true, just validate without importing
+    if (validateOnlyBool) {
+      const validationResults = questions.map((question: any, index: number) => ({
+        index,
+        data: question,
+        status: question.text && question.type && question.level ? 'valid' : 'invalid',
+        errors: !question.text ? ['Text is required'] : 
+                !question.type ? ['Type is required'] : 
+                !question.level ? ['Level is required'] : []
+      }));
+
+      const validCount = validationResults.filter((r: any) => r.status === 'valid').length;
+      const invalidCount = validationResults.filter((r: any) => r.status === 'invalid').length;
+
+      return successResponse(res, "Validation completed", {
+        totalQuestions: questions.length,
+        valid: validCount,
+        invalid: invalidCount,
+        validationResults,
+        message: `Validation completed. ${validCount} valid, ${invalidCount} invalid`
+      });
+    }
+
+    // Import questions
+    const importResult = await questionService.importQuestions(questions, {
+      duplicateStrategy: duplicateStrategy as 'skip' | 'overwrite' | 'error' | 'merge',
+      batchSize: batchSizeNum
+    });
+
+    return successResponse(res, "Import completed successfully", importResult);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while importing questions",
+      500,
+      error
+    );
+  }
 }; 

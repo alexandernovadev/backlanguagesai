@@ -228,6 +228,116 @@ export class QuestionService {
       withMedia
     };
   }
+
+  // Export all questions for backup/transfer
+  async getAllQuestionsForExport(): Promise<IQuestion[]> {
+    return await Question.find({})
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+  }
+
+  // Import questions from JSON data
+  async importQuestions(questions: any[], config: {
+    duplicateStrategy: 'skip' | 'overwrite' | 'error' | 'merge';
+    batchSize?: number;
+  }): Promise<{
+    totalItems: number;
+    totalInserted: number;
+    totalUpdated: number;
+    totalSkipped: number;
+    totalErrors: number;
+    batches: any[];
+    summary: {
+      success: boolean;
+      message: string;
+      duration: number;
+    };
+  }> {
+    const startTime = Date.now();
+    const batches: any[] = [];
+    let totalInserted = 0;
+    let totalUpdated = 0;
+    let totalSkipped = 0;
+    let totalErrors = 0;
+
+    const batchSize = config.batchSize || 10;
+
+    for (let i = 0; i < questions.length; i += batchSize) {
+      const batchQuestions = questions.slice(i, i + batchSize);
+      const batchIndex = Math.floor(i / batchSize);
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
+      let batchErrors = 0;
+
+      for (const questionData of batchQuestions) {
+        try {
+          // Check for duplicates by text and type
+          const existingQuestion = await Question.findOne({
+            $and: [
+              { text: questionData.text },
+              { type: questionData.type }
+            ]
+          });
+
+          if (existingQuestion) {
+            switch (config.duplicateStrategy) {
+              case 'error':
+                batchErrors++;
+                totalErrors++;
+                break;
+              case 'skip':
+                batchSkipped++;
+                totalSkipped++;
+                break;
+              case 'overwrite':
+              case 'merge':
+                // Remove _id to avoid conflicts
+                const { _id, ...updateData } = questionData;
+                await Question.findByIdAndUpdate(existingQuestion._id, updateData, { new: true });
+                batchUpdated++;
+                totalUpdated++;
+                break;
+            }
+          } else {
+            // Create new question
+            const newQuestion = new Question(questionData);
+            await newQuestion.save();
+            batchInserted++;
+            totalInserted++;
+          }
+        } catch (error) {
+          batchErrors++;
+          totalErrors++;
+        }
+      }
+
+      batches.push({
+        batchIndex,
+        processed: batchQuestions.length,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
+        errors: batchErrors,
+      });
+    }
+
+    const duration = Date.now() - startTime;
+    return {
+      totalItems: questions.length,
+      totalInserted,
+      totalUpdated,
+      totalSkipped,
+      totalErrors,
+      batches,
+      summary: {
+        success: totalErrors === 0,
+        message: `Import completed. ${totalInserted} inserted, ${totalUpdated} updated, ${totalSkipped} skipped, ${totalErrors} errors`,
+        duration,
+      },
+    };
+  }
 }
 
 export default new QuestionService(); 

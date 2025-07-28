@@ -17,7 +17,7 @@ const router = Router();
 // Routes
 router.post("/generateAudio/:idlecture", updateUrlAudioLectureByIdByGPT);
 
-router.get("/export-json", exportLecturesToJSON);
+router.get("/export-file", exportLecturesToJSON);
 router.get("/", getAllLectures);
 router.get("/:id", getLectureById);
 

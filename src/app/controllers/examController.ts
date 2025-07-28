@@ -563,3 +563,142 @@ export const getExamAttemptStats = async (
     );
   }
 };
+
+// Export all exams to JSON
+export const exportExamsToJSON = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const exams = await examService.getAllExamsForExport();
+
+    // Set headers for file download
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const filename = `exams-export-${timestamp}.json`;
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+    // Send the JSON data
+    return res.json({
+      success: true,
+      message: `Exported ${exams.length} exams successfully`,
+      data: {
+        totalExams: exams.length,
+        exportDate: new Date().toISOString(),
+        exams: exams,
+      },
+    });
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while exporting exams to JSON",
+      500,
+      error
+    );
+  }
+};
+
+// Import exams from JSON file
+export const importExamsFromFile = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.file) {
+      return errorResponse(res, "No file uploaded", 400);
+    }
+
+    // Parse the JSON file content
+    let fileData: any;
+    try {
+      const fileContent = req.file.buffer.toString("utf-8");
+      fileData = JSON.parse(fileContent);
+    } catch (parseError) {
+      return errorResponse(res, "Invalid JSON file format", 400);
+    }
+
+    // Validate file structure
+    if (
+      !fileData.data ||
+      !fileData.data.exams ||
+      !Array.isArray(fileData.data.exams)
+    ) {
+      return errorResponse(
+        res,
+        "Invalid file structure. Expected 'data.exams' array",
+        400
+      );
+    }
+
+    const exams = fileData.data.exams;
+    const {
+      duplicateStrategy = "skip",
+      validateOnly = false,
+      batchSize = 10,
+    } = req.query;
+
+    // Validate duplicateStrategy
+    const validStrategies = ["skip", "overwrite", "error", "merge"];
+    if (!validStrategies.includes(duplicateStrategy as string)) {
+      return errorResponse(
+        res,
+        `Invalid duplicateStrategy. Must be one of: ${validStrategies.join(
+          ", "
+        )}`,
+        400
+      );
+    }
+
+    // Validate batchSize
+    const batchSizeNum = parseInt(batchSize as string);
+    if (isNaN(batchSizeNum) || batchSizeNum < 1 || batchSizeNum > 100) {
+      return errorResponse(
+        res,
+        "Invalid batchSize. Must be a number between 1 and 100",
+        400
+      );
+    }
+
+    // Convert validateOnly to boolean
+    const validateOnlyBool = validateOnly === "true";
+
+    // If validateOnly is true, just validate without importing
+    if (validateOnlyBool) {
+      const validationResults = exams.map((exam: any, index: number) => ({
+        index,
+        data: exam,
+        status: exam.title && exam.level && exam.language ? 'valid' : 'invalid',
+        errors: !exam.title ? ['Title is required'] : 
+                !exam.level ? ['Level is required'] : 
+                !exam.language ? ['Language is required'] : []
+      }));
+
+      const validCount = validationResults.filter((r: any) => r.status === 'valid').length;
+      const invalidCount = validationResults.filter((r: any) => r.status === 'invalid').length;
+
+      return successResponse(res, "Validation completed", {
+        totalExams: exams.length,
+        valid: validCount,
+        invalid: invalidCount,
+        validationResults,
+        message: `Validation completed. ${validCount} valid, ${invalidCount} invalid`
+      });
+    }
+
+    // Import exams
+    const importResult = await examService.importExams(exams, {
+      duplicateStrategy: duplicateStrategy as 'skip' | 'overwrite' | 'error' | 'merge',
+      batchSize: batchSizeNum
+    });
+
+    return successResponse(res, "Import completed successfully", importResult);
+  } catch (error) {
+    return errorResponse(
+      res,
+      "An error occurred while importing exams",
+      500,
+      error
+    );
+  }
+};

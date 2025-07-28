@@ -17,7 +17,10 @@ import {
   createExamWithQuestions,
   getExamsWithAttempts,
   getExamAttemptStats,
+  exportExamsToJSON,
+  importExamsFromFile,
 } from "../controllers/examController";
+import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
 
@@ -30,6 +33,10 @@ router.post("/with-questions", createExamWithQuestions);
 // Specialized routes (must come before dynamic routes)
 router.get("/stats", getExamStats);
 router.post("/generate", generateExamFromQuestions);
+
+// Export/Import routes
+router.get("/export-file", exportExamsToJSON);
+router.post("/import-file", ...createJsonUploadMiddleware(), importExamsFromFile);
 
 // Level and language routes
 router.get("/level/:level", getExamsForLevel);

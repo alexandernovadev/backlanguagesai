@@ -42,7 +42,7 @@ router.put("/:id", updateWord);
 router.delete("/:id", deleteWord);
 router.put("/:id/level", updateWordLevel);
 router.put("/:id/increment-seen", updateIncrementWordSeens);
-router.get("/export/json", exportWordsToJSON);
+router.get("/export-file", exportWordsToJSON);
 router.post("/import-file", ...createJsonUploadMiddleware(), importWordsFromFile);
 
 // Chat routes

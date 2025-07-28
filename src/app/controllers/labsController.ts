@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import Word from "../db/models/Word";
 import Lecture from "../db/models/Lecture";
+import Question from "../db/models/Question";
+import Exam from "../db/models/Exam";
+import ExamAttempt from "../db/models/ExamAttempt";
+import Expression from "../db/models/Expression";
+import User from "../db/models/User";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { seedAdminUser } from "../services/seed/user";
 import { seedQuestions } from "../services/seed/seedQuestions";
@@ -171,15 +176,42 @@ export const clearAllData = async (
   res: Response
 ): Promise<Response> => {
   try {
+    // Get counts before deletion
+    const wordsCountBefore = await Word.countDocuments();
+    const lecturesCountBefore = await Lecture.countDocuments();
+    const questionsCountBefore = await Question.countDocuments();
+    const examsCountBefore = await Exam.countDocuments();
+    const examAttemptsCountBefore = await ExamAttempt.countDocuments();
+    const expressionsCountBefore = await Expression.countDocuments();
+    const usersCountBefore = await User.countDocuments();
+    
+    // Delete all data from all collections
     const wordsResult = await Word.deleteMany({});
     const lecturesResult = await Lecture.deleteMany({});
+    const questionsResult = await Question.deleteMany({});
+    const examsResult = await Exam.deleteMany({});
+    const examAttemptsResult = await ExamAttempt.deleteMany({});
+    const expressionsResult = await Expression.deleteMany({});
+    const usersResult = await User.deleteMany({});
     
     return successResponse(
       res, 
       "All data cleared successfully", 
       { 
         deletedWords: wordsResult.deletedCount,
-        deletedLectures: lecturesResult.deletedCount 
+        deletedLectures: lecturesResult.deletedCount,
+        deletedQuestions: questionsResult.deletedCount,
+        deletedExams: examsResult.deletedCount,
+        deletedExamAttempts: examAttemptsResult.deletedCount,
+        deletedExpressions: expressionsResult.deletedCount,
+        deletedUsers: usersResult.deletedCount,
+        wordsBefore: wordsCountBefore,
+        lecturesBefore: lecturesCountBefore,
+        questionsBefore: questionsCountBefore,
+        examsBefore: examsCountBefore,
+        examAttemptsBefore: examAttemptsCountBefore,
+        expressionsBefore: expressionsCountBefore,
+        usersBefore: usersCountBefore
       }
     );
   } catch (error) {

@@ -1,5 +1,6 @@
 import Expression, { IExpression, ChatMessage } from "../../db/models/Expression";
 import { generateExpressionJson } from "../ai/generateExpressionJson";
+import { generateExpressionChatResponse } from "../ai/generateExpressionChatResponse";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -90,6 +91,12 @@ export class ExpressionService {
   }
 
   async addChatMessage(expressionId: string, message: string): Promise<IExpression | null> {
+    // Este método ahora solo agrega el mensaje del usuario
+    // Las respuestas se manejan via streaming en el controlador
+    return await this.addUserMessage(expressionId, message);
+  }
+
+  async addUserMessage(expressionId: string, message: string): Promise<IExpression | null> {
     const expression = await Expression.findById(expressionId);
     if (!expression) return null;
 
@@ -100,16 +107,24 @@ export class ExpressionService {
       timestamp: new Date()
     };
 
-    // TODO: Here you would call GPT API to get response
+    expression.chat = expression.chat || [];
+    expression.chat.push(userMessage);
+    return await expression.save();
+  }
+
+  async addAssistantMessage(expressionId: string, message: string): Promise<IExpression | null> {
+    const expression = await Expression.findById(expressionId);
+    if (!expression) return null;
+
     const assistantMessage: ChatMessage = {
       id: Math.random().toString(36).substr(2, 9),
       role: "assistant",
-      content: `Respuesta a: "${message}" - Esta es una respuesta simulada. En producción, aquí iría la respuesta real de GPT.`,
+      content: message,
       timestamp: new Date()
     };
 
     expression.chat = expression.chat || [];
-    expression.chat.push(userMessage, assistantMessage);
+    expression.chat.push(assistantMessage);
     return await expression.save();
   }
 

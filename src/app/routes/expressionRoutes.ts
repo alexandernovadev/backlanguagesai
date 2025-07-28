@@ -3,7 +3,7 @@ import {
   createExpression, getExpressionById, getExpressions, updateExpression, deleteExpression,
   getExpressionByExpression, getExpressionsByType, getExpressionsOnly,
   exportExpressionsToJSON, importExpressionsFromFile,
-  addChatMessage, getChatHistory, clearChatHistory, generateExpression,
+  addChatMessage, getChatHistory, clearChatHistory, streamChatResponse, generateExpression,
 } from "../controllers/expressionController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
@@ -11,6 +11,7 @@ const router = Router();
 
 // Chat routes
 router.post("/:expressionId/chat", addChatMessage);
+router.post("/:expressionId/chat/stream", streamChatResponse);
 router.get("/:expressionId/chat", getChatHistory);
 router.delete("/:expressionId/chat", clearChatHistory);
 

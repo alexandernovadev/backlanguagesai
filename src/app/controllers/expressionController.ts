@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ExpressionService } from "../services/expressions/expressionService";
+import { generateExpressionChatStream } from "../services/ai/generateExpressionChatStream";
 import logger from "../utils/logger";
 
 const expressionService = new ExpressionService();
@@ -212,6 +213,58 @@ export const clearChatHistory = async (req: Request, res: Response) => {
   } catch (error: any) {
     logger.error("Error clearing chat history:", error);
     res.status(500).json({ error: error.message });
+  }
+};
+
+// Streaming chat response
+export const streamChatResponse = async (req: Request, res: Response) => {
+  try {
+    const { expressionId } = req.params;
+    const { message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+
+    const expression = await expressionService.getExpressionById(expressionId);
+    if (!expression) {
+      return res.status(404).json({ message: "Expression not found" });
+    }
+
+    // Add user message first
+    await expressionService.addUserMessage(expressionId, message);
+
+    // Set up streaming
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    const stream = await generateExpressionChatStream(
+      expression.expression,
+      expression.definition,
+      message,
+      expression.chat || []
+    );
+
+    let fullResponse = '';
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content || '';
+      if (content) {
+        fullResponse += content;
+        res.write(content);
+      }
+    }
+
+    // Save the complete AI response
+    await expressionService.addAssistantMessage(expressionId, fullResponse);
+    
+    res.end();
+  } catch (error: any) {
+    logger.error("Error streaming chat response:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 

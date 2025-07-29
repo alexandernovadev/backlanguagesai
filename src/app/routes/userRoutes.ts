@@ -7,14 +7,15 @@ const router = Router();
 
 router.use(authMiddleware); // Proteger todas las rutas
 
+// Export/Import routes (MUST BE BEFORE DYNAMIC ROUTES)
+router.get("/export-file", exportUsersToJSON);
+router.post("/import-file", ...createJsonUploadMiddleware(), importUsersFromFile);
+
+// CRUD routes (MUST BE LAST)
 router.get("/", getUsers);
 router.get("/:id", getUserById);
 router.post("/", createUser);
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
-
-// Export/Import routes
-router.get("/export-file", exportUsersToJSON);
-router.post("/import-file", ...createJsonUploadMiddleware(), importUsersFromFile);
 
 export default router; 

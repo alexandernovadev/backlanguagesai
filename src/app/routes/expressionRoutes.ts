@@ -9,11 +9,9 @@ import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
 
-// Chat routes
-router.post("/:expressionId/chat", addChatMessage);
-router.post("/:expressionId/chat/stream", streamChatResponse);
-router.get("/:expressionId/chat", getChatHistory);
-router.delete("/:expressionId/chat", clearChatHistory);
+// Import/Export routes (MUST BE BEFORE DYNAMIC ROUTES)
+router.get("/export-file", exportExpressionsToJSON);
+router.post("/import-file", ...createJsonUploadMiddleware(), importExpressionsFromFile);
 
 // AI Generation route
 router.post("/generate", generateExpression);
@@ -23,15 +21,17 @@ router.get("/by-type/:type", getExpressionsByType);
 router.get("/expressions-only", getExpressionsOnly);
 router.get("/:expression/expression", getExpressionByExpression);
 
-// CRUD routes
+// Chat routes
+router.post("/:expressionId/chat", addChatMessage);
+router.post("/:expressionId/chat/stream", streamChatResponse);
+router.get("/:expressionId/chat", getChatHistory);
+router.delete("/:expressionId/chat", clearChatHistory);
+
+// CRUD routes (MUST BE LAST)
 router.get("/:id", getExpressionById);
 router.get("/", getExpressions);
 router.post("/", createExpression);
 router.put("/:id", updateExpression);
 router.delete("/:id", deleteExpression);
-
-// Import/Export routes
-router.get("/export-file", exportExpressionsToJSON);
-router.post("/import-file", ...createJsonUploadMiddleware(), importExpressionsFromFile);
 
 export default router; 

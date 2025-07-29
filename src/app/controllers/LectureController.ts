@@ -137,9 +137,13 @@ export const getAllLectures = async (
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 1000;
-    const lectures = await lectureService.getAllLectures(page, limit);
+    const search = (req.query.search as string)?.trim() || "";
 
-    return successResponse(res, "Lecture listed successfully", lectures);
+    const lectures = search
+        ? await lectureService.searchLectures(search, page, limit)
+        : await lectureService.getAllLectures(page, limit);
+
+    return successResponse(res, "Lectures retrieved successfully", lectures);
   } catch (error) {
     return errorResponse(res, "Error fetching lectures", 500, error);
   }

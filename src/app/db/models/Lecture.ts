@@ -29,6 +29,13 @@ const lectureSchema = new Schema<ILecture>(
   }
 );
 
+// Add text index for full-text search on key fields
+lectureSchema.index({
+  content: "text",
+  level: "text",
+  language: "text",
+  typeWrite: "text",
+});
 // Crear el modelo
 const Lecture = mongoose.model<ILecture>("Lecture", lectureSchema);
 

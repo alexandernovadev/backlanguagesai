@@ -101,6 +101,36 @@ export class LectureService {
     return await Lecture.countDocuments();
   }
 
+  // Text search operation
+  async searchLectures(
+    query: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<PaginatedResult<ILecture>> {
+    const skip = (page - 1) * limit;
+
+    // Use MongoDB text index for efficient full-text search
+    const filter = { $text: { $search: query } };
+
+    // Include textScore to sort by relevance
+    const projection = { score: { $meta: "textScore" } } as any;
+
+    const [total, data] = await Promise.all([
+      Lecture.countDocuments(filter),
+      Lecture.find(filter, projection)
+        .sort({ score: { $meta: "textScore" } })
+        .skip(skip)
+        .limit(limit),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    };
+  }
+
   async countLecturesByLevel(level: string): Promise<number> {
     return await Lecture.countDocuments({ level });
   }

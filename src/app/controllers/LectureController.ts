@@ -135,13 +135,38 @@ export const getAllLectures = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 1000;
-    const search = (req.query.search as string)?.trim() || "";
+    const {
+      page: qPage,
+      limit: qLimit,
+      search = "",
+      level,
+      language,
+      typeWrite,
+      timeMin,
+      timeMax,
+      createdAfter,
+      createdBefore,
+      sortBy,
+      sortOrder,
+    } = req.query as any;
 
-    const lectures = search
-        ? await lectureService.searchLectures(search, page, limit)
-        : await lectureService.getAllLectures(page, limit);
+    const page = parseInt(qPage) || 1;
+    const limit = parseInt(qLimit) || 10;
+
+    const lectures = await lectureService.getLecturesAdvanced({
+      page,
+      limit,
+      search,
+      level,
+      language,
+      typeWrite,
+      timeMin: timeMin ? Number(timeMin) : undefined,
+      timeMax: timeMax ? Number(timeMax) : undefined,
+      createdAfter,
+      createdBefore,
+      sortBy,
+      sortOrder,
+    });
 
     return successResponse(res, "Lectures retrieved successfully", lectures);
   } catch (error) {

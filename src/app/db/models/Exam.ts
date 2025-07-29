@@ -60,7 +60,7 @@ const ExamSchema = new Schema<IExam>(
     },
     topic: {
       type: String,
-      maxlength: 200,
+      maxlength: 1000,
     },
     questions: [
       {

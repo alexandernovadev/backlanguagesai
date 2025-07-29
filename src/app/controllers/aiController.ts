@@ -369,11 +369,11 @@ export const generateExamStream = async (req: Request, res: Response) => {
 // Nueva función para procesar la respuesta de la IA y extraer título y slug
 export const processExamGenerationResponse = (aiResponse: any) => {
   try {
-    // La IA ahora devuelve un objeto con examTitle, examSlug y questions
-    const { examTitle, examSlug, questions } = aiResponse;
+    // La IA ahora devuelve un objeto con title, examSlug y questions
+    const { title, examSlug, questions } = aiResponse;
     
     return {
-      examTitle: examTitle || `Examen: ${aiResponse.topic || 'General'}`,
+      examTitle: title || `Examen: ${aiResponse.topic || 'General'}`,
       examSlug: examSlug || 'exam-general',
       questions: questions || []
     };

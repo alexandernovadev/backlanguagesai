@@ -45,7 +45,7 @@ const QuestionSchema = new Schema<IQuestion>(
     },
     topic: {
       type: String,
-      maxlength: 200,
+      maxlength: 1000,
     },
     difficulty: {
       type: Number,

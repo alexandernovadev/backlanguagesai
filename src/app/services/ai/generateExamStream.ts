@@ -1,7 +1,4 @@
 import OpenAI from "openai";
-import { IQuestion } from "../../db/models/Question";
-import { IExam } from "../../db/models/Exam";
-
 interface ExamOptions {
   level?: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
   topic?: string;
@@ -11,8 +8,6 @@ interface ExamOptions {
   difficulty?: number;
   userLang?: string;
 }
-
-
 
 export const generateExamStreamService = async ({
   level = "B1",
@@ -33,46 +28,46 @@ export const generateExamStreamService = async ({
 
   const levelToneMap = {
     A1: `
-🔹 Use very basic vocabulary (house, school, food).
-🔹 Grammar: present simple, basic prepositions.
-🔹 Question length: max 8–10 words.
-🔹 One clear meaning. Avoid figurative language.
-🔹 Options must be literal and easy to distinguish.
-    `,
-    A2: `
-🔸 Slightly richer vocabulary (travel, jobs, places).
-🔸 Grammar: past simple, comparatives, frequency adverbs.
-🔸 Question length: 10–15 words.
-🔸 Use simple connectors: because, but, so.
-🔸 Begin to introduce context-based options.
-    `,
-    B1: `
-🟡 Vocabulary includes opinions, preferences, routines.
-🟡 Grammar: present perfect, modals, first conditional.
-🟡 Question length: 15–25 words.
-🟡 Include short realistic situations.
-🟡 Introduce distractors among options.
-    `,
-    B2: `
-🟠 Topics: abstract ideas (environment, media, ethics).
-🟠 Grammar: passive voice, relative clauses, second conditional.
-🟠 Question length: 25–40 words.
-🟠 Include context: dialogue, email, mini-story.
-🟠 Options can require inference.
-    `,
-    C1: `
-🔴 Topics: academic, professional, sociocultural.
-🔴 Grammar: inversion, mixed conditionals, indirect speech.
-🔴 Question length: 35–60 words.
-🔴 Include scenarios, quotes or layered meaning.
-🔴 Test critical reading and logic.
-    `,
-    C2: `
-🟣 Advanced formal vocabulary and idioms.
-🟣 Question length: up to 80 words.
-🟣 Include subtle irony, tone or bias detection.
-🟣 Grammar: full range, including ellipsis and unusual structures.
-🟣 Test nuanced interpretation or comparison.
+    🔹 Use very basic vocabulary (house, school, food).
+    🔹 Grammar: present simple, basic prepositions.
+    🔹 Question length: max 8–10 words.
+    🔹 One clear meaning. Avoid figurative language.
+    🔹 Options must be literal and easy to distinguish.
+        `,
+        A2: `
+    🔸 Slightly richer vocabulary (travel, jobs, places).
+    🔸 Grammar: past simple, comparatives, frequency adverbs.
+    🔸 Question length: 10–15 words.
+    🔸 Use simple connectors: because, but, so.
+    🔸 Begin to introduce context-based options.
+        `,
+        B1: `
+    🟡 Vocabulary includes opinions, preferences, routines.
+    🟡 Grammar: present perfect, modals, first conditional.
+    🟡 Question length: 15–25 words.
+    🟡 Include short realistic situations.
+    🟡 Introduce distractors among options.
+        `,
+        B2: `
+    🟠 Topics: abstract ideas (environment, media, ethics).
+    🟠 Grammar: passive voice, relative clauses, second conditional.
+    🟠 Question length: 25–40 words.
+    🟠 Include context: dialogue, email, mini-story.
+    🟠 Options can require inference.
+        `,
+        C1: `
+    🔴 Topics: academic, professional, sociocultural.
+    🔴 Grammar: inversion, mixed conditionals, indirect speech.
+    🔴 Question length: 35–60 words.
+    🔴 Include scenarios, quotes or layered meaning.
+    🔴 Test critical reading and logic.
+        `,
+        C2: `
+    🟣 Advanced formal vocabulary and idioms.
+    🟣 Question length: up to 80 words.
+    🟣 Include subtle irony, tone or bias detection.
+    🟣 Grammar: full range, including ellipsis and unusual structures.
+    🟣 Test nuanced interpretation or comparison.
     `,
   };
 
@@ -143,12 +138,12 @@ Each question MUST include an "explanation" field with rich HTML grammar explana
 
 📝 EXAM TITLE AND SLUG GENERATION:
 Based on the topic "${topic}", generate:
-- A professional, descriptive title (max 100 characters)
+- A short, descriptive title (max 60 characters) - this will be the exam title
 - A URL-friendly slug (lowercase, hyphens, no special chars, max 50 characters)
 
 🛠️ Output: JSON object with exam metadata and questions array containing EXACTLY ${numberOfQuestions} items
 {
-  "examTitle": "Professional title based on the topic",
+  "title": "Short descriptive title (max 60 chars)",
   "examSlug": "url-friendly-slug-based-on-topic",
   "questions": [
     {
@@ -216,7 +211,7 @@ Based on the topic "${topic}", generate:
         IMPORTANT: Each question MUST include a rich HTML "explanation" field that explains the grammar rule being tested. Make it visual with colors, clear structure, and helpful examples.
         
         📝 EXAM METADATA:
-        - Generate a professional, descriptive title based on the topic "${topic}" (max 100 characters)
+        - Generate a short, descriptive title based on the topic "${topic}" (max 60 characters)
         - Generate a URL-friendly slug (lowercase, hyphens, no special chars, max 50 characters)
         - The title should be educational and descriptive, not just "Exam: topic"
         

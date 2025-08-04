@@ -14,7 +14,9 @@ export const imageWordPrompt = (word: string) => {
   • Simple backgrounds that don't distract from the main subject
   • Clear, readable visual elements
   • Professional appearance suitable for educational content
-  • Avoid text, symbols, or labels in the image
+  • ABSOLUTELY NO TEXT, WORDS, LETTERS, NUMBERS, OR SYMBOLS IN THE IMAGE
+  • NO labels, captions, or any written content whatsoever
+  • Pure visual representation only - no text elements of any kind
 
   CONTENT FOCUS:
   • Nouns: Show the object, person, or concept clearly
@@ -36,6 +38,8 @@ export const imageWordPrompt = (word: string) => {
   • Make it suitable for all ages and backgrounds
 
   Create a dictionary-style illustration that clearly represents "${word}".
+
+  CRITICAL: The image must contain NO text, words, letters, numbers, or any written content whatsoever. Only visual elements are allowed.
   `.trim();
 };
 

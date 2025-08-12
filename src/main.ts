@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import { connectDB } from "./app/db/mongoConnection";
+import { initializeBackupScheduler } from "./app/services/backup/backupSchedulerService";
 
 // Servir archivos estáticos main
 import path from "path";
@@ -22,6 +23,7 @@ import StatisticsRoutes from "./app/routes/statisticsRoutes";
 import AuthRoutes from "./app/routes/authRoutes";
 import CleanerRoutes from "./app/routes/cleanerRoutes";
 import UserRoutes from "./app/routes/userRoutes";
+import BackupRoutes from "./app/routes/backupRoutes";
 
 // Swagger solo en desarrollo
 let setupSwagger: any = () => {};
@@ -84,6 +86,9 @@ app.use("/api/cleaner", CleanerRoutes);
 // Users routes
 app.use("/api/users", UserRoutes);
 
+// Backup routes
+app.use("/api/backup", BackupRoutes);
+
 // Just for testing purposes
 app.use("/api/fixes", Arreglosquick);
 
@@ -113,6 +118,14 @@ connectDB()
       logger.info("Server running on port: ", {
         message: `${PORT} - "${NODE_ENV}`,
       });
+      
+      // Initialize backup cron scheduler
+      try {
+        initializeBackupScheduler();
+        logger.info("Backup cron scheduler initialized");
+      } catch (error) {
+        logger.error("Failed to initialize backup cron scheduler", { error });
+      }
     });
   })
   .catch((error) => {

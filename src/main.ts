@@ -85,7 +85,7 @@ app.use("/api/cleaner", CleanerRoutes);
 app.use("/api/users", UserRoutes);
 
 // Just for testing purposes
-app.use("/api/fixes", authMiddleware, Arreglosquick);
+app.use("/api/fixes", Arreglosquick);
 
 app.use("/", (req, res) => {
   successResponse(res, "Server is running", {

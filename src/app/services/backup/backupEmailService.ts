@@ -1,10 +1,12 @@
 import { WordService } from '../words/wordService';
 import { LectureService } from '../lectures/LectureService';
+import { ExpressionService } from '../expressions/expressionService';
 import { sendEmailWithAttachments } from '../email/gmailService';
 import logger from '../../utils/logger';
 
 const wordService = new WordService();
 const lectureService = new LectureService();
+const expressionService = new ExpressionService();
 
 // Backup email configuration
 const BACKUP_EMAIL_RECIPIENT = process.env.BACKUP_EMAIL_RECIPIENT || 'titoantifa69@gmail.com';
@@ -14,6 +16,7 @@ export interface BackupResult {
   success: boolean;
   wordsCount: number;
   lecturesCount: number;
+  expressionsCount: number;
   emailSent: boolean;
   messageId?: string;
   error?: string;
@@ -43,17 +46,20 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
     
     const words = await wordService.getAllWordsForExport();
     const lectures = await lectureService.getAllLecturesForExport();
+    const expressions = await expressionService.getAllExpressionsForExport();
 
     logger.info('Backup data generated', {
       operationId,
       wordsCount: words.length,
-      lecturesCount: lectures.length
+      lecturesCount: lectures.length,
+      expressionsCount: expressions.length
     });
 
     // 2. Create backup files with timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const wordsFilename = `words-backup-${timestamp}.json`;
     const lecturesFilename = `lectures-backup-${timestamp}.json`;
+    const expressionsFilename = `expressions-backup-${timestamp}.json`;
 
     // 3. Prepare email content
     const emailSubject = `🔒 Backup Diario - LanguageAI [${new Date().toLocaleDateString('es-ES')}]`;
@@ -62,12 +68,14 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
 📊 Resumen:
 - Words: ${words.length} registros
 - Lectures: ${lectures.length} registros
+- Expressions: ${expressions.length} registros
 - Fecha: ${new Date().toLocaleDateString('es-ES')}
 - Hora: ${new Date().toLocaleTimeString('es-ES')}
 
 📎 Archivos adjuntos:
 - ${wordsFilename}
 - ${lecturesFilename}
+- ${expressionsFilename}
 
 Este backup se genera automáticamente todos los días.`;
 
@@ -81,6 +89,11 @@ Este backup se genera automáticamente todos los días.`;
       {
         filename: lecturesFilename,
         content: JSON.stringify(lectures, null, 2),
+        contentType: 'application/json'
+      },
+      {
+        filename: expressionsFilename,
+        content: JSON.stringify(expressions, null, 2),
         contentType: 'application/json'
       }
     ];
@@ -110,6 +123,7 @@ Este backup se genera automáticamente todos los días.`;
       operationId,
       wordsCount: words.length,
       lecturesCount: lectures.length,
+      expressionsCount: expressions.length,
       recipient: BACKUP_EMAIL_RECIPIENT,
       duration: `${duration}ms`,
       timestamp: new Date().toISOString()
@@ -119,6 +133,7 @@ Este backup se genera automáticamente todos los días.`;
       success: true,
       wordsCount: words.length,
       lecturesCount: lectures.length,
+      expressionsCount: expressions.length,
       emailSent: true,
       timestamp: new Date().toISOString(),
       duration
@@ -141,6 +156,7 @@ Este backup se genera automáticamente todos los días.`;
       success: false,
       wordsCount: 0,
       lecturesCount: 0,
+      expressionsCount: 0,
       emailSent: false,
       error: error.message,
       timestamp: new Date().toISOString(),
@@ -149,29 +165,31 @@ Este backup se genera automáticamente todos los días.`;
   }
 };
 
-// Test backup service
-export const testBackupService = async (): Promise<boolean> => {
-  try {
-    logger.info('Testing backup service...');
-    
-    // Test data generation
-    const words = await wordService.getAllWordsForExport();
-    const lectures = await lectureService.getAllLecturesForExport();
-    
-    logger.info('Backup service test successful', {
-      wordsCount: words.length,
-      lecturesCount: lectures.length
-    });
-    
-    return true;
-  } catch (error: any) {
-    logger.error('Backup service test failed', {
-      error: error.message,
-      stack: error.stack
-    });
-    return false;
-  }
-};
+    // Test backup service
+    export const testBackupService = async (): Promise<boolean> => {
+      try {
+        logger.info('Testing backup service...');
+        
+        // Test data generation
+        const words = await wordService.getAllWordsForExport();
+        const lectures = await lectureService.getAllLecturesForExport();
+        const expressions = await expressionService.getAllExpressionsForExport();
+        
+        logger.info('Backup service test successful', {
+          wordsCount: words.length,
+          lecturesCount: lectures.length,
+          expressionsCount: expressions.length
+        });
+        
+        return true;
+      } catch (error: any) {
+        logger.error('Backup service test failed', {
+          error: error.message,
+          stack: error.stack
+        });
+        return false;
+      }
+    };
 
 export default {
   sendBackupByEmail,

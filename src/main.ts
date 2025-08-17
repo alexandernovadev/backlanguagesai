@@ -74,12 +74,8 @@ app.use("/api/expressions", authMiddleware, ExpressionRoutes);
 app.use("/api/questions", authMiddleware, QuestionRoutes);
 app.use("/api/exams", authMiddleware, ExamRoutes);
 app.use("/api/exam-attempts", authMiddleware, ExamAttemptRoutes);
-app.use("/api/statistics", StatisticsRoutes);
-
-
-
-// Users routes
-app.use("/api/users", UserRoutes);
+app.use("/api/statistics", authMiddleware, StatisticsRoutes);
+app.use("/api/users", authMiddleware, UserRoutes);
 
 
 // Fixes routes (protected)

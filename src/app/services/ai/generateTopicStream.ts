@@ -16,25 +16,29 @@ export const generateTopicStreamService = async ({
   const hasExistingText = existingText.trim().length > 0;
 
   const systemPrompt = `
-You are an AI specialized in generating random daily life topics for language learning content.
+You are an AI specialized in generating everyday-life topics for language learning content.
 
-🎯 TASK: Generate a random, casual topic from everyday life for ${type} content.
+LANGUAGE: Always output the topic in English.
+
+🎯 TASK: Generate a casual, relatable topic for ${type} content.
 
 ${
   hasExistingText
-    ? `📝 CONTEXT: Based on this reference: ${existingText.trim()}
-     - Generate a related but different casual topic
-     - Make it more specific or explore a different angle
-     - Keep it casual and relatable`
-    : `🎲 RANDOM DAILY TOPIC: Generate a completely random topic from everyday life
-     - Choose from casual, relatable situations people experience daily
-     - Make it fun, engaging, and something people can easily relate to`
+    ? `📝 KEYWORDS (MANDATORY): ${existingText.trim()}
+     - Treat the provided text as user keywords/ideas (they may be in Spanish or another language)
+     - Translate/adapt the concepts to English and integrate them naturally in the topic
+     - Do NOT just prepend or list the keywords at the beginning; weave them into the text anywhere it fits best
+     - The topic MUST clearly reflect these concepts while sounding natural in English
+     - You may refine/specialize the angle, but keep the core subject aligned`
+    : `🎲 RANDOM DAILY TOPIC: If no keywords are provided, generate a completely random topic from everyday life
+     - Choose casual, relatable situations people experience daily
+     - Make it fun, engaging, and easy to relate to`
 }
 
 📋 REQUIREMENTS:
 - Topic must be casual and from everyday life
 - CRITICAL: Generate between 140-220 characters - no less than 140, no more than 220
-- Be specific and descriptive with detailed explanations
+- Be specific and descriptive
 - Use casual, relatable language
 - Focus on daily life situations, hobbies, interests, or common experiences
 - Include subtopics, examples, or context to reach the minimum length
@@ -82,11 +86,9 @@ ${
       },
       {
         role: "user",
-        content: `Generate a ${
-          hasExistingText ? "related but different" : "random"
-        } casual topic from everyday life for ${type} content. ${
-          hasExistingText ? `Based on: ${existingText.trim()}` : ""
-        } Make it fun and relatable. MANDATORY: Generate between 140-220 characters. CRITICAL: Count your characters and STOP at exactly 220. Include detailed explanations, subtopics, or context to reach the minimum length. Do not use quotes or special characters. NO grammar topics - focus on daily life situations.`,
+        content: hasExistingText
+          ? `Generate a casual everyday-life topic in English based on these keywords: ${existingText.trim()}. Translate/adapt the ideas to English and integrate them naturally anywhere (not necessarily at the start). Keep it fun and relatable. 140-220 characters.`
+          : `Generate a random casual everyday-life topic in English. Keep it fun and relatable. 140-220 characters.`,
       },
     ],
   });

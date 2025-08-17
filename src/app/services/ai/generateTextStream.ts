@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 interface Options {
-  prompt: string;
+  prompt: string; // Can be empty to trigger random generation
   level: string;
   typeWrite: string;
   language?: "es" | "en" | "pt"; // ISO 639-1
@@ -29,15 +29,16 @@ export const generateTextStreamService = async ({
   const grammarInstructions = grammarTopics.length > 0 
     ? `
 🎯 GRAMMAR TOPICS REQUIREMENT:
-You MUST include content covering these specific grammar topics: ${grammarTopics.join(', ')}
-- Each grammar topic must be naturally integrated into the reading content
-- Distribute grammar topics evenly throughout the text
-- Ensure the content demonstrates the specific grammar concepts requested
-- The topic "${prompt}" is the main theme, but grammar topics are MANDATORY
-- Include examples and explanations that use the requested grammar structures
-- Make the grammar learning contextual and natural within the reading
+Use these grammar patterns implicitly in the sentences: ${grammarTopics.join(', ')}
+- Integrate them NATURALLY in the narrative/dialogue; do NOT name or explain the grammar
+- NO headings, subtitles, or paragraphs that mention the grammar names
+- NO meta explanations, definitions, or tutorials about grammar
+- The topic "${prompt}" (or a random one) is the main theme; grammar is only reflected in how sentences are written
+- Vary sentence structures so the selected grammar appears multiple times, but always as part of the story/content
 `
     : "";
+
+  const hasPrompt = (prompt || "").trim().length > 0;
 
   return await openai.chat.completions.create({
     stream: true,
@@ -66,6 +67,7 @@ You MUST include content covering these specific grammar topics: ${grammarTopics
             - **B1-B2:** Use intermediate vocabulary, compound sentences, and provide real-world examples.
             - **C1-C2:** Use advanced vocabulary, complex sentence structures, and offer deeper analysis or insights.
           - Include quotes or examples to enrich the content where relevant.
+          - If grammar topics are provided, REFLECT them only through sentence construction. Do NOT mention or explain grammar topics explicitly.
           ${promptWords}
 
           - Length MUST BE between ${rangeMin} and ${rangeMax} characters.
@@ -78,7 +80,9 @@ You MUST include content covering these specific grammar topics: ${grammarTopics
       },
       {
         role: "user",
-        content: "The topic would be " + prompt,
+        content: hasPrompt
+          ? "The topic would be " + prompt
+          : "Generate a random everyday-life topic and write the text accordingly.",
       },
     ],
     temperature: 0.8,

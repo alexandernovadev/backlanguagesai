@@ -167,10 +167,13 @@ export const generateTextStream = async (req: Request, res: Response) => {
     language,
     rangeMin,
     rangeMax,
+    grammarTopics,
   } = req.body;
 
-  if (!prompt) {
-    return errorResponse(res, "Prompt is required.", 400);
+  // Allow empty prompt: when empty, backend should generate a random topic.
+  // If prompt has content, it must be passed through faithfully to guide generation.
+  if (typeof prompt !== 'string') {
+    return errorResponse(res, "Prompt must be a string.", 400);
   }
 
   try {
@@ -183,13 +186,15 @@ export const generateTextStream = async (req: Request, res: Response) => {
     }
 
     const stream = await generateTextStreamService({
-      prompt,
+      // If prompt is empty or whitespace, we still pass it, and the service will handle random generation
+      prompt: (prompt || '').toString(),
       level,
       typeWrite,
       promptWords,
       language,
       rangeMin,
       rangeMax,
+      grammarTopics: Array.isArray(grammarTopics) ? grammarTopics : [],
     });
 
     res.setHeader("Content-Type", "application/json");

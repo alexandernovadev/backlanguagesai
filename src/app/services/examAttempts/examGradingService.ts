@@ -58,17 +58,34 @@ export class ExamGradingService {
         );
         const weight = examQuestion ? examQuestion.weight : 1;
 
+        const optionsText = (answer.options || [])
+          .map((opt: any, optIndex: number) => {
+            const valueTag = opt?.value ? `[${opt.value}]` : "";
+            const correctTag = opt?.isCorrect ? " (CORRECTA)" : "";
+            return `${optIndex + 1}. ${valueTag} ${opt?.label || ""}${correctTag}`.trim();
+          })
+          .join("\n");
+
+        const userAnswerPretty = (answer.userAnswer || []).map((ua: string) => {
+          const match = (answer.options || []).find(
+            (opt: any) => opt?.value === ua || opt?.label === ua
+          );
+          if (match) {
+            const valueTag = match?.value ? ` [${match.value}]` : "";
+            return `${match.label}${valueTag}`;
+          }
+          return ua;
+        }).join(", ");
+
+        const rawValues = (answer.userAnswer || []).join(", ");
+
         return `
 Pregunta ${index + 1} (Peso: ${weight} puntos):
 Texto: ${answer.questionText}
 Opciones disponibles:
-${answer.options
-  .map(
-    (opt, optIndex) =>
-      `${optIndex + 1}. ${opt.label} ${opt.isCorrect ? "(CORRECTA)" : ""}`
-  )
-  .join("\n")}
-Respuesta del estudiante: ${answer.userAnswer.join(", ")}
+${optionsText}
+Respuesta del estudiante (label/value): ${userAnswerPretty}
+Valores enviados: ${rawValues}
 `;
       })
       .join("\n");

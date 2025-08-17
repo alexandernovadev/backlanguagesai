@@ -121,6 +121,16 @@ You MUST use ONLY these question types: ${types.join(', ')}
 - Avoid ambiguous answers
 - NO trivia or general knowledge questions
 - DO NOT judge topic appropriateness - ANY topic is fine
+ 
+ 🛡️ Uniqueness rules (single_choice and fill_blank):
+ - There must be EXACTLY ONE grammatically and semantically correct option.
+ - All distractors must be incorrect for a CLEAR reason (agreement, tense, collocation, meaning, register, preposition, countability, word order).
+ - If the stem risks multiple valid options, add disambiguating cues (time markers, number/gender cues, collocations, determiners, specific context) or use agreement-sensitive forms so that only one option fits (e.g., present simple third-person singular "-s").
+ - Self-check each question by temporarily inserting EACH option into the blank. If more than one produces a correct sentence, REWRITE the stem and/or options until uniqueness is guaranteed.
+ - Bad example: "___ will eat all the food" with options [I, we, they, she] → multiple valid.
+ - Good fix examples:
+   - "___ eats all the food at home." Options [I, we, they, she] → only "she" fits due to "eats".
+   - Or keep "will" but add a gender cue: "___ will eat all the food because her doctor said so." → only "she" fits.
 
 🔢 MANDATORY: Generate EXACTLY ${numberOfQuestions} questions - no more, no less!
 🎯 QUESTION TYPE DISTRIBUTION:
@@ -180,6 +190,7 @@ Based on the topic "${topic}", generate:
 - Double-check that all required fields are present
 - Verify that explanations contain proper HTML formatting
 - Confirm that correctAnswers match the options array
+ - For single_choice and fill_blank: ensure EXACTLY one correct option by substitution self-check; if multiple are valid, rewrite the stem/options
 - Test that the JSON is valid before responding
 - VERIFY that ALL question types are from the allowed list: ${types.join(', ')}
 - Ensure question types are distributed evenly throughout the exam
@@ -209,6 +220,7 @@ Based on the topic "${topic}", generate:
         Difficulty: ${difficulty}/5. 
         
         IMPORTANT: Each question MUST include a rich HTML "explanation" field that explains the grammar rule being tested. Make it visual with colors, clear structure, and helpful examples.
+        UNICIDAD (single_choice y fill_blank): Debe haber EXACTAMENTE una opción correcta. Usa concordancia (e.g., tercera persona con "-s") o añade pistas claras en el enunciado para que solo una opción funcione. Valida sustituyendo cada opción; si más de una es válida, reescribe el enunciado u opciones.
         
         📝 EXAM METADATA:
         - Generate a short, descriptive title based on the topic "${topic}" (max 60 characters)

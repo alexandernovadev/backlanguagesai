@@ -73,6 +73,14 @@ export class WordService {
 
     const filter: Record<string, unknown> & { $or?: unknown[] } = {};
 
+    const addOrConditions = (conditions: unknown[]) => {
+      if (filter.$or && Array.isArray(filter.$or)) {
+        (filter.$or as unknown[]).push(...conditions);
+      } else {
+        filter.$or = conditions;
+      }
+    };
+
     // Filtro por palabra (existente)
     if (wordUser) {
       filter.word = { $regex: wordUser, $options: "i" };
@@ -94,15 +102,12 @@ export class WordService {
       }
     }
 
-    // Nuevo filtro por idioma
+    // Nuevo filtro por idioma (anclado a códigos exactos)
     if (language) {
       if (Array.isArray(language)) {
-        // Múltiples idiomas
-        const languageRegex = language.map(lang => new RegExp(lang, 'i'));
-        filter.language = { $in: languageRegex };
+        filter.language = { $in: language };
       } else {
-        // Un solo idioma
-        filter.language = { $regex: language, $options: "i" };
+        filter.language = { $in: [language] };
       }
     }
 
@@ -143,44 +148,41 @@ export class WordService {
     if (hasImage === 'true') {
       filter.img = { $exists: true, $nin: [null, ''] };
     } else if (hasImage === 'false') {
-      filter.$or = [
+      addOrConditions([
         { img: { $exists: false } },
         { img: null },
         { img: '' }
-      ];
+      ]);
     }
 
     // Nuevo filtro por palabras con/sin ejemplos
     if (hasExamples === 'true') {
-      filter.examples = { $exists: true, $ne: [], $size: { $gt: 0 } };
+      filter.examples = { $exists: true, $ne: [] };
     } else if (hasExamples === 'false') {
-      filter.$or = [
+      addOrConditions([
         { examples: { $exists: false } },
-        { examples: [] },
-        { examples: { $size: 0 } }
-      ];
+        { examples: [] }
+      ]);
     }
 
     // Nuevo filtro por palabras con/sin sinónimos
     if (hasSynonyms === 'true') {
-      filter.sinonyms = { $exists: true, $ne: [], $size: { $gt: 0 } };
+      filter.sinonyms = { $exists: true, $ne: [] };
     } else if (hasSynonyms === 'false') {
-      filter.$or = [
+      addOrConditions([
         { sinonyms: { $exists: false } },
-        { sinonyms: [] },
-        { sinonyms: { $size: 0 } }
-      ];
+        { sinonyms: [] }
+      ]);
     }
 
     // Nuevo filtro por palabras con/sin code-switching
     if (hasCodeSwitching === 'true') {
-      filter.codeSwitching = { $exists: true, $ne: [], $size: { $gt: 0 } };
+      filter.codeSwitching = { $exists: true, $ne: [] };
     } else if (hasCodeSwitching === 'false') {
-      filter.$or = [
+      addOrConditions([
         { codeSwitching: { $exists: false } },
-        { codeSwitching: [] },
-        { codeSwitching: { $size: 0 } }
-      ];
+        { codeSwitching: [] }
+      ]);
     }
 
     // Nuevo filtro por palabra en español

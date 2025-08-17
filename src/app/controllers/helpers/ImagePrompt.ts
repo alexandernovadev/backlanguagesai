@@ -1,45 +1,25 @@
 export const imageWordPrompt = (word: string) => {
   return `
-  Create a clear, educational illustration for a language learning dictionary that represents the meaning of "${word}".
+Create a clean educational illustration that conveys the meaning of "${word}" for a language‑learning dictionary.
 
-  GUIDELINES:
-  • Create a simple, clear visual that immediately communicates the word's meaning
-  • Use clean, uncluttered compositions suitable for educational materials
-  • Focus on the main concept - avoid complex scenes or multiple elements
-  • Use bright, clear colors and good contrast for visibility
-  • Make the illustration instantly understandable to language learners
+Requirements:
+- Make the meaning obvious at a glance; focus on one clear subject. Avoid complex scenes.
+- Clean, modern style; simple, non‑distracting background; high contrast; professional look.
+- Adapt to part of speech:
+  • Noun → show the object/person/concept clearly.
+  • Verb → show the action.
+  • Adjective → show the quality/characteristic.
+  • Adverb → show the manner/degree of an action.
+- If people are shown: modern, casual appearance; avoid cultural or religious head coverings; keep neutral and inclusive.
+ - If people are shown: modern, casual appearance; avoid cultural or religious head coverings; keep neutral and inclusive.
+ - Do not depict traditional Arab clothing or turbans.
+- Cultural neutrality; suitable for all ages; no abstract or ambiguous visuals.
+ - If a literal depiction is restricted or sensitive, choose a safe, didactic alternative that still teaches the concept (e.g., first‑aid kit, bandages, crutches, safety helmet, caution signs). Keep it realistic but strictly non‑graphic and child‑safe.
 
-  STYLE REQUIREMENTS:
-  • Clean, modern illustration style
-  • Simple backgrounds that don't distract from the main subject
-  • Clear, readable visual elements
-  • Professional appearance suitable for educational content
-  • ABSOLUTELY NO TEXT, WORDS, LETTERS, NUMBERS, OR SYMBOLS IN THE IMAGE
-  • NO labels, captions, or any written content whatsoever
-  • Pure visual representation only - no text elements of any kind
-
-  CONTENT FOCUS:
-  • Nouns: Show the object, person, or concept clearly
-  • Verbs: Show the action being performed
-  • Adjectives: Show the quality or characteristic
-  • Adverbs: Show the manner or degree of an action
-  • Other parts of speech: Create appropriate visual representations
-
-  PEOPLE REPRESENTATION:
-  • If showing people, use modern, casual clothing and appearances
-  • Do NOT show people wearing headscarves, turbans, or traditional head coverings
-  • Avoid any cultural or religious head coverings
-  • Use diverse but neutral, modern appearances
-
-  EDUCATIONAL PURPOSE:
-  • The image should help language learners understand the word's meaning
-  • Keep it simple and direct - no abstract interpretations
-  • Ensure cultural neutrality and universal understanding
-  • Make it suitable for all ages and backgrounds
-
-  Create a dictionary-style illustration that clearly represents "${word}".
-
-  CRITICAL: The image must contain NO text, words, letters, numbers, or any written content whatsoever. Only visual elements are allowed.
+Hard constraints (must follow):
+- Absolutely no text of any kind (no words, letters, numbers, labels, watermarks, or logos).
+- Single, clear composition optimized for educational use.
+ - No gore, no graphic injuries, no violence, no shocking or adult content.
   `.trim();
 };
 
@@ -72,6 +52,7 @@ export const imageLecturePrompt = (lectureContent: string) => {
   PEOPLE REPRESENTATION:
   • If showing people, use modern, casual clothing and appearances
   • Do NOT show people wearing headscarves, turbans, or traditional head coverings
+  • Do not depict traditional Arab clothing or turbans
   • Avoid any cultural or religious head coverings
   • Use diverse but neutral, modern appearances
 

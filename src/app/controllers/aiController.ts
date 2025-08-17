@@ -120,7 +120,7 @@ export const updateImageWord = async (req: Request, res: Response) => {
   }
 
   try {
-    // Generate image
+    // Generate image with primary prompt only
     const imageBase64 = await generateImage(imageWordPrompt(wordString));
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);

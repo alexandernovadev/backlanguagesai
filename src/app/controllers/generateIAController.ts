@@ -121,7 +121,7 @@ export const updateImageWord = async (req: Request, res: Response) => {
   }
 
   try {
-    // Generate image with DALL·E 3
+    // Generate image with primary prompt only
     const imageBase64 = await generateImage(imageWordPrompt(word));
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);

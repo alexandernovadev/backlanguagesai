@@ -21,9 +21,7 @@ import Arreglosquick from "./app/routes/arreglosquick";
 import StatisticsRoutes from "./app/routes/statisticsRoutes";
 
 import AuthRoutes from "./app/routes/authRoutes";
-import CleanerRoutes from "./app/routes/cleanerRoutes";
 import UserRoutes from "./app/routes/userRoutes";
-import BackupRoutes from "./app/routes/backupRoutes";
 
 // Swagger solo en desarrollo
 let setupSwagger: any = () => {};
@@ -80,17 +78,12 @@ app.use("/api/statistics", StatisticsRoutes);
 
 
 
-// Cleaner routes
-app.use("/api/cleaner", CleanerRoutes);
-
 // Users routes
 app.use("/api/users", UserRoutes);
 
-// Backup routes
-app.use("/api/backup", BackupRoutes);
 
-// Just for testing purposes
-app.use("/api/fixes", Arreglosquick);
+// Fixes routes (protected)
+app.use("/api/fixes", authMiddleware, Arreglosquick);
 
 app.use("/", (req, res) => {
   successResponse(res, "Server is running", {

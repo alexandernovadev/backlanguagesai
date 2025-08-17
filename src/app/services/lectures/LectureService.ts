@@ -1,4 +1,5 @@
 import Lecture, { ILecture } from "../../db/models/Lecture";
+import { calculateReadingTimeFromContent } from "../../utils/text/calculateReadingTime";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -11,10 +12,7 @@ export class LectureService {
   // Basic CRUD operations
   async createLecture(data: ILecture): Promise<ILecture> {
     // Auto-calculate reading time in minutes from content if not provided or invalid
-    const sanitizedContent = (data.content || "").replace(/[>#*_`\-\[\]\(\)!]/g, " ");
-    const words = sanitizedContent.trim() ? sanitizedContent.trim().split(/\s+/).length : 0;
-    const wordsPerMinute = 200;
-    const estimatedMinutes = words > 0 ? Math.max(1, Math.ceil(words / wordsPerMinute)) : 0;
+    const estimatedMinutes = calculateReadingTimeFromContent(data.content || "");
 
     const lecture = new Lecture({
       ...data,

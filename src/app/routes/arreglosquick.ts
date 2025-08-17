@@ -17,7 +17,8 @@ import {
   cleanLectures,
   cleanExpressions,
   cleanUsers,
-  updateLecturesLanguage
+  updateLecturesLanguage,
+  recalculateLecturesTime
 } from "../controllers/labsController";
 
 const routes = Router();
@@ -26,6 +27,7 @@ const routes = Router();
 routes.post("/words/update-level", updateWordsLevel);
 routes.post("/words/reset-seen", resetWordsSeenCount);
 routes.post("/lectures/update-language", updateLecturesLanguage);
+routes.post("/lectures/recalculate-time", recalculateLecturesTime);
 
 // User management
 routes.post("/users/create-admin", createAdminUser);

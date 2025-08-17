@@ -11,6 +11,7 @@ import { seedAdminUser } from "../services/seed/user";
 import { seedQuestions } from "../services/seed/seedQuestions";
 import { backupCollections } from "../utils/backupCollections";
 import { seedData } from "../utils/seedData";
+import { calculateReadingTimeFromContent } from "../utils/text/calculateReadingTime";
 import { CleanerService } from "../services/cleanerService";
 import logger from "../utils/logger";
 import bcrypt from "bcryptjs";
@@ -487,6 +488,41 @@ export const getDatabaseStats = async (
     );
   } catch (error) {
     return errorResponse(res, "Error getting database stats", 500, error);
+  }
+};
+
+/**
+ * Recalculate reading time for ALL lectures based on their content
+ * - Uses ~200 words per minute, minimum 1 minute when content exists
+ */
+export const recalculateLecturesTime = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const lectures = await Lecture.find({}, { _id: 1, content: 1, time: 1 });
+
+    let updated = 0;
+    const updates: Array<{ _id: string; oldTime: number; newTime: number }> = [];
+
+    for (const lec of lectures) {
+      const computed = calculateReadingTimeFromContent(lec.content || "");
+
+      // Only update if different to avoid unnecessary writes
+      if (typeof lec.time !== "number" || lec.time !== computed) {
+        await Lecture.updateOne({ _id: lec._id }, { $set: { time: computed } });
+        updates.push({ _id: lec._id.toString(), oldTime: lec.time as number, newTime: computed });
+        updated++;
+      }
+    }
+
+    return successResponse(res, `Recalculated time for ${updated} lectures`, {
+      totalLectures: lectures.length,
+      updated,
+      updatesPreview: updates.slice(0, 20),
+    });
+  } catch (error) {
+    return errorResponse(res, "Error recalculating lecture times", 500, error);
   }
 };
 

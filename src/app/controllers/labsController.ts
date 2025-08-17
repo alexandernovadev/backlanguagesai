@@ -28,25 +28,25 @@ import bcrypt from "bcryptjs";
  * AVAILABLE ENDPOINTS:
  * 
  * Database Operations:
- * - POST /api/fixes/words/update-level - Update all words level
- * - POST /api/fixes/words/reset-seen - Reset seen count for all words
+ * - POST /api/labs/words/update-level - Update all words level
+ * - POST /api/labs/words/reset-seen - Reset seen count for all words
  * 
  * User Management:
- * - POST /api/fixes/users/create-admin - Create admin user
+ * - POST /api/labs/users/create-admin - Create admin user
  * 
  * Data Seeding:
- * - POST /api/fixes/seed/initial-data - Seed initial data
- * - POST /api/fixes/seed/questions - Seed questions from JSON
+ * - POST /api/labs/seed/initial-data - Seed initial data
+ * - POST /api/labs/seed/questions - Seed questions from JSON
  * 
  * Backup & Maintenance:
- * - POST /api/fixes/backup/create - Create backup of collections
- * - DELETE /api/fixes/data/clear-all - Clear all words and lectures (DANGEROUS)
+ * - POST /api/labs/backup/create - Create backup of collections
+ * - DELETE /api/labs/data/clear-all - Clear all words and lectures (DANGEROUS)
  * 
  * Migration:
- * - POST /api/fixes/migrate/words-to-review - Migrate words to review system
+ * - POST /api/labs/migrate/words-to-review - Migrate words to review system
  * 
  * Statistics:
- * - GET /api/fixes/stats/database - Get database statistics
+ * - GET /api/labs/stats/database - Get database statistics
  * 
  * Cleaner Functions (DANGEROUS - requires authentication):
  * - DELETE /api/cleaner/exam-attempts - Delete ALL exam attempts

@@ -17,7 +17,7 @@ import ExpressionRoutes from "./app/routes/expressionRoutes";
 import QuestionRoutes from "./app/routes/questionRoutes";
 import ExamRoutes from "./app/routes/examRoutes";
 import ExamAttemptRoutes from "./app/routes/examAttemptRoutes";
-import Arreglosquick from "./app/routes/arreglosquick";
+import LabsRoutes from "./app/routes/labsRoutes";
 import StatisticsRoutes from "./app/routes/statisticsRoutes";
 
 import AuthRoutes from "./app/routes/authRoutes";
@@ -78,8 +78,8 @@ app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 
 
-// Fixes routes (protected)
-app.use("/api/fixes", authMiddleware, Arreglosquick);
+// Labs routes (protected)
+app.use("/api/labs", authMiddleware, LabsRoutes);
 
 app.use("/", (req, res) => {
   successResponse(res, "Server is running", {

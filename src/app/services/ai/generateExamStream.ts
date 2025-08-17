@@ -73,6 +73,17 @@ export const generateExamStreamService = async ({
 
   const levelNotes = levelToneMap[level] || "";
 
+  // Map selected user language to a human-readable label for explanations
+  const explanationLanguageMap: Record<string, string> = {
+    es: "Spanish",
+    en: "English",
+    fr: "French",
+    de: "German",
+    it: "Italian",
+    pt: "Portuguese",
+  };
+  const explanationLanguage = explanationLanguageMap[userLang] || "Spanish";
+
   const grammarInstructions = grammarTopics.length > 0 
     ? `
 🎯 GRAMMAR TOPICS REQUIREMENT:
@@ -145,6 +156,7 @@ Each question MUST include an "explanation" field with rich HTML grammar explana
 - Format: compact, visual, easy to scan
 - Use: <strong>, <em>, <span style="color:...">, <ul>, <li>, <br>
 - Keep it concise but informative
+- CRITICAL: Write ALL explanation text in ${explanationLanguage}
 
 📝 EXAM TITLE AND SLUG GENERATION:
 Based on the topic "${topic}", generate:
@@ -165,22 +177,8 @@ Based on the topic "${topic}", generate:
       ],
       "correctAnswers": ["B"],
       "tags": ["grammar", "vocabulary"],
-      "explanation": "<div><strong style='font-size:1.1em; color:#3b82f6;'>Grammar Rule</strong> explanation with <span style='color:#f59e0b; font-weight:bold; text-decoration:underline;'>Structure:</span> <span style='color:#22d3ee; font-weight:bold;'>Subject + Verb</span> (+<span style='color:#f43f5e;'>s/es</span> for he/she/it)<br><ul style='margin:4px 0 0 18px;'><li><em>Example 1</em></li><li><em>Example 2</em></li></ul><span style='color: #f59e0b;'>Remember:</span> key point</div>"
-    },
-    {
-      "text": "Complete the sentence: 'The new operational manual _____ (approve) by Peru last week.'",
-      "type": "fill_blank",
-      "options": [
-        { "value": "A", "label": "approved", "isCorrect": true },
-        { "value": "B", "label": "has approved", "isCorrect": false },
-        { "value": "C", "label": "approves", "isCorrect": false },
-        { "value": "D", "label": "will approve", "isCorrect": false }
-      ],
-      "correctAnswers": ["A"],
-      "tags": ["grammar", "passive_voice", "past_tense"],
-      "explanation": "<div><strong style='font-size:1.1em; color:#3b82f6;'>Passive Voice Rule</strong> explanation</div>"
-    },
-
+      "explanation": "<div><strong style='font-size:1.1em; color:#3b82f6;'>Grammar Rule</strong> explanation with <span style='color:#f59e0b; font-weight:bold; text-decoration:underline;'>Structure:</span> <span style='color:#22d3ee; font-weight:bold;'>Subject + Verb</span> (+<span style='color:#f43f5e;'>s/es</span> for he/she/it)<br><ul style='margin:4px 0 0 18px;'><li><em>Example 1</em></li><li><em>Example 2</li></ul><span style='color: #f59e0b;'>Remember:</span> key point</div>"
+    }
   ]
 }
 
@@ -219,7 +217,7 @@ Based on the topic "${topic}", generate:
         
         Difficulty: ${difficulty}/5. 
         
-        IMPORTANT: Each question MUST include a rich HTML "explanation" field that explains the grammar rule being tested. Make it visual with colors, clear structure, and helpful examples.
+        IMPORTANT: Each question MUST include a rich HTML "explanation" field that explains the grammar rule being tested. Make it visual with colors, clear structure, and helpful examples. Write ALL explanation text in ${explanationLanguage}.
         UNICIDAD (single_choice y fill_blank): Debe haber EXACTAMENTE una opción correcta. Usa concordancia (e.g., tercera persona con "-s") o añade pistas claras en el enunciado para que solo una opción funcione. Valida sustituyendo cada opción; si más de una es válida, reescribe el enunciado u opciones.
         
         📝 EXAM METADATA:

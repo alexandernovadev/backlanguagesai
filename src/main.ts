@@ -43,6 +43,7 @@ const app = express();
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3000;
 const VERSION = `v${packageJson.version}-${NODE_ENV}`;
+const LABS_AUTH = (process.env.LABS_AUTH || "true").toLowerCase() === "true";
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -78,8 +79,12 @@ app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 
 
-// Labs routes (protected)
-app.use("/api/labs", authMiddleware, LabsRoutes);
+// Labs routes (conditional auth)
+if (LABS_AUTH) {
+  app.use("/api/labs", authMiddleware, LabsRoutes);
+} else {
+  app.use("/api/labs", LabsRoutes);
+}
 
 app.use("/", (req, res) => {
   successResponse(res, "Server is running", {

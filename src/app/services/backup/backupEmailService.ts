@@ -1,12 +1,16 @@
 import { WordService } from '../words/wordService';
 import { LectureService } from '../lectures/LectureService';
 import { ExpressionService } from '../expressions/expressionService';
+import { ExamService } from '../exams/examService';
+import { QuestionService } from '../questions/questionService';
 import { sendEmailWithAttachments } from '../email/gmailService';
 import logger from '../../utils/logger';
 
 const wordService = new WordService();
 const lectureService = new LectureService();
 const expressionService = new ExpressionService();
+const examService = new ExamService();
+const questionService = new QuestionService();
 
 // Backup email configuration
 const BACKUP_EMAIL_RECIPIENT = process.env.BACKUP_EMAIL_RECIPIENT || 'titoantifa69@gmail.com';
@@ -17,6 +21,8 @@ export interface BackupResult {
   wordsCount: number;
   lecturesCount: number;
   expressionsCount: number;
+  examsCount: number;
+  questionsCount: number;
   emailSent: boolean;
   messageId?: string;
   error?: string;
@@ -47,12 +53,16 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
     const words = await wordService.getAllWordsForExport();
     const lectures = await lectureService.getAllLecturesForExport();
     const expressions = await expressionService.getAllExpressionsForExport();
+    const exams = await examService.getAllExamsForExport();
+    const questions = await questionService.getAllQuestionsForExport();
 
     logger.info('Backup data generated', {
       operationId,
       wordsCount: words.length,
       lecturesCount: lectures.length,
-      expressionsCount: expressions.length
+      expressionsCount: expressions.length,
+      examsCount: exams.length,
+      questionsCount: questions.length
     });
 
     // 2. Create backup files with timestamp
@@ -60,6 +70,8 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
     const wordsFilename = `words-backup-${timestamp}.json`;
     const lecturesFilename = `lectures-backup-${timestamp}.json`;
     const expressionsFilename = `expressions-backup-${timestamp}.json`;
+    const examsFilename = `exams-backup-${timestamp}.json`;
+    const questionsFilename = `questions-backup-${timestamp}.json`;
 
     // 3. Prepare email content
     const emailSubject = `🔒 Backup Diario - LanguageAI [${new Date().toLocaleDateString('es-ES')}]`;
@@ -69,6 +81,8 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
 - Words: ${words.length} registros
 - Lectures: ${lectures.length} registros
 - Expressions: ${expressions.length} registros
+- Exams: ${exams.length} registros
+- Questions: ${questions.length} registros
 - Fecha: ${new Date().toLocaleDateString('es-ES')}
 - Hora: ${new Date().toLocaleTimeString('es-ES')}
 
@@ -76,6 +90,8 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
 - ${wordsFilename}
 - ${lecturesFilename}
 - ${expressionsFilename}
+- ${examsFilename}
+- ${questionsFilename}
 
 Este backup se genera automáticamente todos los días.`;
 
@@ -119,6 +135,32 @@ Este backup se genera automáticamente todos los días.`;
           }
         }, null, 2),
         contentType: 'application/json'
+      },
+      {
+        filename: examsFilename,
+        content: JSON.stringify({
+          success: true,
+          message: `Backup generated ${exams.length} exams successfully`,
+          data: {
+            totalExams: exams.length,
+            exportDate: new Date().toISOString(),
+            exams: exams
+          }
+        }, null, 2),
+        contentType: 'application/json'
+      },
+      {
+        filename: questionsFilename,
+        content: JSON.stringify({
+          success: true,
+          message: `Backup generated ${questions.length} questions successfully`,
+          data: {
+            totalQuestions: questions.length,
+            exportDate: new Date().toISOString(),
+            questions: questions
+          }
+        }, null, 2),
+        contentType: 'application/json'
       }
     ];
 
@@ -127,7 +169,8 @@ Este backup se genera automáticamente todos los días.`;
       operationId,
       recipient: BACKUP_EMAIL_RECIPIENT,
       subject: emailSubject,
-      attachmentsCount: attachments.length
+      attachmentsCount: attachments.length,
+      attachments: attachments.map(a => a.filename)
     });
 
     const emailSent = await sendEmailWithAttachments(
@@ -148,6 +191,8 @@ Este backup se genera automáticamente todos los días.`;
       wordsCount: words.length,
       lecturesCount: lectures.length,
       expressionsCount: expressions.length,
+      examsCount: exams.length,
+      questionsCount: questions.length,
       recipient: BACKUP_EMAIL_RECIPIENT,
       duration: `${duration}ms`,
       timestamp: new Date().toISOString()
@@ -158,6 +203,8 @@ Este backup se genera automáticamente todos los días.`;
       wordsCount: words.length,
       lecturesCount: lectures.length,
       expressionsCount: expressions.length,
+      examsCount: exams.length,
+      questionsCount: questions.length,
       emailSent: true,
       timestamp: new Date().toISOString(),
       duration
@@ -181,6 +228,8 @@ Este backup se genera automáticamente todos los días.`;
       wordsCount: 0,
       lecturesCount: 0,
       expressionsCount: 0,
+      examsCount: 0,
+      questionsCount: 0,
       emailSent: false,
       error: error.message,
       timestamp: new Date().toISOString(),
@@ -198,11 +247,15 @@ Este backup se genera automáticamente todos los días.`;
         const words = await wordService.getAllWordsForExport();
         const lectures = await lectureService.getAllLecturesForExport();
         const expressions = await expressionService.getAllExpressionsForExport();
+        const exams = await examService.getAllExamsForExport();
+        const questions = await questionService.getAllQuestionsForExport();
         
         logger.info('Backup service test successful', {
           wordsCount: words.length,
           lecturesCount: lectures.length,
-          expressionsCount: expressions.length
+          expressionsCount: expressions.length,
+          examsCount: exams.length,
+          questionsCount: questions.length
         });
         
         return true;

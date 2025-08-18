@@ -440,7 +440,7 @@ export const translateTextStream = async (req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
-    const { text, sourceLang = "auto", targetLang } = req.body || {};
+    const { text, sourceLang = "auto", targetLang, mode = "normal" } = req.body || {};
 
     if (!text || typeof text !== "string") {
       return errorResponse(res, "'text' is required and must be a string", 400);
@@ -461,7 +461,7 @@ export const translateTextStream = async (req: Request, res: Response) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    const stream = await generateTranslationStreamService({ text, sourceLang, targetLang });
+    const stream = await generateTranslationStreamService({ text, sourceLang, targetLang, mode });
 
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;

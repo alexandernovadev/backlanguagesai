@@ -79,21 +79,45 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
 
 Este backup se genera automáticamente todos los días.`;
 
-    // 4. Prepare attachments
+    // 4. Prepare attachments with same structure as exports
     const attachments = [
       {
         filename: wordsFilename,
-        content: JSON.stringify(words, null, 2),
+        content: JSON.stringify({
+          success: true,
+          message: `Backup generated ${words.length} words successfully`,
+          data: {
+            totalWords: words.length,
+            exportDate: new Date().toISOString(),
+            words: words
+          }
+        }, null, 2),
         contentType: 'application/json'
       },
       {
         filename: lecturesFilename,
-        content: JSON.stringify(lectures, null, 2),
+        content: JSON.stringify({
+          success: true,
+          message: `Backup generated ${lectures.length} lectures successfully`,
+          data: {
+            totalLectures: lectures.length,
+            exportDate: new Date().toISOString(),
+            lectures: lectures
+          }
+        }, null, 2),
         contentType: 'application/json'
       },
       {
         filename: expressionsFilename,
-        content: JSON.stringify(expressions, null, 2),
+        content: JSON.stringify({
+          success: true,
+          message: `Backup generated ${expressions.length} expressions successfully`,
+          data: {
+            totalExpressions: expressions.length,
+            exportDate: new Date().toISOString(),
+            expressions: expressions
+          }
+        }, null, 2),
         contentType: 'application/json'
       }
     ];

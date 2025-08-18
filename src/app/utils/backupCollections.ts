@@ -38,11 +38,22 @@ export const backupCollections = async (): Promise<any> => {
           .find({})
           .toArray();
 
-        // ✅ Sobrescribe el archivo cada vez
+        // ✅ Sobrescribe el archivo cada vez con estructura consistente
         const filePath = path.join(backupDir, `${collectionName}.json`);
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
+        // Crear estructura consistente con exports
+        const backupData = {
+          success: true,
+          message: `Backup generated ${data.length} ${collectionName} successfully`,
+          data: {
+            [`total${collectionName.charAt(0).toUpperCase() + collectionName.slice(1)}`]: data.length,
+            exportDate: new Date().toISOString(),
+            [collectionName]: data
+          }
+        };
+
+        fs.writeFileSync(filePath, JSON.stringify(backupData, null, 2), "utf-8");
 
         logger.info(`✅ Backup creado para '${collectionName}' en ${filePath}`, {
           collection: collectionName,

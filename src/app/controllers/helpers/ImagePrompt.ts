@@ -1,8 +1,9 @@
 export const imageWordPrompt = (word: string) => {
   return `
-Create a clean educational illustration that conveys the meaning of "${word}" for a language‑learning dictionary.
+Create a clean educational illustration that conveys the meaning of "${word}" for a language‑learning dictionary(NO ADD TEXT on IMAGE,letters).
 
 Requirements:
+- (NO ADD TEXT on IMAGE, letters)
 - Make the meaning obvious at a glance; focus on one clear subject. Avoid complex scenes.
 - Clean, modern style; simple, non‑distracting background; high contrast; professional look.
 - Adapt to part of speech:
@@ -20,6 +21,8 @@ Hard constraints (must follow):
 - Absolutely no text of any kind (no words, letters, numbers, labels, watermarks, or logos).
 - Single, clear composition optimized for educational use.
  - No gore, no graphic injuries, no violence, no shocking or adult content.
+ -(NO ADD TEXT on IMAGE,letters),  -(NO ADD TEXT on IMAGE,letters)
+  -(NO ADD TEXT on IMAGE,letters)
   `.trim();
 };
 

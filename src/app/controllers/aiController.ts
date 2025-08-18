@@ -282,10 +282,15 @@ export const generateWordJson = async (req: Request, res: Response) => {
   }
 
   try {
+    // Generate the word data using AI
     const wordData = await generateWordJsonService(prompt, language);
-    return successResponse(res, "Word generated successfully", wordData);
+    
+    // Save the generated word to the database
+    const savedWord = await wordService.createWord(wordData);
+    
+    return successResponse(res, "Word generated and saved successfully", savedWord);
   } catch (error) {
-    return errorResponse(res, "Error generating word", 500, error);
+    return errorResponse(res, "Error generating or saving word", 500, error);
   }
 };
 

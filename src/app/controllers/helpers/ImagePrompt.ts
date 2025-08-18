@@ -82,8 +82,22 @@ export const imageExpressionPrompt = (expression: string) => {
   return `
   Create a clean educational illustration that conveys the meaning and typical context of the expression: "${expression}"
 
+  CRITICAL REQUIREMENTS - ZERO TEXT POLICY:
+  • ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS, NO NUMBERS, NO LABELS, NO WATERMARKS, NO LOGOS
+  • NO ARROWS WITH TEXT, NO SPEECH BUBBLES, NO CAPTIONS, NO SUBTITLES
+  • NO WRITING ON OBJECTS, NO SIGNS, NO BOOKS WITH VISIBLE TEXT
+  • THE IMAGE MUST BE COMPLETELY TEXT-FREE - ONLY VISUAL ELEMENTS
+
+  EXPRESSION ANALYSIS:
+  • First, analyze if this is an idiom, phrase, or literal expression
+  • For idioms: show the figurative meaning, NOT the literal words
+  • For example: "fly on the wall" = show someone secretly observing/listening to a conversation, NOT a literal fly on a wall
+  • For phrases: show the actual meaning in context, NOT word-by-word translation
+  • NEVER show literal objects mentioned in the expression - show what the expression actually means
+  • Make the concept instantly understandable through visual storytelling
+  • If the expression mentions animals/objects, show the human situation they represent instead
+
   GUIDELINES:
-  • Absolutely no text, words, letters, numbers, labels, watermarks, or logos inside the image
   • Make the concept obvious and suitable for a language-learning expressions dictionary
   • Use a clean, modern illustration style with a simple, non-distracting background
   • Focus on one clear scenario that visually communicates the expression's idea
@@ -96,10 +110,16 @@ export const imageExpressionPrompt = (expression: string) => {
 
   PEOPLE REPRESENTATION:
   • If showing people: modern, casual appearance; culturally neutral
-  • Do NOT depict religious or traditional head coverings (no headscarves, no turbans)
+  • ABSOLUTELY NO traditional head coverings: NO headscarves, NO turbans, NO hijabs, NO keffiyehs
+  • NO traditional Arab clothing, NO robes, NO Middle Eastern traditional attire
+  • NO traditional Indian clothing, NO saris, NO traditional Asian head coverings
+  • Use ONLY modern, casual clothing that is universally recognizable
+  • People should look like they're from a modern, international city (jeans, t-shirts, casual wear)
+  • NO cultural or religious clothing of any kind - keep it completely neutral and modern
 
   STYLE REQUIREMENTS:
   • High contrast, professional look, simple composition
-  • No text or symbols in the image
+  • NO TEXT OR SYMBOLS IN THE IMAGE - ONLY PURE VISUAL ILLUSTRATION
+  • Clean, uncluttered design that teaches the expression concept without any written language
   `.trim();
 };

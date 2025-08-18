@@ -5,6 +5,7 @@ import {
   exportExpressionsToJSON, importExpressionsFromFile,
   addChatMessage, getChatHistory, clearChatHistory, streamChatResponse, generateExpression,
 } from "../controllers/expressionController";
+import { updateImageExpression } from "../controllers/aiController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
@@ -15,6 +16,9 @@ router.post("/import-file", ...createJsonUploadMiddleware(), importExpressionsFr
 
 // AI Generation route
 router.post("/generate", generateExpression);
+
+// Image update route
+router.put("/:idexpression/image", updateImageExpression);
 
 // Filter and search routes
 router.get("/by-type/:type", getExpressionsByType);

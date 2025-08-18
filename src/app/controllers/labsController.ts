@@ -537,11 +537,6 @@ export const cleanExamAttempts = async (
   res: Response
 ): Promise<Response> => {
   try {
-    // Verificar que el usuario esté autenticado
-    if (!req.user?._id) {
-      return errorResponse(res, "Usuario no autenticado", 401);
-    }
-
     const result = await CleanerService.cleanExamAttempts();
     
     return successResponse(res, "TODOS los intentos de examen han sido eliminados exitosamente", {
@@ -564,11 +559,6 @@ export const cleanExams = async (
   res: Response
 ): Promise<Response> => {
   try {
-    // Verificar que el usuario esté autenticado
-    if (!req.user?._id) {
-      return errorResponse(res, "Usuario no autenticado", 401);
-    }
-
     const result = await CleanerService.cleanExams();
     
     return successResponse(res, "TODOS los exámenes han sido eliminados exitosamente", {
@@ -593,11 +583,6 @@ export const cleanQuestions = async (
   res: Response
 ): Promise<Response> => {
   try {
-    // Verificar que el usuario esté autenticado
-    if (!req.user?._id) {
-      return errorResponse(res, "Usuario no autenticado", 401);
-    }
-
     const result = await CleanerService.cleanQuestions();
     
     return successResponse(res, "TODAS las preguntas han sido eliminadas exitosamente", {
@@ -620,11 +605,6 @@ export const cleanWords = async (
   res: Response
 ): Promise<Response> => {
   try {
-    // Verificar que el usuario esté autenticado
-    if (!req.user?._id) {
-      return errorResponse(res, "Usuario no autenticado", 401);
-    }
-
     logger.warn("⚠️ Iniciando limpieza de palabras (PELIGROSO)", {
       userId: req.user._id,
       username: req.user.username
@@ -662,11 +642,6 @@ export const cleanLectures = async (
   res: Response
 ): Promise<Response> => {
   try {
-    // Verificar que el usuario esté autenticado
-    if (!req.user?._id) {
-      return errorResponse(res, "Usuario no autenticado", 401);
-    }
-
     logger.warn("⚠️ Iniciando limpieza de lecturas (PELIGROSO)", {
       userId: req.user._id,
       username: req.user.username
@@ -712,12 +687,6 @@ export const cleanExpressions = async (
       username: req.user?.username
     });
 
-    // Verificar que el usuario esté autenticado
-    if (!req.user?._id) {
-      logger.error("❌ cleanExpressions - Usuario no autenticado", { req: req.user });
-      return errorResponse(res, "Usuario no autenticado", 401);
-    }
-
     logger.warn("⚠️ Iniciando limpieza de expresiones (PELIGROSO)", {
       userId: req.user._id,
       username: req.user.username
@@ -760,11 +729,6 @@ export const cleanUsers = async (
   res: Response
 ): Promise<Response> => {
   try {
-    // Verificar que el usuario esté autenticado
-    if (!req.user?._id) {
-      return errorResponse(res, "Usuario no autenticado", 401);
-    }
-
     logger.warn("⚠️ Iniciando limpieza de usuarios (PELIGROSO)", {
       userId: req.user._id,
       username: req.user.username

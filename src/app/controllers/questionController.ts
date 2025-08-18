@@ -354,20 +354,26 @@ export const importQuestionsFromFile = async (
       return errorResponse(res, "Invalid JSON file format", 400);
     }
 
-    // Validate file structure
-    if (
-      !fileData.data ||
-      !fileData.data.questions ||
-      !Array.isArray(fileData.data.questions)
-    ) {
+    // Validate file structure - handle both direct and nested structures
+    let questions: any[] = [];
+    
+    // Try to find questions in different possible structures
+    if (fileData.data?.questions && Array.isArray(fileData.data.questions)) {
+      // Direct structure: data.questions
+      questions = fileData.data.questions;
+    } else if (fileData.data?.data?.questions && Array.isArray(fileData.data.data.questions)) {
+      // Nested structure: data.data.questions (from export)
+      questions = fileData.data.data.questions;
+    } else if (fileData.questions && Array.isArray(fileData.questions)) {
+      // Root level: questions
+      questions = fileData.questions;
+    } else {
       return errorResponse(
         res,
-        "Invalid file structure. Expected 'data.questions' array",
+        "Invalid file structure. Expected 'data.questions' or 'data.data.questions' array",
         400
       );
     }
-
-    const questions = fileData.data.questions;
     const {
       duplicateStrategy = "skip",
       validateOnly = false,

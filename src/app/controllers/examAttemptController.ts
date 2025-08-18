@@ -195,20 +195,26 @@ export class ExamAttemptController {
         return errorResponse(res, "Invalid JSON file format", 400);
       }
 
-      // Validate file structure
-      if (
-        !fileData.data ||
-        !fileData.data.attempts ||
-        !Array.isArray(fileData.data.attempts)
-      ) {
+      // Validate file structure - handle both direct and nested structures
+      let attempts: any[] = [];
+      
+      // Try to find attempts in different possible structures
+      if (fileData.data?.attempts && Array.isArray(fileData.data.attempts)) {
+        // Direct structure: data.attempts
+        attempts = fileData.data.attempts;
+      } else if (fileData.data?.data?.attempts && Array.isArray(fileData.data.data.attempts)) {
+        // Nested structure: data.data.attempts (from export)
+        attempts = fileData.data.data.attempts;
+      } else if (fileData.attempts && Array.isArray(fileData.attempts)) {
+        // Root level: attempts
+        attempts = fileData.attempts;
+      } else {
         return errorResponse(
           res,
-          "Invalid file structure. Expected 'data.attempts' array",
+          "Invalid file structure. Expected 'data.attempts' or 'data.data.attempts' array",
           400
         );
       }
-
-      const attempts = fileData.data.attempts;
       const {
         duplicateStrategy = "skip",
         validateOnly = false,

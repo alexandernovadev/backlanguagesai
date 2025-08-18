@@ -226,20 +226,26 @@ export const importLecturesFromFile = async (
       return errorResponse(res, "Invalid JSON file format", 400);
     }
 
-    // Validate file structure
-    if (
-      !fileData.data ||
-      !fileData.data.lectures ||
-      !Array.isArray(fileData.data.lectures)
-    ) {
+    // Validate file structure - handle both direct and nested structures
+    let lectures: any[] = [];
+    
+    // Try to find lectures in different possible structures
+    if (fileData.data?.lectures && Array.isArray(fileData.data.lectures)) {
+      // Direct structure: data.lectures
+      lectures = fileData.data.lectures;
+    } else if (fileData.data?.data?.lectures && Array.isArray(fileData.data.data.lectures)) {
+      // Nested structure: data.data.lectures (from export)
+      lectures = fileData.data.data.lectures;
+    } else if (fileData.lectures && Array.isArray(fileData.lectures)) {
+      // Root level: lectures
+      lectures = fileData.lectures;
+    } else {
       return errorResponse(
         res,
-        "Invalid file structure. Expected 'data.lectures' array",
+        "Invalid file structure. Expected 'data.lectures' or 'data.data.lectures' array",
         400
       );
     }
-
-    const lectures = fileData.data.lectures;
     const {
       duplicateStrategy = "skip",
       validateOnly = false,

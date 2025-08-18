@@ -618,20 +618,26 @@ export const importExamsFromFile = async (
       return errorResponse(res, "Invalid JSON file format", 400);
     }
 
-    // Validate file structure
-    if (
-      !fileData.data ||
-      !fileData.data.exams ||
-      !Array.isArray(fileData.data.exams)
-    ) {
+    // Validate file structure - handle both direct and nested structures
+    let exams: any[] = [];
+    
+    // Try to find exams in different possible structures
+    if (fileData.data?.exams && Array.isArray(fileData.data.exams)) {
+      // Direct structure: data.exams
+      exams = fileData.data.exams;
+    } else if (fileData.data?.data?.exams && Array.isArray(fileData.data.data.exams)) {
+      // Nested structure: data.data.exams (from export)
+      exams = fileData.data.data.exams;
+    } else if (fileData.exams && Array.isArray(fileData.exams)) {
+      // Root level: exams
+      exams = fileData.exams;
+    } else {
       return errorResponse(
         res,
-        "Invalid file structure. Expected 'data.exams' array",
+        "Invalid file structure. Expected 'data.exams' or 'data.data.exams' array",
         400
       );
     }
-
-    const exams = fileData.data.exams;
     const {
       duplicateStrategy = "skip",
       validateOnly = false,

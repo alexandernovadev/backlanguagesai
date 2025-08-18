@@ -499,20 +499,26 @@ export const importWordsFromFile = async (
       return errorResponse(res, "Invalid JSON file format", 400);
     }
 
-    // Validate file structure
-    if (
-      !fileData.data ||
-      !fileData.data.words ||
-      !Array.isArray(fileData.data.words)
-    ) {
+    // Validate file structure - handle both direct and nested structures
+    let words: any[] = [];
+    
+    // Try to find words in different possible structures
+    if (fileData.data?.words && Array.isArray(fileData.data.words)) {
+      // Direct structure: data.words
+      words = fileData.data.words;
+    } else if (fileData.data?.data?.words && Array.isArray(fileData.data.data.words)) {
+      // Nested structure: data.data.words (from export)
+      words = fileData.data.data.words;
+    } else if (fileData.words && Array.isArray(fileData.words)) {
+      // Root level: words
+      words = fileData.words;
+    } else {
       return errorResponse(
         res,
-        "Invalid file structure. Expected 'data.words' array",
+        "Invalid file structure. Expected 'data.words' or 'data.data.words' array",
         400
       );
     }
-
-    const words = fileData.data.words;
     const {
       duplicateStrategy = "skip",
       validateOnly = false,

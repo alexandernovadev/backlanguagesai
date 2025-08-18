@@ -186,20 +186,26 @@ export const importExpressionsFromFile = async (
       return errorResponse(res, "Invalid JSON file format", 400);
     }
 
-    // Validate file structure
-    if (
-      !fileData.data ||
-      !fileData.data.expressions ||
-      !Array.isArray(fileData.data.expressions)
-    ) {
+    // Validate file structure - handle both direct and nested structures
+    let expressions: any[] = [];
+    
+    // Try to find expressions in different possible structures
+    if (fileData.data?.expressions && Array.isArray(fileData.data.expressions)) {
+      // Direct structure: data.expressions
+      expressions = fileData.data.expressions;
+    } else if (fileData.data?.data?.expressions && Array.isArray(fileData.data.data.expressions)) {
+      // Nested structure: data.data.expressions (from export)
+      expressions = fileData.data.data.expressions;
+    } else if (fileData.expressions && Array.isArray(fileData.expressions)) {
+      // Root level: expressions
+      expressions = fileData.expressions;
+    } else {
       return errorResponse(
         res,
-        "Invalid file structure. Expected 'data.expressions' array",
+        "Invalid file structure. Expected 'data.expressions' or 'data.data.expressions' array",
         400
       );
     }
-
-    const expressions = fileData.data.expressions;
     const {
       duplicateStrategy = "skip",
       validateOnly = false,

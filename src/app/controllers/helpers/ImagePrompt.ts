@@ -1,9 +1,10 @@
 export const imageWordPrompt = (word: string) => {
   return `
-Create a clean educational illustration that conveys the meaning of "${word}" for a language‑learning dictionary(NO ADD TEXT on IMAGE,letters).
+Create a clean educational illustration that conveys the meaning of "${word}" for a language‑learning dictionary
+(NO ADD TEXT OR Letters on IMAGE,).
 
 Requirements:
-- (NO ADD TEXT on IMAGE, letters)
+- (NO ADD TEXT OR Letters on IMAGE,)
 - Make the meaning obvious at a glance; focus on one clear subject. Avoid complex scenes.
 - Clean, modern style; simple, non‑distracting background; high contrast; professional look.
 - Adapt to part of speech:
@@ -11,6 +12,7 @@ Requirements:
   • Verb → show the action.
   • Adjective → show the quality/characteristic.
   • Adverb → show the manner/degree of an action.
+  (NO ADD TEXT OR Letters on IMAGE,)
 - If people are shown: modern, casual appearance; avoid cultural or religious head coverings; keep neutral and inclusive.
  - If people are shown: modern, casual appearance; avoid cultural or religious head coverings; keep neutral and inclusive.
  - Do not depict traditional Arab clothing or turbans.
@@ -18,11 +20,13 @@ Requirements:
  - If a literal depiction is restricted or sensitive, choose a safe, didactic alternative that still teaches the concept (e.g., first‑aid kit, bandages, crutches, safety helmet, caution signs). Keep it realistic but strictly non‑graphic and child‑safe.
 
 Hard constraints (must follow):
-- Absolutely no text of any kind (no words, letters, numbers, labels, watermarks, or logos).
+- Absolutely no text of any kind (no words, letters, numbers, labels, watermarks, or logos)(NO ADD TEXT OR Letters on IMAGE,).
 - Single, clear composition optimized for educational use.
  - No gore, no graphic injuries, no violence, no shocking or adult content.
- -(NO ADD TEXT on IMAGE,letters),  -(NO ADD TEXT on IMAGE,letters)
-  -(NO ADD TEXT on IMAGE,letters)
+ -(NO ADD TEXT OR Letters on IMAGE,)
+ -(NO ADD TEXT OR Letters on IMAGE,)
+ -(NO ADD TEXT OR Letters on IMAGE,)
+ (NO ADD TEXT OR Letters on IMAGE,)(NO ADD TEXT OR Letters on IMAGE,)(NO ADD TEXT OR Letters on IMAGE,)
   `.trim();
 };
 

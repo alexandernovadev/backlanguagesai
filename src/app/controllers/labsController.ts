@@ -606,15 +606,15 @@ export const cleanWords = async (
 ): Promise<Response> => {
   try {
     logger.warn("⚠️ Iniciando limpieza de palabras (PELIGROSO)", {
-      userId: req.user._id,
-      username: req.user.username
+      userId: req.user?._id || "NO_AUTH",
+      username: req.user?.username || "NO_AUTH"
     });
 
     const wordsCountBefore = await Word.countDocuments();
     const result = await Word.deleteMany({});
     
     logger.warn("✅ Limpieza de palabras completada", {
-      userId: req.user._id,
+      userId: req.user?._id || "NO_AUTH",
       deletedCount: result.deletedCount,
       totalBefore: wordsCountBefore
     });
@@ -643,15 +643,15 @@ export const cleanLectures = async (
 ): Promise<Response> => {
   try {
     logger.warn("⚠️ Iniciando limpieza de lecturas (PELIGROSO)", {
-      userId: req.user._id,
-      username: req.user.username
+      userId: req.user?._id || "NO_AUTH",
+      username: req.user?.username || "NO_AUTH"
     });
 
     const lecturesCountBefore = await Lecture.countDocuments();
     const result = await Lecture.deleteMany({});
     
     logger.warn("✅ Limpieza de lecturas completada", {
-      userId: req.user._id,
+      userId: req.user?._id || "NO_AUTH",
       deletedCount: result.deletedCount,
       totalBefore: lecturesCountBefore
     });
@@ -683,13 +683,13 @@ export const cleanExpressions = async (
     logger.info("🔍 cleanExpressions - Request recibido", {
       headers: req.headers,
       user: req.user,
-      userId: req.user?._id,
-      username: req.user?.username
+      userId: req.user?._id || "NO_AUTH",
+      username: req.user?.username || "NO_AUTH"
     });
 
     logger.warn("⚠️ Iniciando limpieza de expresiones (PELIGROSO)", {
-      userId: req.user._id,
-      username: req.user.username
+      userId: req.user?._id || "NO_AUTH",
+      username: req.user?.username || "NO_AUTH"
     });
 
     logger.info("📊 cleanExpressions - Contando expresiones antes de eliminar...");
@@ -701,7 +701,7 @@ export const cleanExpressions = async (
     logger.info("🗑️ cleanExpressions - Eliminación completada", { result });
     
     logger.warn("✅ Limpieza de expresiones completada", {
-      userId: req.user._id,
+      userId: req.user?._id || "NO_AUTH",
       deletedCount: result.deletedCount,
       totalBefore: expressionsCountBefore
     });
@@ -729,6 +729,11 @@ export const cleanUsers = async (
   res: Response
 ): Promise<Response> => {
   try {
+    // Si no hay autenticación, no podemos preservar al usuario actual
+    if (!req.user?._id) {
+      return errorResponse(res, "Autenticación requerida para esta operación", 401);
+    }
+
     logger.warn("⚠️ Iniciando limpieza de usuarios (PELIGROSO)", {
       userId: req.user._id,
       username: req.user.username

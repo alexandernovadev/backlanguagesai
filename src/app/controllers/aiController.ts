@@ -15,9 +15,10 @@ import {
 } from "../services/cloudinary/cloudinaryService";
 
 import { errorResponse, successResponse } from "../utils/responseHelpers";
-import { imageWordPrompt, imageLecturePrompt } from "./helpers/ImagePrompt";
+import { imageWordPrompt, imageLecturePrompt, imageExpressionPrompt } from "./helpers/ImagePrompt";
 import { promptAddEasyWords } from "./helpers/promptAddEasyWords";
 import { LectureService } from "../services/lectures/LectureService";
+import { ExpressionService } from "../services/expressions/expressionService";
 import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
 import { ExamGenerationValidator } from "../utils/validators/examGenerationValidator";
 import { generateTopicStreamService } from "../services/ai/generateTopicStream";
@@ -25,6 +26,7 @@ import { generateTranslationStreamService } from "../services/ai/generateTransla
 
 const wordService = new WordService();
 const lectureService = new LectureService();
+const expressionService = new ExpressionService();
 
 export const generateAudioFromText = async (req: Request, res: Response) => {
   const { prompt, voice } = req.body;
@@ -156,6 +158,59 @@ export const updateImageWord = async (req: Request, res: Response) => {
     return successResponse(res, "Word image updated successfully", updatedWord);
   } catch (error) {
     return errorResponse(res, "Error generating word image", 500, error);
+  }
+};
+
+/**
+ * Generate Image with AI, Save in Cloudinary, and Update Expression
+ */
+export const updateImageExpression = async (req: Request, res: Response) => {
+  const { expressionString, imgOld } = req.body;
+  const IDExpression = req.params.idexpression;
+
+  if (!expressionString) {
+    return errorResponse(res, "Expression prompt is required.", 400);
+  }
+
+  try {
+    // Generate image
+    const imageBase64 = await generateImage(imageExpressionPrompt(expressionString));
+    if (!imageBase64) {
+      return errorResponse(res, "Failed to generate image.", 400);
+    }
+
+    let deleteOldImagePromise: Promise<void> = Promise.resolve();
+
+    if (imgOld && imgOld.includes("res.cloudinary.com")) {
+      const parts = imgOld.split("/");
+      let publicId = parts.pop() as string;
+
+      if (publicId && publicId.includes(".")) {
+        publicId = publicId.split(".")[0];
+      }
+
+      deleteOldImagePromise = deleteImageFromCloudinary(
+        "languagesai/expressions/" + publicId
+      ).then(() => {});
+    }
+
+    const [_, urlImage] = await Promise.all([
+      deleteOldImagePromise,
+      uploadImageToCloudinary(imageBase64, "expressions"),
+    ]);
+
+    const updatedExpression = await expressionService.updateExpressionImg(
+      IDExpression,
+      urlImage as string
+    );
+
+    return successResponse(
+      res,
+      "Expression image updated successfully",
+      updatedExpression
+    );
+  } catch (error) {
+    return errorResponse(res, "Error generating expression image", 500, error);
   }
 };
 

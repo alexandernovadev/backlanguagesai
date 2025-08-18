@@ -78,7 +78,6 @@ app.use("/api/exam-attempts", authMiddleware, ExamAttemptRoutes);
 app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 
-
 // Labs routes (conditional auth)
 if (LABS_AUTH) {
   app.use("/api/labs", authMiddleware, LabsRoutes);

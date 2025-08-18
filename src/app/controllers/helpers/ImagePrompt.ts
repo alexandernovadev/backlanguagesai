@@ -77,3 +77,29 @@ export const imageLecturePrompt = (lectureContent: string) => {
   Create an educational illustration that represents the main theme of this reading content.
   `.trim();
 };
+
+export const imageExpressionPrompt = (expression: string) => {
+  return `
+  Create a clean educational illustration that conveys the meaning and typical context of the expression: "${expression}"
+
+  GUIDELINES:
+  • Absolutely no text, words, letters, numbers, labels, watermarks, or logos inside the image
+  • Make the concept obvious and suitable for a language-learning expressions dictionary
+  • Use a clean, modern illustration style with a simple, non-distracting background
+  • Focus on one clear scenario that visually communicates the expression's idea
+  • Keep it culturally neutral and appropriate for all ages
+
+  CONTENT APPROACH:
+  • Portray a short, universal scenario that represents how the expression is used
+  • Avoid abstract or ambiguous visuals
+  • If the literal depiction is confusing, choose a safe didactic alternative that conveys the intended meaning
+
+  PEOPLE REPRESENTATION:
+  • If showing people: modern, casual appearance; culturally neutral
+  • Do NOT depict religious or traditional head coverings (no headscarves, no turbans)
+
+  STYLE REQUIREMENTS:
+  • High contrast, professional look, simple composition
+  • No text or symbols in the image
+  `.trim();
+};

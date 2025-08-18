@@ -82,6 +82,20 @@ export class ExpressionService {
     return await Expression.findByIdAndUpdate(id, updateData, { new: true });
   }
 
+  async updateExpressionImg(
+    id: string,
+    img: string
+  ): Promise<{ _id: string; img?: string; updatedAt: Date } | null> {
+    return await Expression.findByIdAndUpdate(
+      id,
+      { img },
+      {
+        new: true,
+        projection: { _id: 1, img: 1, updatedAt: 1 },
+      }
+    );
+  }
+
   async deleteExpression(id: string): Promise<IExpression | null> {
     return await Expression.findByIdAndDelete(id);
   }

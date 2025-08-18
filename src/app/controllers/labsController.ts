@@ -704,8 +704,17 @@ export const cleanExpressions = async (
   res: Response
 ): Promise<Response> => {
   try {
+    // Debug: Log del request y usuario
+    logger.info("🔍 cleanExpressions - Request recibido", {
+      headers: req.headers,
+      user: req.user,
+      userId: req.user?._id,
+      username: req.user?.username
+    });
+
     // Verificar que el usuario esté autenticado
     if (!req.user?._id) {
+      logger.error("❌ cleanExpressions - Usuario no autenticado", { req: req.user });
       return errorResponse(res, "Usuario no autenticado", 401);
     }
 
@@ -714,8 +723,13 @@ export const cleanExpressions = async (
       username: req.user.username
     });
 
+    logger.info("📊 cleanExpressions - Contando expresiones antes de eliminar...");
     const expressionsCountBefore = await Expression.countDocuments();
+    logger.info("📊 cleanExpressions - Expresiones encontradas", { count: expressionsCountBefore });
+    
+    logger.info("🗑️ cleanExpressions - Iniciando eliminación...");
     const result = await Expression.deleteMany({});
+    logger.info("🗑️ cleanExpressions - Eliminación completada", { result });
     
     logger.warn("✅ Limpieza de expresiones completada", {
       userId: req.user._id,

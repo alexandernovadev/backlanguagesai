@@ -39,9 +39,10 @@ export const authMiddleware = (
     // @ts-ignore
     req.user = {
       id: decoded.user._id || decoded.user.id,
+      _id: decoded.user._id || decoded.user.id,
       ...decoded.user
     };
-    console.log('🔐 Auth middleware - User set:', { userId: req.user.id, user: req.user });
+    console.log('🔐 Auth middleware - User set:', { userId: req.user._id, user: req.user });
     next();
   } catch (error) {
     console.error('🔐 Auth middleware error:', error);

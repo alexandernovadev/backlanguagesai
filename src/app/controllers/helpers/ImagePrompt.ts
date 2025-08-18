@@ -1,7 +1,8 @@
 export const imageWordPrompt = (word: string) => {
   return `
+   •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
 Create a clean educational illustration that conveys the meaning of "${word}" for a language‑learning dictionary
-(NO ADD TEXT OR Letters on IMAGE,).
+(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
 
 Requirements:
 - (NO ADD TEXT OR Letters on IMAGE,)
@@ -12,21 +13,25 @@ Requirements:
   • Verb → show the action.
   • Adjective → show the quality/characteristic.
   • Adverb → show the manner/degree of an action.
-  (NO ADD TEXT OR Letters on IMAGE,)
+   •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
 - If people are shown: modern, casual appearance; avoid cultural or religious head coverings; keep neutral and inclusive.
  - If people are shown: modern, casual appearance; avoid cultural or religious head coverings; keep neutral and inclusive.
  - Do not depict traditional Arab clothing or turbans.
 - Cultural neutrality; suitable for all ages; no abstract or ambiguous visuals.
- - If a literal depiction is restricted or sensitive, choose a safe, didactic alternative that still teaches the concept (e.g., first‑aid kit, bandages, crutches, safety helmet, caution signs). Keep it realistic but strictly non‑graphic and child‑safe.
+ - If a literal depiction is restricted or sensitive, choose a safe, didactic alternative that still teaches the concept 
+ (e.g., first‑aid kit, bandages, crutches, safety helmet, caution signs). 
+ Keep it realistic but strictly non‑graphic and child‑safe.
+  •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
 
 Hard constraints (must follow):
 - Absolutely no text of any kind (no words, letters, numbers, labels, watermarks, or logos)(NO ADD TEXT OR Letters on IMAGE,).
 - Single, clear composition optimized for educational use.
  - No gore, no graphic injuries, no violence, no shocking or adult content.
- -(NO ADD TEXT OR Letters on IMAGE,)
- -(NO ADD TEXT OR Letters on IMAGE,)
- -(NO ADD TEXT OR Letters on IMAGE,)
- (NO ADD TEXT OR Letters on IMAGE,)(NO ADD TEXT OR Letters on IMAGE,)(NO ADD TEXT OR Letters on IMAGE,)
+  •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
+  •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
+  •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
+  •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
+   •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
   `.trim();
 };
 

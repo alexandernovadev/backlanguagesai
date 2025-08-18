@@ -21,6 +21,7 @@ import { LectureService } from "../services/lectures/LectureService";
 import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
 import { ExamGenerationValidator } from "../utils/validators/examGenerationValidator";
 import { generateTopicStreamService } from "../services/ai/generateTopicStream";
+import { generateTranslationStreamService } from "../services/ai/generateTranslationStream";
 
 const wordService = new WordService();
 const lectureService = new LectureService();
@@ -432,3 +433,48 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     return errorResponse(res, "Error generating topic", 500, error);
   }
 }; 
+
+// Translate text (streaming)
+export const translateTextStream = async (req: Request, res: Response) => {
+  const operationId = Math.random().toString(36).substr(2, 9);
+  const startTime = Date.now();
+
+  try {
+    const { text, sourceLang = "auto", targetLang } = req.body || {};
+
+    if (!text || typeof text !== "string") {
+      return errorResponse(res, "'text' is required and must be a string", 400);
+    }
+    const allowed = ["es", "en", "fr", "de", "it", "pt"];
+    if (!targetLang || !allowed.includes(targetLang)) {
+      return errorResponse(res, "Invalid 'targetLang'", 400);
+    }
+    if (sourceLang !== "auto" && !allowed.includes(sourceLang)) {
+      return errorResponse(res, "Invalid 'sourceLang'", 400);
+    }
+    if (text.length > 4000) {
+      return errorResponse(res, "Text too long (max 4000 characters)", 400);
+    }
+
+    // Set streaming headers
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const stream = await generateTranslationStreamService({ text, sourceLang, targetLang });
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        res.write(content);
+      }
+    }
+
+    res.end();
+
+    const duration = Date.now() - startTime;
+    return; // success streamed
+  } catch (error: any) {
+    return errorResponse(res, "Failed to translate text", 500, error);
+  }
+};

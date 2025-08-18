@@ -12,6 +12,7 @@ import {
   updateImageWord,
   generateTopicStream,
 } from "../controllers/generateIAController";
+import { translateTextStream } from "../controllers/aiController";
 
 export const generateRoutes = Router();
 
@@ -19,6 +20,7 @@ generateRoutes.post("/generate-text", generateTextStream);
 generateRoutes.post("/generate-wordJson", generateJSONword);
 generateRoutes.post("/generate-exam", generateExamStream);
 generateRoutes.post("/generate-topic-stream", generateTopicStream);
+generateRoutes.post("/translate", translateTextStream);
 
 generateRoutes.post("/generate-image-lecture/:idlecture", updateImageLecture);
 generateRoutes.post("/generate-image-word/:idword", updateImageWord);

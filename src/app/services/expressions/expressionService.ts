@@ -298,17 +298,4 @@ export class ExpressionService {
       throw new Error(`Error generating expression: ${error.message}`);
     }
   }
-
-  async updateImage(id: string, imageUrl: string): Promise<IExpression | null> {
-    try {
-      return await Expression.findByIdAndUpdate(
-        id,
-        { img: imageUrl },
-        { new: true }
-      );
-    } catch (error) {
-      console.error("Error updating expression image:", error);
-      return null;
-    }
-  }
 } 

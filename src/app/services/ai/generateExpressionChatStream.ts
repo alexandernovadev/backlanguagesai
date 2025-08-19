@@ -35,6 +35,8 @@ export const generateExpressionChatStream = async (
         - Include relevant examples when they help explain the answer
         - Keep it concise but thorough
         - Be encouraging and supportive
+        - Use Markdown for readability: **bold** for emphasis, *italics* for key terms, bullet points for lists
+        - When giving examples or explanations, structure them clearly with Markdown
 
         CONTEXT:
         - Expression: ${expressionText}

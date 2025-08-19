@@ -298,10 +298,15 @@ export class WordService {
   }
 
   async getRecentHardOrMediumWords(): Promise<IWord[]> {
-    return await Word.find({ level: { $in: ["hard", "medium"] } })
-      .sort({ updatedAt: -1 })
-      .limit(100)
-      .lean();
+    // Obtener 30 palabras medium y hard aleatorias para el juego Anki
+    // Usar $sample + $sort con $random para máxima aleatorización
+    return await Word.aggregate([
+      { $match: { level: { $in: ["hard", "medium"] } } },
+      { $addFields: { randomSort: { $rand: {} } } }, // Agregar campo aleatorio
+      { $sort: { randomSort: 1 } }, // Ordenar por el campo aleatorio
+      { $limit: 30 }, // Limitar a 30 palabras para el juego
+      { $project: { randomSort: 0 } } // Remover el campo aleatorio del resultado
+    ]);
   }
 
   // Nuevo método para obtener palabras para repaso inteligente

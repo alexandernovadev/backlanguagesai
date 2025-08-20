@@ -19,6 +19,7 @@ import ExamRoutes from "./app/routes/examRoutes";
 import ExamAttemptRoutes from "./app/routes/examAttemptRoutes";
 import LabsRoutes from "./app/routes/labsRoutes";
 import StatisticsRoutes from "./app/routes/statisticsRoutes";
+import UploadRoutes from "./app/routes/uploadRoutes";
 
 import AuthRoutes from "./app/routes/authRoutes";
 import UserRoutes from "./app/routes/userRoutes";
@@ -77,6 +78,7 @@ app.use("/api/exams", authMiddleware, ExamRoutes);
 app.use("/api/exam-attempts", authMiddleware, ExamAttemptRoutes);
 app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
+app.use("/api", authMiddleware, UploadRoutes);
 
 // Labs routes (conditional auth)
 if (LABS_AUTH) {

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import mongoose from "mongoose";
-import logger from "./logger";
+import logger from "../../utils/logger";
 
 export const backupCollections = async (): Promise<any> => {
   try {
@@ -20,11 +20,12 @@ export const backupCollections = async (): Promise<any> => {
       "..",
       "..",
       "..",
+      "..",
       "labs_nova",
       "databk"
     );
 
-    // 📁 Crear la carpeta si no existe
+    // 📁 Create folder if it doesn't exist
     if (!fs.existsSync(backupDir)) {
       fs.mkdirSync(backupDir, { recursive: true });
     }
@@ -38,11 +39,11 @@ export const backupCollections = async (): Promise<any> => {
           .find({})
           .toArray();
 
-        // ✅ Sobrescribe el archivo cada vez con estructura consistente
+        // ✅ Overwrite file each time with consistent structure
         const filePath = path.join(backupDir, `${collectionName}.json`);
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-        // Crear estructura consistente con exports
+        // Create consistent structure with exports
         const backupData = {
           success: true,
           message: `Backup generated ${data.length} ${collectionName} successfully`,
@@ -53,9 +54,14 @@ export const backupCollections = async (): Promise<any> => {
           }
         };
 
-        fs.writeFileSync(filePath, JSON.stringify(backupData, null, 2), "utf-8");
+        // ✅ Write with UTF-8 BOM for maximum compatibility
+        const jsonString = JSON.stringify(backupData, null, 2);
+        const bom = Buffer.from([0xEF, 0xBB, 0xBF]); // UTF-8 BOM
+        const content = Buffer.concat([bom, Buffer.from(jsonString, 'utf8')]);
+        
+        fs.writeFileSync(filePath, content);
 
-        logger.info(`✅ Backup creado para '${collectionName}' en ${filePath}`, {
+        logger.info(`✅ Backup created for '${collectionName}' in ${filePath}`, {
           collection: collectionName,
           count: data.length,
           filePath: filePath,
@@ -69,7 +75,7 @@ export const backupCollections = async (): Promise<any> => {
           timestamp: timestamp
         });
       } catch (collectionError) {
-        logger.error(`❌ Error backuping '${collectionName}':`, {
+        logger.error(`❌ Error backing up '${collectionName}':`, {
           collection: collectionName,
           error: collectionError.message,
           stack: collectionError.stack
@@ -82,7 +88,7 @@ export const backupCollections = async (): Promise<any> => {
       }
     }
 
-    logger.info("✅ Backup completado", {
+    logger.info("✅ Backup completed", {
       totalCollections: collectionsToBackup.length,
       successfulBackups: backupResults.filter(r => !r.error).length,
       totalDocuments: backupResults.reduce((total, r) => total + (r.count || 0), 0)
@@ -95,7 +101,7 @@ export const backupCollections = async (): Promise<any> => {
       timestamp: new Date().toISOString()
     };
   } catch (error) {
-    logger.error("❌ Error durante el backup:", {
+    logger.error("❌ Error during backup:", {
       error: error.message,
       stack: error.stack
     });

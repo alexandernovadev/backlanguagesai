@@ -9,7 +9,7 @@ import User from "../db/models/User";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { seedAdminUser } from "../services/seed/user";
 import { seedQuestions } from "../services/seed/seedQuestions";
-import { backupCollections } from "../utils/backupCollections";
+import { backupCollections } from "../services/backup/backupCollections";
 import { seedData } from "../utils/seedData";
 import { calculateReadingTimeFromContent } from "../utils/text/calculateReadingTime";
 import { CleanerService } from "../services/cleanerService";

@@ -54,6 +54,17 @@ export class ExpressionService {
       filter.img = null;
     }
 
+    if (filters.hasContext === "true") {
+      filter.context = { $exists: true, $ne: null, $nin: ["", null] };
+    } else if (filters.hasContext === "false") {
+      filter.$or = filter.$or || [];
+      filter.$or.push(
+        { context: { $exists: false } },
+        { context: null },
+        { context: "" }
+      );
+    }
+
     if (filters.createdAt) {
       if (!filter.createdAt) filter.createdAt = {};
       (filter.createdAt as any).$gte = new Date(filters.createdAt);

@@ -9,6 +9,7 @@ interface Options {
   rangeMin?: number;
   rangeMax?: number;
   grammarTopics?: string[];
+  selectedWords?: string[];
 }
 
 export const generateTextStreamService = async ({
@@ -20,10 +21,25 @@ export const generateTextStreamService = async ({
   rangeMin = 5200,
   rangeMax = 6500,
   grammarTopics = [],
+  selectedWords = [],
 }: Options) => {
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY || "",
   });
+
+  // Crear instrucciones para palabras seleccionadas si se proporcionan
+  const selectedWordsInstructions = selectedWords.length > 0 
+    ? `
+🎯 SELECTED WORDS REQUIREMENT:
+You MUST include these specific words naturally in the text: ${selectedWords.join(', ')}
+- Use each word at least once in appropriate contexts
+- Integrate them naturally into the narrative/story
+- Do NOT create a separate vocabulary list or word bank
+- Do NOT explain the meaning of these words
+- These words should appear as part of the normal flow of the content
+- Ensure the text feels natural while incorporating all selected words
+`
+    : "";
 
   // Crear instrucciones de gramática si se proporcionan
   const grammarInstructions = grammarTopics.length > 0 
@@ -76,6 +92,7 @@ Use these grammar patterns implicitly in the sentences: ${grammarTopics.join(', 
           Learning aids:
           - For C1-C2 levels, include a brief summary of the main points.
           ${grammarInstructions}
+          ${selectedWordsInstructions}
              `.trim(),
       },
       {

@@ -225,6 +225,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
     rangeMin,
     rangeMax,
     grammarTopics,
+    selectedWords,
   } = req.body;
 
   // Allow empty prompt: when empty, backend should generate a random topic.
@@ -252,6 +253,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
       rangeMin,
       rangeMax,
       grammarTopics: Array.isArray(grammarTopics) ? grammarTopics : [],
+      selectedWords: Array.isArray(selectedWords) ? selectedWords : [],  // Pasar selectedWords
     });
 
     res.setHeader("Content-Type", "application/json");

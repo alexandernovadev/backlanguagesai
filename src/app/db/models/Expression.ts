@@ -14,6 +14,8 @@ export interface IExpression extends Document {
     expression: string;
   };
   chat?: ChatMessage[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ChatMessage {

@@ -6,19 +6,8 @@ export interface ITranslationConfig {
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   minWords: number;
   maxWords: number;
-  mustUseWords: Array<{
-    id: string;
-    word: string;
-    translation: string;
-    type: string[];
-    level: string;
-  }>;
-  grammarTopics: Array<{
-    id: string;
-    name: string;
-    description: string;
-    difficulty: string;
-  }>;
+  mustUseWords: string[];
+  grammarTopics: string[];
 }
 
 export interface ITranslationMessage {
@@ -79,21 +68,10 @@ const TranslationConfigSchema: Schema = new Schema<ITranslationConfig>({
     type: Number,
     required: true,
     min: 100,
-    max: 1000
+    max: 300
   },
-  mustUseWords: [{
-    id: { type: String, required: true },
-    word: { type: String, required: true },
-    translation: { type: String, required: true },
-    type: [{ type: String }],
-    level: { type: String, required: true }
-  }],
-  grammarTopics: [{
-    id: { type: String, required: true },
-    name: { type: String, required: true },
-    description: { type: String, required: true },
-    difficulty: { type: String, required: true }
-  }]
+  mustUseWords: [String], // Array of word strings
+  grammarTopics: [String] // Array of topic strings
 });
 
 const TranslationMessageSchema: Schema = new Schema<ITranslationMessage>({

@@ -218,7 +218,7 @@ export const getGrammarTopics = () => {
 export const getDefaultConfigs = () => {
   return {
     minWords: 120,
-    maxWords: 700,
+    maxWords: 300,
     difficulties: ['beginner', 'intermediate', 'advanced'] as const,
     languages: ['spanish', 'english', 'portuguese'] as const,
     topics: ['general', 'business', 'travel', 'culture', 'technology', 'health', 'education'],

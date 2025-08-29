@@ -42,6 +42,8 @@ export const generateTrainingText = async (config: TextConfig = {}) => {
       topic
     });
 
+    logger.info('Generated prompt for OpenAI:', { prompt });
+
     const response = await createChatCompletion({
       messages: [
         {

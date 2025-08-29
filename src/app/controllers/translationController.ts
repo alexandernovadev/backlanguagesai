@@ -67,8 +67,12 @@ export const generateText = async (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/plain');
     res.setHeader('Transfer-Encoding', 'chunked');
 
+    logger.info('About to call generateTrainingText...');
+    
     // Generate text using OpenAI service
     const generatedText = await generateTrainingText(config);
+    
+    logger.info('Text generated successfully, length:', generatedText.text.length);
 
     // Save generated text to database
     const newGeneratedText = new GeneratedText({
@@ -115,11 +119,26 @@ export const generateText = async (req: Request, res: Response) => {
 
   } catch (error) {
     logger.error('Failed to generate training text:', error);
+    
+    // Log more details about the error
+    if (error instanceof Error) {
+      logger.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+    }
+    
     if (!res.headersSent) {
       res.status(500).json({ 
         error: 'Failed to generate training text',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       });
+    } else {
+      // If headers already sent, try to send error as text
+      res.write(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      res.end();
     }
   }
 };

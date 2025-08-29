@@ -27,7 +27,7 @@ export const getUserWordsByType = async (userId: string): Promise<{
     const words = await Word.find({})
       .sort({ createdAt: -1 })
       .limit(30)
-      .select('word spanish definition type level');
+      .select('word type seen level -_id'); // Remove _id, add seen field
 
     // Group words by type using existing type field
     const groupedWords = {
@@ -40,10 +40,9 @@ export const getUserWordsByType = async (userId: string): Promise<{
 
     words.forEach(word => {
       const wordData = {
-        id: word._id.toString(),
-        word: word.word,
-        translation: word.spanish?.word || word.definition,
+        word: word.word, // Only the actual word text
         type: word.type || [],
+        seen: word.seen || 0,
         level: word.level || 'medium'
       };
 
@@ -109,13 +108,12 @@ export const getRecentWords = async (userId: string): Promise<any[]> => {
     const words = await Word.find({})
       .sort({ createdAt: -1 })
       .limit(20)
-      .select('word spanish definition type level createdAt');
+      .select('word type seen level createdAt -_id'); // Only needed fields, no _id
 
     const recentWords = words.map(word => ({
-      id: word._id.toString(),
-      word: word.word,
-      translation: word.spanish?.word || word.definition,
+      word: word.word, // Only the actual word text
       type: word.type || [],
+      seen: word.seen || 0,
       level: word.level || 'medium',
       createdAt: word.createdAt
     }));

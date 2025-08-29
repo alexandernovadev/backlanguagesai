@@ -27,7 +27,7 @@ export const getUserWordsByType = async (userId: string): Promise<{
     const words = await Word.find({})
       .sort({ createdAt: -1 })
       .limit(30)
-      .select('word type seen level -_id'); // Remove _id, add seen field
+      .select('word type seen level _id'); // Include _id for unique identification
 
     // Group words by type using existing type field
     const groupedWords = {
@@ -40,6 +40,7 @@ export const getUserWordsByType = async (userId: string): Promise<{
 
     words.forEach(word => {
       const wordData = {
+        id: word._id.toString(), // Generate unique ID from MongoDB _id
         word: word.word, // Only the actual word text
         type: word.type || [],
         seen: word.seen || 0,
@@ -108,9 +109,10 @@ export const getRecentWords = async (userId: string): Promise<any[]> => {
     const words = await Word.find({})
       .sort({ createdAt: -1 })
       .limit(20)
-      .select('word type seen level createdAt -_id'); // Only needed fields, no _id
+      .select('word type seen level createdAt _id'); // Include _id for unique identification
 
     const recentWords = words.map(word => ({
+      id: word._id.toString(), // Generate unique ID from MongoDB _id
       word: word.word, // Only the actual word text
       type: word.type || [],
       seen: word.seen || 0,

@@ -19,7 +19,7 @@ export const generateTrainingText = async (config: TextConfig = {}) => {
   try {
     const {
       minWords = 120,
-      maxWords = 700,
+      maxWords = 300,
       difficulty = 'intermediate',
       sourceLanguage = 'spanish',  // Default: generate in Spanish
       targetLanguage = 'english',  // Default: translate to English

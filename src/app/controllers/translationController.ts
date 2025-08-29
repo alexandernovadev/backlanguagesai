@@ -307,7 +307,7 @@ export const createChat = async (req: Request, res: Response) => {
       targetLanguage: 'english' as const,
       difficulty: 'intermediate' as const,
       minWords: 120,
-      maxWords: 700,
+      maxWords: 300,
       mustUseWords: [],
       grammarTopics: []
     };

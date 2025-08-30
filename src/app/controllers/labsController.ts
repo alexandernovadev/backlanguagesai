@@ -766,6 +766,49 @@ export const cleanUsers = async (
 };
 
 /**
+ * Delete ALL TranslationChats and GeneratedTexts (DANGEROUS - use with caution)
+ * Requires authentication
+ */
+export const cleanTranslationChats = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    // Ensure user is authenticated
+    if (!req.user?._id) {
+      return errorResponse(res, "Authentication required for this operation", 401);
+    }
+
+    logger.warn("⚠️ Iniciando limpieza de TranslationChats y GeneratedTexts (PELIGROSO)", {
+      userId: req.user._id,
+      username: req.user.username
+    });
+
+    const result = await CleanerService.cleanTranslationChatsAndTexts();
+
+    logger.warn("✅ Limpieza de TranslationChats y GeneratedTexts completada", {
+      userId: req.user._id,
+      deletedChats: result.deletedChatsCount,
+      deletedGeneratedTexts: result.deletedGeneratedTextsCount,
+      totalChatsBefore: result.totalChatsFound,
+      totalGeneratedTextsBefore: result.totalGeneratedTextsFound
+    });
+
+    return successResponse(res, "TODOS los chats de traducción y textos generados han sido eliminados exitosamente", {
+      deletedChats: result.deletedChatsCount,
+      deletedGeneratedTexts: result.deletedGeneratedTextsCount,
+      message: `Se eliminaron ${result.deletedChatsCount} chats y ${result.deletedGeneratedTextsCount} textos generados.`
+    });
+  } catch (error) {
+    logger.error("❌ Error limpiando TranslationChats y GeneratedTexts", {
+      error: error.message,
+      stack: error.stack
+    });
+    return errorResponse(res, "Error al eliminar chats de traducción y textos generados", 500, error);
+  }
+};
+
+/**
  * Update language for ALL lectures
  * @param req.body.language - The language to set for all lectures
  */

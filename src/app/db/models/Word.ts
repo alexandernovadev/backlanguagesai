@@ -51,6 +51,8 @@ export interface IWord extends Document {
   difficulty?: number; // 1-5, donde 1 es muy fácil y 5 es muy difícil
   interval?: number; // Intervalo en días para el próximo repaso
   easeFactor?: number; // Factor de facilidad (similar a Anki)
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const WordSchema: Schema = new Schema<IWord>(

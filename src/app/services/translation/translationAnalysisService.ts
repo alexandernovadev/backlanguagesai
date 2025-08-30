@@ -25,7 +25,7 @@ export const analyzeTranslation = async (
   targetLanguage: 'spanish' | 'english' | 'portuguese' = 'english'
 ): Promise<TranslationAnalysis> => {
   try {
-    logger.info('Analyzing translation with OpenAI', { 
+    logger.info('Analyzing translation with Deepseek', { 
       originalLength: originalText.length,
       userTranslationLength: userTranslation.length 
     });

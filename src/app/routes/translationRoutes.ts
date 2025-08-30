@@ -6,7 +6,8 @@ import {
   createChat,
   getChat,
   getChats,
-  deleteChat
+  deleteChat,
+  updateChatConfig
 } from '../controllers/translationController';
 
 const router = Router();
@@ -25,5 +26,6 @@ router.get('/chats', getChats);
 router.post('/chat', createChat);
 router.get('/chat/:chatId', getChat);
 router.delete('/chat/:chatId', deleteChat);
+router.put('/chat/:chatId/config', updateChatConfig); // New endpoint for updating chat config
 
 export default router;

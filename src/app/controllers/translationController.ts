@@ -1,9 +1,7 @@
-import { Request, Response } from 'express';
-import { getUserWordsByType, getRecentWords, getGrammarTopics, getDefaultConfigs } from '../services/translation/wordService';
-import { generateTrainingText } from '../services/translation/textGenerationService';
-import { analyzeTranslation } from '../services/translation/translationAnalysisService';
-import { TranslationChat, Translation, GeneratedText } from '../db/models';
-import logger from '../utils/logger';
+import { Request, Response } from "express";
+import { translationControllerService } from "../services/translation/translationControllerService"; // Import the new service
+import logger from "../utils/logger";
+import { successResponse, errorResponse } from "../utils/responseHelpers"; // Import response helpers
 
 /**
  * Get preloaded configurations for translation trainer
@@ -12,38 +10,21 @@ import logger from '../utils/logger';
 export const getConfigs = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+      return errorResponse(res, "User not authenticated", 401);
     }
 
-    logger.info('Getting translation trainer configs', { userId });
+    logger.info("Getting translation trainer configs", { userId });
 
-    // Get all configurations in parallel
-    const [userWords, recentWords, grammarTopics, defaultConfigs] = await Promise.all([
-      getUserWordsByType(userId),
-      getRecentWords(userId),
-      getGrammarTopics(),
-      getDefaultConfigs()
-    ]);
+    const configs = await translationControllerService.getConfigs(userId);
 
-    const configs = {
-      userWords,
-      recentWords,
-      grammarTopics,
-      defaultConfigs
-    };
+    logger.info("Configs loaded successfully", { userId });
 
-    logger.info('Configs loaded successfully', { userId });
-
-    res.json(configs);
-
+    return successResponse(res, "Configs loaded successfully", configs);
   } catch (error) {
-    logger.error('Failed to get translation trainer configs:', error);
-    res.status(500).json({ 
-      error: 'Failed to load configurations',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    logger.error("Failed to get translation trainer configs:", error);
+    return errorResponse(res, "Failed to load configurations", 500, error);
   }
 };
 
@@ -54,90 +35,49 @@ export const getConfigs = async (req: Request, res: Response) => {
 export const generateText = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+      return errorResponse(res, "User not authenticated", 401);
     }
 
     const { config, chatId } = req.body;
 
-    logger.info('Generating training text', { userId, config, chatId });
+    // Validate config exists
+    if (!config) {
+      return errorResponse(res, "Configuration is required", 400);
+    }
+
+    logger.info("Generating training text", { userId, config, chatId });
 
     // Set headers for streaming
-    res.setHeader('Content-Type', 'text/plain');
-    res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Transfer-Encoding", "chunked");
 
-    logger.info('About to call generateTrainingText...');
-    
-    // Generate text using OpenAI service
-    const generatedText = await generateTrainingText(config);
-    
-    logger.info('Text generated successfully, length:', generatedText.text.length);
-
-    // Save generated text to database
-    const newGeneratedText = new GeneratedText({
-      userId,
-      chatId,
-      text: generatedText.text,
-      config,
-      wordCount: generatedText.text.split(' ').length,
-      generatedAt: new Date(),
-      aiProvider: 'openai' // or get from config
-    });
-
-    await newGeneratedText.save();
-
-    // Add message to chat if chatId provided
-    if (chatId) {
-      const messageData = {
-        id: newGeneratedText._id.toString(),
-        type: 'generated_text' as const,
-        content: generatedText.text,
-        timestamp: new Date(),
-        metadata: { config }
-      };
-
-      await TranslationChat.findByIdAndUpdate(
-        chatId,
-        {
-          $push: { messages: messageData },
-          $inc: { messageCount: 1 },
-          $set: { lastActivity: new Date() }
-        }
-      );
-    }
+    // Generate text and save to database via service
+    const { generatedTextContent, newGeneratedTextId } =
+      await translationControllerService.generateText(userId, config, chatId);
 
     // Send only the text content, not the whole object
-    res.write(generatedText.text);
+    res.write(generatedTextContent);
     res.end();
 
-    logger.info('Training text generated and saved successfully', { 
-      userId, 
-      textId: newGeneratedText._id,
-      chatId 
+    logger.info("Training text generated and saved successfully", {
+      userId,
+      textId: newGeneratedTextId,
+      chatId,
     });
 
+    // successResponse for streaming is not applicable here as res.end() is called.
   } catch (error) {
-    logger.error('Failed to generate training text:', error);
-    
-    // Log more details about the error
-    if (error instanceof Error) {
-      logger.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-    }
-    
+    logger.error("Failed to generate training text:", error);
+
     if (!res.headersSent) {
-      res.status(500).json({ 
-        error: 'Failed to generate training text',
-        details: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
+      return errorResponse(res, "Failed to generate training text", 500, error);
     } else {
       // If headers already sent, try to send error as text
-      res.write(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      res.write(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
       res.end();
     }
   }
@@ -150,96 +90,57 @@ export const generateText = async (req: Request, res: Response) => {
 export const processTranslation = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+      return errorResponse(res, "User not authenticated", 401);
     }
 
-    const { originalText, userTranslation, textId, chatId, sourceLanguage = 'spanish', targetLanguage = 'english' } = req.body;
-
-    if (!originalText || !userTranslation) {
-      return res.status(400).json({ error: 'Original text and user translation are required' });
-    }
-
-    logger.info('Processing user translation', { userId, textId, chatId });
-
-    // Analyze translation using AI service
-    const analysisResult = await analyzeTranslation(originalText, userTranslation, sourceLanguage, targetLanguage);
-
-    // Save user translation to database
-    const newTranslation = new Translation({
-      userId,
-      chatId,
-      generatedTextId: textId,
+    const {
       originalText,
       userTranslation,
-      correctTranslation: analysisResult.correctTranslation,
-      score: analysisResult.score,
-      translationErrors: analysisResult.errors || [],
-      feedback: analysisResult.feedback,
-      timeSpent: 0, // TODO: track actual time from frontend
-      sourceLanguage,
-      targetLanguage,
-      aiProvider: 'openai',
-      submittedAt: new Date()
-    });
+      textId,
+      chatId,
+      sourceLanguage = "spanish",
+      targetLanguage = "english",
+    } = req.body;
 
-    await newTranslation.save();
-
-    // Add user translation message to chat
-    if (chatId) {
-      const userMessageData = {
-        id: `user-${newTranslation._id.toString()}`,
-        type: 'user_translation' as const,
-        content: userTranslation,
-        timestamp: new Date()
-      };
-
-      const feedbackMessageData = {
-        id: `feedback-${newTranslation._id.toString()}`,
-        type: 'ai_feedback' as const,
-        content: analysisResult.feedback,
-        timestamp: new Date(),
-        metadata: {
-          score: analysisResult.score,
-          errors: analysisResult.errors,
-          correctTranslation: analysisResult.correctTranslation
-        }
-      };
-
-      await TranslationChat.findByIdAndUpdate(
-        chatId,
-        {
-          $push: { 
-            messages: { 
-              $each: [userMessageData, feedbackMessageData] 
-            } 
-          },
-          $inc: { messageCount: 2 },
-          $set: { 
-            lastActivity: new Date(),
-            lastScore: analysisResult.score
-          }
-        }
+    if (!originalText || !userTranslation) {
+      return errorResponse(
+        res,
+        "Original text and user translation are required",
+        400
       );
     }
 
-    logger.info('Translation processed and saved successfully', { 
-      userId, 
-      textId, 
+    logger.info("Processing user translation", { userId, textId, chatId });
+
+    const analysisResult =
+      await translationControllerService.processTranslation(
+        userId,
+        originalText,
+        userTranslation,
+        textId,
+        chatId,
+        sourceLanguage,
+        targetLanguage
+      );
+
+    logger.info("Translation processed and saved successfully", {
+      userId,
+      textId,
       chatId,
-      translationId: newTranslation._id,
-      score: analysisResult.score 
+      translationId: analysisResult._id, // Now analysisResult includes _id
+      score: analysisResult.score,
     });
 
-    res.json(analysisResult);
-
+    return successResponse(
+      res,
+      "Translation processed successfully",
+      analysisResult
+    );
   } catch (error) {
-    logger.error('Failed to process translation:', error);
-    res.status(500).json({ 
-      error: 'Failed to process translation',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    logger.error("Failed to process translation:", error);
+    return errorResponse(res, "Failed to process translation", 500, error);
   }
 };
 
@@ -250,40 +151,28 @@ export const processTranslation = async (req: Request, res: Response) => {
 export const getChats = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+      return errorResponse(res, "User not authenticated", 401);
     }
 
-    logger.info('Getting translation chats', { userId });
+    logger.info("Getting translation chats", { userId });
 
-    // Get user's translation chats from database
-    const chats = await TranslationChat.find({ userId })
-      .sort({ lastActivity: -1 })
-      .select('name config lastActivity createdAt messageCount lastScore')
-      .lean();
+    const chats = await translationControllerService.getChats(userId);
 
-    // Transform _id to id for frontend compatibility
-    const transformedChats = chats.map(chat => ({
-      id: chat._id.toString(),
-      name: chat.name,
-      config: chat.config,
-      lastActivity: chat.lastActivity,
-      createdAt: chat.createdAt,
-      messageCount: chat.messageCount,
-      lastScore: chat.lastScore
-    }));
-
-    logger.info('Translation chats retrieved successfully', { userId, count: transformedChats.length });
-
-    res.json(transformedChats);
-
-  } catch (error) {
-    logger.error('Failed to get translation chats:', error);
-    res.status(500).json({ 
-      error: 'Failed to retrieve chats',
-      details: error instanceof Error ? error.message : 'Unknown error'
+    logger.info("Translation chats retrieved successfully", {
+      userId,
+      count: chats.length,
     });
+
+    return successResponse(
+      res,
+      "Translation chats retrieved successfully",
+      chats
+    );
+  } catch (error) {
+    logger.error("Failed to get translation chats:", error);
+    return errorResponse(res, "Failed to retrieve chats", 500, error);
   }
 };
 
@@ -294,59 +183,28 @@ export const getChats = async (req: Request, res: Response) => {
 export const createChat = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+      return errorResponse(res, "User not authenticated", 401);
     }
 
-    logger.info('Creating new translation chat', { userId });
+    logger.info("Creating new translation chat", { userId });
 
-    // Create new translation chat with default config
-    const defaultConfig = {
-      sourceLanguage: 'spanish' as const,
-      targetLanguage: 'english' as const,
-      difficulty: 'intermediate' as const,
-      minWords: 120,
-      maxWords: 300,
-      mustUseWords: [],
-      grammarTopics: []
-    };
+    const newChat = await translationControllerService.createChat(userId);
 
-    const chatNumber = await TranslationChat.countDocuments({ userId }) + 1;
-    
-    const newChat = new TranslationChat({
+    logger.info("Translation chat created successfully", {
       userId,
-      name: `Translation Chat ${chatNumber}`,
-      config: defaultConfig,
-      messages: [],
-      lastActivity: new Date(),
-      messageCount: 0
+      chatId: newChat.id,
     });
 
-    await newChat.save();
-
-    // Transform _id to id for frontend compatibility
-    const transformedChat = {
-      id: newChat._id.toString(),
-      name: newChat.name,
-      config: newChat.config,
-      lastActivity: newChat.lastActivity,
-      createdAt: newChat.createdAt,
-      messageCount: newChat.messageCount,
-      lastScore: newChat.lastScore,
-      messages: newChat.messages
-    };
-
-    logger.info('Translation chat created successfully', { userId, chatId: newChat._id });
-
-    res.json(transformedChat);
-
+    return successResponse(
+      res,
+      "Translation chat created successfully",
+      newChat
+    );
   } catch (error) {
-    logger.error('Failed to create translation chat:', error);
-    res.status(500).json({ 
-      error: 'Failed to create chat',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    logger.error("Failed to create translation chat:", error);
+    return errorResponse(res, "Failed to create chat", 500, error);
   }
 };
 
@@ -358,49 +216,84 @@ export const getChat = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const { chatId } = req.params;
-    
+
     if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+      return errorResponse(res, "User not authenticated", 401);
     }
 
     if (!chatId) {
-      return res.status(400).json({ error: 'Chat ID is required' });
+      return errorResponse(res, "Chat ID is required", 400);
     }
 
-    logger.info('Getting chat details', { userId, chatId });
+    logger.info("Getting chat details", { userId, chatId });
 
-    // Get chat details from database
-    const chat = await TranslationChat.findOne({ _id: chatId, userId }).lean();
+    const chat = await translationControllerService.getChat(userId, chatId);
 
     if (!chat) {
-      return res.status(404).json({ 
-        error: 'Chat not found',
-        message: 'The requested chat does not exist or you do not have access to it'
-      });
+      return errorResponse(
+        res,
+        "Chat not found",
+        404,
+        "The requested chat does not exist or you do not have access to it"
+      );
     }
 
-    // Transform _id to id for frontend compatibility
-    const transformedChat = {
-      id: chat._id.toString(),
-      name: chat.name,
-      config: chat.config,
-      lastActivity: chat.lastActivity,
-      createdAt: chat.createdAt,
-      messageCount: chat.messageCount,
-      lastScore: chat.lastScore,
-      messages: chat.messages || []
-    };
+    logger.info("Chat details retrieved successfully", { userId, chatId });
 
-    logger.info('Chat details retrieved successfully', { userId, chatId });
-
-    res.json(transformedChat);
-
+    return successResponse(res, "Chat details retrieved successfully", chat);
   } catch (error) {
-    logger.error('Failed to get chat details:', error);
-    res.status(500).json({ 
-      error: 'Failed to retrieve chat',
-      details: error instanceof Error ? error.message : 'Unknown error'
+    logger.error("Failed to get chat details:", error);
+    return errorResponse(res, "Failed to retrieve chat", 500, error);
+  }
+};
+
+export const updateChatConfig = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { chatId } = req.params;
+    const { config } = req.body;
+
+    if (!userId) {
+      return errorResponse(res, "User not authenticated", 401);
+    }
+
+    if (!chatId) {
+      return errorResponse(res, "Chat ID is required", 400);
+    }
+
+    if (!config) {
+      return errorResponse(res, "Configuration is required", 400);
+    }
+
+    logger.info("Updating chat configuration", { userId, chatId, config });
+
+    const updated = await translationControllerService.updateChatConfig(
+      userId,
+      chatId,
+      config
+    );
+
+    if (!updated) {
+      return errorResponse(
+        res,
+        "Chat not found",
+        404,
+        "The requested chat does not exist or you do not have access to it"
+      );
+    }
+
+    logger.info("Chat configuration updated successfully", { userId, chatId });
+    return successResponse(res, "Chat configuration updated successfully", {
+      success: true,
     });
+  } catch (error) {
+    logger.error("Failed to update chat configuration:", error);
+    return errorResponse(
+      res,
+      "Failed to update chat configuration",
+      500,
+      error
+    );
   }
 };
 
@@ -408,37 +301,31 @@ export const deleteChat = async (req: Request, res: Response) => {
   try {
     const { chatId } = req.params;
     const userId = req.user?.id;
-    
+
     if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+      return errorResponse(res, "User not authenticated", 401);
     }
 
-    logger.info('Deleting chat', { userId, chatId });
+    logger.info("Deleting chat", { userId, chatId });
 
-    // Delete chat from database
-    const deletedChat = await TranslationChat.findOneAndDelete({ _id: chatId, userId });
+    const deleted = await translationControllerService.deleteChat(
+      userId,
+      chatId
+    );
 
-    if (!deletedChat) {
-      return res.status(404).json({ 
-        error: 'Chat not found',
-        message: 'The requested chat does not exist or you do not have access to it'
-      });
+    if (!deleted) {
+      return errorResponse(
+        res,
+        "Chat not found",
+        404,
+        "The requested chat does not exist or you do not have access to it"
+      );
     }
 
-    // Also delete related translations and generated texts
-    await Promise.all([
-      Translation.deleteMany({ chatId }),
-      GeneratedText.deleteMany({ chatId })
-    ]);
-
-    logger.info('Chat deleted successfully', { userId, chatId });
-    res.json({ success: true, message: 'Chat deleted successfully' });
-    
+    logger.info("Chat deleted successfully", { userId, chatId });
+    return successResponse(res, "Chat deleted successfully", { success: true });
   } catch (error) {
-    logger.error('Failed to delete chat:', error);
-    res.status(500).json({
-      error: 'Failed to delete chat',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    logger.error("Failed to delete chat:", error);
+    return errorResponse(res, "Failed to delete chat", 500, error);
   }
 };

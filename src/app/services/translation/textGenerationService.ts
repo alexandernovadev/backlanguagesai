@@ -13,7 +13,7 @@ interface TextConfig {
 }
 
 /**
- * Generate training text using OpenAI
+ * Generate training text using Deepseek
  */
 export const generateTrainingText = async (config: TextConfig = {}) => {
   try {
@@ -28,7 +28,7 @@ export const generateTrainingText = async (config: TextConfig = {}) => {
       topic = 'general'
     } = config;
 
-    logger.info('Generating training text with OpenAI', { config });
+    logger.info('Generating training text with Deepseek', { config });
 
     // Build prompt for text generation
     const prompt = buildTextGenerationPrompt({
@@ -42,7 +42,7 @@ export const generateTrainingText = async (config: TextConfig = {}) => {
       topic
     });
 
-    logger.info('Generated prompt for OpenAI:', { prompt });
+    logger.info('Generated prompt for Deepseek:', { prompt });
 
     const response = await createChatCompletion({
       messages: [

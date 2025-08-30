@@ -1,6 +1,8 @@
 import ExamAttempt from "../db/models/ExamAttempt";
 import Exam from "../db/models/Exam";
 import Question from "../db/models/Question";
+import TranslationChat from "../db/models/TranslationChat";
+import GeneratedText from "../db/models/GeneratedText";
 
 export class CleanerService {
   // Borrar TODOS los intentos de examen
@@ -71,6 +73,33 @@ export class CleanerService {
     } catch (error) {
       console.error("Error in cleanQuestions:", error);
       throw new Error("Failed to clean questions");
+    }
+  }
+
+  // Borrar TODOS los TranslationChat y GeneratedText
+  static async cleanTranslationChatsAndTexts() {
+    try {
+      console.log("⚠️ Iniciando limpieza de TranslationChats y GeneratedTexts (PELIGROSO)");
+
+      const chatsCountBefore = await TranslationChat.countDocuments({});
+      const generatedTextsCountBefore = await GeneratedText.countDocuments({});
+
+      const chatsResult = await TranslationChat.deleteMany({});
+      const generatedTextsResult = await GeneratedText.deleteMany({});
+
+      console.log(`Found ${chatsCountBefore} TranslationChats and ${generatedTextsCountBefore} GeneratedTexts total.`);
+      console.log(`Deleted ${chatsResult.deletedCount} TranslationChats and ${generatedTextsResult.deletedCount} GeneratedTexts.`);
+
+      return {
+        deletedChatsCount: chatsResult.deletedCount,
+        deletedGeneratedTextsCount: generatedTextsResult.deletedCount,
+        totalChatsFound: chatsCountBefore,
+        totalGeneratedTextsFound: generatedTextsCountBefore,
+        success: true
+      };
+    } catch (error) {
+      console.error("Error in cleanTranslationChatsAndTexts:", error);
+      throw new Error("Failed to clean translation chats and generated texts");
     }
   }
 } 

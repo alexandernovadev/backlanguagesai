@@ -17,6 +17,7 @@ import {
   cleanLectures,
   cleanExpressions,
   cleanUsers,
+  cleanTranslationChats,
   updateLecturesLanguage,
   recalculateLecturesTime
 } from "../controllers/labsController";
@@ -78,6 +79,7 @@ routes.delete("/clean/words", cleanWords);
 routes.delete("/clean/lectures", cleanLectures);
 routes.delete("/clean/expressions", cleanExpressions);
 routes.delete("/clean/users", cleanUsers);
+routes.delete("/clean/translation-chats", cleanTranslationChats);
 
 export default routes;
 

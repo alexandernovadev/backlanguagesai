@@ -9,14 +9,21 @@ import {
   updateUrlAudioLectureByIdByGPT,
   exportLecturesToJSON,
   importLecturesFromFile,
+  updateImageLecture,
+  generateTextStream,
+  generateTopicStream,
 } from "../controllers/LectureController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
 
-// Routes
+// AI Generation routes
+router.post("/generate-text", generateTextStream);
+router.post("/generate-topic-stream", generateTopicStream);
+router.post("/generate-image/:idlecture", updateImageLecture);
 router.post("/generateAudio/:idlecture", updateUrlAudioLectureByIdByGPT);
 
+// Export/Import routes
 router.get("/export-file", exportLecturesToJSON);
 router.get("/", getAllLectures);
 router.get("/:id", getLectureById);

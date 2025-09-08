@@ -3,6 +3,14 @@ import { WordService } from "../services/words/wordService";
 import { WordImportService } from "../services/import/WordImportService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { generateWordChatStream } from "../services/ai/generateWordChatStream";
+import { generateWordJson as generateWordJsonService } from "../services/ai/generateWordJson";
+import { generateWordExamplesJson as generateWordExamplesJsonService } from "../services/ai/generateWordExamplesJson";
+import { generateWordExamplesCodeSwithcingJson as generateWordExamplesCodeSwithcingJsonService } from "../services/ai/generateWordExamplesCodeSwithcingJson";
+import { generateWordTypesJson as generateWordTypesJsonService } from "../services/ai/generateWordTypesJson";
+import { generateWordSynomymsJson as generateWordSynomymsJsonService } from "../services/ai/generateWordSynomymsJson";
+import { generateImage } from "../services/ai/generateImage";
+import { deleteImageFromCloudinary, uploadImageToCloudinary } from "../services/cloudinary/cloudinaryService";
+import { imageWordPrompt } from "./helpers/ImagePrompt";
 import logger from "../utils/logger";
 
 const wordService = new WordService();
@@ -683,5 +691,203 @@ export const streamChatResponse = async (req: Request, res: Response) => {
   } catch (error: any) {
     logger.error("Error streaming chat response:", error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+// ===== AI GENERATION FUNCTIONS FOR WORDS =====
+
+export const generateWordJson = async (req: Request, res: Response) => {
+  const { prompt, language } = req.body;
+
+  if (!prompt) {
+    return errorResponse(res, "Prompt is required.", 400);
+  }
+
+  try {
+    // Generate the word data using AI
+    const wordData = await generateWordJsonService(prompt, language);
+
+    // Save the generated word to the database
+    const savedWord = await wordService.createWord(wordData);
+
+    return successResponse(
+      res,
+      "Word generated and saved successfully",
+      savedWord
+    );
+  } catch (error) {
+    return errorResponse(res, "Error generating or saving word", 500, error);
+  }
+};
+
+export const generateWordExamplesJson = async (req: Request, res: Response) => {
+  const { prompt, word, language, oldExamples } = req.body;
+  const targetWord = word || prompt;
+  const { idword } = req.params as { idword: string };
+
+  if (!targetWord) {
+    return errorResponse(res, "Prompt (word) is required.", 400);
+  }
+
+  try {
+    const generated = await generateWordExamplesJsonService(
+      targetWord,
+      language,
+      oldExamples
+    );
+    const updated = await wordService.updateWordExamples(
+      idword,
+      generated.examples || []
+    );
+    if (!updated) {
+      return errorResponse(res, "Word not found", 404);
+    }
+    return successResponse(res, "Word examples updated successfully", updated);
+  } catch (error) {
+    return errorResponse(res, "Error generating word examples", 500, error);
+  }
+};
+
+export const generateWordExamplesCodeSwitchingJson = async (
+  req: Request,
+  res: Response
+) => {
+  const { prompt, word, language, oldExamples } = req.body;
+  const targetWord = word || prompt;
+  const { idword } = req.params as { idword: string };
+
+  if (!targetWord) {
+    return errorResponse(res, "Prompt (word) is required.", 400);
+  }
+
+  try {
+    const generated = await generateWordExamplesCodeSwithcingJsonService(
+      targetWord,
+      language,
+      oldExamples
+    );
+    const updated = await wordService.updateWordCodeSwitching(
+      idword,
+      generated.codeSwitching || []
+    );
+    if (!updated) {
+      return errorResponse(res, "Word not found", 404);
+    }
+    return successResponse(
+      res,
+      "Word code-switching updated successfully",
+      updated
+    );
+  } catch (error) {
+    return errorResponse(
+      res,
+      "Error generating word code-switching examples",
+      500,
+      error
+    );
+  }
+};
+
+export const generateWordTypesJson = async (req: Request, res: Response) => {
+  const { prompt, word, language, oldExamples } = req.body;
+  const targetWord = word || prompt;
+  const { idword } = req.params as { idword: string };
+
+  if (!targetWord) {
+    return errorResponse(res, "Prompt (word) is required.", 400);
+  }
+
+  try {
+    const generated = await generateWordTypesJsonService(
+      targetWord,
+      language,
+      oldExamples
+    );
+    const updated = await wordService.updateWordType(
+      idword,
+      generated.type || []
+    );
+    if (!updated) {
+      return errorResponse(res, "Word not found", 404);
+    }
+    return successResponse(res, "Word types updated successfully", updated);
+  } catch (error) {
+    return errorResponse(res, "Error generating word types", 500, error);
+  }
+};
+
+export const generateWordSynomymsJson = async (req: Request, res: Response) => {
+  const { prompt, word, language, oldExamples } = req.body;
+  const targetWord = word || prompt;
+  const { idword } = req.params as { idword: string };
+
+  if (!targetWord) {
+    return errorResponse(res, "Prompt (word) is required.", 400);
+  }
+
+  try {
+    const generated = await generateWordSynomymsJsonService(
+      targetWord,
+      language,
+      oldExamples
+    );
+    const updated = await wordService.updateWordSynonyms(
+      idword,
+      generated.sinonyms || []
+    );
+    if (!updated) {
+      return errorResponse(res, "Word not found", 404);
+    }
+    return successResponse(res, "Word synonyms updated successfully", updated);
+  } catch (error) {
+    return errorResponse(res, "Error generating word synonyms", 500, error);
+  }
+};
+
+export const updateImageWord = async (req: Request, res: Response) => {
+  const { wordString, word, imgOld } = req.body;
+  const IDWord = req.params.idword;
+  const targetWord = word || wordString;
+
+  if (!targetWord) {
+    return errorResponse(res, "Word prompt is required.", 400);
+  }
+
+  try {
+    // Generate image with primary prompt only
+    const imageBase64 = await generateImage(imageWordPrompt(targetWord));
+    if (!imageBase64) {
+      return errorResponse(res, "Failed to generate image.", 400);
+    }
+
+    let deleteOldImagePromise: Promise<void> = Promise.resolve();
+
+    if (imgOld && imgOld.includes("res.cloudinary.com")) {
+      const parts = imgOld.split("/");
+      let publicId = parts.pop();
+
+      // Remove extension if exists
+      if (publicId && publicId.includes(".")) {
+        publicId = publicId.split(".")[0];
+      }
+
+      // Delete old image
+      deleteOldImagePromise = deleteImageFromCloudinary(
+        "languagesai/words/" + publicId
+      ).then(() => {});
+    }
+
+    // Upload new image while deleting the old one
+    const [_, urlImage] = await Promise.all([
+      deleteOldImagePromise,
+      uploadImageToCloudinary(imageBase64, "words"),
+    ]);
+
+    // Update word image
+    const updatedWord = await wordService.updateWordImg(IDWord, urlImage);
+
+    return successResponse(res, "Word image updated successfully", updatedWord);
+  } catch (error) {
+    return errorResponse(res, "Error generating word image", 500, error);
   }
 };

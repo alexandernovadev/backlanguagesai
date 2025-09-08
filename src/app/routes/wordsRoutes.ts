@@ -21,6 +21,13 @@ import {
   getChatHistory,
   clearChatHistory,
   streamChatResponse,
+  // AI Generation functions
+  generateWordJson,
+  generateWordExamplesJson,
+  generateWordExamplesCodeSwitchingJson,
+  generateWordTypesJson,
+  generateWordSynomymsJson,
+  updateImageWord,
 } from "../controllers/wordController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
@@ -47,6 +54,14 @@ router.post("/:wordId/chat", addChatMessage);
 router.post("/:wordId/chat/stream", streamChatResponse);
 router.get("/:wordId/chat", getChatHistory);
 router.delete("/:wordId/chat", clearChatHistory);
+
+// AI Generation routes
+router.post("/generate", generateWordJson);
+router.post("/:idword/generate-examples", generateWordExamplesJson);
+router.post("/:idword/generate-code-switching", generateWordExamplesCodeSwitchingJson);
+router.post("/:idword/generate-types", generateWordTypesJson);
+router.post("/:idword/generate-synonyms", generateWordSynomymsJson);
+router.post("/:idword/generate-image", updateImageWord);
 
 // CRUD routes (MUST BE LAST)
 router.get("/:id", getWordById);

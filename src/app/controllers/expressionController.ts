@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { ExpressionService } from "../services/expressions/expressionService";
 import { generateExpressionChatStream } from "../services/ai/generateExpressionChatStream";
+import { generateImage } from "../services/ai/generateImage";
+import { deleteImageFromCloudinary, uploadImageToCloudinary } from "../services/cloudinary/cloudinaryService";
+import { imageExpressionPrompt } from "./helpers/ImagePrompt";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 import logger from "../utils/logger";
 
@@ -403,5 +406,59 @@ export const generateExpression = async (req: Request, res: Response) => {
   } catch (error: any) {
     logger.error("Error generating expression:", error);
     return errorResponse(res, error.message, 500, error);
+  }
+};
+
+// ===== AI IMAGE GENERATION FOR EXPRESSIONS =====
+
+export const updateImageExpression = async (req: Request, res: Response) => {
+  const { expressionString, imgOld } = req.body;
+  const IDExpression = req.params.idexpression;
+
+  if (!expressionString) {
+    return errorResponse(res, "Expression prompt is required.", 400);
+  }
+
+  try {
+    // Generate image
+    const imageBase64 = await generateImage(
+      imageExpressionPrompt(expressionString)
+    );
+    if (!imageBase64) {
+      return errorResponse(res, "Failed to generate image.", 400);
+    }
+
+    let deleteOldImagePromise: Promise<void> = Promise.resolve();
+
+    if (imgOld && imgOld.includes("res.cloudinary.com")) {
+      const parts = imgOld.split("/");
+      let publicId = parts.pop() as string;
+
+      if (publicId && publicId.includes(".")) {
+        publicId = publicId.split(".")[0];
+      }
+
+      deleteOldImagePromise = deleteImageFromCloudinary(
+        "languagesai/expressions/" + publicId
+      ).then(() => {});
+    }
+
+    const [_, urlImage] = await Promise.all([
+      deleteOldImagePromise,
+      uploadImageToCloudinary(imageBase64, "expressions"),
+    ]);
+
+    const updatedExpression = await expressionService.updateExpressionImg(
+      IDExpression,
+      urlImage as string
+    );
+
+    return successResponse(
+      res,
+      "Expression image updated successfully",
+      updatedExpression
+    );
+  } catch (error) {
+    return errorResponse(res, "Error generating expression image", 500, error);
   }
 };

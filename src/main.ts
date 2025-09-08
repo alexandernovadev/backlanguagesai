@@ -10,7 +10,6 @@ import path from "path";
 import logger from "./app/utils/logger";
 
 // Routes
-import { generateRoutes } from "./app/routes/generatorIARoutes";
 import LectureRoutes from "./app/routes/lectureRoutes";
 import WordsRoutes from "./app/routes/wordsRoutes";
 import ExpressionRoutes from "./app/routes/expressionRoutes";
@@ -66,7 +65,6 @@ app.use("/images", express.static(path.join(publicPath, "images")));
 
 // Routes
 app.use("/api/auth", AuthRoutes);
-app.use("/api/ai", authMiddleware, generateRoutes);
 app.use("/api/lectures", authMiddleware, LectureRoutes);
 app.use("/api/words", authMiddleware, WordsRoutes);
 app.use("/api/expressions", authMiddleware, ExpressionRoutes);

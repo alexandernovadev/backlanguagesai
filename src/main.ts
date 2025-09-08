@@ -14,13 +14,9 @@ import { generateRoutes } from "./app/routes/generatorIARoutes";
 import LectureRoutes from "./app/routes/lectureRoutes";
 import WordsRoutes from "./app/routes/wordsRoutes";
 import ExpressionRoutes from "./app/routes/expressionRoutes";
-import QuestionRoutes from "./app/routes/questionRoutes";
-import ExamRoutes from "./app/routes/examRoutes";
-import ExamAttemptRoutes from "./app/routes/examAttemptRoutes";
 import LabsRoutes from "./app/routes/labsRoutes";
 import StatisticsRoutes from "./app/routes/statisticsRoutes";
 import UploadRoutes from "./app/routes/uploadRoutes";
-import TranslationRoutes from "./app/routes/translationRoutes";
 
 import AuthRoutes from "./app/routes/authRoutes";
 import UserRoutes from "./app/routes/userRoutes";
@@ -74,12 +70,8 @@ app.use("/api/ai", authMiddleware, generateRoutes);
 app.use("/api/lectures", authMiddleware, LectureRoutes);
 app.use("/api/words", authMiddleware, WordsRoutes);
 app.use("/api/expressions", authMiddleware, ExpressionRoutes);
-app.use("/api/questions", authMiddleware, QuestionRoutes);
-app.use("/api/exams", authMiddleware, ExamRoutes);
-app.use("/api/exam-attempts", authMiddleware, ExamAttemptRoutes);
 app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
-app.use("/api/translation", authMiddleware, TranslationRoutes);
 
 // Labs routes (conditional auth)
 if (LABS_AUTH) {

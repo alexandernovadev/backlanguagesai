@@ -7,17 +7,12 @@ import {
   seedInitialData,
   createBackup,
   clearAllData,
-  seedQuestionsFromJson,
   migrateWordsToReviewSystem,
   getDatabaseStats,
-  cleanExamAttempts,
-  cleanExams,
-  cleanQuestions,
   cleanWords,
   cleanLectures,
   cleanExpressions,
   cleanUsers,
-  cleanTranslationChats,
   updateLecturesLanguage,
   recalculateLecturesTime
 } from "../controllers/labsController";
@@ -48,7 +43,6 @@ routes.post("/users/create-test-users", createTestUsers);
 
 // Data seeding
 routes.post("/seed/initial-data", seedInitialData);
-routes.post("/seed/questions", seedQuestionsFromJson);
 
 // Backup and maintenance
 routes.post("/backup/create", createBackup);
@@ -72,14 +66,10 @@ routes.post("/migrate/words-to-review", migrateWordsToReviewSystem);
 routes.get("/stats/database", getDatabaseStats);
 
 // ===== CLEANER ROUTES (DANGEROUS - use with caution) =====
-routes.delete("/clean/exam-attempts", cleanExamAttempts);
-routes.delete("/clean/exams", cleanExams);
-routes.delete("/clean/questions", cleanQuestions);
 routes.delete("/clean/words", cleanWords);
 routes.delete("/clean/lectures", cleanLectures);
 routes.delete("/clean/expressions", cleanExpressions);
 routes.delete("/clean/users", cleanUsers);
-routes.delete("/clean/translation-chats", cleanTranslationChats);
 
 export default routes;
 

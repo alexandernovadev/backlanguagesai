@@ -1,14 +1,10 @@
 import { Request, Response } from "express";
 import Word from "../db/models/Word";
 import Lecture from "../db/models/Lecture";
-import Question from "../db/models/Question";
-import Exam from "../db/models/Exam";
-import ExamAttempt from "../db/models/ExamAttempt";
 import Expression from "../db/models/Expression";
 import User from "../db/models/User";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { seedAdminUser } from "../services/seed/user";
-import { seedQuestions } from "../services/seed/seedQuestions";
 import { backupCollections } from "../services/backup/backupCollections";
 import { seedData } from "../utils/seedData";
 import { calculateReadingTimeFromContent } from "../utils/text/calculateReadingTime";
@@ -361,18 +357,12 @@ export const clearAllData = async (
     // Get counts before deletion
     const wordsCountBefore = await Word.countDocuments();
     const lecturesCountBefore = await Lecture.countDocuments();
-    const questionsCountBefore = await Question.countDocuments();
-    const examsCountBefore = await Exam.countDocuments();
-    const examAttemptsCountBefore = await ExamAttempt.countDocuments();
     const expressionsCountBefore = await Expression.countDocuments();
     const usersCountBefore = await User.countDocuments();
     
     logger.info("📊 Datos encontrados antes de la limpieza", {
       words: wordsCountBefore,
       lectures: lecturesCountBefore,
-      questions: questionsCountBefore,
-      exams: examsCountBefore,
-      examAttempts: examAttemptsCountBefore,
       expressions: expressionsCountBefore,
       users: usersCountBefore
     });
@@ -380,18 +370,12 @@ export const clearAllData = async (
     // Delete all data from all collections
     const wordsResult = await Word.deleteMany({});
     const lecturesResult = await Lecture.deleteMany({});
-    const questionsResult = await Question.deleteMany({});
-    const examsResult = await Exam.deleteMany({});
-    const examAttemptsResult = await ExamAttempt.deleteMany({});
     const expressionsResult = await Expression.deleteMany({});
     const usersResult = await User.deleteMany({});
     
     logger.warn("✅ Limpieza completada exitosamente", {
       deletedWords: wordsResult.deletedCount,
       deletedLectures: lecturesResult.deletedCount,
-      deletedQuestions: questionsResult.deletedCount,
-      deletedExams: examsResult.deletedCount,
-      deletedExamAttempts: examAttemptsResult.deletedCount,
       deletedExpressions: expressionsResult.deletedCount,
       deletedUsers: usersResult.deletedCount
     });
@@ -402,16 +386,10 @@ export const clearAllData = async (
       { 
         deletedWords: wordsResult.deletedCount,
         deletedLectures: lecturesResult.deletedCount,
-        deletedQuestions: questionsResult.deletedCount,
-        deletedExams: examsResult.deletedCount,
-        deletedExamAttempts: examAttemptsResult.deletedCount,
         deletedExpressions: expressionsResult.deletedCount,
         deletedUsers: usersResult.deletedCount,
         wordsBefore: wordsCountBefore,
         lecturesBefore: lecturesCountBefore,
-        questionsBefore: questionsCountBefore,
-        examsBefore: examsCountBefore,
-        examAttemptsBefore: examAttemptsCountBefore,
         expressionsBefore: expressionsCountBefore,
         usersBefore: usersCountBefore
       }
@@ -425,25 +403,6 @@ export const clearAllData = async (
   }
 };
 
-/**
- * Seed questions from JSON file
- */
-export const seedQuestionsFromJson = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const seededQuestions = await seedQuestions();
-    
-    return successResponse(
-      res, 
-      "Questions seeded successfully", 
-      { seededQuestions }
-    );
-  } catch (error) {
-    return errorResponse(res, "Error seeding questions", 500, error);
-  }
-};
 
 /**
  * Migrate words to review system (if migration service is available)
@@ -528,73 +487,7 @@ export const recalculateLecturesTime = async (
 
 // ===== CLEANER FUNCTIONS =====
 
-/**
- * Delete ALL exam attempts (DANGEROUS - use with caution)
- * Requires authentication
- */
-export const cleanExamAttempts = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const result = await CleanerService.cleanExamAttempts();
-    
-    return successResponse(res, "TODOS los intentos de examen han sido eliminados exitosamente", {
-      deletedCount: result.deletedCount,
-      totalFound: result.totalFound,
-      message: `Se eliminaron ${result.deletedCount} intentos de examen de un total de ${result.totalFound}`
-    });
-  } catch (error) {
-    console.error("Error cleaning exam attempts:", error);
-    return errorResponse(res, "Error al eliminar los intentos de examen", 500, error);
-  }
-};
 
-/**
- * Delete ALL exams and their associated attempts (DANGEROUS - use with caution)
- * Requires authentication
- */
-export const cleanExams = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const result = await CleanerService.cleanExams();
-    
-    return successResponse(res, "TODOS los exámenes han sido eliminados exitosamente", {
-      deletedExams: result.deletedExams,
-      deletedAttempts: result.deletedAttempts,
-      totalExamsFound: result.totalExamsFound,
-      totalAttemptsFound: result.totalAttemptsFound,
-      message: `Se eliminaron ${result.deletedExams} exámenes y ${result.deletedAttempts} intentos asociados`
-    });
-  } catch (error) {
-    console.error("Error cleaning exams:", error);
-    return errorResponse(res, "Error al eliminar los exámenes", 500, error);
-  }
-};
-
-/**
- * Delete ALL questions (DANGEROUS - use with caution)
- * Requires authentication
- */
-export const cleanQuestions = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const result = await CleanerService.cleanQuestions();
-    
-    return successResponse(res, "TODAS las preguntas han sido eliminadas exitosamente", {
-      deletedCount: result.deletedCount,
-      totalQuestionsBefore: result.totalQuestionsBefore,
-      message: `Se eliminaron ${result.deletedCount} preguntas de un total de ${result.totalQuestionsBefore}`
-    });
-  } catch (error) {
-    console.error("Error cleaning questions:", error);
-    return errorResponse(res, "Error al eliminar las preguntas", 500, error);
-  }
-};
 
 /**
  * Delete ALL words (DANGEROUS - use with caution)
@@ -765,48 +658,6 @@ export const cleanUsers = async (
   }
 };
 
-/**
- * Delete ALL TranslationChats and GeneratedTexts (DANGEROUS - use with caution)
- * Requires authentication
- */
-export const cleanTranslationChats = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    // Ensure user is authenticated
-    if (!req.user?._id) {
-      return errorResponse(res, "Authentication required for this operation", 401);
-    }
-
-    logger.warn("⚠️ Iniciando limpieza de TranslationChats y GeneratedTexts (PELIGROSO)", {
-      userId: req.user._id,
-      username: req.user.username
-    });
-
-    const result = await CleanerService.cleanTranslationChatsAndTexts();
-
-    logger.warn("✅ Limpieza de TranslationChats y GeneratedTexts completada", {
-      userId: req.user._id,
-      deletedChats: result.deletedChatsCount,
-      deletedGeneratedTexts: result.deletedGeneratedTextsCount,
-      totalChatsBefore: result.totalChatsFound,
-      totalGeneratedTextsBefore: result.totalGeneratedTextsFound
-    });
-
-    return successResponse(res, "TODOS los chats de traducción y textos generados han sido eliminados exitosamente", {
-      deletedChats: result.deletedChatsCount,
-      deletedGeneratedTexts: result.deletedGeneratedTextsCount,
-      message: `Se eliminaron ${result.deletedChatsCount} chats y ${result.deletedGeneratedTextsCount} textos generados.`
-    });
-  } catch (error) {
-    logger.error("❌ Error limpiando TranslationChats y GeneratedTexts", {
-      error: error.message,
-      stack: error.stack
-    });
-    return errorResponse(res, "Error al eliminar chats de traducción y textos generados", 500, error);
-  }
-};
 
 /**
  * Update language for ALL lectures

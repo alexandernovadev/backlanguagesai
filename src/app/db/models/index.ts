@@ -3,25 +3,9 @@ export { default as User } from './User';
 export { default as Word } from './Word';
 export { default as Expression } from './Expression';
 export { default as Lecture } from './Lecture';
-export { default as Question } from './Question';
-export { default as Exam } from './Exam';
-export { default as ExamAttempt } from './ExamAttempt';
-
-// 🌍 Translation Trainer Models
-export { default as TranslationChat } from './TranslationChat';
-export { default as Translation } from './Translation';
-export { default as GeneratedText } from './GeneratedText';
 
 // 🔄 Re-exportar interfaces para uso externo
 export type { IUser } from './User';
 export type { IWord } from './Word';
 export type { IExpression } from './Expression';
 export type { ILecture } from './Lecture';
-export type { IQuestion } from './Question';
-export type { IExam } from './Exam';
-export type { IExamAttempt } from './ExamAttempt';
-
-// 🌍 Translation Trainer Types
-export type { ITranslationChat, ITranslationConfig, ITranslationMessage } from './TranslationChat';
-export type { ITranslation, ITranslationError } from './Translation';
-export type { IGeneratedText } from './GeneratedText'; 

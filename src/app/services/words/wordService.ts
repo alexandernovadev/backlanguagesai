@@ -55,8 +55,8 @@ export class WordService {
       type,
       seenMin,
       seenMax,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
+      sortBy = "createdAt",
+      sortOrder = "desc",
       definition,
       IPA,
       hasImage,
@@ -68,7 +68,7 @@ export class WordService {
       createdAfter,
       createdBefore,
       updatedAfter,
-      updatedBefore
+      updatedBefore,
     } = filters;
 
     const filter: Record<string, unknown> & { $or?: unknown[] } = {};
@@ -90,13 +90,15 @@ export class WordService {
     if (difficulty) {
       if (Array.isArray(difficulty)) {
         // Múltiples dificultades
-        const validDifficulties = difficulty.filter(d => ['easy', 'medium', 'hard'].includes(d));
+        const validDifficulties = difficulty.filter((d) =>
+          ["easy", "medium", "hard"].includes(d)
+        );
         if (validDifficulties.length > 0) {
           filter.difficulty = { $in: validDifficulties };
         }
       } else {
         // Una sola dificultad
-        if (['easy', 'medium', 'hard'].includes(difficulty)) {
+        if (["easy", "medium", "hard"].includes(difficulty)) {
           filter.difficulty = difficulty;
         }
       }
@@ -145,54 +147,51 @@ export class WordService {
     }
 
     // Nuevo filtro por palabras con/sin imagen
-    if (hasImage === 'true') {
-      filter.img = { $exists: true, $nin: [null, ''] };
-    } else if (hasImage === 'false') {
+    if (hasImage === "true") {
+      filter.img = { $exists: true, $nin: [null, ""] };
+    } else if (hasImage === "false") {
       addOrConditions([
         { img: { $exists: false } },
         { img: null },
-        { img: '' }
+        { img: "" },
       ]);
     }
 
     // Nuevo filtro por palabras con/sin ejemplos
-    if (hasExamples === 'true') {
+    if (hasExamples === "true") {
       filter.examples = { $exists: true, $ne: [] };
-    } else if (hasExamples === 'false') {
-      addOrConditions([
-        { examples: { $exists: false } },
-        { examples: [] }
-      ]);
+    } else if (hasExamples === "false") {
+      addOrConditions([{ examples: { $exists: false } }, { examples: [] }]);
     }
 
     // Nuevo filtro por palabras con/sin sinónimos
-    if (hasSynonyms === 'true') {
+    if (hasSynonyms === "true") {
       filter.sinonyms = { $exists: true, $ne: [] };
-    } else if (hasSynonyms === 'false') {
-      addOrConditions([
-        { sinonyms: { $exists: false } },
-        { sinonyms: [] }
-      ]);
+    } else if (hasSynonyms === "false") {
+      addOrConditions([{ sinonyms: { $exists: false } }, { sinonyms: [] }]);
     }
 
     // Nuevo filtro por palabras con/sin code-switching
-    if (hasCodeSwitching === 'true') {
+    if (hasCodeSwitching === "true") {
       filter.codeSwitching = { $exists: true, $ne: [] };
-    } else if (hasCodeSwitching === 'false') {
+    } else if (hasCodeSwitching === "false") {
       addOrConditions([
         { codeSwitching: { $exists: false } },
-        { codeSwitching: [] }
+        { codeSwitching: [] },
       ]);
     }
 
     // Nuevo filtro por palabra en español
     if (spanishWord) {
-      filter['spanish.word'] = { $regex: spanishWord, $options: "i" };
+      filter["spanish.word"] = { $regex: spanishWord, $options: "i" };
     }
 
     // Nuevo filtro por definición en español
     if (spanishDefinition) {
-      filter['spanish.definition'] = { $regex: spanishDefinition, $options: "i" };
+      filter["spanish.definition"] = {
+        $regex: spanishDefinition,
+        $options: "i",
+      };
     }
 
     // Filtros de fecha para createdAt
@@ -223,7 +222,7 @@ export class WordService {
     const pages = Math.ceil(total / limit);
 
     // Configurar ordenamiento
-    const sortDirection = sortOrder === 'asc' ? 1 : -1;
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
     const sortOptions: Record<string, 1 | -1> = {};
     sortOptions[sortBy] = sortDirection as 1 | -1;
 
@@ -247,46 +246,74 @@ export class WordService {
     id: string,
     difficulty: string
   ): Promise<{ difficulty?: string } | null> {
-    return await Word.findByIdAndUpdate(id, { difficulty }, { new: true, projection: { difficulty: 1 } });
+    return await Word.findByIdAndUpdate(
+      id,
+      { difficulty },
+      { new: true, projection: { difficulty: 1 } }
+    );
   }
 
   async updateWordExamples(
     id: string,
     examples: string[]
   ): Promise<{ examples?: string[] } | null> {
-    return await Word.findByIdAndUpdate(id, { examples }, { new: true, projection: { examples: 1 } });
+    return await Word.findByIdAndUpdate(
+      id,
+      { examples },
+      { new: true, projection: { examples: 1 } }
+    );
   }
 
   async updateWordCodeSwitching(
     id: string,
     codeSwitching: string[]
   ): Promise<{ codeSwitching?: string[] } | null> {
-    return await Word.findByIdAndUpdate(id, { codeSwitching }, { new: true, projection: { codeSwitching: 1 } });
+    return await Word.findByIdAndUpdate(
+      id,
+      { codeSwitching },
+      { new: true, projection: { codeSwitching: 1 } }
+    );
   }
 
   async updateWordSynonyms(
     id: string,
     synonyms: string[]
   ): Promise<{ sinonyms?: string[] } | null> {
-    return await Word.findByIdAndUpdate(id, { sinonyms: synonyms }, { new: true, projection: { sinonyms: 1 } });
+    return await Word.findByIdAndUpdate(
+      id,
+      { sinonyms: synonyms },
+      { new: true, projection: { sinonyms: 1 } }
+    );
   }
 
   async updateWordType(
     id: string,
     type: string[]
   ): Promise<{ type?: string[] } | null> {
-    return await Word.findByIdAndUpdate(id, { type }, { new: true, projection: { type: 1 } });
+    return await Word.findByIdAndUpdate(
+      id,
+      { type },
+      { new: true, projection: { type: 1 } }
+    );
   }
 
   async updateWordImg(
     id: string,
     img: string
   ): Promise<{ img?: string } | null> {
-    return await Word.findByIdAndUpdate(id, { img }, { new: true, projection: { img: 1 } });
+    return await Word.findByIdAndUpdate(
+      id,
+      { img },
+      { new: true, projection: { img: 1 } }
+    );
   }
 
   async incrementWordSeen(id: string): Promise<{ seen?: number } | null> {
-    return await Word.findByIdAndUpdate(id, { $inc: { seen: 1 } }, { new: true, projection: { seen: 1 } });
+    return await Word.findByIdAndUpdate(
+      id,
+      { $inc: { seen: 1 } },
+      { new: true, projection: { seen: 1 } }
+    );
   }
 
   async deleteWord(id: string): Promise<IWord | null> {
@@ -305,106 +332,48 @@ export class WordService {
       { $addFields: { randomSort: { $rand: {} } } }, // Agregar campo aleatorio
       { $sort: { randomSort: 1 } }, // Ordenar por el campo aleatorio
       { $limit: 30 }, // Limitar a 30 palabras para el juego
-      { $project: { randomSort: 0 } } // Remover el campo aleatorio del resultado
+      { $project: { randomSort: 0 } }, // Remover el campo aleatorio del resultado
     ]);
   }
 
   // Nuevo método para obtener palabras para repaso inteligente
   async getWordsForReview(limit: number = 20): Promise<IWord[]> {
-    const now = new Date();
-    
-    // Obtener palabras que necesitan repaso (nextReview <= now) o nunca han sido revisadas
+    // Obtener palabras que necesitan repaso (priorizando las más difíciles y menos vistas)
     const wordsForReview = await Word.find({
-      $or: [
-        { nextReview: { $lte: now } },
-        { nextReview: null },
-        { lastReviewed: null }
-      ],
-      difficulty: { $in: ["hard", "medium"] }
+      difficulty: { $in: ["hard", "medium"] },
     })
-    .sort({ 
-      // Priorizar por: 1) Nunca revisadas, 2) Más tiempo sin revisar, 3) Más difíciles
-      lastReviewed: 1,
-      difficulty: -1,
-      nextReview: 1
-    })
-    .limit(limit)
-    .lean();
-
-    // Si no hay suficientes palabras para repaso, agregar algunas nuevas
-    if (wordsForReview.length < limit) {
-      const remainingLimit = limit - wordsForReview.length;
-      const additionalWords = await Word.find({
-        difficulty: { $in: ["hard", "medium"] },
-        _id: { $nin: wordsForReview.map(w => w._id) }
+      .sort({
+        // Priorizar por: 1) Más difíciles, 2) Menos vistas, 3) Más recientes
+        difficulty: -1,
+        seen: 1,
+        createdAt: -1,
       })
-      .sort({ createdAt: -1 })
-      .limit(remainingLimit)
+      .limit(limit)
       .lean();
-
-      return [...wordsForReview, ...additionalWords];
-    }
 
     return wordsForReview;
   }
 
   // Método para actualizar el progreso de repaso de una palabra
   async updateWordReview(
-    wordId: string, 
-    difficulty: number, 
+    wordId: string,
+    difficulty: number,
     quality: number // 1-5, donde 1 es "olvidé completamente" y 5 es "muy fácil"
   ): Promise<IWord | null> {
     const word = await Word.findById(wordId);
     if (!word) return null;
 
-    const now = new Date();
-    const oldEaseFactor = word.easeFactor || 2.5;
-    const oldInterval = word.interval || 1;
-    const oldReviewCount = word.reviewCount || 0;
-
-    // Calcular nuevo factor de facilidad (algoritmo similar a Anki)
-    let newEaseFactor = oldEaseFactor;
-    if (quality >= 4) {
-      // Respuesta correcta
-      newEaseFactor = Math.max(1.3, oldEaseFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
-    } else if (quality <= 2) {
-      // Respuesta incorrecta
-      newEaseFactor = Math.max(1.3, oldEaseFactor - 0.2);
-    }
-
-    // Calcular nuevo intervalo
-    let newInterval: number;
-    if (quality >= 4) {
-      if (oldReviewCount === 0) {
-        newInterval = 1;
-      } else if (oldReviewCount === 1) {
-        newInterval = 6;
-      } else {
-        newInterval = Math.round(oldInterval * newEaseFactor);
-      }
-    } else {
-      // Respuesta incorrecta, volver a 1 día
-      newInterval = 1;
-    }
-
-    // Calcular próxima fecha de repaso
-    const nextReviewDate = new Date(now);
-    nextReviewDate.setDate(nextReviewDate.getDate() + newInterval);
+    // Actualizar solo los campos que existen en el modelo actual
+    const updateData: any = {
+      difficulty:
+        difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard",
+      seen: (word.seen || 0) + 1,
+    };
 
     // Actualizar palabra
-    const updatedWord = await Word.findByIdAndUpdate(
-      wordId,
-      {
-        lastReviewed: now,
-        nextReview: nextReviewDate,
-        reviewCount: oldReviewCount + 1,
-        difficulty: difficulty,
-        interval: newInterval,
-        easeFactor: newEaseFactor,
-        seen: (word.seen || 0) + 1
-      },
-      { new: true }
-    );
+    const updatedWord = await Word.findByIdAndUpdate(wordId, updateData, {
+      new: true,
+    });
 
     return updatedWord;
   }
@@ -414,48 +383,60 @@ export class WordService {
     totalWords: number;
     wordsReviewedToday: number;
     wordsDueForReview: number;
-    averageEaseFactor: number;
-    averageInterval: number;
+    averageSeen: number;
+    difficultyDistribution: { easy: number; medium: number; hard: number };
   }> {
     const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
 
     const [
       totalWords,
       wordsReviewedToday,
       wordsDueForReview,
-      averageEaseFactor,
-      averageInterval
+      averageSeen,
+      difficultyDistribution,
     ] = await Promise.all([
-      Word.countDocuments({ level: { $in: ["hard", "medium"] } }),
-      Word.countDocuments({ 
+      Word.countDocuments({ difficulty: { $in: ["hard", "medium"] } }),
+      Word.countDocuments({
         difficulty: { $in: ["hard", "medium"] },
-        lastReviewed: { $gte: startOfDay }
+        updatedAt: { $gte: startOfDay },
       }),
       Word.countDocuments({
         difficulty: { $in: ["hard", "medium"] },
-        $or: [
-          { nextReview: { $lte: now } },
-          { nextReview: null },
-          { lastReviewed: null }
-        ]
+        seen: { $lt: 3 }, // Palabras que han sido vistas menos de 3 veces
       }),
       Word.aggregate([
         { $match: { difficulty: { $in: ["hard", "medium"] } } },
-        { $group: { _id: null, avgEaseFactor: { $avg: "$easeFactor" } } }
+        { $group: { _id: null, avgSeen: { $avg: "$seen" } } },
       ]),
       Word.aggregate([
-        { $match: { difficulty: { $in: ["hard", "medium"] } } },
-        { $group: { _id: null, avgInterval: { $avg: "$interval" } } }
-      ])
+        {
+          $group: {
+            _id: "$difficulty",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
     ]);
+
+    // Procesar distribución de dificultad
+    const dist = { easy: 0, medium: 0, hard: 0 };
+    difficultyDistribution.forEach((item) => {
+      if (item._id === "easy") dist.easy = item.count;
+      else if (item._id === "medium") dist.medium = item.count;
+      else if (item._id === "hard") dist.hard = item.count;
+    });
 
     return {
       totalWords,
       wordsReviewedToday,
       wordsDueForReview,
-      averageEaseFactor: averageEaseFactor[0]?.avgEaseFactor || 2.5,
-      averageInterval: averageInterval[0]?.avgInterval || 1
+      averageSeen: averageSeen[0]?.avgSeen || 0,
+      difficultyDistribution: dist,
     };
   }
 
@@ -466,27 +447,33 @@ export class WordService {
       .lean();
   }
 
-  async getWordsByType(type: string, limit: number = 10, search?: string): Promise<IWord[]> {
+  async getWordsByType(
+    type: string,
+    limit: number = 10,
+    search?: string
+  ): Promise<IWord[]> {
     const query: any = { type: { $in: [type] } };
-    
+
     if (search) {
       query.$or = [
-        { word: { $regex: search, $options: 'i' } },
-        { definition: { $regex: search, $options: 'i' } }
+        { word: { $regex: search, $options: "i" } },
+        { definition: { $regex: search, $options: "i" } },
       ];
     }
 
-    return await Word.find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .lean();
+    return await Word.find(query).sort({ createdAt: -1 }).limit(limit).lean();
   }
 
-  async getWordsByTypeOptimized(type: string, limit: number = 10, search?: string, fields?: string): Promise<{ word: string }[]> {
+  async getWordsByTypeOptimized(
+    type: string,
+    limit: number = 10,
+    search?: string,
+    fields?: string
+  ): Promise<{ word: string }[]> {
     const query: any = { type: { $in: [type] } };
-    
+
     if (search) {
-      query.word = { $regex: search, $options: 'i' };
+      query.word = { $regex: search, $options: "i" };
     }
 
     const projection = fields ? { word: 1 } : { word: 1, _id: 0 };
@@ -498,15 +485,17 @@ export class WordService {
       .lean();
   }
 
-  async getWordsOnly(filters: {
-    page?: number;
-    limit?: number;
-    wordUser?: string;
-    level?: string | string[];
-    language?: string | string[];
-    type?: string | string[];
-    fields?: string;
-  } = {}): Promise<PaginatedResult<{ word: string }>> {
+  async getWordsOnly(
+    filters: {
+      page?: number;
+      limit?: number;
+      wordUser?: string;
+      difficulty?: string | string[];
+      language?: string | string[];
+      type?: string | string[];
+      fields?: string;
+    } = {}
+  ): Promise<PaginatedResult<{ word: string }>> {
     const {
       page = 1,
       limit = 10,
@@ -514,7 +503,7 @@ export class WordService {
       difficulty,
       language,
       type,
-      fields
+      fields,
     } = filters;
 
     const filter: Record<string, unknown> = {};
@@ -527,12 +516,14 @@ export class WordService {
     // Filtro por dificultad
     if (difficulty) {
       if (Array.isArray(difficulty)) {
-        const validDifficulties = difficulty.filter(d => ['easy', 'medium', 'hard'].includes(d));
+        const validDifficulties = difficulty.filter((d) =>
+          ["easy", "medium", "hard"].includes(d)
+        );
         if (validDifficulties.length > 0) {
           filter.difficulty = { $in: validDifficulties };
         }
       } else {
-        if (['easy', 'medium', 'hard'].includes(difficulty)) {
+        if (["easy", "medium", "hard"].includes(difficulty)) {
           filter.difficulty = difficulty;
         }
       }
@@ -541,7 +532,7 @@ export class WordService {
     // Filtro por idioma
     if (language) {
       if (Array.isArray(language)) {
-        const languageRegex = language.map(lang => new RegExp(lang, 'i'));
+        const languageRegex = language.map((lang) => new RegExp(lang, "i"));
         filter.language = { $in: languageRegex };
       } else {
         filter.language = { $regex: language, $options: "i" };
@@ -560,7 +551,7 @@ export class WordService {
     const projection = fields ? { word: 1 } : { word: 1, _id: 0 };
 
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
       Word.find(filter)
         .select(projection)
@@ -568,22 +559,19 @@ export class WordService {
         .skip(skip)
         .limit(limit)
         .lean(),
-      Word.countDocuments(filter)
+      Word.countDocuments(filter),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
   async getAllWordsForExport(): Promise<IWord[]> {
-    return await Word.find({})
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    return await Word.find({}).sort({ createdAt: -1 }).lean().exec();
   }
 
   // Chat methods
@@ -601,7 +589,7 @@ export class WordService {
       id: Math.random().toString(36).substr(2, 9),
       role: "user",
       content: message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     word.chat = word.chat || [];
@@ -609,7 +597,10 @@ export class WordService {
     return await word.save();
   }
 
-  async addAssistantMessage(wordId: string, message: string): Promise<IWord | null> {
+  async addAssistantMessage(
+    wordId: string,
+    message: string
+  ): Promise<IWord | null> {
     const word = await Word.findById(wordId);
     if (!word) return null;
 
@@ -617,7 +608,7 @@ export class WordService {
       id: Math.random().toString(36).substr(2, 9),
       role: "assistant",
       content: message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     word.chat = word.chat || [];

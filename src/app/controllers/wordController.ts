@@ -1,14 +1,12 @@
 import { Request, Response } from "express";
 import { WordService } from "../services/words/wordService";
 import { WordImportService } from "../services/import/WordImportService";
-import { WordStatisticsService } from "../services/statistics/WordStatisticsService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { generateWordChatStream } from "../services/ai/generateWordChatStream";
 import logger from "../utils/logger";
 
 const wordService = new WordService();
 const wordImportService = new WordImportService();
-const wordStatisticsService = new WordStatisticsService();
 
 export const getWordByName = async (
   req: Request,

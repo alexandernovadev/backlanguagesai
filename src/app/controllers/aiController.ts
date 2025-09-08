@@ -14,7 +14,11 @@ import {
 } from "../services/cloudinary/cloudinaryService";
 
 import { errorResponse, successResponse } from "../utils/responseHelpers";
-import { imageWordPrompt, imageLecturePrompt, imageExpressionPrompt } from "./helpers/ImagePrompt";
+import {
+  imageWordPrompt,
+  imageLecturePrompt,
+  imageExpressionPrompt,
+} from "./helpers/ImagePrompt";
 import { promptAddEasyWords } from "./helpers/promptAddEasyWords";
 import { LectureService } from "../services/lectures/LectureService";
 import { ExpressionService } from "../services/expressions/expressionService";
@@ -172,7 +176,9 @@ export const updateImageExpression = async (req: Request, res: Response) => {
 
   try {
     // Generate image
-    const imageBase64 = await generateImage(imageExpressionPrompt(expressionString));
+    const imageBase64 = await generateImage(
+      imageExpressionPrompt(expressionString)
+    );
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);
     }
@@ -227,7 +233,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
 
   // Allow empty prompt: when empty, backend should generate a random topic.
   // If prompt has content, it must be passed through faithfully to guide generation.
-  if (typeof prompt !== 'string') {
+  if (typeof prompt !== "string") {
     return errorResponse(res, "Prompt must be a string.", 400);
   }
 
@@ -242,7 +248,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
 
     const stream = await generateTextStreamService({
       // If prompt is empty or whitespace, we still pass it, and the service will handle random generation
-      prompt: (prompt || '').toString(),
+      prompt: (prompt || "").toString(),
       level,
       typeWrite,
       promptWords,
@@ -250,7 +256,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
       rangeMin,
       rangeMax,
       grammarTopics: Array.isArray(grammarTopics) ? grammarTopics : [],
-      selectedWords: Array.isArray(selectedWords) ? selectedWords : [],  // Pasar selectedWords
+      selectedWords: Array.isArray(selectedWords) ? selectedWords : [], // Pasar selectedWords
     });
 
     res.setHeader("Content-Type", "application/json");
@@ -284,11 +290,15 @@ export const generateWordJson = async (req: Request, res: Response) => {
   try {
     // Generate the word data using AI
     const wordData = await generateWordJsonService(prompt, language);
-    
+
     // Save the generated word to the database
     const savedWord = await wordService.createWord(wordData);
-    
-    return successResponse(res, "Word generated and saved successfully", savedWord);
+
+    return successResponse(
+      res,
+      "Word generated and saved successfully",
+      savedWord
+    );
   } catch (error) {
     return errorResponse(res, "Error generating or saving word", 500, error);
   }
@@ -309,7 +319,10 @@ export const generateWordExamplesJson = async (req: Request, res: Response) => {
       language,
       oldExamples
     );
-    const updated = await wordService.updateWordExamples(idword, generated.examples || []);
+    const updated = await wordService.updateWordExamples(
+      idword,
+      generated.examples || []
+    );
     if (!updated) {
       return errorResponse(res, "Word not found", 404);
     }
@@ -374,7 +387,10 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
       language,
       oldExamples
     );
-    const updated = await wordService.updateWordType(idword, generated.type || []);
+    const updated = await wordService.updateWordType(
+      idword,
+      generated.type || []
+    );
     if (!updated) {
       return errorResponse(res, "Word not found", 404);
     }
@@ -412,19 +428,26 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
   }
 };
 
-
 export const generateTopicStream = async (req: Request, res: Response) => {
   try {
     const { existingText, type } = req.body;
 
     // Validate required fields
     if (!type || !["lecture", "exam"].includes(type)) {
-      return errorResponse(res, "Type is required and must be 'lecture' or 'exam'", 400);
+      return errorResponse(
+        res,
+        "Type is required and must be 'lecture' or 'exam'",
+        400
+      );
     }
 
     // Validate existingText length if provided
     if (existingText && existingText.length > 500) {
-      return errorResponse(res, "Existing text cannot exceed 500 characters", 400);
+      return errorResponse(
+        res,
+        "Existing text cannot exceed 500 characters",
+        400
+      );
     }
 
     // Set headers for streaming
@@ -451,4 +474,4 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     console.error("Error generating topic stream:", error);
     return errorResponse(res, "Error generating topic", 500, error);
   }
-}; 
+};

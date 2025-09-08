@@ -1,15 +1,12 @@
 import { Request, Response } from "express";
 import path from "path";
-
 import { LectureService } from "../services/lectures/LectureService";
 import { LectureImportService } from "../services/import/LectureImportService";
-import { LectureStatisticsService } from "../services/statistics/LectureStatisticsService";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
 
 const lectureService = new LectureService();
 const lectureImportService = new LectureImportService();
-const lectureStatisticsService = new LectureStatisticsService();
 
 export const createLecture = async (
   req: Request,

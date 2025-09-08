@@ -26,7 +26,11 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const user = await userService.createUser(req.body, req, req.user?._id?.toString());
+    const user = await userService.createUser(
+      req.body,
+      req,
+      req.user?._id?.toString()
+    );
     return successResponse(res, "User created successfully", user, 201);
   } catch (error) {
     return errorResponse(res, "Error creating user", 400, error);
@@ -35,7 +39,12 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const user = await userService.updateUser(req.params.id, req.body, req, req.user?._id?.toString());
+    const user = await userService.updateUser(
+      req.params.id,
+      req.body,
+      req,
+      req.user?._id?.toString()
+    );
     if (!user) return errorResponse(res, "User not found", 404);
     return successResponse(res, "User updated successfully", user);
   } catch (error) {
@@ -45,7 +54,11 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const user = await userService.deleteUser(req.params.id, req, req.user?._id?.toString());
+    const user = await userService.deleteUser(
+      req.params.id,
+      req,
+      req.user?._id?.toString()
+    );
     if (!user) return errorResponse(res, "User not found", 404);
     return successResponse(res, "User deleted successfully", user);
   } catch (error) {
@@ -151,27 +164,38 @@ export const importUsersFromFile = async (req: Request, res: Response) => {
       const validationResults = users.map((user: any, index: number) => ({
         index,
         data: user,
-        status: user.email && user.username ? 'valid' : 'invalid',
-        errors: !user.email ? ['Email is required'] : 
-                !user.username ? ['Username is required'] : []
+        status: user.email && user.username ? "valid" : "invalid",
+        errors: !user.email
+          ? ["Email is required"]
+          : !user.username
+          ? ["Username is required"]
+          : [],
       }));
 
-      const validCount = validationResults.filter((r: any) => r.status === 'valid').length;
-      const invalidCount = validationResults.filter((r: any) => r.status === 'invalid').length;
+      const validCount = validationResults.filter(
+        (r: any) => r.status === "valid"
+      ).length;
+      const invalidCount = validationResults.filter(
+        (r: any) => r.status === "invalid"
+      ).length;
 
       return successResponse(res, "Validation completed", {
         totalUsers: users.length,
         valid: validCount,
         invalid: invalidCount,
         validationResults,
-        message: `Validation completed. ${validCount} valid, ${invalidCount} invalid`
+        message: `Validation completed. ${validCount} valid, ${invalidCount} invalid`,
       });
     }
 
     // Import users
     const importResult = await userService.importUsers(users, {
-      duplicateStrategy: duplicateStrategy as 'skip' | 'overwrite' | 'error' | 'merge',
-      batchSize: batchSizeNum
+      duplicateStrategy: duplicateStrategy as
+        | "skip"
+        | "overwrite"
+        | "error"
+        | "merge",
+      batchSize: batchSizeNum,
     });
 
     return successResponse(res, "Import completed successfully", importResult);

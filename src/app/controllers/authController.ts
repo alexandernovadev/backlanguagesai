@@ -3,7 +3,6 @@ import { AuthService } from "../services/auth/authService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import User from "../db/models/User";
 
-
 export const AuthController = {
   login: async (req: Request, res: Response) => {
     const { username, password } = req.body;
@@ -18,8 +17,6 @@ export const AuthController = {
         // Actualizar lastLogin
         user.lastLogin = new Date();
         await user.save();
-
-
 
         const token = AuthService.generateToken(user);
         const refreshToken = AuthService.generateRefreshToken(user);
@@ -48,7 +45,7 @@ export const AuthController = {
           firstName,
           lastName,
           image,
-          language: user.language || 'es',
+          language: user.language || "es",
           isActive,
           address,
           phone,
@@ -62,7 +59,6 @@ export const AuthController = {
           refreshToken,
           user: userInfo,
         });
-        
       } else {
         return errorResponse(res, "Invalid credentials", 401);
       }
@@ -80,7 +76,7 @@ export const AuthController = {
       }
 
       const result = await AuthService.refreshAccessToken(refreshToken);
-      
+
       return successResponse(res, "Token refreshed successfully", result);
     } catch (error) {
       return errorResponse(res, "Failed to refresh token", 401, error);

@@ -45,6 +45,7 @@ const getClient = () => {
 /**
  * Create chat completion using current AI service
  */
+// TODO esto qu hace aca, no se supeone q cliente nomas ?
 export const createChatCompletion = async (params: ChatCompletionParams) => {
   try {
     const { client, config } = getClient();

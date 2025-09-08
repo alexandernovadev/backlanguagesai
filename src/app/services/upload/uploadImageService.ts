@@ -1,7 +1,16 @@
-import cloudinary from "cloudinary";
-
+import { Readable } from "stream";
+import { v2 as cloudinary } from "cloudinary";
+import Word from "../../db/models/Word";
+import Lecture from "../../db/models/Lecture";
+import Expression from "../../db/models/Expression";
 import { deleteImageFromCloudinary } from "../cloudinary/cloudinaryService";
-import { Expression, Lecture, Word } from "../../db/models";
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 interface UploadResult {
   img: string;
@@ -9,43 +18,43 @@ interface UploadResult {
   entityType: string;
 }
 
-// Function to extract publicId from Cloudinary URL
+// Helper function to extract public ID from Cloudinary URL
 const extractPublicId = (url: string): string => {
   const parts = url.split("/");
-  let publicId = parts.pop() as string;
-
-  if (publicId && publicId.includes(".")) {
-    publicId = publicId.split(".")[0];
-  }
-
-  return publicId;
+  const filename = parts[parts.length - 1];
+  return filename.split(".")[0];
 };
 
-// Function to upload image to Cloudinary
+// Upload to Cloudinary
 const uploadToCloudinary = async (
-  buffer: Buffer,
+  imageBuffer: Buffer,
   folder: string
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.v2.uploader.upload_stream(
+    const readableStream = new Readable();
+    readableStream.push(imageBuffer);
+    readableStream.push(null);
+
+    const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: `languagesai/${folder}`,
         resource_type: "image",
+        transformation: [
+          { width: 800, height: 600, crop: "fill" },
+          { quality: "auto" },
+        ],
       },
       (error, result) => {
         if (error) {
           reject(error);
+        } else if (result) {
+          resolve(result.secure_url);
         } else {
-          resolve(result!.secure_url);
+          reject(new Error("No result from Cloudinary"));
         }
       }
     );
 
-    // Convert buffer to stream
-    const stream = require("stream");
-    const readableStream = new stream.Readable();
-    readableStream.push(buffer);
-    readableStream.push(null);
     readableStream.pipe(uploadStream);
   });
 };

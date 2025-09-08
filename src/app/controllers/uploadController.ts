@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
+import { successResponse, errorResponse } from "../utils/responseHelpers";
 import {
   uploadWordImage,
   uploadLectureImage,
   uploadExpressionImage,
 } from "../services/upload/uploadImageService";
-import { successResponse, errorResponse } from "../utils/responseHelpers";
 
-// Extend Request to include multer file
 interface UploadRequest extends Request {
   file?: Express.Multer.File;
 }

@@ -14,7 +14,6 @@ import LectureRoutes from "./app/routes/lectureRoutes";
 import WordsRoutes from "./app/routes/wordsRoutes";
 import ExpressionRoutes from "./app/routes/expressionRoutes";
 import LabsRoutes from "./app/routes/labsRoutes";
-import StatisticsRoutes from "./app/routes/statisticsRoutes";
 import UploadRoutes from "./app/routes/uploadRoutes";
 
 import AuthRoutes from "./app/routes/authRoutes";

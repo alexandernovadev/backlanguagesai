@@ -8,7 +8,6 @@ import { generateWordExamplesCodeSwithcingJson as generateWordExamplesCodeSwithc
 import { generateWordTypesJson as generateWordTypesJsonService } from "../services/ai/generateWordTypesJson";
 import { generateWordSynomymsJson as generateWordSynomymsJsonService } from "../services/ai/generateWordSynomymsJson";
 import { generateImage } from "../services/ai/generateImage";
-import { generateExamStreamService } from "../services/ai/generateExamStream";
 import {
   deleteImageFromCloudinary,
   uploadImageToCloudinary,
@@ -20,9 +19,7 @@ import { promptAddEasyWords } from "./helpers/promptAddEasyWords";
 import { LectureService } from "../services/lectures/LectureService";
 import { ExpressionService } from "../services/expressions/expressionService";
 import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
-import { ExamGenerationValidator } from "../utils/validators/examGenerationValidator";
 import { generateTopicStreamService } from "../services/ai/generateTopicStream";
-import { generateTranslationStreamService } from "../services/ai/generateTranslationStream";
 
 const wordService = new WordService();
 const lectureService = new LectureService();
@@ -415,89 +412,6 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
   }
 };
 
-export const generateExamStream = async (req: Request, res: Response) => {
-  const {
-    level = "B1",
-    topic = "daily life",
-    grammarTopics = [],
-    numberOfQuestions = 10,
-    types = ["multiple_choice", "fill_blank", "true_false"],
-    difficulty = 3,
-    userLang = "es",
-  } = req.body;
-
-  // Validar parámetros usando el nuevo validador
-  const validation = ExamGenerationValidator.validateExamGeneration({
-    topic,
-    grammarTopics,
-    level,
-    numberOfQuestions,
-    types,
-    difficulty,
-    userLang,
-  });
-
-  if (!validation.isValid) {
-    return errorResponse(
-      res,
-      `Validation error: ${validation.errors.join(", ")}`,
-      400
-    );
-  }
-
-  // Mostrar warnings si existen
-  if (validation.warnings.length > 0) {
-    console.warn("Exam generation warnings:", validation.warnings);
-  }
-
-  try {
-    const stream = await generateExamStreamService({
-      level,
-      topic,
-      grammarTopics,
-      numberOfQuestions,
-      types,
-      difficulty,
-      userLang,
-    });
-
-    res.setHeader("Content-Type", "application/json");
-    res.flushHeaders();
-
-    // Read the stream and send the data to the client
-    for await (const chunk of stream) {
-      const piece = chunk.choices[0].delta.content || "";
-      res.write(piece);
-    }
-
-    // Close the stream when done
-    res.end();
-  } catch (error) {
-    return errorResponse(res, "Failed to generate exam stream", 500, error);
-  }
-};
-
-// Nueva función para procesar la respuesta de la IA y extraer título y slug
-export const processExamGenerationResponse = (aiResponse: any) => {
-  try {
-    // La IA ahora devuelve un objeto con title, examSlug y questions
-    const { title, examSlug, questions } = aiResponse;
-    
-    return {
-      examTitle: title || `Examen: ${aiResponse.topic || 'General'}`,
-      examSlug: examSlug || 'exam-general',
-      questions: questions || []
-    };
-  } catch (error) {
-    console.error('Error processing AI response:', error);
-    // Fallback si la IA no devuelve el formato esperado
-    return {
-      examTitle: `Examen: ${aiResponse.topic || 'General'}`,
-      examSlug: 'exam-general',
-      questions: aiResponse.questions || []
-    };
-  }
-};
 
 export const generateTopicStream = async (req: Request, res: Response) => {
   try {
@@ -538,48 +452,3 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     return errorResponse(res, "Error generating topic", 500, error);
   }
 }; 
-
-// Translate text (streaming)
-export const translateTextStream = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
-  const startTime = Date.now();
-
-  try {
-    const { text, sourceLang = "auto", targetLang, mode = "normal" } = req.body || {};
-
-    if (!text || typeof text !== "string") {
-      return errorResponse(res, "'text' is required and must be a string", 400);
-    }
-    const allowed = ["es", "en", "fr", "de", "it", "pt"];
-    if (!targetLang || !allowed.includes(targetLang)) {
-      return errorResponse(res, "Invalid 'targetLang'", 400);
-    }
-    if (sourceLang !== "auto" && !allowed.includes(sourceLang)) {
-      return errorResponse(res, "Invalid 'sourceLang'", 400);
-    }
-    if (text.length > 4000) {
-      return errorResponse(res, "Text too long (max 4000 characters)", 400);
-    }
-
-    // Set streaming headers
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
-    const stream = await generateTranslationStreamService({ text, sourceLang, targetLang, mode });
-
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
-      if (content) {
-        res.write(content);
-      }
-    }
-
-    res.end();
-
-    const duration = Date.now() - startTime;
-    return; // success streamed
-  } catch (error: any) {
-    return errorResponse(res, "Failed to translate text", 500, error);
-  }
-};

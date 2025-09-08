@@ -70,7 +70,6 @@ app.use("/api/ai", authMiddleware, generateRoutes);
 app.use("/api/lectures", authMiddleware, LectureRoutes);
 app.use("/api/words", authMiddleware, WordsRoutes);
 app.use("/api/expressions", authMiddleware, ExpressionRoutes);
-app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 
 // Labs routes (conditional auth)

@@ -1,37 +1,854 @@
 openapi: 3.0.0
 info:
   title: Word API
-  version: 1.0.0
-  description: API for managing words and related properties
+  version: 2.0.0
+  description: API for managing words, AI generation, and learning features
 paths:
+  # ===== STATIC ROUTES =====
   /api/words/get-cards-anki:
     get:
-      summary: Retrieve recent hard or medium words for Anki cards
+      summary: Get recent hard or medium words for Anki cards
       tags:
         - Words
+      description: Retrieves 30 randomly shuffled words with difficulty 'hard' or 'medium' for Anki-style learning
       responses:
         '200':
-          description: A shuffled list of recent hard or medium words
+          description: Successfully retrieved words for Anki cards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "List Recent Hard Or Medium Words successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Word'
         '500':
           description: Internal server error
 
-  /api/words:
+  /api/words/get-words-for-review:
     get:
-      summary: Retrieve a list of words with pagination and comprehensive filters
+      summary: Get words for intelligent review
       tags:
         - Words
+      description: Retrieves words that need review based on difficulty and frequency
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Maximum number of words to return
+      responses:
+        '200':
+          description: Successfully retrieved words for review
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Words for review retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Word'
+        '500':
+          description: Internal server error
+
+  /api/words/get-review-stats:
+    get:
+      summary: Get review statistics
+      tags:
+        - Words
+      description: Retrieves statistics about word review progress
+      responses:
+        '200':
+          description: Successfully retrieved review statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Review statistics retrieved successfully"
+                  data:
+                    $ref: '#/components/schemas/ReviewStats'
+        '500':
+          description: Internal server error
+
+  /api/words/by-type/{type}:
+    get:
+      summary: Get words by grammatical type
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
+          description: Grammatical type to filter by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Maximum number of words to return
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term for word or definition
+      responses:
+        '200':
+          description: Successfully retrieved words by type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Words of type noun retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Word'
+        '500':
+          description: Internal server error
+
+  /api/words/by-type-optimized:
+    get:
+      summary: Get words by type (optimized)
+      tags:
+        - Words
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
+          description: Grammatical type to filter by
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Maximum number of words to return
+        - in: query
+          name: wordUser
+          schema:
+            type: string
+          description: Search term for word
+        - in: query
+          name: fields
+          schema:
+            type: string
+          description: Fields to include in response
+      responses:
+        '200':
+          description: Successfully retrieved words by type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Words of type noun retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        word:
+                          type: string
+                          example: "challenge"
+        '400':
+          description: Type parameter is required
+        '500':
+          description: Internal server error
+
+  /api/words/words-only:
+    get:
+      summary: Get words only (optimized)
+      tags:
+        - Words
+      description: Retrieves only word names with pagination and filters
       parameters:
         - in: query
           name: page
           schema:
             type: integer
             default: 1
+            minimum: 1
           description: Page number
         - in: query
           name: limit
           schema:
             type: integer
             default: 10
+            minimum: 1
+          description: Number of words per page
+        - in: query
+          name: wordUser
+          schema:
+            type: string
+          description: Filter words by partial text match
+        - in: query
+          name: difficulty
+          schema:
+            type: string
+            enum: [easy, medium, hard]
+          description: Filter by difficulty level(s)
+        - in: query
+          name: language
+          schema:
+            type: string
+          description: Filter by language(s)
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
+          description: Filter by grammatical type(s)
+        - in: query
+          name: fields
+          schema:
+            type: string
+          description: Fields to include in response
+      responses:
+        '200':
+          description: Successfully retrieved words
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Words retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            word:
+                              type: string
+                              example: "challenge"
+                      total:
+                        type: integer
+                        example: 150
+                      page:
+                        type: integer
+                        example: 1
+                      pages:
+                        type: integer
+                        example: 15
+        '500':
+          description: Internal server error
+
+  # ===== DYNAMIC ROUTES =====
+  /api/words/{word}/word:
+    get:
+      summary: Find word by name
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: word
+          required: true
+          schema:
+            type: string
+          description: Word to search for
+      responses:
+        '200':
+          description: Word found successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Get Word successFully"
+                  data:
+                    $ref: '#/components/schemas/Word'
+        '404':
+          description: Word not found
+        '500':
+          description: Internal server error
+
+  /api/words/{wordId}/update-review:
+    post:
+      summary: Update word review progress
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: wordId
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                difficulty:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  description: Difficulty rating (1-5)
+                quality:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  description: Quality rating (1-5)
+              required:
+                - difficulty
+                - quality
+      responses:
+        '200':
+          description: Word review updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word review updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
+        '400':
+          description: Invalid parameters
+        '404':
+          description: Word not found
+        '500':
+          description: Internal server error
+
+  # ===== CHAT ROUTES =====
+  /api/words/{wordId}/chat:
+    post:
+      summary: Add chat message
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: wordId
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Chat message content
+              required:
+                - message
+      responses:
+        '200':
+          description: Chat message added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chat message added successfully"
+                  word:
+                    $ref: '#/components/schemas/Word'
+        '400':
+          description: Message is required
+        '404':
+          description: Word not found
+        '500':
+          description: Internal server error
+
+    get:
+      summary: Get chat history
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: wordId
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      responses:
+        '200':
+          description: Chat history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatMessage'
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Clear chat history
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: wordId
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      responses:
+        '200':
+          description: Chat history cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chat history cleared successfully"
+                  word:
+                    $ref: '#/components/schemas/Word'
+        '404':
+          description: Word not found
+        '500':
+          description: Internal server error
+
+  /api/words/{wordId}/chat/stream:
+    post:
+      summary: Stream chat response
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: wordId
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Chat message content
+              required:
+                - message
+      responses:
+        '200':
+          description: Streaming chat response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "This is a streaming response..."
+        '400':
+          description: Message is required
+        '404':
+          description: Word not found
+        '500':
+          description: Internal server error
+
+  # ===== AI GENERATION ROUTES =====
+  /api/words/generate:
+    post:
+      summary: Generate word with AI
+      tags:
+        - Words
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: Word to generate
+                language:
+                  type: string
+                  default: "en"
+                  description: Language code
+              required:
+                - prompt
+      responses:
+        '200':
+          description: Word generated and saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word generated and saved successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
+        '400':
+          description: Prompt is required
+        '500':
+          description: Error generating or saving word
+
+  /api/words/{idword}/generate-examples:
+    post:
+      summary: Generate word examples with AI
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: idword
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: Word to generate examples for
+                word:
+                  type: string
+                  description: Alternative word parameter
+                language:
+                  type: string
+                  default: "en"
+                  description: Language code
+                oldExamples:
+                  type: array
+                  items:
+                    type: string
+                  description: Existing examples
+      responses:
+        '200':
+          description: Word examples updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word examples updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
+        '400':
+          description: Prompt (word) is required
+        '404':
+          description: Word not found
+        '500':
+          description: Error generating word examples
+
+  /api/words/{idword}/generate-code-switching:
+    post:
+      summary: Generate code-switching examples with AI
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: idword
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: Word to generate examples for
+                word:
+                  type: string
+                  description: Alternative word parameter
+                language:
+                  type: string
+                  default: "en"
+                  description: Language code
+                oldExamples:
+                  type: array
+                  items:
+                    type: string
+                  description: Existing examples
+      responses:
+        '200':
+          description: Word code-switching updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word code-switching updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
+        '400':
+          description: Prompt (word) is required
+        '404':
+          description: Word not found
+        '500':
+          description: Error generating word code-switching examples
+
+  /api/words/{idword}/generate-types:
+    post:
+      summary: Generate word types with AI
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: idword
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: Word to generate types for
+                word:
+                  type: string
+                  description: Alternative word parameter
+                language:
+                  type: string
+                  default: "en"
+                  description: Language code
+                oldExamples:
+                  type: array
+                  items:
+                    type: string
+                  description: Existing examples
+      responses:
+        '200':
+          description: Word types updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word types updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
+        '400':
+          description: Prompt (word) is required
+        '404':
+          description: Word not found
+        '500':
+          description: Error generating word types
+
+  /api/words/{idword}/generate-synonyms:
+    post:
+      summary: Generate word synonyms with AI
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: idword
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: Word to generate synonyms for
+                word:
+                  type: string
+                  description: Alternative word parameter
+                language:
+                  type: string
+                  default: "en"
+                  description: Language code
+                oldExamples:
+                  type: array
+                  items:
+                    type: string
+                  description: Existing examples
+      responses:
+        '200':
+          description: Word synonyms updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word synonyms updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
+        '400':
+          description: Prompt (word) is required
+        '404':
+          description: Word not found
+        '500':
+          description: Error generating word synonyms
+
+  /api/words/{idword}/generate-image:
+    post:
+      summary: Generate word image with AI
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: idword
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                wordString:
+                  type: string
+                  description: Word description for image generation
+                word:
+                  type: string
+                  description: Alternative word parameter
+                imgOld:
+                  type: string
+                  description: URL of old image to replace
+      responses:
+        '200':
+          description: Word image updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word image updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
+        '400':
+          description: Word prompt is required
+        '500':
+          description: Error generating word image
+
+  # ===== CRUD ROUTES =====
+  /api/words:
+    get:
+      summary: Get words with pagination and filters
+      tags:
+        - Words
+      description: Retrieve a paginated list of words with comprehensive filtering options
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
           description: Number of words per page
         - in: query
           name: wordUser
@@ -39,22 +856,22 @@ paths:
             type: string
           description: Filter words by partial text match (case insensitive)
         - in: query
-          name: level
+          name: difficulty
           schema:
             type: string
             enum: [easy, medium, hard]
-          description: Filter words by difficulty level(s). Multiple values separated by commas (e.g., easy,medium)
+          description: Filter words by difficulty level(s). Multiple values separated by commas
         - in: query
           name: language
           schema:
             type: string
-          description: Filter words by language(s). Multiple values separated by commas (e.g., english,spanish)
+          description: Filter words by language(s). Multiple values separated by commas
         - in: query
           name: type
           schema:
             type: string
             enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
-          description: Filter words by grammatical type(s). Multiple values separated by commas (e.g., verb,noun,adjective)
+          description: Filter words by grammatical type(s). Multiple values separated by commas
         - in: query
           name: seenMin
           schema:
@@ -71,7 +888,7 @@ paths:
           name: sortBy
           schema:
             type: string
-            enum: [createdAt, updatedAt, word, level, seen, language, definition]
+            enum: [createdAt, updatedAt, word, difficulty, seen, language, definition]
             default: createdAt
           description: Field to sort by
         - in: query
@@ -151,7 +968,7 @@ paths:
           description: Filter words updated before this date (ISO 8601 format)
       responses:
         '200':
-          description: A paginated list of words
+          description: Successfully retrieved words
           content:
             application/json:
               schema:
@@ -162,7 +979,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Words sucessfully listed"
+                    example: "Words successfully listed"
                   data:
                     type: object
                     properties:
@@ -181,6 +998,7 @@ paths:
                         example: 15
         '500':
           description: Internal server error
+
     post:
       summary: Create a new word
       tags:
@@ -190,24 +1008,31 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                word:
-                  type: string
-                meaning:
-                  type: string
-              required:
-                - word
-                - meaning
+              $ref: '#/components/schemas/WordInput'
       responses:
         '201':
           description: Word created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word created successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
         '400':
           description: Validation error
+        '500':
+          description: Internal server error
 
   /api/words/{id}:
     get:
-      summary: Get a word by its ID
+      summary: Get word by ID
       tags:
         - Words
       parameters:
@@ -219,11 +1044,27 @@ paths:
           description: Word ID
       responses:
         '200':
-          description: A word object
+          description: Word retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word listed by Id successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
         '404':
           description: Word not found
+        '500':
+          description: Internal server error
+
     put:
-      summary: Update an entire word object
+      summary: Update word
       tags:
         - Words
       parameters:
@@ -238,22 +1079,30 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                word:
-                  type: string
-                meaning:
-                  type: string
-              required:
-                - word
-                - meaning
+              $ref: '#/components/schemas/WordInput'
       responses:
         '200':
           description: Word updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Word'
         '404':
           description: Word not found
+        '500':
+          description: Internal server error
+
     delete:
-      summary: Delete a word by ID
+      summary: Delete word
       tags:
         - Words
       parameters:
@@ -266,50 +1115,27 @@ paths:
       responses:
         '200':
           description: Word deleted successfully
-        '404':
-          description: Word not found
-
-  /api/words/{id}/increment-seen:
-    put:
-      summary: Increment the 'seen' count of a word
-      tags:
-        - Words
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: Word ID
-      responses:
-        '200':
-          description: Word seen count incremented successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word deleted successfully"
+                  data:
+                    type: object
         '404':
           description: Word not found
         '500':
           description: Internal server error
 
-  /api/words/word/{word}:
-    get:
-      summary: Find a word by name (case insensitive)
-      tags:
-        - Words
-      parameters:
-        - in: path
-          name: word
-          required: true
-          schema:
-            type: string
-          description: Word to search
-      responses:
-        '200':
-          description: Word object
-        '404':
-          description: Word not found
-
   /api/words/{id}/level:
     put:
-      summary: Update the level of a word
+      summary: Update word difficulty level
       tags:
         - Words
       parameters:
@@ -326,20 +1152,78 @@ paths:
             schema:
               type: object
               properties:
-                level:
+                difficulty:
                   type: string
                   enum: [easy, medium, hard]
+                  description: New difficulty level
               required:
-                - level
+                - difficulty
       responses:
         '200':
-          description: Word level updated
+          description: Word level updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word level updated successfully"
+                  data:
+                    type: object
+                    properties:
+                      difficulty:
+                        type: string
+                        example: "medium"
         '404':
           description: Word not found
+        '500':
+          description: Internal server error
 
-  /api/words/export-json:
+  /api/words/{id}/increment-seen:
+    put:
+      summary: Increment word seen count
+      tags:
+        - Words
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Word ID
+      responses:
+        '200':
+          description: Word seen count incremented successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Word seen count incremented successfully"
+                  data:
+                    type: object
+                    properties:
+                      seen:
+                        type: number
+                        example: 6
+        '404':
+          description: Word not found
+        '500':
+          description: Internal server error
+
+  # ===== IMPORT/EXPORT ROUTES =====
+  /api/words/export-file:
     get:
-      summary: Export all words to JSON file
+      summary: Export words to JSON file
       tags:
         - Words
       description: Downloads a JSON file containing all words in the database
@@ -464,9 +1348,13 @@ components:
         word:
           type: string
           example: "challenge"
+          minLength: 1
+          maxLength: 100
         definition:
           type: string
           example: "A difficult task or situation that requires effort to overcome."
+          minLength: 5
+          maxLength: 1000
         examples:
           type: array
           items:
@@ -478,6 +1366,7 @@ components:
           type: array
           items:
             type: string
+            enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
           example: ["noun", "verb"]
         IPA:
           type: string
@@ -485,15 +1374,17 @@ components:
         seen:
           type: number
           example: 5
+          minimum: 0
         img:
           type: string
           nullable: true
           example: "https://res.cloudinary.com/example/image/upload/v1234567890/challenge.png"
           description: Optional image URL (can be empty or null)
-        level:
+        difficulty:
           type: string
           enum: [easy, medium, hard]
           example: "medium"
+          default: "hard"
         sinonyms:
           type: array
           items:
@@ -515,9 +1406,18 @@ components:
             definition:
               type: string
               example: "Situaciones o tareas difíciles que requieren esfuerzo y determinación para superarse."
+              minLength: 5
+              maxLength: 1000
             word:
               type: string
               example: "desafío"
+              minLength: 1
+              maxLength: 100
+        chat:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          description: Chat history with AI
         createdAt:
           type: string
           format: date-time
@@ -531,10 +1431,122 @@ components:
         - definition
         - language
 
+    WordInput:
+      type: object
+      properties:
+        word:
+          type: string
+          minLength: 1
+          maxLength: 100
+        definition:
+          type: string
+          minLength: 5
+          maxLength: 1000
+        examples:
+          type: array
+          items:
+            type: string
+        type:
+          type: array
+          items:
+            type: string
+            enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
+        IPA:
+          type: string
+        seen:
+          type: number
+          minimum: 0
+        img:
+          type: string
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        sinonyms:
+          type: array
+          items:
+            type: string
+        codeSwitching:
+          type: array
+          items:
+            type: string
+        language:
+          type: string
+        spanish:
+          type: object
+          properties:
+            definition:
+              type: string
+              minLength: 5
+              maxLength: 1000
+            word:
+              type: string
+              minLength: 1
+              maxLength: 100
+      required:
+        - word
+        - definition
+        - language
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "abc123def"
+        role:
+          type: string
+          enum: [user, assistant]
+          example: "user"
+        content:
+          type: string
+          example: "Can you explain this word better?"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+      required:
+        - id
+        - role
+        - content
+        - timestamp
+
+    ReviewStats:
+      type: object
+      properties:
+        totalWords:
+          type: integer
+          example: 150
+          description: Total number of words available for review
+        wordsReviewedToday:
+          type: integer
+          example: 25
+          description: Number of words reviewed today
+        wordsDueForReview:
+          type: integer
+          example: 45
+          description: Number of words due for review
+        averageSeen:
+          type: number
+          example: 3.2
+          description: Average number of times words have been seen
+        difficultyDistribution:
+          type: object
+          properties:
+            easy:
+              type: integer
+              example: 50
+            medium:
+              type: integer
+              example: 75
+            hard:
+              type: integer
+              example: 25
+          description: Distribution of words by difficulty level
+
     ImportResult:
       type: object
       properties:
-        totalLectures:
+        totalWords:
           type: integer
           example: 314
         totalBatches:
@@ -610,7 +1622,7 @@ components:
         index:
           type: integer
           example: 0
-        lecture:
+        data:
           $ref: '#/components/schemas/Word'
         status:
           type: string
@@ -658,4 +1670,4 @@ components:
 
 tags:
   - name: Words
-    description: Word management endpoints
+    description: Word management, AI generation, and learning features

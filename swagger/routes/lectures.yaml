@@ -1,26 +1,16 @@
 openapi: 3.0.0
 info:
   title: Lecture API
-  version: 1.0.0
-  description: API for managing lectures and related properties
-
-tags:
-  - name: Lectures
-    description: Endpoints related to lecture management
-
+  version: 2.0.0
+  description: API for managing educational lectures, AI generation, and content creation
 paths:
-  /api/ai/generate-audio-from-text/{idlecture}:
+  # ===== AI GENERATION ROUTES =====
+  /api/lectures/generate-text:
     post:
-      summary: Generate audio and subtitles for a lecture using AI
+      summary: Generate educational text with AI
       tags:
-        - AI Generation
-      parameters:
-        - in: path
-          name: idlecture
-          required: true
-          schema:
-            type: string
-          description: The ID of the lecture to generate audio and subtitles for
+        - Lectures
+      description: Generates educational content with customizable parameters for level, type, and content
       requestBody:
         required: true
         content:
@@ -30,17 +20,198 @@ paths:
               properties:
                 prompt:
                   type: string
-                  example: "Learning a new language can be fun and rewarding."
-                voice:
+                  description: Topic or prompt for text generation (can be empty for random topic)
+                level:
                   type: string
-                  enum: [nova, alloy, echo, fable, onyx, shimmer]
-                  default: "nova"
-                  example: "fable"
+                  enum: [A1, A2, B1, B2, C1, C2]
+                  default: A1
+                  description: Language proficiency level
+                typeWrite:
+                  type: string
+                  default: "Engaging Article"
+                  description: Type of content to generate
+                addEasyWords:
+                  type: boolean
+                  default: false
+                  description: Include easy words from database
+                language:
+                  type: string
+                  enum: [en, es, pt]
+                  default: en
+                  description: Language code (ISO 639-1)
+                rangeMin:
+                  type: integer
+                  default: 5200
+                  minimum: 1000
+                  description: Minimum character count
+                rangeMax:
+                  type: integer
+                  default: 6500
+                  maximum: 10000
+                  description: Maximum character count
+                grammarTopics:
+                  type: array
+                  items:
+                    type: string
+                  description: Grammar topics to include
+                selectedWords:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific words to include in the text
               required:
                 - prompt
       responses:
-        "201":
-          description: Returns the generated audio and subtitles paths
+        '200':
+          description: Text generated successfully (streaming response)
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "# Generated Article\n\n## Introduction\n\nThis is a sample generated article..."
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Prompt must be a string."
+        '500':
+          description: Error generating text
+
+  /api/lectures/generate-topic-stream:
+    post:
+      summary: Generate topic suggestions with AI
+      tags:
+        - Lectures
+      description: Generates casual, everyday-life topics for lectures or exams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                existingText:
+                  type: string
+                  maxLength: 500
+                  description: Existing keywords or ideas to incorporate
+                type:
+                  type: string
+                  enum: [lecture, exam]
+                  description: Type of content (lecture or exam)
+              required:
+                - type
+      responses:
+        '200':
+          description: Topic generated successfully (streaming response)
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Weekend adventures: Planning spontaneous trips and discovering hidden gems in your city with friends and family for unforgettable memories"
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Type is required and must be 'lecture' or 'exam'"
+        '500':
+          description: Error generating topic
+
+  /api/lectures/generate-image/{idlecture}:
+    post:
+      summary: Generate lecture image with AI
+      tags:
+        - Lectures
+      parameters:
+        - in: path
+          name: idlecture
+          required: true
+          schema:
+            type: string
+          description: Lecture ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lectureString:
+                  type: string
+                  description: Lecture description for image generation
+                imgOld:
+                  type: string
+                  description: URL of old image to replace
+              required:
+                - lectureString
+      responses:
+        '200':
+          description: Lecture image updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Lecture image updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Lecture'
+        '400':
+          description: Lecture prompt is required
+        '404':
+          description: Lecture not found
+        '500':
+          description: Error generating lecture image
+
+  /api/lectures/generateAudio/{idlecture}:
+    post:
+      summary: Generate lecture audio with AI
+      tags:
+        - Lectures
+      parameters:
+        - in: path
+          name: idlecture
+          required: true
+          schema:
+            type: string
+          description: Lecture ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                voice:
+                  type: string
+                  description: Voice type for audio generation
+                content:
+                  type: string
+                  description: Text content to convert to audio
+              required:
+                - content
+      responses:
+        '200':
+          description: Lecture audio generated successfully
           content:
             application/json:
               schema:
@@ -57,80 +228,165 @@ paths:
                     properties:
                       audioPath:
                         type: string
-                        example: "/absolute/path/to/public/audios/1713469637492.wav"
-                      subtitlesPath:
-                        type: string
-                        example: "/absolute/path/to/public/audios/1713469637492.srt"
-        "400":
-          description: Bad request, missing prompt or invalid lecture ID
-        "500":
-          description: Internal server error while generating audio or subtitles
+                        example: "https://res.cloudinary.com/example/audio/lecture123.mp3"
+        '400':
+          description: Content is required
+        '404':
+          description: Lecture not found
+        '500':
+          description: Error generating audio
 
+  # ===== CRUD ROUTES =====
   /api/lectures:
     get:
-      summary: Retrieve a paginated list of lectures
-      tags: [Lectures]
+      summary: Get lectures with advanced filtering
+      tags:
+        - Lectures
+      description: Retrieve a paginated list of lectures with comprehensive filtering options
       parameters:
         - in: query
           name: page
           schema:
             type: integer
             default: 1
+            minimum: 1
           description: Page number
         - in: query
           name: limit
           schema:
             type: integer
             default: 10
+            minimum: 1
           description: Number of lectures per page
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term for content, difficulty, language, or typeWrite
+        - in: query
+          name: level
+          schema:
+            type: string
+            enum: [A1, A2, B1, B2, C1, C2]
+          description: Filter by difficulty level
+        - in: query
+          name: language
+          schema:
+            type: string
+            enum: [en, es, pt]
+          description: Filter by language
+        - in: query
+          name: typeWrite
+          schema:
+            type: string
+          description: Filter by content type
+        - in: query
+          name: timeMin
+          schema:
+            type: number
+            minimum: 0
+          description: Minimum reading time in minutes
+        - in: query
+          name: timeMax
+          schema:
+            type: number
+            minimum: 0
+          description: Maximum reading time in minutes
+        - in: query
+          name: createdAfter
+          schema:
+            type: string
+            format: date-time
+          description: Filter lectures created after this date
+        - in: query
+          name: createdBefore
+          schema:
+            type: string
+            format: date-time
+          description: Filter lectures created before this date
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, time, difficulty, language, typeWrite]
+            default: createdAt
+          description: Field to sort by
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
       responses:
-        "200":
-          description: A paginated list of lectures
+        '200':
+          description: Successfully retrieved lectures
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Lectures retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Lecture'
+                      total:
+                        type: integer
+                        example: 50
+                      page:
+                        type: integer
+                        example: 1
+                      pages:
+                        type: integer
+                        example: 5
+        '500':
+          description: Internal server error
 
     post:
       summary: Create a new lecture
-      tags: [Lectures]
+      tags:
+        - Lectures
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                time:
-                  type: integer
-                  example: 45
-                level:
-                  type: string
-                  example: "Intermediate"
-                typeWrite:
-                  type: string
-                  example: "Academic"
-                language:
-                  type: string
-                  example: "English"
-                img:
-                  type: string
-                  example: "https://example.com/lecture-image.jpg"
-                content:
-                  type: string
-                  example: "This is a detailed lecture about modern linguistics."
-              required:
-                - time
-                - level
-                - typeWrite
-                - language
-                - content
+              $ref: '#/components/schemas/LectureInput'
       responses:
-        "201":
+        '201':
           description: Lecture created successfully
-        "400":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Lecture created successfully"
+                  data:
+                    $ref: '#/components/schemas/Lecture'
+        '400':
           description: Validation error
+        '500':
+          description: Internal server error
 
   /api/lectures/{id}:
     get:
-      summary: Get a lecture by its ID
-      tags: [Lectures]
+      summary: Get lecture by ID
+      tags:
+        - Lectures
       parameters:
         - in: path
           name: id
@@ -139,14 +395,30 @@ paths:
             type: string
           description: Lecture ID
       responses:
-        "200":
-          description: A lecture object
-        "404":
+        '200':
+          description: Lecture retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Lecture Listed by ID successfully"
+                  data:
+                    $ref: '#/components/schemas/Lecture'
+        '404':
           description: Lecture not found
+        '500':
+          description: Internal server error
 
     put:
-      summary: Update a lecture by ID
-      tags: [Lectures]
+      summary: Update lecture
+      tags:
+        - Lectures
       parameters:
         - in: path
           name: id
@@ -159,38 +431,32 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                time:
-                  type: integer
-                  example: 60
-                level:
-                  type: string
-                  example: "Advanced"
-                typeWrite:
-                  type: string
-                  example: "Technical"
-                language:
-                  type: string
-                  example: "French"
-                content:
-                  type: string
-                  example: "An in-depth discussion on AI ethics."
-              required:
-                - time
-                - level
-                - typeWrite
-                - language
-                - content
+              $ref: '#/components/schemas/LectureInput'
       responses:
-        "200":
+        '200':
           description: Lecture updated successfully
-        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Lecture Updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Lecture'
+        '404':
           description: Lecture not found
+        '500':
+          description: Internal server error
 
     delete:
-      summary: Delete a lecture by ID
-      tags: [Lectures]
+      summary: Delete lecture
+      tags:
+        - Lectures
       parameters:
         - in: path
           name: id
@@ -199,15 +465,31 @@ paths:
             type: string
           description: Lecture ID
       responses:
-        "200":
+        '200':
           description: Lecture deleted successfully
-        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Lecture deleted successfully"
+                  data:
+                    type: object
+        '404':
           description: Lecture not found
+        '500':
+          description: Internal server error
 
   /api/lectures/image/{id}:
     put:
-      summary: Update the image of a lecture
-      tags: [Lectures]
+      summary: Update lecture image (legacy endpoint)
+      tags:
+        - Lectures
       parameters:
         - in: path
           name: id
@@ -224,18 +506,34 @@ paths:
               properties:
                 img:
                   type: string
-                  example: "https://example.com/new-lecture-image.jpg"
+                  description: New image URL
               required:
                 - img
       responses:
-        "200":
+        '200':
           description: Lecture image updated successfully
-        "404":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Lecture image updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Lecture'
+        '404':
           description: Lecture not found
+        '500':
+          description: Internal server error
 
-  /api/lectures/export-json:
+  # ===== IMPORT/EXPORT ROUTES =====
+  /api/lectures/export-file:
     get:
-      summary: Export all lectures to JSON file
+      summary: Export lectures to JSON file
       tags:
         - Lectures
       description: Downloads a JSON file containing all lectures in the database
@@ -254,13 +552,13 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Exported 25 lectures successfully"
+                    example: "Exported 50 lectures successfully"
                   data:
                     type: object
                     properties:
                       totalLectures:
                         type: number
-                        example: 25
+                        example: 50
                       exportDate:
                         type: string
                         format: date-time
@@ -359,30 +657,36 @@ components:
           example: "507f1f77bcf86cd799439011"
         time:
           type: number
-          example: 45
-        level:
+          example: 15
+          description: Reading time in minutes
+        difficulty:
           type: string
           enum: [A1, A2, B1, B2, C1, C2]
-          example: "B2"
+          example: "B1"
+          description: Language proficiency level
         typeWrite:
           type: string
-          example: "Academic Article"
+          example: "Engaging Article"
+          description: Type of content
         language:
           type: string
+          enum: [en, es, pt]
           example: "en"
+          description: Language code (ISO 639-1)
         img:
           type: string
           nullable: true
           example: "https://res.cloudinary.com/example/image/upload/v1234567890/lecture.png"
-          description: Optional image URL (can be empty or null)
+          description: Optional image URL
         urlAudio:
           type: string
           nullable: true
-          example: "/audios/1713469637492.wav"
-          description: Optional audio URL (can be empty or null)
+          example: "https://res.cloudinary.com/example/audio/upload/v1234567890/lecture.mp3"
+          description: Optional audio URL
         content:
           type: string
-          example: "# The Importance of Renewable Energy\n\nRenewable energy sources are becoming increasingly important..."
+          example: "# The Future of Technology\n\n## Introduction\n\nTechnology is rapidly evolving..."
+          description: Lecture content in Markdown format
         createdAt:
           type: string
           format: date-time
@@ -393,7 +697,42 @@ components:
           example: "2025-01-15T10:30:00.000Z"
       required:
         - time
-        - level
+        - difficulty
+        - typeWrite
+        - language
+        - content
+
+    LectureInput:
+      type: object
+      properties:
+        time:
+          type: number
+          minimum: 1
+          maximum: 300
+          description: Reading time in minutes
+        difficulty:
+          type: string
+          enum: [A1, A2, B1, B2, C1, C2]
+          description: Language proficiency level
+        typeWrite:
+          type: string
+          description: Type of content
+        language:
+          type: string
+          enum: [en, es, pt]
+          description: Language code (ISO 639-1)
+        img:
+          type: string
+          description: Optional image URL
+        urlAudio:
+          type: string
+          description: Optional audio URL
+        content:
+          type: string
+          description: Lecture content in Markdown format
+      required:
+        - time
+        - difficulty
         - typeWrite
         - language
         - content
@@ -403,31 +742,31 @@ components:
       properties:
         totalLectures:
           type: integer
-          example: 39
+          example: 50
         totalBatches:
           type: integer
-          example: 4
+          example: 5
         totalValid:
           type: integer
-          example: 35
+          example: 48
         totalInvalid:
           type: integer
           example: 2
         totalDuplicates:
           type: integer
-          example: 2
+          example: 0
         totalErrors:
           type: integer
           example: 0
         totalInserted:
           type: integer
-          example: 33
+          example: 48
         totalUpdated:
           type: integer
-          example: 2
+          example: 0
         totalSkipped:
           type: integer
-          example: 4
+          example: 2
         batches:
           type: array
           items:
@@ -477,7 +816,7 @@ components:
         index:
           type: integer
           example: 0
-        lecture:
+        data:
           $ref: '#/components/schemas/Lecture'
         status:
           type: string
@@ -518,7 +857,11 @@ components:
           example: true
         message:
           type: string
-          example: "Import completed. 33 inserted, 2 updated, 4 skipped, 0 errors"
+          example: "Import completed. 48 inserted, 0 updated, 2 skipped, 0 errors"
         duration:
           type: integer
           example: 1250
+
+tags:
+  - name: Lectures
+    description: Educational lecture management, AI generation, and content creation

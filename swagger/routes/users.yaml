@@ -1,256 +1,770 @@
 openapi: 3.0.0
 info:
-  title: Users API
-  version: 1.0.0
-  description: CRUD de usuarios con filtros avanzados y paginación
-
-security:
-  - bearerAuth: []
-
-tags:
-  - name: Users
-    description: Endpoints para gestión de usuarios
-
+  title: User API
+  version: 2.0.0
+  description: API for user management, authentication, and administrative operations
 paths:
-  /api/users:
-    get:
-      tags: [Users]
-      summary: Listar usuarios con filtros y paginación
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: page
-          schema: { type: integer, default: 1 }
-        - in: query
-          name: limit
-          schema: { type: integer, default: 10 }
-        - in: query
-          name: username
-          schema: { type: string }
-        - in: query
-          name: email
-          schema: { type: string }
-        - in: query
-          name: role
-          schema: { type: string, example: "admin,user" }
-        - in: query
-          name: language
-          schema: { type: string, example: "en,es" }
-        - in: query
-          name: isActive
-          schema: { type: boolean }
-        - in: query
-          name: phone
-          schema: { type: string }
-        - in: query
-          name: address
-          schema: { type: string }
-        - in: query
-          name: createdAfter
-          schema: { type: string, format: date-time }
-        - in: query
-          name: createdBefore
-          schema: { type: string, format: date-time }
-        - in: query
-          name: updatedAfter
-          schema: { type: string, format: date-time }
-        - in: query
-          name: updatedBefore
-          schema: { type: string, format: date-time }
-        - in: query
-          name: sortBy
-          schema: { type: string, default: "createdAt" }
-        - in: query
-          name: sortOrder
-          schema: { type: string, default: "desc" }
+  # ===== AUTHENTICATION ROUTES =====
+  /api/auth/login:
+    post:
+      summary: User login
+      tags:
+        - Authentication
+      description: Authenticate user and return JWT tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Username or email for authentication
+                password:
+                  type: string
+                  description: User password
+              required:
+                - username
+                - password
       responses:
-        200:
-          description: Lista de usuarios
+        '200':
+          description: Login successful
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Login successful"
                   data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
-                  total:
-                    type: integer
-                  page:
-                    type: integer
-                  pages:
-                    type: integer
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        description: JWT access token
+                      refreshToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        description: JWT refresh token
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Username and password are required
+        '401':
+          description: Invalid credentials
+        '500':
+          description: Authentication failed
+
+  /api/auth/refresh:
     post:
-      tags: [Users]
-      summary: Crear usuario
-      security:
-        - bearerAuth: []
+      summary: Refresh access token
+      tags:
+        - Authentication
+      description: Refresh JWT access token using refresh token
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  description: JWT refresh token
+              required:
+                - refreshToken
       responses:
-        201:
-          description: Usuario creado
+        '200':
+          description: Token refreshed successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Token refreshed successfully"
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        description: New JWT access token
+                      refreshToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        description: New JWT refresh token
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Refresh token is required
+        '401':
+          description: Invalid refresh token
+        '500':
+          description: Failed to refresh token
+
+  # ===== USER MANAGEMENT ROUTES =====
+  /api/users:
+    get:
+      summary: Get all users with filters
+      tags:
+        - Users
+      description: Retrieve users with comprehensive filtering and pagination options
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          description: Number of users per page
+        - in: query
+          name: username
+          schema:
+            type: string
+          description: Filter by username (partial match)
+        - in: query
+          name: email
+          schema:
+            type: string
+          description: Filter by email (partial match)
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [admin, teacher, student]
+          description: Filter by user role
+        - in: query
+          name: language
+          schema:
+            type: string
+            enum: [es, en, fr, de, it, pt]
+          description: Filter by language preference
+        - in: query
+          name: isActive
+          schema:
+            type: boolean
+          description: Filter by active status
+        - in: query
+          name: phone
+          schema:
+            type: string
+          description: Filter by phone number (partial match)
+        - in: query
+          name: address
+          schema:
+            type: string
+          description: Filter by address (partial match)
+        - in: query
+          name: createdAfter
+          schema:
+            type: string
+            format: date-time
+          description: Filter users created after this date
+        - in: query
+          name: createdBefore
+          schema:
+            type: string
+            format: date-time
+          description: Filter users created before this date
+        - in: query
+          name: updatedAfter
+          schema:
+            type: string
+            format: date-time
+          description: Filter users updated after this date
+        - in: query
+          name: updatedBefore
+          schema:
+            type: string
+            format: date-time
+          description: Filter users updated before this date
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, username, email, role, language, lastLogin]
+            default: createdAt
+          description: Field to sort by
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Users listed successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                      total:
+                        type: integer
+                        example: 100
+                      page:
+                        type: integer
+                        example: 1
+                      pages:
+                        type: integer
+                        example: 10
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Create a new user
+      tags:
+        - Users
+      description: Create a new user account
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User created successfully"
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Username already exists"
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '500':
+          description: Internal server error
 
   /api/users/{id}:
     get:
-      tags: [Users]
-      summary: Obtener usuario por ID
+      summary: Get user by ID
+      tags:
+        - Users
+      description: Retrieve a specific user by their ID
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       parameters:
         - in: path
           name: id
           required: true
-          schema: { type: string }
+          schema:
+            type: string
+          description: User ID
       responses:
-        200:
-          description: Usuario encontrado
+        '200':
+          description: User retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User found"
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
     put:
-      tags: [Users]
-      summary: Editar usuario
+      summary: Update user
+      tags:
+        - Users
+      description: Update an existing user account
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       parameters:
         - in: path
           name: id
           required: true
-          schema: { type: string }
+          schema:
+            type: string
+          description: User ID
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserUpdate'
+              $ref: '#/components/schemas/UserInput'
       responses:
-        200:
-          description: Usuario actualizado
+        '200':
+          description: User updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User updated successfully"
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
     delete:
-      tags: [Users]
-      summary: Eliminar usuario
+      summary: Delete user
+      tags:
+        - Users
+      description: Delete a user account
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       parameters:
         - in: path
           name: id
           required: true
-          schema: { type: string }
+          schema:
+            type: string
+          description: User ID
       responses:
-        200:
-          description: Usuario eliminado
+        '200':
+          description: User deleted successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User deleted successfully"
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
 
+  # ===== IMPORT/EXPORT ROUTES =====
+  /api/users/export-file:
+    get:
+      summary: Export users to JSON file
+      tags:
+        - Users
+      description: Downloads a JSON file containing all users in the database
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: JSON file with all users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Exported 100 users successfully"
+                  data:
+                    type: object
+                    properties:
+                      totalUsers:
+                        type: number
+                        example: 100
+                      exportDate:
+                        type: string
+                        format: date-time
+                        example: "2025-01-15T10:30:00.000Z"
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '500':
+          description: Internal server error
 
+  /api/users/import-file:
+    post:
+      summary: Import users from JSON file
+      tags:
+        - Users
+      description: Import users from a JSON file with various duplicate handling strategies
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: duplicateStrategy
+          schema:
+            type: string
+            enum: [skip, overwrite, error, merge]
+            default: skip
+          description: Strategy to handle duplicate users
+        - in: query
+          name: validateOnly
+          schema:
+            type: boolean
+            default: false
+          description: If true, only validates the file without importing
+        - in: query
+          name: batchSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of users to process in each batch
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: JSON file containing users to import
+      responses:
+        '200':
+          description: Import completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Import completed successfully"
+                  data:
+                    $ref: '#/components/schemas/ImportResult'
+        '400':
+          description: Bad request - Invalid file format or parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid JSON file format"
+        '401':
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token
+        '500':
+          description: Internal server error during import
 
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
   schemas:
     User:
       type: object
       properties:
-        id:
+        _id:
           type: string
+          example: "507f1f77bcf86cd799439011"
         username:
           type: string
+          example: "john_doe"
+          description: Unique username
         email:
           type: string
+          example: "john.doe@example.com"
+          description: Unique email address
         role:
           type: string
+          enum: [admin, teacher, student]
+          example: "student"
+          description: User role
         firstName:
           type: string
+          nullable: true
+          example: "John"
+          description: User's first name
         lastName:
           type: string
+          nullable: true
+          example: "Doe"
+          description: User's last name
         image:
           type: string
+          nullable: true
+          example: "https://res.cloudinary.com/example/image/upload/v1234567890/user.jpg"
+          description: User profile image URL
         language:
           type: string
+          enum: [es, en, fr, de, it, pt]
+          example: "en"
+          description: User's preferred language
         isActive:
           type: boolean
+          example: true
+          description: Whether the user account is active
         address:
           type: string
+          nullable: true
+          example: "123 Main St, City, Country"
+          description: User's address
         phone:
           type: string
+          nullable: true
+          example: "+1234567890"
+          description: User's phone number
         lastLogin:
           type: string
           format: date-time
+          nullable: true
+          example: "2025-01-15T10:30:00.000Z"
+          description: Last login timestamp
         createdAt:
           type: string
           format: date-time
+          example: "2025-01-15T10:30:00.000Z"
         updatedAt:
           type: string
           format: date-time
-    UserCreate:
-      type: object
-      required: [username, email, password, role, language]
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-        password:
-          type: string
-        role:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        image:
-          type: string
-        language:
-          type: string
-        isActive:
-          type: boolean
-        address:
-          type: string
-        phone:
-          type: string
-    UserUpdate:
+          example: "2025-01-15T10:30:00.000Z"
+      required:
+        - username
+        - email
+        - role
+        - language
+        - isActive
+
+    UserInput:
       type: object
       properties:
         username:
           type: string
+          minLength: 3
+          maxLength: 50
+          description: Unique username
         email:
           type: string
+          format: email
+          description: Unique email address
         password:
           type: string
+          minLength: 6
+          description: User password (will be hashed)
         role:
           type: string
+          enum: [admin, teacher, student]
+          default: student
+          description: User role
         firstName:
           type: string
+          maxLength: 50
+          description: User's first name
         lastName:
           type: string
+          maxLength: 50
+          description: User's last name
         image:
           type: string
+          description: User profile image URL
         language:
           type: string
+          enum: [es, en, fr, de, it, pt]
+          default: es
+          description: User's preferred language
         isActive:
           type: boolean
+          default: true
+          description: Whether the user account is active
         address:
           type: string
+          maxLength: 200
+          description: User's address
         phone:
-          type: string 
+          type: string
+          maxLength: 20
+          description: User's phone number
+      required:
+        - username
+        - email
+        - password
+        - role
+        - language
+
+    ImportResult:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 50
+        totalInserted:
+          type: integer
+          example: 48
+        totalUpdated:
+          type: integer
+          example: 0
+        totalSkipped:
+          type: integer
+          example: 2
+        totalErrors:
+          type: integer
+          example: 0
+        batches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchResult'
+        summary:
+          $ref: '#/components/schemas/ImportSummary'
+
+    BatchResult:
+      type: object
+      properties:
+        batchIndex:
+          type: integer
+          example: 0
+        processed:
+          type: integer
+          example: 10
+        inserted:
+          type: integer
+          example: 9
+        updated:
+          type: integer
+          example: 0
+        skipped:
+          type: integer
+          example: 1
+        errors:
+          type: integer
+          example: 0
+
+    ImportSummary:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Import completed. 48 inserted, 0 updated, 2 skipped, 0 errors"
+        duration:
+          type: integer
+          example: 1250
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "An error occurred"
+        error:
+          type: string
+          example: "Detailed error message"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+tags:
+  - name: Users
+    description: User management and administrative operations
+  - name: Authentication
+    description: User authentication and token management

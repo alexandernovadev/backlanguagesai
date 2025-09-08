@@ -1,76 +1,18 @@
 openapi: 3.0.0
 info:
   title: Labs API
-  description: API para operaciones de desarrollo, mantenimiento y utilidades de base de datos
-  version: 1.0.0
-
+  version: 2.0.0
+  description: API for development, maintenance, and administrative operations
 paths:
-  # Database Operations
-  /api/fixes/words/update-level:
+  # ===== USER MANAGEMENT ROUTES =====
+  /api/labs/users/create-admin:
     post:
+      summary: Create admin user for development
       tags:
-        - Labs - Database Operations
-      summary: Actualizar nivel de todas las palabras
-      description: Actualiza el campo level de todas las palabras a un valor específico
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - level
-              properties:
-                level:
-                  type: string
-                  enum: [easy, medium, hard]
-                  description: Nivel a establecer para todas las palabras
-                  example: "easy"
-      responses:
-        '200':
-          description: Nivel actualizado exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Updated 150 words to level: easy"
-                  data:
-                    type: object
-                    properties:
-                      modifiedCount:
-                        type: number
-                        example: 150
-                      level:
-                        type: string
-                        example: "easy"
-        '400':
-          description: Nivel inválido
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: false
-                  message:
-                    type: string
-                    example: "Level must be 'easy', 'medium', or 'hard'"
-        '500':
-          description: Error interno del servidor
-
-  /api/fixes/words/reset-seen:
-    post:
-      tags:
-        - Labs - Database Operations
-      summary: Resetear contador "seen" de todas las palabras
-      description: Establece el campo seen de todas las palabras a un valor específico
+        - Labs
+      description: Creates a new admin user for development and testing purposes. This endpoint is typically used in development environments to seed the database with an admin user.
+      security:
+        - BearerAuth: []
       requestBody:
         required: false
         content:
@@ -78,50 +20,24 @@ paths:
             schema:
               type: object
               properties:
-                seen:
-                  type: number
-                  minimum: 0
-                  default: 0
-                  description: Valor para el contador seen
-                  example: 0
+                username:
+                  type: string
+                  description: Admin username (defaults to env USER_NOVA)
+                email:
+                  type: string
+                  description: Admin email (defaults to admin@example.com)
+                password:
+                  type: string
+                  description: Admin password (defaults to env PASSWORD_NOVA)
+                firstName:
+                  type: string
+                  description: Admin first name (defaults to System)
+                lastName:
+                  type: string
+                  description: Admin last name (defaults to Administrator)
       responses:
         '200':
-          description: Contador resetado exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Reset seen count for 150 words to: 0"
-                  data:
-                    type: object
-                    properties:
-                      modifiedCount:
-                        type: number
-                        example: 150
-                      seen:
-                        type: number
-                        example: 0
-        '400':
-          description: Valor inválido
-        '500':
-          description: Error interno del servidor
-
-  # User Management
-  /api/fixes/users/create-admin:
-    post:
-      tags:
-        - Labs - User Management
-      summary: Crear usuario administrador
-      description: Crea un usuario administrador para desarrollo/pruebas
-      responses:
-        '200':
-          description: Usuario administrador creado exitosamente
+          description: Admin user created successfully
           content:
             application/json:
               schema:
@@ -137,239 +53,13 @@ paths:
                     type: object
                     properties:
                       user:
-                        type: object
-                        properties:
-                          _id:
-                            type: string
-                          username:
-                            type: string
-                          role:
-                            type: string
-                            example: "admin"
-        '500':
-          description: Error interno del servidor
-
-  # Data Seeding
-  /api/fixes/seed/initial-data:
-    post:
-      tags:
-        - Labs - Data Seeding
-      summary: Seed de datos iniciales
-      description: Ejecuta el seed de datos iniciales para desarrollo
-      responses:
-        '200':
-          description: Datos iniciales sembrados exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Initial data seeded successfully"
-                  data:
-                    type: object
-        '500':
-          description: Error interno del servidor
-
-  /api/fixes/seed/questions:
-    post:
-      tags:
-        - Labs - Data Seeding
-      summary: Seed de preguntas desde JSON
-      description: Ejecuta el seed de preguntas desde archivo JSON
-      responses:
-        '200':
-          description: Preguntas sembradas exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Questions seeded successfully"
-                  data:
-                    type: object
-                    properties:
-                      seededQuestions:
-                        type: array
-                        items:
-                          type: object
-        '500':
-          description: Error interno del servidor
-
-  # Backup and Maintenance
-  /api/fixes/backup/create:
-    post:
-      tags:
-        - Labs - Backup & Maintenance
-      summary: Crear backup de colecciones
-      description: Crea un backup de todas las colecciones de la base de datos
-      responses:
-        '200':
-          description: Backup creado exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Backup created successfully"
-                  data:
-                    type: object
-                    properties:
-                      backupResult:
-                        type: object
-        '500':
-          description: Error interno del servidor
-
-  /api/fixes/data/clear-all:
-    delete:
-      tags:
-        - Labs - Backup & Maintenance
-      summary: Limpiar todas las palabras y lecturas (PELIGROSO)
-      description: Elimina TODAS las palabras y lecturas de la base de datos
-      responses:
-        '200':
-          description: Datos eliminados exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "All data cleared successfully"
-                  data:
-                    type: object
-                    properties:
-                      deletedWords:
-                        type: number
-                        example: 150
-                      deletedLectures:
-                        type: number
-                        example: 25
-        '500':
-          description: Error interno del servidor
-
-  # Migration
-  /api/fixes/migrate/words-to-review:
-    post:
-      tags:
-        - Labs - Migration
-      summary: Migrar palabras al sistema de revisión
-      description: Migra las palabras al sistema de revisión (servicio no implementado aún)
-      responses:
-        '200':
-          description: Migración completada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Migration completed successfully"
-                  data:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-                        example: "Migration service not yet implemented"
-        '500':
-          description: Error interno del servidor
-
-  # Statistics
-  /api/fixes/stats/database:
-    get:
-      tags:
-        - Labs - Statistics
-      summary: Obtener estadísticas de la base de datos
-      description: Obtiene estadísticas básicas de la base de datos para desarrollo
-      responses:
-        '200':
-          description: Estadísticas obtenidas exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Database statistics retrieved"
-                  data:
-                    type: object
-                    properties:
-                      totalWords:
-                        type: number
-                        example: 150
-                      totalLectures:
-                        type: number
-                        example: 25
-                      timestamp:
-                        type: string
-                        format: date-time
-                        example: "2024-01-15T10:30:00.000Z"
-        '500':
-          description: Error interno del servidor
-
-  # Cleaner Functions (DANGEROUS - requires authentication)
-  /api/cleaner/exam-attempts:
-    delete:
-      tags:
-        - Labs - Cleaner (DANGEROUS)
-      summary: Eliminar TODOS los intentos de examen
-      description: Elimina TODOS los intentos de examen de la base de datos (PELIGROSO)
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Intentos eliminados exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "TODOS los intentos de examen han sido eliminados exitosamente"
-                  data:
-                    type: object
-                    properties:
-                      deletedCount:
-                        type: number
-                        example: 25
-                      totalFound:
-                        type: number
-                        example: 25
-                      message:
-                        type: string
-                        example: "Se eliminaron 25 intentos de examen de un total de 25"
+                        $ref: '#/components/schemas/AdminUser'
         '401':
-          description: Usuario no autenticado
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token or insufficient permissions
+        '500':
+          description: Error creating admin user
           content:
             application/json:
               schema:
@@ -380,21 +70,36 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Usuario no autenticado"
-        '500':
-          description: Error interno del servidor
+                    example: "Error creating admin user"
 
-  /api/cleaner/exams:
-    delete:
+  # ===== BACKUP AND MAINTENANCE ROUTES =====
+  /api/labs/backup/send-email:
+    post:
+      summary: Send backup by email
       tags:
-        - Labs - Cleaner (DANGEROUS)
-      summary: Eliminar TODOS los exámenes
-      description: Elimina TODOS los exámenes y sus intentos asociados (PELIGROSO)
+        - Labs
+      description: Generates a complete backup of all collections and sends it via email. This endpoint creates backup files for words, lectures, expressions, exams, and questions, then emails them to the configured recipient.
       security:
-        - bearerAuth: []
+        - BearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipient:
+                  type: string
+                  description: Email recipient (defaults to env BACKUP_EMAIL_RECIPIENT)
+                includeCollections:
+                  type: array
+                  items:
+                    type: string
+                    enum: [words, lectures, expressions, exams, questions, users]
+                  description: Collections to include in backup (defaults to all)
       responses:
         '200':
-          description: Exámenes eliminados exitosamente
+          description: Backup sent successfully
           content:
             application/json:
               schema:
@@ -405,41 +110,15 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "TODOS los exámenes han sido eliminados exitosamente"
+                    example: "Backup sent by email successfully"
                   data:
-                    type: object
-                    properties:
-                      deletedExams:
-                        type: number
-                        example: 10
-                      deletedAttempts:
-                        type: number
-                        example: 50
-                      totalExamsFound:
-                        type: number
-                        example: 10
-                      totalAttemptsFound:
-                        type: number
-                        example: 50
-                      message:
-                        type: string
-                        example: "Se eliminaron 10 exámenes y 50 intentos asociados"
+                    $ref: '#/components/schemas/BackupResult'
         '401':
-          description: Usuario no autenticado
+          description: Unauthorized - Token not provided
+        '403':
+          description: Forbidden - Invalid token or insufficient permissions
         '500':
-          description: Error interno del servidor
-
-  /api/cleaner/questions:
-    delete:
-      tags:
-        - Labs - Cleaner (DANGEROUS)
-      summary: Eliminar TODAS las preguntas
-      description: Elimina TODAS las preguntas de la base de datos (PELIGROSO)
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Preguntas eliminadas exitosamente
+          description: Error sending backup
           content:
             application/json:
               schema:
@@ -447,30 +126,220 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
+                    example: false
                   message:
                     type: string
-                    example: "TODAS las preguntas han sido eliminadas exitosamente"
-                  data:
-                    type: object
-                    properties:
-                      deletedCount:
-                        type: number
-                        example: 100
-                      totalQuestionsBefore:
-                        type: number
-                        example: 100
-                      message:
-                        type: string
-                        example: "Se eliminaron 100 preguntas de un total de 100"
-        '401':
-          description: Usuario no autenticado
-        '500':
-          description: Error interno del servidor
+                    example: "Error sending backup by email"
 
 components:
+  schemas:
+    AdminUser:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        username:
+          type: string
+          example: "admin"
+          description: Admin username
+        email:
+          type: string
+          example: "admin@example.com"
+          description: Admin email address
+        role:
+          type: string
+          enum: [admin]
+          example: "admin"
+          description: User role
+        firstName:
+          type: string
+          example: "System"
+          description: Admin first name
+        lastName:
+          type: string
+          example: "Administrator"
+          description: Admin last name
+        isActive:
+          type: boolean
+          example: true
+          description: Whether the user is active
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+      required:
+        - username
+        - email
+        - role
+        - firstName
+        - lastName
+        - isActive
+
+    BackupResult:
+      type: object
+      properties:
+        wordsCount:
+          type: integer
+          example: 150
+          description: Number of words in backup
+        lecturesCount:
+          type: integer
+          example: 25
+          description: Number of lectures in backup
+        expressionsCount:
+          type: integer
+          example: 75
+          description: Number of expressions in backup
+        examsCount:
+          type: integer
+          example: 10
+          description: Number of exams in backup
+        questionsCount:
+          type: integer
+          example: 50
+          description: Number of questions in backup
+        emailSent:
+          type: boolean
+          example: true
+          description: Whether the email was sent successfully
+        messageId:
+          type: string
+          example: "msg_123456789"
+          description: Email message ID (if sent successfully)
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+          description: Backup timestamp
+        error:
+          type: string
+          example: null
+          description: Error message (if any)
+      required:
+        - wordsCount
+        - lecturesCount
+        - expressionsCount
+        - examsCount
+        - questionsCount
+        - emailSent
+        - timestamp
+
+    BackupCollection:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "words"
+          description: Collection name
+        count:
+          type: integer
+          example: 150
+          description: Number of documents in collection
+        filename:
+          type: string
+          example: "words-backup-2025-01-15T10-30-00-000Z.json"
+          description: Backup filename
+        size:
+          type: string
+          example: "2.5MB"
+          description: File size
+        status:
+          type: string
+          enum: [success, error, skipped]
+          example: "success"
+          description: Backup status
+
+    BackupEmailConfig:
+      type: object
+      properties:
+        recipient:
+          type: string
+          example: "admin@example.com"
+          description: Email recipient
+        subject:
+          type: string
+          example: "🔒 Backup Diario - LanguageAI [15/01/2025]"
+          description: Email subject
+        enabled:
+          type: boolean
+          example: true
+          description: Whether email backup is enabled
+        cronSchedule:
+          type: string
+          example: "0 30 23 * * *"
+          description: Cron schedule for automatic backups
+        timezone:
+          type: string
+          example: "America/New_York"
+          description: Timezone for cron schedule
+
+    BackupSchedulerStatus:
+      type: object
+      properties:
+        isActive:
+          type: boolean
+          example: true
+          description: Whether the backup scheduler is active
+        lastRunTime:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+          description: Last backup run time
+        nextRunTime:
+          type: string
+          format: date-time
+          example: "2025-01-16T10:30:00.000Z"
+          description: Next scheduled backup time
+        totalRuns:
+          type: integer
+          example: 30
+          description: Total number of backup runs
+        successfulRuns:
+          type: integer
+          example: 28
+          description: Number of successful backup runs
+        failedRuns:
+          type: integer
+          example: 2
+          description: Number of failed backup runs
+        schedule:
+          type: string
+          example: "0 30 23 * * *"
+          description: Current cron schedule
+        timezone:
+          type: string
+          example: "America/New_York"
+          description: Scheduler timezone
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "An error occurred"
+        error:
+          type: string
+          example: "Detailed error message"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:30:00.000Z"
+
   securitySchemes:
-    bearerAuth:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT 
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+tags:
+  - name: Labs
+    description: Development, maintenance, and administrative operations

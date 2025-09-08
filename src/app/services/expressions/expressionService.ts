@@ -1,6 +1,5 @@
 import Expression, { IExpression, ChatMessage } from "../../db/models/Expression";
 import { generateExpressionJson } from "../ai/generateExpressionJson";
-import { generateExpressionChatResponse } from "../ai/generateExpressionChatResponse";
 
 interface PaginatedResult<T> {
   data: T[];

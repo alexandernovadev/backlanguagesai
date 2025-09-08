@@ -35,7 +35,7 @@ export interface IWord extends Document {
   IPA?: string;
   seen?: number;
   img?: string;
-  level?: "easy" | "medium" | "hard";
+  difficulty?: "easy" | "medium" | "hard";
   sinonyms?: string[];
   codeSwitching?: string[];
   language: string;
@@ -109,15 +109,8 @@ const WordSchema: Schema = new Schema<IWord>(
     },
     img: {
       type: String,
-      // validate: {
-      //   validator: function (v: string) {
-      //     return /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg))$/i.test(v);
-      //   },
-      //   message: (props: { value: string }) =>
-      //     `${props.value} no es una URL de imagen válida.`,
-      // },
     },
-    level: {
+    difficulty: {
       type: String,
       enum: ["easy", "medium", "hard"],
       default: "hard",

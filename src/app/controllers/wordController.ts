@@ -95,7 +95,7 @@ export const getWords = async (
     const wordUser = req.query.wordUser as string;
     
     // Nuevos filtros básicos
-    const level = req.query.level as string;
+    const difficulty = req.query.difficulty as string;
     const language = req.query.language as string;
     const type = req.query.type as string;
     const seenMin = req.query.seenMin ? parseInt(req.query.seenMin as string) : undefined;
@@ -120,7 +120,7 @@ export const getWords = async (
     const updatedBefore = req.query.updatedBefore as string;
 
     // Procesar filtros que pueden tener múltiples valores
-    const levels = level ? level.split(',').map(l => l.trim()) : undefined;
+    const difficulties = difficulty ? difficulty.split(',').map(d => d.trim()) : undefined;
     const languages = language ? language.split(',').map(l => l.trim()) : undefined;
     const types = type ? type.split(',').map(t => t.trim()) : undefined;
 
@@ -128,7 +128,7 @@ export const getWords = async (
       page,
       limit,
       wordUser,
-      level: levels,
+      difficulty: difficulties,
       language: languages,
       type: types,
       seenMin,
@@ -188,9 +188,9 @@ export const updateWordLevel = async (
 ): Promise<Response> => {
   try {
     const { id } = req.params;
-    const level = req.body.level;
+    const difficulty = req.body.difficulty;
 
-    const updatedWord = await wordService.updateWordLevel(id, level);
+    const updatedWord = await wordService.updateWordLevel(id, difficulty);
     if (!updatedWord) {
       return errorResponse(res, "Word not found", 404);
     }
@@ -199,7 +199,7 @@ export const updateWordLevel = async (
   } catch (error) {
     return errorResponse(
       res,
-      "An error occurred while updating level the word ",
+      "An error occurred while updating difficulty the word ",
       500,
       error
     );
@@ -307,12 +307,12 @@ export const getWordsOnly = async (
 
     // Filtros básicos
     const wordUser = req.query.wordUser as string;
-    const level = req.query.level as string;
+    const difficulty = req.query.difficulty as string;
     const language = req.query.language as string;
     const type = req.query.type as string;
 
     // Procesar filtros que pueden tener múltiples valores
-    const levels = level ? level.split(',').map(l => l.trim()) : undefined;
+    const difficulties = difficulty ? difficulty.split(',').map(d => d.trim()) : undefined;
     const languages = language ? language.split(',').map(l => l.trim()) : undefined;
     const types = type ? type.split(',').map(t => t.trim()) : undefined;
 
@@ -320,7 +320,7 @@ export const getWordsOnly = async (
       page,
       limit,
       wordUser,
-      level: levels,
+      difficulty: difficulties,
       language: languages,
       type: types,
       fields

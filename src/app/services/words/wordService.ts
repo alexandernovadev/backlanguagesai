@@ -25,7 +25,7 @@ export class WordService {
       page?: number;
       limit?: number;
       wordUser?: string;
-      level?: string | string[];
+      difficulty?: string | string[];
       language?: string | string[];
       type?: string | string[];
       seenMin?: number;
@@ -50,7 +50,7 @@ export class WordService {
       page = 1,
       limit = 10,
       wordUser,
-      level,
+      difficulty,
       language,
       type,
       seenMin,
@@ -87,17 +87,17 @@ export class WordService {
     }
 
     // Nuevo filtro por nivel
-    if (level) {
-      if (Array.isArray(level)) {
-        // Múltiples niveles
-        const validLevels = level.filter(l => ['easy', 'medium', 'hard'].includes(l));
-        if (validLevels.length > 0) {
-          filter.level = { $in: validLevels };
+    if (difficulty) {
+      if (Array.isArray(difficulty)) {
+        // Múltiples dificultades
+        const validDifficulties = difficulty.filter(d => ['easy', 'medium', 'hard'].includes(d));
+        if (validDifficulties.length > 0) {
+          filter.difficulty = { $in: validDifficulties };
         }
       } else {
-        // Un solo nivel
-        if (['easy', 'medium', 'hard'].includes(level)) {
-          filter.level = level;
+        // Una sola dificultad
+        if (['easy', 'medium', 'hard'].includes(difficulty)) {
+          filter.difficulty = difficulty;
         }
       }
     }
@@ -245,9 +245,9 @@ export class WordService {
 
   async updateWordLevel(
     id: string,
-    level: string
-  ): Promise<{ level?: string } | null> {
-    return await Word.findByIdAndUpdate(id, { level }, { new: true, projection: { level: 1 } });
+    difficulty: string
+  ): Promise<{ difficulty?: string } | null> {
+    return await Word.findByIdAndUpdate(id, { difficulty }, { new: true, projection: { difficulty: 1 } });
   }
 
   async updateWordExamples(
@@ -301,7 +301,7 @@ export class WordService {
     // Obtener 30 palabras medium y hard aleatorias para el juego Anki
     // Usar $sample + $sort con $random para máxima aleatorización
     return await Word.aggregate([
-      { $match: { level: { $in: ["hard", "medium"] } } },
+      { $match: { difficulty: { $in: ["hard", "medium"] } } },
       { $addFields: { randomSort: { $rand: {} } } }, // Agregar campo aleatorio
       { $sort: { randomSort: 1 } }, // Ordenar por el campo aleatorio
       { $limit: 30 }, // Limitar a 30 palabras para el juego
@@ -320,7 +320,7 @@ export class WordService {
         { nextReview: null },
         { lastReviewed: null }
       ],
-      level: { $in: ["hard", "medium"] }
+      difficulty: { $in: ["hard", "medium"] }
     })
     .sort({ 
       // Priorizar por: 1) Nunca revisadas, 2) Más tiempo sin revisar, 3) Más difíciles
@@ -335,7 +335,7 @@ export class WordService {
     if (wordsForReview.length < limit) {
       const remainingLimit = limit - wordsForReview.length;
       const additionalWords = await Word.find({
-        level: { $in: ["hard", "medium"] },
+        difficulty: { $in: ["hard", "medium"] },
         _id: { $nin: wordsForReview.map(w => w._id) }
       })
       .sort({ createdAt: -1 })
@@ -429,11 +429,11 @@ export class WordService {
     ] = await Promise.all([
       Word.countDocuments({ level: { $in: ["hard", "medium"] } }),
       Word.countDocuments({ 
-        level: { $in: ["hard", "medium"] },
+        difficulty: { $in: ["hard", "medium"] },
         lastReviewed: { $gte: startOfDay }
       }),
       Word.countDocuments({
-        level: { $in: ["hard", "medium"] },
+        difficulty: { $in: ["hard", "medium"] },
         $or: [
           { nextReview: { $lte: now } },
           { nextReview: null },
@@ -441,11 +441,11 @@ export class WordService {
         ]
       }),
       Word.aggregate([
-        { $match: { level: { $in: ["hard", "medium"] } } },
+        { $match: { difficulty: { $in: ["hard", "medium"] } } },
         { $group: { _id: null, avgEaseFactor: { $avg: "$easeFactor" } } }
       ]),
       Word.aggregate([
-        { $match: { level: { $in: ["hard", "medium"] } } },
+        { $match: { difficulty: { $in: ["hard", "medium"] } } },
         { $group: { _id: null, avgInterval: { $avg: "$interval" } } }
       ])
     ]);
@@ -460,7 +460,7 @@ export class WordService {
   }
 
   async getLastEasyWords(): Promise<IWord[]> {
-    return await Word.find({ level: "easy" })
+    return await Word.find({ difficulty: "easy" })
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
@@ -511,7 +511,7 @@ export class WordService {
       page = 1,
       limit = 10,
       wordUser,
-      level,
+      difficulty,
       language,
       type,
       fields
@@ -524,16 +524,16 @@ export class WordService {
       filter.word = { $regex: wordUser, $options: "i" };
     }
 
-    // Filtro por nivel
-    if (level) {
-      if (Array.isArray(level)) {
-        const validLevels = level.filter(l => ['easy', 'medium', 'hard'].includes(l));
-        if (validLevels.length > 0) {
-          filter.level = { $in: validLevels };
+    // Filtro por dificultad
+    if (difficulty) {
+      if (Array.isArray(difficulty)) {
+        const validDifficulties = difficulty.filter(d => ['easy', 'medium', 'hard'].includes(d));
+        if (validDifficulties.length > 0) {
+          filter.difficulty = { $in: validDifficulties };
         }
       } else {
-        if (['easy', 'medium', 'hard'].includes(level)) {
-          filter.level = level;
+        if (['easy', 'medium', 'hard'].includes(difficulty)) {
+          filter.difficulty = difficulty;
         }
       }
     }

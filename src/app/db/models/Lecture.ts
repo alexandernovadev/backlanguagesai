@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from "mongoose";
 // Definir la interfaz del documento
 export interface ILecture extends Document {
   time: number;
-  level: string;
+  difficulty: string;
   typeWrite: string;
   language: string;
   img?: string;
@@ -17,7 +17,7 @@ export interface ILecture extends Document {
 const lectureSchema = new Schema<ILecture>(
   {
     time: { type: Number, required: true },
-    level: { type: String, required: true },
+    difficulty: { type: String, required: true },
     typeWrite: { type: String, required: true },
     language: { type: String, required: true },
     urlAudio: { type: String, default: "" },
@@ -32,7 +32,7 @@ const lectureSchema = new Schema<ILecture>(
 // Add text index for full-text search on key fields
 lectureSchema.index({
   content: "text",
-  level: "text",
+  difficulty: "text",
   language: "text",
   typeWrite: "text",
 });

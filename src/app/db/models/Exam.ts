@@ -39,7 +39,6 @@ const ExamSchema = new Schema<IExam>(
     slug: {
       type: String,
       required: true,
-      unique: true,
       minlength: 1,
       maxlength: 100,
     },

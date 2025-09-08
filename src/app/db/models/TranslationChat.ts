@@ -126,7 +126,6 @@ const TranslationChatSchema: Schema = new Schema<ITranslationChat>(
     userId: {
       type: String,
       required: true,
-      index: true
     },
     name: {
       type: String,
@@ -144,7 +143,6 @@ const TranslationChatSchema: Schema = new Schema<ITranslationChat>(
     lastActivity: {
       type: Date,
       default: Date.now,
-      index: true
     },
     messageCount: {
       type: Number,

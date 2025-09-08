@@ -74,17 +74,14 @@ const TranslationSchema: Schema = new Schema<ITranslation>(
     userId: {
       type: String,
       required: true,
-      index: true
     },
     chatId: {
       type: String,
       required: true,
-      index: true
     },
     generatedTextId: {
       type: String,
       required: false, // Temporarily optional until we fix the flow
-      index: true
     },
     originalText: {
       type: String,
@@ -142,7 +139,6 @@ const TranslationSchema: Schema = new Schema<ITranslation>(
     submittedAt: {
       type: Date,
       default: Date.now,
-      index: true
     }
   },
   { 

@@ -1,0 +1,43 @@
+{
+  "difficulty": [
+    { "value": "easy", "label": "Fácil" },
+    { "value": "medium", "label": "Medio" },
+    { "value": "hard", "label": "Difícil" }
+  ], 
+  "wordTypes": [
+    { "value": "noun", "label": "Sustantivo" },
+    { "value": "verb", "label": "Verbo" },
+    { "value": "adjective", "label": "Adjetivo" },
+    { "value": "adverb", "label": "Adverbio" },
+    { "value": "preposition", "label": "Preposición" },
+    { "value": "conjunction", "label": "Conjunción" },
+    { "value": "determiner", "label": "Determinante" },
+    { "value": "article", "label": "Artículo" },
+    { "value": "quantifier", "label": "Cuantificador" },
+    { "value": "interjection", "label": "Interjección" },
+    { "value": "auxiliary verb", "label": "Verbo auxiliar" },
+    { "value": "modal verb", "label": "Verbo modal" },
+    { "value": "infinitive", "label": "Infinitivo" }
+  ],
+  "grammarTopics": [
+    { "value": "verb-tenses", "label": "Verbos en Tiempos" },
+    { "value": "modal-verbs", "label": "Verbos Modales" },
+    { "value": "conditionals", "label": "Condicionales" },
+    { "value": "passive-voice", "label": "Voz Pasiva" },
+    { "value": "reported-speech", "label": "Estilo Indirecto" },
+    { "value": "basic-grammar", "label": "Gramática Básica" }
+  ],
+  "languages": [
+    { "value": "es", "label": "Español" },
+    { "value": "en", "label": "Inglés" },
+    { "value": "pt", "label": "Portugués" }
+  ], 
+  "certificationLevels": [
+    { "value": "A1", "label": "A1" },
+    { "value": "A2", "label": "A2" },
+    { "value": "B1", "label": "B1" },
+    { "value": "B2", "label": "B2" },
+    { "value": "C1", "label": "C1" },
+    { "value": "C2", "label": "C2" }
+  ]
+}

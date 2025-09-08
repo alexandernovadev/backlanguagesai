@@ -80,7 +80,6 @@ app.use("/api/exam-attempts", authMiddleware, ExamAttemptRoutes);
 app.use("/api/statistics", authMiddleware, StatisticsRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 app.use("/api/translation", authMiddleware, TranslationRoutes);
-app.use("/api", authMiddleware, UploadRoutes);
 
 // Labs routes (conditional auth)
 if (LABS_AUTH) {
@@ -88,6 +87,9 @@ if (LABS_AUTH) {
 } else {
   app.use("/api/labs", LabsRoutes);
 }
+
+// Upload routes (must be after labs to avoid conflict)
+app.use("/api", authMiddleware, UploadRoutes);
 
 app.use("/", (req, res) => {
   successResponse(res, "Server is running", {

@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
-import {
-  uploadWordImage,
-  uploadLectureImage,
-  uploadExpressionImage,
-} from "../services/upload/uploadImageService";
+import { uploadImageToCloudinary, deleteImageFromCloudinary } from "../services/cloudinary/cloudinaryService";
+import Word from "../db/models/Word";
+import Lecture from "../db/models/Lecture";
+import Expression from "../db/models/Expression";
 
 interface UploadRequest extends Request {
   file?: Express.Multer.File;
@@ -37,20 +36,52 @@ export const uploadImageHandler = async (
     let result;
 
     // Upload image according to entity type
+    let entity;
+    let folder;
+    
     switch (entityType) {
       case "word":
-        result = await uploadWordImage(entityId, imageFile.buffer);
+        entity = await Word.findById(entityId);
+        folder = "words";
         break;
       case "lecture":
-        result = await uploadLectureImage(entityId, imageFile.buffer);
+        entity = await Lecture.findById(entityId);
+        folder = "lectures";
         break;
       case "expression":
-        result = await uploadExpressionImage(entityId, imageFile.buffer);
+        entity = await Expression.findById(entityId);
+        folder = "expressions";
         break;
       default:
         errorResponse(res, "Unsupported entity type", 400);
         return;
     }
+
+    if (!entity) {
+      errorResponse(res, `${entityType} not found`, 404);
+      return;
+    }
+
+    // Delete old image if exists
+    if (entity.img && entity.img.includes("res.cloudinary.com")) {
+      const parts = entity.img.split("/");
+      let publicId = parts.pop()?.split(".")[0];
+      if (publicId) {
+        await deleteImageFromCloudinary(`languagesai/${folder}/${publicId}`);
+      }
+    }
+
+    // Upload new image
+    const imageUrl = await uploadImageToCloudinary(imageFile.buffer.toString('base64'), folder);
+    
+    // Update entity with new image URL
+    await entity.constructor.findByIdAndUpdate(entityId, { img: imageUrl });
+
+    result = {
+      img: imageUrl,
+      entityId,
+      entityType,
+    };
 
     successResponse(res, "Image uploaded successfully", {
       img: result.img,

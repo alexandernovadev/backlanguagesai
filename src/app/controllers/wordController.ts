@@ -703,17 +703,16 @@ export const generateWordExamplesCodeSwitchingJson = async (
   req: Request,
   res: Response
 ) => {
-  const { prompt, word, language, oldExamples, provider = "openai" } = req.body;
-  const targetWord = word || prompt;
+  const { word, language, oldExamples, provider = "openai" } = req.body;
   const { idword } = req.params as { idword: string };
 
-  if (!targetWord) {
-    return errorResponse(res, "Prompt (word) is required.", 400);
+  if (!word) {
+    return errorResponse(res, "Word is required.", 400);
   }
 
   try {
     const generated = await generateWordCodeSwitching(
-      targetWord,
+      word,
       language,
       oldExamples,
       { provider }
@@ -741,17 +740,16 @@ export const generateWordExamplesCodeSwitchingJson = async (
 };
 
 export const generateWordTypesJson = async (req: Request, res: Response) => {
-  const { prompt, word, language, oldExamples, provider = "openai" } = req.body;
-  const targetWord = word || prompt;
+  const { word, language, oldExamples, provider = "openai" } = req.body;
   const { idword } = req.params as { idword: string };
 
-  if (!targetWord) {
-    return errorResponse(res, "Prompt (word) is required.", 400);
+  if (!word) {
+    return errorResponse(res, "Word is required.", 400);
   }
 
   try {
     const generated = await generateWordTypes(
-      targetWord,
+      word,
       language,
       oldExamples,
       { provider }
@@ -770,17 +768,16 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
 };
 
 export const generateWordSynomymsJson = async (req: Request, res: Response) => {
-  const { prompt, word, language, oldExamples, provider = "openai" } = req.body;
-  const targetWord = word || prompt;
+  const { word, language, oldExamples, provider = "openai" } = req.body;
   const { idword } = req.params as { idword: string };
 
-  if (!targetWord) {
-    return errorResponse(res, "Prompt (word) is required.", 400);
+  if (!word) {
+    return errorResponse(res, "Word is required.", 400);
   }
 
   try {
     const generated = await generateWordSynonyms(
-      targetWord,
+      word,
       language,
       oldExamples,
       { provider }
@@ -799,19 +796,18 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
 };
 
 export const updateImageWord = async (req: Request, res: Response) => {
-  const { wordString, word, imgOld } = req.body;
+  const { word, imgOld } = req.body;
   const IDWord = req.params.idword;
-  const targetWord = word || wordString;
 
-  if (!targetWord) {
-    return errorResponse(res, "Word prompt is required.", 400);
+  if (!word) {
+    return errorResponse(res, "Word is required.", 400);
   }
 
   try {
     // Generate image with primary prompt only
     const imageBase64 = await generateImage(
       "openai",
-      imageWordPrompt(targetWord)
+      imageWordPrompt(word)
     );
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);

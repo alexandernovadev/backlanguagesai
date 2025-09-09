@@ -1039,7 +1039,7 @@
     "/api/words/{idword}/generate-code-switching": {
       "post": {
         "summary": "Generate code-switching examples",
-        "description": "Generate code-switching examples for a word using AI. Requires either 'prompt' or 'word' in the request body.",
+        "description": "Generate code-switching examples for a word using AI.",
         "tags": ["Words"],
         "parameters": [
           {
@@ -1057,13 +1057,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "prompt": {
-                    "type": "string",
-                    "description": "Prompt text for generation (alternative to 'word')"
-                  },
                   "word": {
                     "type": "string",
-                    "description": "Target word (alternative to 'prompt')"
+                    "description": "Target word to generate code-switching examples for",
+                    "example": "hello"
                   },
                   "language": {
                     "type": "string",
@@ -1082,11 +1079,7 @@
                     "description": "AI provider to use"
                   }
                 },
-                "required": ["language"],
-                "anyOf": [
-                  { "required": ["prompt"] },
-                  { "required": ["word"] }
-                ]
+                "required": ["word"]
               }
             }
           }
@@ -1100,15 +1093,9 @@
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "example": true },
-                    "message": { "type": "string", "example": "Code-switching examples generated successfully" },
+                    "message": { "type": "string", "example": "Word code-switching updated successfully" },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "codeSwitching": {
-                          "type": "array",
-                          "items": { "type": "string" }
-                        }
-                      }
+                      "$ref": "../schemas/common.json#/components/schemas/Word"
                     }
                   }
                 }
@@ -1116,7 +1103,7 @@
             }
           },
           "400": {
-            "description": "Missing required fields (prompt/word or language)",
+            "description": "Word is required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1154,6 +1141,40 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Target word to generate types for",
+                    "example": "run"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for types (e.g., 'en', 'es')",
+                    "example": "en"
+                  },
+                  "oldExamples": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Existing types to avoid duplicates"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": ["openai", "other"],
+                    "default": "openai",
+                    "description": "AI provider to use"
+                  }
+                },
+                "required": ["word"]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Word types generated successfully",
@@ -1168,18 +1189,10 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Word types generated successfully"
+                      "example": "Word types updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "types": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
+                      "$ref": "../schemas/common.json#/components/schemas/Word"
                     }
                   }
                 }
@@ -1225,6 +1238,40 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Target word to generate synonyms for",
+                    "example": "happy"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for synonyms (e.g., 'en', 'es')",
+                    "example": "en"
+                  },
+                  "oldExamples": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Existing synonyms to avoid duplicates"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": ["openai", "other"],
+                    "default": "openai",
+                    "description": "AI provider to use"
+                  }
+                },
+                "required": ["word"]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Synonyms generated successfully",
@@ -1239,18 +1286,10 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Synonyms generated successfully"
+                      "example": "Word synonyms updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "synonyms": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
+                      "$ref": "../schemas/common.json#/components/schemas/Word"
                     }
                   }
                 }
@@ -1296,6 +1335,29 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Word to generate image for",
+                    "example": "cat"
+                  },
+                  "imgOld": {
+                    "type": "string",
+                    "description": "URL of old image to replace (optional)",
+                    "example": "https://res.cloudinary.com/..."
+                  }
+                },
+                "required": ["word"]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Image generated successfully",
@@ -1310,19 +1372,10 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Image generated successfully"
+                      "example": "Word image updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "imageUrl": {
-                          "type": "string",
-                          "description": "URL of the generated image"
-                        },
-                        "word": {
-                          "$ref": "../schemas/common.json#/components/schemas/Word"
-                        }
-                      }
+                      "$ref": "../schemas/common.json#/components/schemas/Word"
                     }
                   }
                 }

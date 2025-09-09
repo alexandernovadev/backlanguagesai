@@ -190,6 +190,9 @@ async function combineSchemas() {
     const parameters = { ...schemasData.components.parameters };
     if (parameters.AuthorizationHeader) {
       parameters.AuthorizationHeader.schema.default = `Bearer ${realToken}`;
+      // Hacer que el header esté siempre activo
+      parameters.AuthorizationHeader.required = true;
+      parameters.AuthorizationHeader.description = `Authorization header global - Token: ${realToken.substring(0, 20)}...`;
     }
     
     return {

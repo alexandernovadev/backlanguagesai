@@ -4,8 +4,8 @@
       "AuthorizationHeader": {
         "name": "Authorization",
         "in": "header",
-        "description": "Authorization header global",
-        "required": false,
+        "description": "Authorization header global - Se activa automáticamente",
+        "required": true,
         "schema": {
           "type": "string",
           "default": "gaott"

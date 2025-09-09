@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Language Learning AI API",
-    "description": "A powerful AI-driven backend API for language learning applications\n\n🔑 **AUTHENTICATION REQUIRED**\nMost endpoints require authentication. Use the token below:\n\n**Token:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6InJlYWwtdXNlci1pZCIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6Im5vdmFAZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJOb3ZhIiwibGFzdE5hbWUiOiJVc2VyIiwiaXNBY3RpdmUiOnRydWUsImxhbmd1YWdlIjoiZW4ifSwiaWF0IjoxNzU3NDU0Mjg5LCJleHAiOjE3NTgwNTkwODl9.xWZVaRm26dfkpwve0WHXYLKtd0Qkk_MSD4KogsADtPI`\n\n**How to use:**\n1. Click the \"Authorize\" button (🔒) in Scalar\n2. Select \"Bearer Token\"\n3. Paste the token above\n4. Click \"Authorize\"\n\n**Alternative:** Use the login endpoint:\nPOST /api/auth/login\nBody: {\"username\": \"novask88\", \"password\": \"sashateamomucho\"}",
+    "description": "A powerful AI-driven backend API for language learning applications",
     "version": "2.8.29alpha"
   },
   "servers": [
@@ -16,9 +16,7 @@
       "get": {
         "summary": "Get all words",
         "description": "Retrieve a paginated list of words with optional filtering",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "page",
@@ -56,11 +54,7 @@
             "description": "Filter by difficulty level",
             "schema": {
               "type": "string",
-              "enum": [
-                "easy",
-                "medium",
-                "hard"
-              ]
+              "enum": ["easy", "medium", "hard"]
             }
           },
           {
@@ -121,9 +115,7 @@
       "post": {
         "summary": "Create a new word",
         "description": "Create a new word with all its properties",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "requestBody": {
           "required": true,
           "content": {
@@ -190,9 +182,7 @@
       "get": {
         "summary": "Get word by ID",
         "description": "Retrieve a specific word by its unique identifier",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "id",
@@ -256,9 +246,7 @@
       "put": {
         "summary": "Update word",
         "description": "Update an existing word with new data",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "id",
@@ -332,9 +320,7 @@
       "delete": {
         "summary": "Delete word",
         "description": "Delete a word permanently",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "id",
@@ -397,9 +383,7 @@
       "get": {
         "summary": "Get word by name",
         "description": "Retrieve a word by its actual word value (not ID)",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "word",
@@ -466,9 +450,7 @@
       "get": {
         "summary": "Get Anki cards",
         "description": "Retrieve words formatted as Anki flashcards for spaced repetition learning",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "limit",
@@ -487,11 +469,7 @@
             "description": "Filter by difficulty level",
             "schema": {
               "type": "string",
-              "enum": [
-                "easy",
-                "medium",
-                "hard"
-              ]
+              "enum": ["easy", "medium", "hard"]
             }
           },
           {
@@ -542,9 +520,7 @@
       "get": {
         "summary": "Get words by type (optimized)",
         "description": "Retrieve words grouped by their grammatical type with optimized performance",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "type",
@@ -612,9 +588,7 @@
       "get": {
         "summary": "Export words to JSON",
         "description": "Export all words to a downloadable JSON file",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "responses": {
           "200": {
             "description": "Words exported successfully",
@@ -664,9 +638,7 @@
       "post": {
         "summary": "Import words from JSON file",
         "description": "Import words from an uploaded JSON file",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "requestBody": {
           "required": true,
           "content": {
@@ -750,9 +722,7 @@
       "post": {
         "summary": "Generate word with AI",
         "description": "Generate a new word with definition, examples, and metadata using AI",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "requestBody": {
           "required": true,
           "content": {
@@ -819,9 +789,7 @@
       "post": {
         "summary": "Generate word examples with AI",
         "description": "Generate example sentences for a specific word using AI",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "idword",
@@ -917,9 +885,7 @@
       "post": {
         "summary": "Generate code-switching examples",
         "description": "Generate code-switching examples for a word using AI",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "idword",
@@ -993,9 +959,7 @@
       "post": {
         "summary": "Generate word types with AI",
         "description": "Generate grammatical types for a word using AI",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "idword",
@@ -1069,9 +1033,7 @@
       "post": {
         "summary": "Generate word synonyms with AI",
         "description": "Generate synonyms for a word using AI",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "idword",
@@ -1145,9 +1107,7 @@
       "post": {
         "summary": "Generate word image with AI",
         "description": "Generate an image for a word using AI and update the word record",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "idword",
@@ -1222,9 +1182,7 @@
       "put": {
         "summary": "Update word level",
         "description": "Update the difficulty level of a word",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "id",
@@ -1248,11 +1206,7 @@
                 "properties": {
                   "level": {
                     "type": "string",
-                    "enum": [
-                      "easy",
-                      "medium",
-                      "hard"
-                    ],
+                    "enum": ["easy", "medium", "hard"],
                     "description": "New difficulty level"
                   }
                 }
@@ -1311,9 +1265,7 @@
       "put": {
         "summary": "Increment word seen count",
         "description": "Increment the number of times a word has been seen",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "id",
@@ -1379,9 +1331,7 @@
       "post": {
         "summary": "Update word review",
         "description": "Update the review status of a word for spaced repetition",
-        "tags": [
-          "Words"
-        ],
+        "tags": ["Words"],
         "parameters": [
           {
             "name": "wordId",
@@ -1405,11 +1355,7 @@
                 "properties": {
                   "reviewStatus": {
                     "type": "string",
-                    "enum": [
-                      "correct",
-                      "incorrect",
-                      "difficult"
-                    ],
+                    "enum": ["correct", "incorrect", "difficult"],
                     "description": "Review status"
                   },
                   "nextReviewDate": {
@@ -1473,10 +1419,7 @@
       "get": {
         "summary": "Get chat history for word",
         "description": "Retrieve chat history for a specific word",
-        "tags": [
-          "Words",
-          "Chat"
-        ],
+        "tags": ["Words", "Chat"],
         "parameters": [
           {
             "name": "wordId",
@@ -1543,10 +1486,7 @@
       "post": {
         "summary": "Add chat message for word",
         "description": "Add a new chat message for a specific word",
-        "tags": [
-          "Words",
-          "Chat"
-        ],
+        "tags": ["Words", "Chat"],
         "parameters": [
           {
             "name": "wordId",
@@ -1575,10 +1515,7 @@
                   },
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "user",
-                      "assistant"
-                    ],
+                    "enum": ["user", "assistant"],
                     "description": "Role of the message sender",
                     "example": "user"
                   }
@@ -1636,10 +1573,7 @@
       "delete": {
         "summary": "Clear chat history for word",
         "description": "Clear all chat history for a specific word",
-        "tags": [
-          "Words",
-          "Chat"
-        ],
+        "tags": ["Words", "Chat"],
         "parameters": [
           {
             "name": "wordId",
@@ -1702,10 +1636,7 @@
       "post": {
         "summary": "Stream chat response for word",
         "description": "Get a streaming AI response for a word chat",
-        "tags": [
-          "Words",
-          "Chat"
-        ],
+        "tags": ["Words", "Chat"],
         "parameters": [
           {
             "name": "wordId",
@@ -1776,9 +1707,7 @@
       "get": {
         "summary": "Get all expressions",
         "description": "Retrieve a paginated list of expressions with optional filtering",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "parameters": [
           {
             "name": "page",
@@ -1816,11 +1745,7 @@
             "description": "Filter by difficulty level",
             "schema": {
               "type": "string",
-              "enum": [
-                "easy",
-                "medium",
-                "hard"
-              ]
+              "enum": ["easy", "medium", "hard"]
             }
           },
           {
@@ -1881,9 +1806,7 @@
       "post": {
         "summary": "Create a new expression",
         "description": "Create a new expression with all its properties",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "requestBody": {
           "required": true,
           "content": {
@@ -1950,9 +1873,7 @@
       "get": {
         "summary": "Get expression by ID",
         "description": "Retrieve a specific expression by its unique identifier",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "parameters": [
           {
             "name": "id",
@@ -2016,9 +1937,7 @@
       "put": {
         "summary": "Update expression",
         "description": "Update an existing expression with new data",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "parameters": [
           {
             "name": "id",
@@ -2092,9 +2011,7 @@
       "delete": {
         "summary": "Delete expression",
         "description": "Delete an expression permanently",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "parameters": [
           {
             "name": "id",
@@ -2157,9 +2074,7 @@
       "post": {
         "summary": "Generate expression with AI",
         "description": "Generate a new expression with definition, examples, and metadata using AI",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "requestBody": {
           "required": true,
           "content": {
@@ -2179,17 +2094,12 @@
                   },
                   "provider": {
                     "type": "string",
-                    "enum": [
-                      "openai",
-                      "deepseek"
-                    ],
+                    "enum": ["openai", "deepseek"],
                     "default": "openai",
                     "description": "AI provider to use for generation"
                   }
                 },
-                "required": [
-                  "expression"
-                ]
+                "required": ["expression"]
               }
             }
           }
@@ -2250,9 +2160,7 @@
       "post": {
         "summary": "Generate expression examples with AI",
         "description": "Generate example sentences for a specific expression using AI",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "parameters": [
           {
             "name": "idexpression",
@@ -2292,17 +2200,12 @@
                   },
                   "provider": {
                     "type": "string",
-                    "enum": [
-                      "openai",
-                      "deepseek"
-                    ],
+                    "enum": ["openai", "deepseek"],
                     "default": "openai",
                     "description": "AI provider to use for generation"
                   }
                 },
-                "required": [
-                  "expression"
-                ]
+                "required": ["expression"]
               }
             }
           }
@@ -2376,9 +2279,7 @@
       "post": {
         "summary": "Generate expression image with AI",
         "description": "Generate an image for an expression using AI and update the expression record",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "parameters": [
           {
             "name": "idexpression",
@@ -2402,10 +2303,7 @@
                 "properties": {
                   "provider": {
                     "type": "string",
-                    "enum": [
-                      "openai",
-                      "google"
-                    ],
+                    "enum": ["openai", "google"],
                     "default": "openai",
                     "description": "AI provider to use for image generation"
                   }
@@ -2474,9 +2372,7 @@
       "get": {
         "summary": "Export expressions to JSON",
         "description": "Export all expressions to a downloadable JSON file",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "responses": {
           "200": {
             "description": "Expressions exported successfully",
@@ -2526,9 +2422,7 @@
       "post": {
         "summary": "Import expressions from JSON file",
         "description": "Import expressions from an uploaded JSON file",
-        "tags": [
-          "Expressions"
-        ],
+        "tags": ["Expressions"],
         "requestBody": {
           "required": true,
           "content": {
@@ -2612,9 +2506,7 @@
       "get": {
         "summary": "Get all lectures",
         "description": "Retrieve a paginated list of lectures with optional filtering",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "parameters": [
           {
             "name": "page",
@@ -2652,14 +2544,7 @@
             "description": "Filter by CEFR level",
             "schema": {
               "type": "string",
-              "enum": [
-                "A1",
-                "A2",
-                "B1",
-                "B2",
-                "C1",
-                "C2"
-              ]
+              "enum": ["A1", "A2", "B1", "B2", "C1", "C2"]
             }
           },
           {
@@ -2720,9 +2605,7 @@
       "post": {
         "summary": "Create a new lecture",
         "description": "Create a new educational lecture with content, level, and metadata",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "requestBody": {
           "required": true,
           "content": {
@@ -2789,9 +2672,7 @@
       "get": {
         "summary": "Get lecture by ID",
         "description": "Retrieve a specific lecture by its unique identifier",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "parameters": [
           {
             "name": "id",
@@ -2855,9 +2736,7 @@
       "put": {
         "summary": "Update lecture",
         "description": "Update an existing lecture with new content and metadata",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "parameters": [
           {
             "name": "id",
@@ -2931,9 +2810,7 @@
       "delete": {
         "summary": "Delete lecture",
         "description": "Delete a lecture permanently",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "parameters": [
           {
             "name": "id",
@@ -2996,9 +2873,7 @@
       "get": {
         "summary": "Export lectures to JSON",
         "description": "Export all lectures to a downloadable JSON file",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "responses": {
           "200": {
             "description": "Lectures exported successfully",
@@ -3048,9 +2923,7 @@
       "post": {
         "summary": "Import lectures from JSON file",
         "description": "Import lectures from an uploaded JSON file",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3134,9 +3007,7 @@
       "post": {
         "summary": "Generate lecture text with AI",
         "description": "Generate educational content for a lecture using AI with streaming response",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3151,14 +3022,7 @@
                   },
                   "level": {
                     "type": "string",
-                    "enum": [
-                      "A1",
-                      "A2",
-                      "B1",
-                      "B2",
-                      "C1",
-                      "C2"
-                    ],
+                    "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
                     "description": "CEFR level for the content",
                     "example": "B2"
                   },
@@ -3226,9 +3090,7 @@
       "post": {
         "summary": "Generate lecture topics with AI",
         "description": "Generate educational topics for lectures using AI with streaming response",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3243,14 +3105,7 @@
                   },
                   "level": {
                     "type": "string",
-                    "enum": [
-                      "A1",
-                      "A2",
-                      "B1",
-                      "B2",
-                      "C1",
-                      "C2"
-                    ],
+                    "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
                     "description": "CEFR level for the topics",
                     "example": "B1"
                   },
@@ -3313,9 +3168,7 @@
       "post": {
         "summary": "Generate lecture image with AI",
         "description": "Generate an image for a specific lecture using AI and update the lecture record",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "parameters": [
           {
             "name": "idlecture",
@@ -3390,9 +3243,7 @@
       "put": {
         "summary": "Update lecture image",
         "description": "Update the image URL for a specific lecture",
-        "tags": [
-          "Lectures"
-        ],
+        "tags": ["Lectures"],
         "parameters": [
           {
             "name": "id",
@@ -3475,9 +3326,7 @@
       "get": {
         "summary": "Get all users",
         "description": "Retrieve a paginated list of users with optional filtering",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "page",
@@ -3506,11 +3355,7 @@
             "description": "Filter by user role",
             "schema": {
               "type": "string",
-              "enum": [
-                "student",
-                "teacher",
-                "admin"
-              ]
+              "enum": ["student", "teacher", "admin"]
             }
           },
           {
@@ -3519,11 +3364,7 @@
             "description": "Filter by user status",
             "schema": {
               "type": "string",
-              "enum": [
-                "active",
-                "inactive",
-                "pending"
-              ]
+              "enum": ["active", "inactive", "pending"]
             }
           },
           {
@@ -3575,9 +3416,7 @@
       "post": {
         "summary": "Create a new user",
         "description": "Create a new user account with profile information",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3644,9 +3483,7 @@
       "get": {
         "summary": "Get user by ID",
         "description": "Retrieve a specific user by their unique identifier",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id",
@@ -3710,9 +3547,7 @@
       "put": {
         "summary": "Update user",
         "description": "Update an existing user with new data",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id",
@@ -3786,9 +3621,7 @@
       "delete": {
         "summary": "Delete user",
         "description": "Delete a user account permanently",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id",
@@ -3851,9 +3684,7 @@
       "get": {
         "summary": "Get current user profile",
         "description": "Retrieve the profile information of the currently authenticated user",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "responses": {
           "200": {
             "description": "Profile retrieved successfully",
@@ -3898,9 +3729,7 @@
       "put": {
         "summary": "Update current user profile",
         "description": "Update the profile information of the currently authenticated user",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3986,9 +3815,7 @@
       "put": {
         "summary": "Update user role",
         "description": "Update the role of a specific user (admin only)",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id",
@@ -4012,17 +3839,11 @@
                 "properties": {
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "student",
-                      "teacher",
-                      "admin"
-                    ],
+                    "enum": ["student", "teacher", "admin"],
                     "description": "New user role"
                   }
                 },
-                "required": [
-                  "role"
-                ]
+                "required": ["role"]
               }
             }
           }
@@ -4088,9 +3909,7 @@
       "get": {
         "summary": "Export users to JSON",
         "description": "Export all users to a downloadable JSON file (admin only)",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "responses": {
           "200": {
             "description": "Users exported successfully",
@@ -4150,9 +3969,7 @@
       "post": {
         "summary": "Register new user",
         "description": "Create a new user account with email and password",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "requestBody": {
           "required": true,
           "content": {
@@ -4179,19 +3996,12 @@
                   },
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "student",
-                      "teacher"
-                    ],
+                    "enum": ["student", "teacher"],
                     "default": "student",
                     "description": "User's role"
                   }
                 },
-                "required": [
-                  "name",
-                  "email",
-                  "password"
-                ]
+                "required": ["name", "email", "password"]
               }
             }
           }
@@ -4251,9 +4061,7 @@
       "post": {
         "summary": "Login user",
         "description": "Authenticate user with email and password",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "requestBody": {
           "required": true,
           "content": {
@@ -4273,10 +4081,7 @@
                     "example": "sashateamomucho"
                   }
                 },
-                "required": [
-                  "email",
-                  "password"
-                ]
+                "required": ["email", "password"]
               }
             }
           }
@@ -4346,9 +4151,7 @@
       "post": {
         "summary": "Logout user",
         "description": "Logout the currently authenticated user",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "responses": {
           "200": {
             "description": "Logout successful",
@@ -4392,9 +4195,7 @@
       "get": {
         "summary": "Verify authentication token",
         "description": "Verify if the provided authentication token is valid",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "responses": {
           "200": {
             "description": "Token is valid",
@@ -4450,9 +4251,7 @@
       "post": {
         "summary": "Refresh authentication token",
         "description": "Generate a new authentication token for the current user",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "responses": {
           "200": {
             "description": "Token refreshed successfully",
@@ -4505,9 +4304,7 @@
       "post": {
         "summary": "Request password reset",
         "description": "Send password reset email to user",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "requestBody": {
           "required": true,
           "content": {
@@ -4522,9 +4319,7 @@
                     "example": "john@example.com"
                   }
                 },
-                "required": [
-                  "email"
-                ]
+                "required": ["email"]
               }
             }
           }
@@ -4582,9 +4377,7 @@
       "post": {
         "summary": "Reset password",
         "description": "Reset user password using reset token",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "requestBody": {
           "required": true,
           "content": {
@@ -4604,10 +4397,7 @@
                     "example": "newpassword123"
                   }
                 },
-                "required": [
-                  "token",
-                  "password"
-                ]
+                "required": ["token", "password"]
               }
             }
           }
@@ -4655,9 +4445,7 @@
       "post": {
         "summary": "Change password",
         "description": "Change password for authenticated user",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "requestBody": {
           "required": true,
           "content": {
@@ -4677,10 +4465,7 @@
                     "example": "newpassword123"
                   }
                 },
-                "required": [
-                  "currentPassword",
-                  "newPassword"
-                ]
+                "required": ["currentPassword", "newPassword"]
               }
             }
           }
@@ -4738,9 +4523,7 @@
       "get": {
         "summary": "Get all labs",
         "description": "Retrieve a paginated list of labs with optional filtering",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "parameters": [
           {
             "name": "page",
@@ -4778,11 +4561,7 @@
             "description": "Filter by difficulty level",
             "schema": {
               "type": "string",
-              "enum": [
-                "easy",
-                "medium",
-                "hard"
-              ]
+              "enum": ["easy", "medium", "hard"]
             }
           },
           {
@@ -4843,9 +4622,7 @@
       "post": {
         "summary": "Create a new lab",
         "description": "Create a new lab exercise with questions and answers",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "requestBody": {
           "required": true,
           "content": {
@@ -4912,9 +4689,7 @@
       "get": {
         "summary": "Get lab by ID",
         "description": "Retrieve a specific lab by its unique identifier",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "parameters": [
           {
             "name": "id",
@@ -4978,9 +4753,7 @@
       "put": {
         "summary": "Update lab",
         "description": "Update an existing lab with new data",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "parameters": [
           {
             "name": "id",
@@ -5054,9 +4827,7 @@
       "delete": {
         "summary": "Delete lab",
         "description": "Delete a lab permanently",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "parameters": [
           {
             "name": "id",
@@ -5119,9 +4890,7 @@
       "post": {
         "summary": "Generate lab with AI",
         "description": "Generate a new lab exercise using AI based on topic and difficulty",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "requestBody": {
           "required": true,
           "content": {
@@ -5141,11 +4910,7 @@
                   },
                   "level": {
                     "type": "string",
-                    "enum": [
-                      "easy",
-                      "medium",
-                      "hard"
-                    ],
+                    "enum": ["easy", "medium", "hard"],
                     "default": "medium",
                     "description": "Difficulty level"
                   },
@@ -5158,17 +4923,12 @@
                   },
                   "provider": {
                     "type": "string",
-                    "enum": [
-                      "openai",
-                      "deepseek"
-                    ],
+                    "enum": ["openai", "deepseek"],
                     "default": "openai",
                     "description": "AI provider to use for generation"
                   }
                 },
-                "required": [
-                  "topic"
-                ]
+                "required": ["topic"]
               }
             }
           }
@@ -5229,9 +4989,7 @@
       "post": {
         "summary": "Submit lab answers",
         "description": "Submit answers for a lab exercise and get results",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "parameters": [
           {
             "name": "id",
@@ -5267,17 +5025,12 @@
                           "description": "User's answer"
                         }
                       },
-                      "required": [
-                        "questionId",
-                        "answer"
-                      ]
+                      "required": ["questionId", "answer"]
                     },
                     "description": "Array of user answers"
                   }
                 },
-                "required": [
-                  "answers"
-                ]
+                "required": ["answers"]
               }
             }
           }
@@ -5367,9 +5120,7 @@
       "get": {
         "summary": "Export labs to JSON",
         "description": "Export all labs to a downloadable JSON file",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "responses": {
           "200": {
             "description": "Labs exported successfully",
@@ -5419,9 +5170,7 @@
       "post": {
         "summary": "Import labs from JSON file",
         "description": "Import labs from an uploaded JSON file",
-        "tags": [
-          "Labs"
-        ],
+        "tags": ["Labs"],
         "requestBody": {
           "required": true,
           "content": {
@@ -5505,9 +5254,7 @@
       "post": {
         "summary": "Upload image file",
         "description": "Upload an image file to the server and get the file URL",
-        "tags": [
-          "Upload"
-        ],
+        "tags": ["Upload"],
         "requestBody": {
           "required": true,
           "content": {
@@ -5526,9 +5273,7 @@
                     "example": "words"
                   }
                 },
-                "required": [
-                  "file"
-                ]
+                "required": ["file"]
               }
             }
           }
@@ -5621,9 +5366,7 @@
       "post": {
         "summary": "Upload audio file",
         "description": "Upload an audio file to the server and get the file URL",
-        "tags": [
-          "Upload"
-        ],
+        "tags": ["Upload"],
         "requestBody": {
           "required": true,
           "content": {
@@ -5642,9 +5385,7 @@
                     "example": "lectures"
                   }
                 },
-                "required": [
-                  "file"
-                ]
+                "required": ["file"]
               }
             }
           }
@@ -5742,9 +5483,7 @@
       "post": {
         "summary": "Upload document file",
         "description": "Upload a document file to the server and get the file URL",
-        "tags": [
-          "Upload"
-        ],
+        "tags": ["Upload"],
         "requestBody": {
           "required": true,
           "content": {
@@ -5763,9 +5502,7 @@
                     "example": "documents"
                   }
                 },
-                "required": [
-                  "file"
-                ]
+                "required": ["file"]
               }
             }
           }
@@ -5858,9 +5595,7 @@
       "post": {
         "summary": "Upload JSON file",
         "description": "Upload a JSON file for data import (words, expressions, lectures, etc.)",
-        "tags": [
-          "Upload"
-        ],
+        "tags": ["Upload"],
         "requestBody": {
           "required": true,
           "content": {
@@ -5886,10 +5621,7 @@
                     "example": "words"
                   }
                 },
-                "required": [
-                  "file",
-                  "type"
-                ]
+                "required": ["file", "type"]
               }
             }
           }
@@ -5977,9 +5709,7 @@
       "delete": {
         "summary": "Delete uploaded file",
         "description": "Delete an uploaded file from the server",
-        "tags": [
-          "Upload"
-        ],
+        "tags": ["Upload"],
         "requestBody": {
           "required": true,
           "content": {
@@ -5993,9 +5723,7 @@
                     "example": "https://example.com/images/word-123.jpg"
                   }
                 },
-                "required": [
-                  "url"
-                ]
+                "required": ["url"]
               }
             }
           }
@@ -6076,10 +5804,7 @@
           },
           "role": {
             "type": "string",
-            "enum": [
-              "admin",
-              "user"
-            ],
+            "enum": ["admin", "user"],
             "description": "User role",
             "example": "admin"
           },
@@ -6155,9 +5880,7 @@
               "type": "string"
             },
             "description": "Example sentences using the word",
-            "example": [
-              "This is an example sentence"
-            ]
+            "example": ["This is an example sentence"]
           },
           "type": {
             "type": "array",
@@ -6165,10 +5888,7 @@
               "type": "string"
             },
             "description": "Grammatical types of the word",
-            "example": [
-              "noun",
-              "verb"
-            ]
+            "example": ["noun", "verb"]
           },
           "IPA": {
             "type": "string",
@@ -6187,11 +5907,7 @@
           },
           "level": {
             "type": "string",
-            "enum": [
-              "easy",
-              "medium",
-              "hard"
-            ],
+            "enum": ["easy", "medium", "hard"],
             "description": "Difficulty level of the word",
             "example": "medium"
           },
@@ -6201,10 +5917,7 @@
               "type": "string"
             },
             "description": "Synonyms of the word",
-            "example": [
-              "instance",
-              "sample"
-            ]
+            "example": ["instance", "sample"]
           },
           "codeSwitching": {
             "type": "array",
@@ -6212,9 +5925,7 @@
               "type": "string"
             },
             "description": "Code-switching examples",
-            "example": [
-              "Este es un ejemplo"
-            ]
+            "example": ["Este es un ejemplo"]
           },
           "language": {
             "type": "string",
@@ -6318,20 +6029,11 @@
               "type": "string"
             },
             "description": "Example sentences using the expression",
-            "example": [
-              "Let me break the ice by introducing myself"
-            ]
+            "example": ["Let me break the ice by introducing myself"]
           },
           "level": {
             "type": "string",
-            "enum": [
-              "A1",
-              "A2",
-              "B1",
-              "B2",
-              "C1",
-              "C2"
-            ],
+            "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
             "description": "CEFR level of the expression",
             "example": "B2"
           },
@@ -6368,10 +6070,7 @@
           },
           "role": {
             "type": "string",
-            "enum": [
-              "user",
-              "assistant"
-            ],
+            "enum": ["user", "assistant"],
             "description": "Role of the message sender",
             "example": "user"
           },
@@ -6389,10 +6088,7 @@
       },
       "AuthRequest": {
         "type": "object",
-        "required": [
-          "username",
-          "password"
-        ],
+        "required": ["username", "password"],
         "properties": {
           "username": {
             "type": "string",
@@ -6438,9 +6134,7 @@
       },
       "RefreshTokenRequest": {
         "type": "object",
-        "required": [
-          "refreshToken"
-        ],
+        "required": ["refreshToken"],
         "properties": {
           "refreshToken": {
             "type": "string",
@@ -6558,11 +6252,11 @@
       "AuthorizationHeader": {
         "name": "Authorization",
         "in": "header",
-        "description": "Authorization header global",
-        "required": false,
+        "description": "Authorization header global - Token: eyJhbGciOiJIUzI1NiIs...",
+        "required": true,
         "schema": {
           "type": "string",
-          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMDlUMjI6MTY6MDAuMTgxWiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0wOVQyMjoxNjowMC4xNzZaIn0sImlhdCI6MTc1NzQ1NjE2MCwiZXhwIjoxNzU4MDYwOTYwfQ.Q1NLZ_MY_d0ude3YsLg5pWyM5FiVo-vBoMjDKTZQK1I"
+          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMDlUMjI6MTc6NTIuNjUwWiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0wOVQyMjoxNzo1Mi42NDZaIn0sImlhdCI6MTc1NzQ1NjI3MiwiZXhwIjoxNzU4MDYxMDcyfQ.gqjfdsP83MonVV073Uq07IVqkpkZ0CTpxDxWSPBuhRo"
         }
       }
     }

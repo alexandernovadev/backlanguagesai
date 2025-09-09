@@ -2,14 +2,19 @@ import { Request, Response } from "express";
 import { WordService } from "../services/words/wordService";
 import { WordImportService } from "../services/import/WordImportService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
-import { generateWordChatStream } from "../services/ai/generateWordChatStream";
-import { generateWordJson as generateWordJsonService } from "../services/ai/generateWordJson";
-import { generateWordExamplesJson as generateWordExamplesJsonService } from "../services/ai/generateWordExamplesJson";
-import { generateWordExamplesCodeSwithcingJson as generateWordExamplesCodeSwithcingJsonService } from "../services/ai/generateWordExamplesCodeSwithcingJson";
-import { generateWordTypesJson as generateWordTypesJsonService } from "../services/ai/generateWordTypesJson";
-import { generateWordSynomymsJson as generateWordSynomymsJsonService } from "../services/ai/generateWordSynomymsJson";
-import { generateImage } from "../services/ai/generateImage";
-import { deleteImageFromCloudinary, uploadImageToCloudinary } from "../services/cloudinary/cloudinaryService";
+import {
+  generateWordData,
+  generateWordExamples,
+  generateWordCodeSwitching,
+  generateWordTypes,
+  generateWordSynonyms,
+  generateWordChat,
+  generateImage,
+} from "../services/ai";
+import {
+  deleteImageFromCloudinary,
+  uploadImageToCloudinary,
+} from "../services/cloudinary/cloudinaryService";
 import { imageWordPrompt } from "./helpers/ImagePrompt";
 import logger from "../utils/logger";
 
@@ -99,15 +104,19 @@ export const getWords = async (
 
     // Filtros existentes
     const wordUser = req.query.wordUser as string;
-    
+
     // Nuevos filtros básicos
     const difficulty = req.query.difficulty as string;
     const language = req.query.language as string;
     const type = req.query.type as string;
-    const seenMin = req.query.seenMin ? parseInt(req.query.seenMin as string) : undefined;
-    const seenMax = req.query.seenMax ? parseInt(req.query.seenMax as string) : undefined;
-    const sortBy = req.query.sortBy as string || 'createdAt';
-    const sortOrder = req.query.sortOrder as string || 'desc';
+    const seenMin = req.query.seenMin
+      ? parseInt(req.query.seenMin as string)
+      : undefined;
+    const seenMax = req.query.seenMax
+      ? parseInt(req.query.seenMax as string)
+      : undefined;
+    const sortBy = (req.query.sortBy as string) || "createdAt";
+    const sortOrder = (req.query.sortOrder as string) || "desc";
 
     // Nuevos filtros de contenido
     const definition = req.query.definition as string;
@@ -126,9 +135,13 @@ export const getWords = async (
     const updatedBefore = req.query.updatedBefore as string;
 
     // Procesar filtros que pueden tener múltiples valores
-    const difficulties = difficulty ? difficulty.split(',').map(d => d.trim()) : undefined;
-    const languages = language ? language.split(',').map(l => l.trim()) : undefined;
-    const types = type ? type.split(',').map(t => t.trim()) : undefined;
+    const difficulties = difficulty
+      ? difficulty.split(",").map((d) => d.trim())
+      : undefined;
+    const languages = language
+      ? language.split(",").map((l) => l.trim())
+      : undefined;
+    const types = type ? type.split(",").map((t) => t.trim()) : undefined;
 
     const wordList = await wordService.getWords({
       page,
@@ -152,7 +165,7 @@ export const getWords = async (
       createdAfter,
       createdBefore,
       updatedAfter,
-      updatedBefore
+      updatedBefore,
     });
 
     return successResponse(res, "Words sucessfully listed", wordList);
@@ -240,21 +253,22 @@ export const getAnkiCards = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const mode = (req.query.mode as string) || 'random';
+    const mode = (req.query.mode as string) || "random";
     const limit = parseInt(req.query.limit as string) || 30;
-    const difficulty = req.query.difficulty 
-      ? (req.query.difficulty as string).split(',')
-      : ['hard', 'medium'];
+    const difficulty = req.query.difficulty
+      ? (req.query.difficulty as string).split(",")
+      : ["hard", "medium"];
 
     const words = await wordService.getAnkiCards({
-      mode: mode as 'random' | 'review',
+      mode: mode as "random" | "review",
       limit,
-      difficulty
+      difficulty,
     });
 
-    const message = mode === 'random' 
-      ? "Anki cards retrieved successfully (random mode)"
-      : "Anki cards retrieved successfully (review mode)";
+    const message =
+      mode === "random"
+        ? "Anki cards retrieved successfully (random mode)"
+        : "Anki cards retrieved successfully (review mode)";
 
     return successResponse(res, message, words);
   } catch (error) {
@@ -266,8 +280,6 @@ export const getAnkiCards = async (
     );
   }
 };
-
-
 
 export const getWordsByTypeOptimized = async (
   req: Request,
@@ -283,8 +295,17 @@ export const getWordsByTypeOptimized = async (
       return errorResponse(res, "Type parameter is required", 400);
     }
 
-    const words = await wordService.getWordsByTypeOptimized(type, limit, search, fields);
-    return successResponse(res, `Words of type ${type} retrieved successfully`, words);
+    const words = await wordService.getWordsByTypeOptimized(
+      type,
+      limit,
+      search,
+      fields
+    );
+    return successResponse(
+      res,
+      `Words of type ${type} retrieved successfully`,
+      words
+    );
   } catch (error) {
     return errorResponse(
       res,
@@ -294,8 +315,6 @@ export const getWordsByTypeOptimized = async (
     );
   }
 };
-
-
 
 // Nuevo endpoint para actualizar el progreso de repaso de una palabra
 export const updateWordReview = async (
@@ -307,15 +326,27 @@ export const updateWordReview = async (
     const { difficulty, quality } = req.body;
 
     if (!wordId || !difficulty || !quality) {
-      return errorResponse(res, "wordId, difficulty, and quality are required", 400);
+      return errorResponse(
+        res,
+        "wordId, difficulty, and quality are required",
+        400
+      );
     }
 
     if (difficulty < 1 || difficulty > 5 || quality < 1 || quality > 5) {
-      return errorResponse(res, "difficulty and quality must be between 1 and 5", 400);
+      return errorResponse(
+        res,
+        "difficulty and quality must be between 1 and 5",
+        400
+      );
     }
 
-    const updatedWord = await wordService.updateWordReview(wordId, difficulty, quality);
-    
+    const updatedWord = await wordService.updateWordReview(
+      wordId,
+      difficulty,
+      quality
+    );
+
     if (!updatedWord) {
       return errorResponse(res, "Word not found", 404);
     }
@@ -334,7 +365,6 @@ export const updateWordReview = async (
     );
   }
 };
-
 
 export const updateIncrementWordSeens = async (
   req: Request,
@@ -417,12 +447,15 @@ export const importWordsFromFile = async (
 
     // Validate file structure - handle both direct and nested structures
     let words: any[] = [];
-    
+
     // Try to find words in different possible structures
     if (fileData.data?.words && Array.isArray(fileData.data.words)) {
       // Direct structure: data.words
       words = fileData.data.words;
-    } else if (fileData.data?.data?.words && Array.isArray(fileData.data.data.words)) {
+    } else if (
+      fileData.data?.data?.words &&
+      Array.isArray(fileData.data.data.words)
+    ) {
       // Nested structure: data.data.words (from export)
       words = fileData.data.data.words;
     } else if (fileData.words && Array.isArray(fileData.words)) {
@@ -513,9 +546,9 @@ export const addChatMessage = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Word not found" });
     }
 
-    res.json({ 
+    res.json({
       message: "Chat message added successfully",
-      word 
+      word,
     });
   } catch (error: any) {
     logger.error("Error adding chat message:", error);
@@ -542,9 +575,9 @@ export const clearChatHistory = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Word not found" });
     }
 
-    res.json({ 
+    res.json({
       message: "Chat history cleared successfully",
-      word 
+      word,
     });
   } catch (error: any) {
     logger.error("Error clearing chat history:", error);
@@ -571,32 +604,43 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     await wordService.addUserMessage(wordId, message);
 
     // Set up streaming
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    const stream = await generateWordChatStream(
+    const stream = await generateWordChat(
       word.word,
       word.definition,
       message,
-      word.chat || []
+      word.chat || [],
+      { stream: true }
     );
 
-    let fullResponse = '';
+    let fullResponse = "";
 
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content || '';
+    // Handle streaming response
+    if (stream && "choices" in stream && Array.isArray(stream.choices)) {
+      for await (const chunk of stream as any) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        if (content) {
+          fullResponse += content;
+          res.write(content);
+        }
+      }
+    } else {
+      // Handle non-streaming response
+      const content = (stream as any).choices[0]?.message?.content || "";
       if (content) {
-        fullResponse += content;
+        fullResponse = content;
         res.write(content);
       }
     }
 
     // Save the complete AI response
     await wordService.addAssistantMessage(wordId, fullResponse);
-    
+
     res.end();
   } catch (error: any) {
     logger.error("Error streaming chat response:", error);
@@ -607,15 +651,15 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 // ===== AI GENERATION FUNCTIONS FOR WORDS =====
 
 export const generateWordJson = async (req: Request, res: Response) => {
-  const { prompt, language } = req.body;
+  const { word, language, provider = "openai" } = req.body;
 
-  if (!prompt) {
-    return errorResponse(res, "Prompt is required.", 400);
+  if (!word) {
+    return errorResponse(res, "Word is required.", 400);
   }
 
   try {
-    // Generate the word data using AI
-    const wordData = await generateWordJsonService(prompt, language);
+    // Generate the word data using unified AI service
+    const wordData = await generateWordData(word, language, [], { provider });
 
     // Save the generated word to the database
     const savedWord = await wordService.createWord(wordData);
@@ -631,19 +675,19 @@ export const generateWordJson = async (req: Request, res: Response) => {
 };
 
 export const generateWordExamplesJson = async (req: Request, res: Response) => {
-  const { prompt, word, language, oldExamples } = req.body;
-  const targetWord = word || prompt;
+  const { word, language, oldExamples, provider = "openai" } = req.body;
   const { idword } = req.params as { idword: string };
 
-  if (!targetWord) {
-    return errorResponse(res, "Prompt (word) is required.", 400);
+  if (!word) {
+    return errorResponse(res, "Word is required.", 400);
   }
 
   try {
-    const generated = await generateWordExamplesJsonService(
-      targetWord,
+    const generated = await generateWordExamples(
+      word,
       language,
-      oldExamples
+      oldExamples,
+      { provider }
     );
     const updated = await wordService.updateWordExamples(
       idword,
@@ -662,7 +706,7 @@ export const generateWordExamplesCodeSwitchingJson = async (
   req: Request,
   res: Response
 ) => {
-  const { prompt, word, language, oldExamples } = req.body;
+  const { prompt, word, language, oldExamples, provider = "openai" } = req.body;
   const targetWord = word || prompt;
   const { idword } = req.params as { idword: string };
 
@@ -671,10 +715,11 @@ export const generateWordExamplesCodeSwitchingJson = async (
   }
 
   try {
-    const generated = await generateWordExamplesCodeSwithcingJsonService(
+    const generated = await generateWordCodeSwitching(
       targetWord,
       language,
-      oldExamples
+      oldExamples,
+      { provider }
     );
     const updated = await wordService.updateWordCodeSwitching(
       idword,
@@ -699,7 +744,7 @@ export const generateWordExamplesCodeSwitchingJson = async (
 };
 
 export const generateWordTypesJson = async (req: Request, res: Response) => {
-  const { prompt, word, language, oldExamples } = req.body;
+  const { prompt, word, language, oldExamples, provider = "openai" } = req.body;
   const targetWord = word || prompt;
   const { idword } = req.params as { idword: string };
 
@@ -708,10 +753,11 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
   }
 
   try {
-    const generated = await generateWordTypesJsonService(
+    const generated = await generateWordTypes(
       targetWord,
       language,
-      oldExamples
+      oldExamples,
+      { provider }
     );
     const updated = await wordService.updateWordType(
       idword,
@@ -727,7 +773,7 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
 };
 
 export const generateWordSynomymsJson = async (req: Request, res: Response) => {
-  const { prompt, word, language, oldExamples } = req.body;
+  const { prompt, word, language, oldExamples, provider = "openai" } = req.body;
   const targetWord = word || prompt;
   const { idword } = req.params as { idword: string };
 
@@ -736,10 +782,11 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
   }
 
   try {
-    const generated = await generateWordSynomymsJsonService(
+    const generated = await generateWordSynonyms(
       targetWord,
       language,
-      oldExamples
+      oldExamples,
+      { provider }
     );
     const updated = await wordService.updateWordSynonyms(
       idword,
@@ -765,7 +812,10 @@ export const updateImageWord = async (req: Request, res: Response) => {
 
   try {
     // Generate image with primary prompt only
-    const imageBase64 = await generateImage(imageWordPrompt(targetWord));
+    const imageBase64 = await generateImage(
+      "openai",
+      imageWordPrompt(targetWord)
+    );
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);
     }

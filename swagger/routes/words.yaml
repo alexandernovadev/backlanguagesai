@@ -357,15 +357,20 @@ paths:
             schema:
               type: object
               properties:
-                prompt:
+                word:
                   type: string
                   description: Word to generate
                 language:
                   type: string
                   default: "en"
                   description: Language code
+                provider:
+                  type: string
+                  enum: [openai, deepseek]
+                  default: "openai"
+                  description: AI provider to use for generation
               required:
-                - prompt
+                - word
       responses:
         '200':
           description: Word generated and saved successfully
@@ -384,7 +389,7 @@ paths:
                     type: object
                     description: Generated word object
         '400':
-          description: Prompt is required
+          description: Word is required
         '500':
           description: Error generating or saving word
 
@@ -407,12 +412,9 @@ paths:
             schema:
               type: object
               properties:
-                prompt:
-                  type: string
-                  description: Word to generate examples for
                 word:
                   type: string
-                  description: Alternative word parameter
+                  description: Word to generate examples for
                 language:
                   type: string
                   default: "en"
@@ -422,6 +424,11 @@ paths:
                   items:
                     type: string
                   description: Existing examples
+                provider:
+                  type: string
+                  enum: [openai, deepseek]
+                  default: "openai"
+                  description: AI provider to use for generation
       responses:
         '200':
           description: Word examples updated successfully
@@ -440,7 +447,7 @@ paths:
                     type: object
                     description: Updated word object
         '400':
-          description: Prompt (word) is required
+          description: Word is required
         '404':
           description: Word not found
         '500':
@@ -480,6 +487,11 @@ paths:
                   items:
                     type: string
                   description: Existing examples
+                provider:
+                  type: string
+                  enum: [openai, deepseek]
+                  default: "openai"
+                  description: AI provider to use for generation
       responses:
         '200':
           description: Word code-switching updated successfully
@@ -538,6 +550,11 @@ paths:
                   items:
                     type: string
                   description: Existing examples
+                provider:
+                  type: string
+                  enum: [openai, deepseek]
+                  default: "openai"
+                  description: AI provider to use for generation
       responses:
         '200':
           description: Word types updated successfully
@@ -596,6 +613,11 @@ paths:
                   items:
                     type: string
                   description: Existing examples
+                provider:
+                  type: string
+                  enum: [openai, deepseek]
+                  default: "openai"
+                  description: AI provider to use for generation
       responses:
         '200':
           description: Word synonyms updated successfully
@@ -648,6 +670,11 @@ paths:
                 imgOld:
                   type: string
                   description: URL of old image to replace
+                provider:
+                  type: string
+                  enum: [openai, google]
+                  default: "openai"
+                  description: AI provider to use for image generation
       responses:
         '200':
           description: Word image updated successfully

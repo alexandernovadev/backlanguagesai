@@ -2098,6 +2098,41 @@
             }
           },
           {
+            "name": "search",
+            "in": "query",
+            "description": "Search in expression, definition, or Spanish translations",
+            "schema": {
+              "type": "string",
+              "example": "break the ice"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by expression type (can be multiple, comma-separated)",
+            "schema": {
+              "type": "string",
+              "example": "idiom,phrase"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "description": "Filter by difficulty level",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "A1",
+                "A2",
+                "B1",
+                "B2",
+                "C1",
+                "C2"
+              ],
+              "example": "B2"
+            }
+          },
+          {
             "name": "language",
             "in": "query",
             "description": "Filter by language",
@@ -2107,25 +2142,49 @@
             }
           },
           {
-            "name": "level",
+            "name": "hasImage",
             "in": "query",
-            "description": "Filter by difficulty level",
+            "description": "Filter by expressions that have an image",
             "schema": {
               "type": "string",
               "enum": [
-                "easy",
-                "medium",
-                "hard"
-              ]
+                "true",
+                "false"
+              ],
+              "example": "true"
             }
           },
           {
-            "name": "type",
+            "name": "hasContext",
             "in": "query",
-            "description": "Filter by expression type",
+            "description": "Filter by expressions that have context",
             "schema": {
               "type": "string",
-              "example": "idiom"
+              "enum": [
+                "true",
+                "false"
+              ],
+              "example": "true"
+            }
+          },
+          {
+            "name": "createdAt",
+            "in": "query",
+            "description": "Filter by creation date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "updatedAt",
+            "in": "query",
+            "description": "Filter by update date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
             }
           },
           {
@@ -2904,6 +2963,332 @@
         ]
       }
     },
+    "/api/expressions/type/{type}": {
+      "get": {
+        "summary": "Get expressions by type",
+        "description": "Retrieve expressions filtered by specific type",
+        "tags": [
+          "Expressions"
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Expression type to filter by",
+            "schema": {
+              "type": "string",
+              "example": "idiom"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of expressions to retrieve",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term for filtering",
+            "schema": {
+              "type": "string",
+              "example": "break"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expressions by type retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Expression"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving expressions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/only": {
+      "get": {
+        "summary": "Get expressions only (simplified)",
+        "description": "Retrieve expressions with simplified response format",
+        "tags": [
+          "Expressions"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search in expression, definition, or Spanish translations",
+            "schema": {
+              "type": "string",
+              "example": "break the ice"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by expression type",
+            "schema": {
+              "type": "string",
+              "example": "idiom"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "description": "Filter by difficulty level",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "A1",
+                "A2",
+                "B1",
+                "B2",
+                "C1",
+                "C2"
+              ],
+              "example": "B2"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "description": "Filter by language",
+            "schema": {
+              "type": "string",
+              "example": "en"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expressions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Expression"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving expressions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/import": {
+      "post": {
+        "summary": "Import expressions from file",
+        "description": "Import expressions from a JSON file with validation options",
+        "tags": [
+          "Expressions",
+          "Import"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file containing expressions"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "duplicateStrategy",
+            "in": "query",
+            "description": "Strategy for handling duplicate expressions",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "skip",
+                "update",
+                "error"
+              ],
+              "default": "skip",
+              "example": "skip"
+            }
+          },
+          {
+            "name": "validateOnly",
+            "in": "query",
+            "description": "Only validate without importing",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "example": false
+            }
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "Number of expressions to process per batch",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expressions imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions imported successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "example": 5
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid file or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error importing expressions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/lectures": {
       "get": {
         "summary": "Get all lectures",
@@ -2934,12 +3319,12 @@
             }
           },
           {
-            "name": "language",
+            "name": "search",
             "in": "query",
-            "description": "Filter by language",
+            "description": "Search term for filtering lectures",
             "schema": {
               "type": "string",
-              "example": "en"
+              "example": "example"
             }
           },
           {
@@ -2955,16 +3340,96 @@
                 "B2",
                 "C1",
                 "C2"
-              ]
+              ],
+              "example": "B1"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "description": "Filter by language",
+            "schema": {
+              "type": "string",
+              "example": "en"
             }
           },
           {
             "name": "typeWrite",
             "in": "query",
-            "description": "Filter by content type",
+            "description": "Filter by lecture type",
             "schema": {
               "type": "string",
               "example": "Article"
+            }
+          },
+          {
+            "name": "timeMin",
+            "in": "query",
+            "description": "Minimum reading time in seconds",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "example": 60
+            }
+          },
+          {
+            "name": "timeMax",
+            "in": "query",
+            "description": "Maximum reading time in seconds",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "example": 300
+            }
+          },
+          {
+            "name": "createdAfter",
+            "in": "query",
+            "description": "Filter by creation date after this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "in": "query",
+            "description": "Filter by creation date before this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-12-31T23:59:59Z"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "updatedAt",
+                "time",
+                "level"
+              ],
+              "default": "createdAt",
+              "example": "createdAt"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "example": "desc"
             }
           },
           {
@@ -3767,6 +4232,133 @@
         }
       }
     },
+    "/api/lectures/import": {
+      "post": {
+        "summary": "Import lectures from file",
+        "description": "Import lectures from a JSON file with validation options",
+        "tags": [
+          "Lectures",
+          "Import"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file containing lectures"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "duplicateStrategy",
+            "in": "query",
+            "description": "Strategy for handling duplicate lectures",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "skip",
+                "update",
+                "error"
+              ],
+              "default": "skip",
+              "example": "skip"
+            }
+          },
+          {
+            "name": "validateOnly",
+            "in": "query",
+            "description": "Only validate without importing",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "example": false
+            }
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "Number of lectures to process per batch",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lectures imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lectures imported successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "example": 15
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "example": 3
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid file or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error importing lectures",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users": {
       "get": {
         "summary": "Get all users",
@@ -3797,29 +4389,145 @@
             }
           },
           {
+            "name": "username",
+            "in": "query",
+            "description": "Filter by username (partial match)",
+            "schema": {
+              "type": "string",
+              "example": "john"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Filter by email (partial match)",
+            "schema": {
+              "type": "string",
+              "example": "john@example.com"
+            }
+          },
+          {
             "name": "role",
             "in": "query",
-            "description": "Filter by user role",
+            "description": "Filter by user role (can be multiple, comma-separated)",
             "schema": {
               "type": "string",
               "enum": [
                 "student",
                 "teacher",
                 "admin"
-              ]
+              ],
+              "example": "student,teacher"
             }
           },
           {
-            "name": "status",
+            "name": "language",
             "in": "query",
-            "description": "Filter by user status",
+            "description": "Filter by language (can be multiple, comma-separated)",
+            "schema": {
+              "type": "string",
+              "example": "en,es"
+            }
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "description": "Filter by active status",
             "schema": {
               "type": "string",
               "enum": [
-                "active",
-                "inactive",
-                "pending"
-              ]
+                "true",
+                "false"
+              ],
+              "example": "true"
+            }
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "Filter by phone number (partial match)",
+            "schema": {
+              "type": "string",
+              "example": "+1234567890"
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "Filter by address (partial match)",
+            "schema": {
+              "type": "string",
+              "example": "New York"
+            }
+          },
+          {
+            "name": "createdAfter",
+            "in": "query",
+            "description": "Filter by creation date after this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "in": "query",
+            "description": "Filter by creation date before this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-12-31T23:59:59Z"
+            }
+          },
+          {
+            "name": "updatedAfter",
+            "in": "query",
+            "description": "Filter by update date after this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "Filter by update date before this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-12-31T23:59:59Z"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "updatedAt",
+                "username",
+                "email"
+              ],
+              "default": "createdAt",
+              "example": "createdAt"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "example": "desc"
             }
           },
           {
@@ -4440,6 +5148,133 @@
             "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ]
+      }
+    },
+    "/api/users/import": {
+      "post": {
+        "summary": "Import users from file",
+        "description": "Import users from a JSON file with validation options",
+        "tags": [
+          "Users",
+          "Import"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file containing users"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "duplicateStrategy",
+            "in": "query",
+            "description": "Strategy for handling duplicate users",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "skip",
+                "update",
+                "error"
+              ],
+              "default": "skip",
+              "example": "skip"
+            }
+          },
+          {
+            "name": "validateOnly",
+            "in": "query",
+            "description": "Only validate without importing",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "example": false
+            }
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "Number of users to process per batch",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Users imported successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "example": 20
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid file or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error importing users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/auth/register": {
@@ -6858,7 +7693,7 @@
         "required": true,
         "schema": {
           "type": "string",
-          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMDlUMjI6MzI6MzUuMjE5WiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0wOVQyMjozMjozNS4yMTRaIn0sImlhdCI6MTc1NzQ1NzE1NSwiZXhwIjoxNzU4MDYxOTU1fQ.whmDKxFsaG_VuFQxAqdmOHZ4XBncK-_fxM2V_AuGfjk"
+          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMDlUMjI6NDE6MTMuMzU1WiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0wOVQyMjo0MToxMy4zNTBaIn0sImlhdCI6MTc1NzQ1NzY3MywiZXhwIjoxNzU4MDYyNDczfQ.36Sqg_NvBejBQkWM5ZVjbonI2C5c8VIpGvFoAGIEDdg"
         }
       }
     }

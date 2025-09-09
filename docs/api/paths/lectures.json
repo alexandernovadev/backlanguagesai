@@ -28,6 +28,25 @@
             }
           },
           {
+            "name": "search",
+            "in": "query",
+            "description": "Search term for filtering lectures",
+            "schema": {
+              "type": "string",
+              "example": "example"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "description": "Filter by CEFR level",
+            "schema": {
+              "type": "string",
+              "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
+              "example": "B1"
+            }
+          },
+          {
             "name": "language",
             "in": "query",
             "description": "Filter by language",
@@ -37,21 +56,74 @@
             }
           },
           {
-            "name": "level",
-            "in": "query",
-            "description": "Filter by CEFR level",
-            "schema": {
-              "type": "string",
-              "enum": ["A1", "A2", "B1", "B2", "C1", "C2"]
-            }
-          },
-          {
             "name": "typeWrite",
             "in": "query",
-            "description": "Filter by content type",
+            "description": "Filter by lecture type",
             "schema": {
               "type": "string",
               "example": "Article"
+            }
+          },
+          {
+            "name": "timeMin",
+            "in": "query",
+            "description": "Minimum reading time in seconds",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "example": 60
+            }
+          },
+          {
+            "name": "timeMax",
+            "in": "query",
+            "description": "Maximum reading time in seconds",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "example": 300
+            }
+          },
+          {
+            "name": "createdAfter",
+            "in": "query",
+            "description": "Filter by creation date after this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "in": "query",
+            "description": "Filter by creation date before this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-12-31T23:59:59Z"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "updatedAt", "time", "level"],
+              "default": "createdAt",
+              "example": "createdAt"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc",
+              "example": "desc"
             }
           }
         ],
@@ -766,6 +838,123 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lectures/import": {
+      "post": {
+        "summary": "Import lectures from file",
+        "description": "Import lectures from a JSON file with validation options",
+        "tags": ["Lectures", "Import"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file containing lectures"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "duplicateStrategy",
+            "in": "query",
+            "description": "Strategy for handling duplicate lectures",
+            "schema": {
+              "type": "string",
+              "enum": ["skip", "update", "error"],
+              "default": "skip",
+              "example": "skip"
+            }
+          },
+          {
+            "name": "validateOnly",
+            "in": "query",
+            "description": "Only validate without importing",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "example": false
+            }
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "Number of lectures to process per batch",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lectures imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lectures imported successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "example": 15
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "example": 3
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid file or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error importing lectures",
             "content": {
               "application/json": {
                 "schema": {

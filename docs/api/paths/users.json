@@ -28,21 +28,130 @@
             }
           },
           {
-            "name": "role",
+            "name": "username",
             "in": "query",
-            "description": "Filter by user role",
+            "description": "Filter by username (partial match)",
             "schema": {
               "type": "string",
-              "enum": ["student", "teacher", "admin"]
+              "example": "john"
             }
           },
           {
-            "name": "status",
+            "name": "email",
             "in": "query",
-            "description": "Filter by user status",
+            "description": "Filter by email (partial match)",
             "schema": {
               "type": "string",
-              "enum": ["active", "inactive", "pending"]
+              "example": "john@example.com"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Filter by user role (can be multiple, comma-separated)",
+            "schema": {
+              "type": "string",
+              "enum": ["student", "teacher", "admin"],
+              "example": "student,teacher"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "description": "Filter by language (can be multiple, comma-separated)",
+            "schema": {
+              "type": "string",
+              "example": "en,es"
+            }
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"],
+              "example": "true"
+            }
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "Filter by phone number (partial match)",
+            "schema": {
+              "type": "string",
+              "example": "+1234567890"
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "Filter by address (partial match)",
+            "schema": {
+              "type": "string",
+              "example": "New York"
+            }
+          },
+          {
+            "name": "createdAfter",
+            "in": "query",
+            "description": "Filter by creation date after this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "in": "query",
+            "description": "Filter by creation date before this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-12-31T23:59:59Z"
+            }
+          },
+          {
+            "name": "updatedAfter",
+            "in": "query",
+            "description": "Filter by update date after this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "Filter by update date before this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-12-31T23:59:59Z"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "updatedAt", "username", "email"],
+              "default": "createdAt",
+              "example": "createdAt"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc",
+              "example": "desc"
             }
           }
         ],
@@ -597,6 +706,123 @@
           },
           "403": {
             "description": "Forbidden - Admin access required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/import": {
+      "post": {
+        "summary": "Import users from file",
+        "description": "Import users from a JSON file with validation options",
+        "tags": ["Users", "Import"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file containing users"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "duplicateStrategy",
+            "in": "query",
+            "description": "Strategy for handling duplicate users",
+            "schema": {
+              "type": "string",
+              "enum": ["skip", "update", "error"],
+              "default": "skip",
+              "example": "skip"
+            }
+          },
+          {
+            "name": "validateOnly",
+            "in": "query",
+            "description": "Only validate without importing",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "example": false
+            }
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "Number of users to process per batch",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Users imported successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "example": 20
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid file or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error importing users",
             "content": {
               "application/json": {
                 "schema": {

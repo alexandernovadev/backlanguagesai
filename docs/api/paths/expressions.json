@@ -28,6 +28,34 @@
             }
           },
           {
+            "name": "search",
+            "in": "query",
+            "description": "Search in expression, definition, or Spanish translations",
+            "schema": {
+              "type": "string",
+              "example": "break the ice"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by expression type (can be multiple, comma-separated)",
+            "schema": {
+              "type": "string",
+              "example": "idiom,phrase"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "description": "Filter by difficulty level",
+            "schema": {
+              "type": "string",
+              "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
+              "example": "B2"
+            }
+          },
+          {
             "name": "language",
             "in": "query",
             "description": "Filter by language",
@@ -37,21 +65,43 @@
             }
           },
           {
-            "name": "level",
+            "name": "hasImage",
             "in": "query",
-            "description": "Filter by difficulty level",
+            "description": "Filter by expressions that have an image",
             "schema": {
               "type": "string",
-              "enum": ["easy", "medium", "hard"]
+              "enum": ["true", "false"],
+              "example": "true"
             }
           },
           {
-            "name": "type",
+            "name": "hasContext",
             "in": "query",
-            "description": "Filter by expression type",
+            "description": "Filter by expressions that have context",
             "schema": {
               "type": "string",
-              "example": "idiom"
+              "enum": ["true", "false"],
+              "example": "true"
+            }
+          },
+          {
+            "name": "createdAt",
+            "in": "query",
+            "description": "Filter by creation date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "updatedAt",
+            "in": "query",
+            "description": "Filter by update date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
             }
           }
         ],
@@ -750,6 +800,305 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/type/{type}": {
+      "get": {
+        "summary": "Get expressions by type",
+        "description": "Retrieve expressions filtered by specific type",
+        "tags": ["Expressions"],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "description": "Expression type to filter by",
+            "schema": {
+              "type": "string",
+              "example": "idiom"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of expressions to retrieve",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term for filtering",
+            "schema": {
+              "type": "string",
+              "example": "break"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expressions by type retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../schemas/common.json#/components/schemas/Expression"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving expressions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/only": {
+      "get": {
+        "summary": "Get expressions only (simplified)",
+        "description": "Retrieve expressions with simplified response format",
+        "tags": ["Expressions"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search in expression, definition, or Spanish translations",
+            "schema": {
+              "type": "string",
+              "example": "break the ice"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by expression type",
+            "schema": {
+              "type": "string",
+              "example": "idiom"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "description": "Filter by difficulty level",
+            "schema": {
+              "type": "string",
+              "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
+              "example": "B2"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "description": "Filter by language",
+            "schema": {
+              "type": "string",
+              "example": "en"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expressions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../schemas/common.json#/components/schemas/Expression"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving expressions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/import": {
+      "post": {
+        "summary": "Import expressions from file",
+        "description": "Import expressions from a JSON file with validation options",
+        "tags": ["Expressions", "Import"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file containing expressions"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "duplicateStrategy",
+            "in": "query",
+            "description": "Strategy for handling duplicate expressions",
+            "schema": {
+              "type": "string",
+              "enum": ["skip", "update", "error"],
+              "default": "skip",
+              "example": "skip"
+            }
+          },
+          {
+            "name": "validateOnly",
+            "in": "query",
+            "description": "Only validate without importing",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "example": false
+            }
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "Number of expressions to process per batch",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expressions imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions imported successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "skipped": {
+                          "type": "integer",
+                          "example": 5
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid file or parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error importing expressions",
             "content": {
               "application/json": {
                 "schema": {

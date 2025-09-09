@@ -1,17 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
-
-// Definir la interfaz del documento
-export interface ILecture extends Document {
-  time: number;
-  difficulty: string;
-  typeWrite: string;
-  language: string;
-  img?: string;
-  urlAudio?: string;
-  content: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import mongoose, { Schema } from "mongoose";
+import { ILecture } from "../../../../types/models";
 
 // Definir el esquema
 const lectureSchema = new Schema<ILecture>(

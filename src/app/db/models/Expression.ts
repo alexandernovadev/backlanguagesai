@@ -1,29 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
-
-export interface IExpression extends Document {
-  expression: string;
-  definition: string;
-  examples?: string[];
-  type?: string[];
-  context?: string;
-  difficulty?: "easy" | "medium" | "hard";
-  img?: string;
-  language: string;
-  spanish?: {
-    definition: string;
-    expression: string;
-  };
-  chat?: ChatMessage[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-}
+import mongoose, { Schema } from "mongoose";
+import { ChatMessage, IExpression } from "../../../../types/models";
 
 const ChatMessageSchema: Schema = new Schema<ChatMessage>({
   id: {

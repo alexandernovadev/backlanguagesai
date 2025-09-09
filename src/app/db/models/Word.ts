@@ -1,11 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
-
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-}
+import mongoose, { Schema } from "mongoose";
+import { ChatMessage, IWord } from "../../../../types/models";
 
 const ChatMessageSchema: Schema = new Schema<ChatMessage>({
   id: {
@@ -26,27 +20,6 @@ const ChatMessageSchema: Schema = new Schema<ChatMessage>({
     default: Date.now,
   },
 });
-
-export interface IWord extends Document {
-  word: string;
-  definition: string;
-  examples?: string[];
-  type?: string[];
-  IPA?: string;
-  seen?: number;
-  img?: string;
-  difficulty?: "easy" | "medium" | "hard";
-  sinonyms?: string[];
-  codeSwitching?: string[];
-  language: string;
-  spanish?: {
-    definition: string;
-    word: string;
-  };
-  chat?: ChatMessage[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
 
 const WordSchema: Schema = new Schema<IWord>(
   {

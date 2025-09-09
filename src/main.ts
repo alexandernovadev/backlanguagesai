@@ -1,12 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import path from "path";
 
 import { connectDB } from "./app/db/mongoConnection";
 import { initializeBackupScheduler } from "./app/services/backup/backupSchedulerService";
-
-// Servir archivos estáticos main
-import path from "path";
 import logger from "./app/utils/logger";
 
 // Routes
@@ -15,17 +13,10 @@ import WordsRoutes from "./app/routes/wordsRoutes";
 import ExpressionRoutes from "./app/routes/expressionRoutes";
 import LabsRoutes from "./app/routes/labsRoutes";
 import UploadRoutes from "./app/routes/uploadRoutes";
-
 import AuthRoutes from "./app/routes/authRoutes";
 import UserRoutes from "./app/routes/userRoutes";
 
-// Swagger solo en desarrollo
-let setupSwagger: any = () => {};
-if (process.env.NODE_ENV === "development") {
-  import("../swagger/swaggerConfig").then(({ setupSwagger: swaggerSetup }) => {
-    setupSwagger = swaggerSetup;
-  });
-}
+// Utils
 import { errorResponse, successResponse } from "./app/utils/responseHelpers";
 import { requestLogger } from "./app/utils/requestLogger";
 import { authMiddleware } from "./app/middlewares/authMiddleware";
@@ -55,9 +46,7 @@ app.use(
 // Middleware to log requests
 app.use(requestLogger);
 
-// Swagger Conf (solo en desarrollo)
-setupSwagger(app);
-
+// Static files
 const publicPath = path.join(__dirname, "..", "public");
 app.use("/audios", express.static(path.join(publicPath, "audios")));
 app.use("/images", express.static(path.join(publicPath, "images")));
@@ -79,45 +68,58 @@ if (LABS_AUTH) {
 // Upload routes (must be after labs to avoid conflict)
 app.use("/api", authMiddleware, UploadRoutes);
 
-app.use("/", (req, res) => {
+// ✅ Root endpoint (lo que borré sin querer)
+app.get("/", (req: Request, res: Response) => {
   successResponse(res, "Server is running", {
     date: new Date().toISOString(),
     version: VERSION,
+    environment: NODE_ENV,
   });
 });
-
 
 // Error-handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
   errorResponse(res, "Something went wrong: " + err, 500);
 });
 
-// Connection to MongoDB
-connectDB()
-  .then(() => {
-    console.info("Connection to MongoDB established successfully");
-    logger.info("Connection to MongoDB", {
-      message: "Se conecto todo bn",
-    });
+// ---------- Init Function ----------
+async function init() {
+  // Setup Swagger only in dev
+  if (NODE_ENV === "development") {
+    const { setupSwagger } = await import("../swagger/swaggerConfig");
+    setupSwagger(app); // <-- ahora sí está listo cuando arranca
+    console.log("Swagger docs enabled at /api-docs");
+  }
 
-    app.listen(PORT, () => {
-      console.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
-      logger.info("Server running on port: ", {
-        message: `${PORT} - "${NODE_ENV}`,
+  // Connect DB and start server
+  connectDB()
+    .then(() => {
+      console.info("Connection to MongoDB established successfully");
+      logger.info("Connection to MongoDB", {
+        message: "Se conectó todo bn",
       });
-      
-      // Initialize backup cron scheduler
-      try {
-        initializeBackupScheduler();
-        logger.info("Backup cron scheduler initialized");
-      } catch (error) {
-        logger.error("Failed to initialize backup cron scheduler", { error });
-      }
+
+      app.listen(PORT, () => {
+        console.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
+        logger.info("Server running on port: ", {
+          message: `${PORT} - "${NODE_ENV}`,
+        });
+
+        // Initialize backup cron scheduler
+        try {
+          initializeBackupScheduler();
+          logger.info("Backup cron scheduler initialized");
+        } catch (error) {
+          logger.error("Failed to initialize backup cron scheduler", { error });
+        }
+      });
+    })
+    .catch((error) => {
+      console.error("Error connecting to MongoDB:", error);
+      logger.error("Error Response:", {
+        message: error,
+      });
     });
-  })
-  .catch((error) => {
-    console.error("Error connecting to MongoDB:", error);
-    logger.error("Error Response:", {
-      message: error,
-    });
-  });
+}
+
+init();

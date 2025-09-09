@@ -135,6 +135,18 @@ function buildApiDocs() {
     };
   }
 
+  // Eliminar sección de seguridad global
+  delete mainSpec.security;
+  
+  // Eliminar securitySchemes de autenticación
+  if (mainSpec.components && mainSpec.components.securitySchemes) {
+    delete mainSpec.components.securitySchemes.bearerAuth;
+    // Si no quedan más securitySchemes, eliminar la sección completa
+    if (Object.keys(mainSpec.components.securitySchemes).length === 0) {
+      delete mainSpec.components.securitySchemes;
+    }
+  }
+
   // Escribir el archivo final
   const outputFile = path.join(__dirname, "..", "openapi.json");
   fs.writeFileSync(outputFile, JSON.stringify(mainSpec, null, 2));
@@ -144,7 +156,7 @@ function buildApiDocs() {
   console.log(
     `📊 Total schemas: ${Object.keys(mainSpec.components.schemas).length}`
   );
-  console.log(`🔑 Authentication configured with token`);
+  console.log(`🔓 No authentication required`);
   console.log(`🚀 Ready to use in Scalar!`);
 }
 

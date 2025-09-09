@@ -748,12 +748,9 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
   }
 
   try {
-    const generated = await generateWordTypes(
-      word,
-      language,
-      oldExamples,
-      { provider }
-    );
+    const generated = await generateWordTypes(word, language, oldExamples, {
+      provider,
+    });
     const updated = await wordService.updateWordType(
       idword,
       generated.type || []
@@ -776,12 +773,9 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
   }
 
   try {
-    const generated = await generateWordSynonyms(
-      word,
-      language,
-      oldExamples,
-      { provider }
-    );
+    const generated = await generateWordSynonyms(word, language, oldExamples, {
+      provider,
+    });
     const updated = await wordService.updateWordSynonyms(
       idword,
       generated.sinonyms || []
@@ -805,10 +799,7 @@ export const updateImageWord = async (req: Request, res: Response) => {
 
   try {
     // Generate image with primary prompt only
-    const imageBase64 = await generateImage(
-      "openai",
-      imageWordPrompt(word)
-    );
+    const imageBase64 = await generateImage("openai", imageWordPrompt(word));
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);
     }

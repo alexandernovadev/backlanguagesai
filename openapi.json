@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Language Learning AI API",
-    "description": "A powerful AI-driven backend API for language learning applications\n\n🔑 **AUTHENTICATION REQUIRED**\nMost endpoints require authentication. Use the token below:\n\n**Token:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6InJlYWwtdXNlci1pZCIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6Im5vdmFAZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJOb3ZhIiwibGFzdE5hbWUiOiJVc2VyIiwiaXNBY3RpdmUiOnRydWUsImxhbmd1YWdlIjoiZW4ifSwiaWF0IjoxNzU3NDQzMzY1LCJleHAiOjE3NTgwNDgxNjV9.kAI-eBJF8txmbatuyMUVDJeWNetLjyHQO_j4YzOix6o`\n\n**How to use:**\n1. Click the \"Authorize\" button (🔒) in Scalar\n2. Select \"Bearer Token\"\n3. Paste the token above\n4. Click \"Authorize\"\n\n**Alternative:** Use the login endpoint:\nPOST /api/auth/login\nBody: {\"username\": \"novask88\", \"password\": \"sashateamomucho\"}",
+    "description": "A powerful AI-driven backend API for language learning applications\n\n🔑 **AUTHENTICATION REQUIRED**\nMost endpoints require authentication. Use the token below:\n\n**Token:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6InJlYWwtdXNlci1pZCIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6Im5vdmFAZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJOb3ZhIiwibGFzdE5hbWUiOiJVc2VyIiwiaXNBY3RpdmUiOnRydWUsImxhbmd1YWdlIjoiZW4ifSwiaWF0IjoxNzU3NDUzNTUwLCJleHAiOjE3NTgwNTgzNTB9.GoqqTatxG2lHAqmw2lbj1CJxtu4cTAOBwvzW4gBa_j0`\n\n**How to use:**\n1. Click the \"Authorize\" button (🔒) in Scalar\n2. Select \"Bearer Token\"\n3. Paste the token above\n4. Click \"Authorize\"\n\n**Alternative:** Use the login endpoint:\nPOST /api/auth/login\nBody: {\"username\": \"novask88\", \"password\": \"sashateamomucho\"}",
     "version": "2.8.29alpha"
   },
   "servers": [
@@ -4063,16 +4063,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": {
+                  "username": {
                     "type": "string",
                     "format": "email",
                     "description": "User's email address",
-                    "example": "john@example.com"
+                    "example": "novask88"
                   },
                   "password": {
                     "type": "string",
                     "description": "User's password",
-                    "example": "password123"
+                    "example": "sashateamomucho"
                   }
                 },
                 "required": [

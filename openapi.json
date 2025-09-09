@@ -6562,7 +6562,7 @@
         "required": false,
         "schema": {
           "type": "string",
-          "default": "gaott"
+          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMDlUMjI6MTY6MDAuMTgxWiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0wOVQyMjoxNjowMC4xNzZaIn0sImlhdCI6MTc1NzQ1NjE2MCwiZXhwIjoxNzU4MDYwOTYwfQ.Q1NLZ_MY_d0ude3YsLg5pWyM5FiVo-vBoMjDKTZQK1I"
         }
       }
     }

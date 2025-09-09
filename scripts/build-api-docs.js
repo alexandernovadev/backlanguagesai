@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+const https = require("https");
+const http = require("http");
 
 // Función para leer un archivo JSON
 function readJsonFile(filePath) {
@@ -10,6 +12,63 @@ function readJsonFile(filePath) {
     console.error(`Error reading ${filePath}:`, error.message);
     return null;
   }
+}
+
+// Función para obtener token real del endpoint de login
+function getRealToken() {
+  return new Promise((resolve) => {
+    const username = process.env.USER_NOVA || "novask88";
+    const password = process.env.PASSWORD_NOVA || "sashateamomucho";
+    const apiUrl = process.env.API_URL || "http://localhost:3000";
+    
+    const postData = JSON.stringify({
+      username: username,
+      password: password
+    });
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    const url = new URL(`${apiUrl}/api/auth/login`);
+    const client = url.protocol === 'https:' ? https : http;
+
+    const req = client.request(url, options, (res) => {
+      let data = '';
+      
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        try {
+          const response = JSON.parse(data);
+          if (response.success && response.data && response.data.token) {
+            console.log(`🔑 Obtained real token for user: ${username}`);
+            resolve(response.data.token);
+          } else {
+            console.error("❌ Login failed:", response.message || "Unknown error");
+            resolve("gaott"); // Fallback
+          }
+        } catch (error) {
+          console.error("❌ Error parsing login response:", error.message);
+          resolve("gaott"); // Fallback
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      console.error("❌ Error making login request:", error.message);
+      resolve("gaott"); // Fallback
+    });
+
+    req.write(postData);
+    req.end();
+  });
 }
 
 // Función para resolver referencias $ref
@@ -110,7 +169,7 @@ function combinePaths() {
 }
 
 // Función para combinar schemas y parámetros
-function combineSchemas() {
+async function combineSchemas() {
   const schemasFile = path.join(
     __dirname,
     "..",
@@ -123,9 +182,19 @@ function combineSchemas() {
 
   if (schemasData && schemasData.components) {
     console.log(`✅ Combined schemas from common.json`);
+    
+    // Obtener token real del endpoint
+    const realToken = await getRealToken();
+    
+    // Actualizar el parámetro Authorization con el token real
+    const parameters = { ...schemasData.components.parameters };
+    if (parameters.AuthorizationHeader) {
+      parameters.AuthorizationHeader.schema.default = `Bearer ${realToken}`;
+    }
+    
     return {
       schemas: schemasData.components.schemas || {},
-      parameters: schemasData.components.parameters || {}
+      parameters: parameters
     };
   }
 
@@ -133,7 +202,7 @@ function combineSchemas() {
 }
 
 // Función principal
-function buildApiDocs() {
+async function buildApiDocs() {
   console.log("🚀 Building API documentation...");
 
   // Leer el archivo principal
@@ -149,7 +218,7 @@ function buildApiDocs() {
   const combinedPaths = combinePaths();
 
   // Combinar schemas
-  const combinedSchemas = combineSchemas();
+  const combinedSchemas = await combineSchemas();
 
   // Reemplazar completamente los paths con el orden correcto
   mainSpec.paths = combinedPaths;
@@ -198,7 +267,7 @@ function buildApiDocs() {
 
 // Ejecutar si es llamado directamente
 if (require.main === module) {
-  buildApiDocs();
+  buildApiDocs().catch(console.error);
 }
 
 module.exports = { buildApiDocs };

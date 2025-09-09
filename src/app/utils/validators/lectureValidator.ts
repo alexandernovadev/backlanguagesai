@@ -12,8 +12,8 @@ export class LectureValidator {
       errors.push('Content is required and must be a non-empty string');
     }
 
-    if (!lecture.level || !['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(lecture.level)) {
-      errors.push('Level is required and must be one of: A1, A2, B1, B2, C1, C2');
+    if (!lecture.difficulty || !['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(lecture.difficulty)) {
+      errors.push('Difficulty is required and must be one of: A1, A2, B1, B2, C1, C2');
     }
 
     if (!lecture.language || typeof lecture.language !== 'string' || lecture.language.trim().length === 0) {
@@ -60,15 +60,15 @@ export class LectureValidator {
   static hasRequiredFields(lecture: Partial<ILecture>): boolean {
     return !!(
       lecture.content &&
-      lecture.level &&
+      lecture.difficulty &&
       lecture.language &&
       lecture.typeWrite
     );
   }
 
-  // Validate level format
-  static isValidLevel(level: string): boolean {
-    return ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(level);
+  // Validate difficulty format
+  static isValidDifficulty(difficulty: string): boolean {
+    return ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(difficulty);
   }
 
   // Validate content length

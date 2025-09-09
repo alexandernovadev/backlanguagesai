@@ -10,8 +10,8 @@ export class WordValidator {
     if (!word.word || typeof word.word !== 'string' || word.word.trim().length === 0) {
       errors.push('Word is required and must be a non-empty string');
     }
-    if (!word.level || !['easy', 'medium', 'hard'].includes(word.level)) {
-      errors.push('Level is required and must be one of: easy, medium, hard');
+    if (!word.difficulty || !['easy', 'medium', 'hard'].includes(word.difficulty)) {
+      errors.push('Difficulty is required and must be one of: easy, medium, hard');
     }
     if (!word.language || typeof word.language !== 'string' || word.language.trim().length === 0) {
       errors.push('Language is required and must be a non-empty string');

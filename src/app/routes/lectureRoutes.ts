@@ -6,7 +6,6 @@ import {
   deleteLecture,
   getAllLectures,
   updateImageLecureById,
-  updateUrlAudioLectureByIdByGPT,
   exportLecturesToJSON,
   importLecturesFromFile,
   updateImageLecture,
@@ -21,7 +20,7 @@ const router = Router();
 router.post("/generate-text", generateTextStream);
 router.post("/generate-topic-stream", generateTopicStream);
 router.post("/generate-image/:idlecture", updateImageLecture);
-router.post("/generateAudio/:idlecture", updateUrlAudioLectureByIdByGPT);
+// Audio generation route removed - service no longer available
 
 // Export/Import routes
 router.get("/export-file", exportLecturesToJSON);

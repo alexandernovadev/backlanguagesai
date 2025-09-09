@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { LectureService } from "../services/lectures/LectureService";
 import { LectureImportService } from "../services/import/LectureImportService";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
-import { generateAudioFromTextService } from "../services/ai/generateAudioFromTextService";
 import { generateImage } from "../services/ai/generateImage";
 import { deleteImageFromCloudinary, uploadImageToCloudinary } from "../services/cloudinary/cloudinaryService";
 import { imageLecturePrompt } from "./helpers/ImagePrompt";
@@ -97,42 +96,13 @@ export const updateImageLecureById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUrlAudioLectureByIdByGPT = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const { idlecture } = req.params;
-    const lecture = await lectureService.getLectureById(idlecture);
-
-    if (!lecture) {
-      return errorResponse(res, "Lecture not found", 404);
-    }
-
-    const audioUrl = await generateAudioFromTextService({
-      prompt: lecture.content,
-      voice: "nova",
-    });
-
-    const updatedLecture = await lectureService.updateUrlAudio(
-      idlecture,
-      audioUrl.audio
-    );
-
-    return successResponse(
-      res,
-      "Lecture audio generated successfully",
-      updatedLecture
-    );
-  } catch (error) {
-    return errorResponse(
-      res,
-      "An error occurred while generating lecture audio",
-      500,
-      error
-    );
-  }
-};
+// Audio generation function removed - service no longer available
+// export const updateUrlAudioLectureByIdByGPT = async (
+//   req: Request,
+//   res: Response
+// ): Promise<Response> => {
+//   return errorResponse(res, "Audio generation service not available", 501);
+// };
 
 export const getAllLectures = async (
   req: Request,

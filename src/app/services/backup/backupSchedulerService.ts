@@ -82,8 +82,6 @@ const executeScheduledBackup = async (): Promise<void> => {
         wordsCount: result.wordsCount,
         lecturesCount: result.lecturesCount,
         expressionsCount: result.expressionsCount,
-        examsCount: result.examsCount,
-        questionsCount: result.questionsCount,
         duration: `${Date.now() - startTime}ms`,
         totalRuns,
         successfulRuns,

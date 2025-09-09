@@ -1,4 +1,5 @@
-import Lecture, { ILecture } from "../../db/models/Lecture";
+import Lecture from "../../db/models/Lecture";
+import { ILecture } from "../../../../types/models";
 import { 
   ImportConfig, 
   ProcessingResult, 

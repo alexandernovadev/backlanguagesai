@@ -1,4 +1,5 @@
-import Word, { IWord, ChatMessage } from "../../db/models/Word";
+import Word from "../../db/models/Word";
+import { IWord, ChatMessage } from "../../../../types/models";
 
 interface PaginatedResult<T> {
   data: T[];

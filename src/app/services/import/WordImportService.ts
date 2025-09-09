@@ -1,4 +1,5 @@
-import Word, { IWord } from "../../db/models/Word";
+import Word from "../../db/models/Word";
+import { IWord } from "../../../../types/models";
 import {
   ImportConfig,
   ProcessingResult,

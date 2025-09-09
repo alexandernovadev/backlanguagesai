@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
-import User, { IUser } from "../../db/models/User";
+import User from "../../db/models/User";
+import { IUser } from "../../../../types/models";
 import bcrypt from "bcryptjs";
 import logger from "../../utils/logger";
 

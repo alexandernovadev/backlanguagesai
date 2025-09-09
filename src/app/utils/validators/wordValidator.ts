@@ -1,4 +1,4 @@
-import { IWord } from "../../db/models/Word";
+import { IWord } from "../../../../types/models";
 import { ValidationResult } from "../importTypes";
 
 export class WordValidator {

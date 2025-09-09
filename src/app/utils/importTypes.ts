@@ -1,5 +1,4 @@
-import { ILecture } from "../db/models/Lecture";
-import { IWord } from "../db/models/Word";
+import { ILecture, IWord } from "../../../types/models";
 
 // Estrategias para manejar duplicados
 export type DuplicateStrategy = 'skip' | 'overwrite' | 'error' | 'merge';

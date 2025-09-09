@@ -1,4 +1,4 @@
-import { ILecture } from "../../db/models/Lecture";
+import { ILecture } from "../../../../types/models";
 import { ValidationResult } from "../importTypes";
 
 export class LectureValidator {

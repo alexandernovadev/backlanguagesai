@@ -1,4 +1,5 @@
-import User, { IUser } from "../../db/models/User";
+import User from "../../db/models/User";
+import { IUser } from "../../../../types/models";
 import bcrypt from "bcryptjs";
 
 import { Request } from "express";

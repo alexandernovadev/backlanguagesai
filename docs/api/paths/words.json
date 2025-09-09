@@ -28,30 +28,198 @@
             }
           },
           {
-            "name": "language",
+            "name": "wordUser",
             "in": "query",
-            "description": "Filter by language",
+            "description": "Filter by word name (partial match)",
             "schema": {
               "type": "string",
-              "example": "en"
+              "example": "example"
             }
           },
           {
-            "name": "level",
+            "name": "language",
             "in": "query",
-            "description": "Filter by difficulty level",
+            "description": "Filter by language (comma-separated for multiple)",
             "schema": {
               "type": "string",
-              "enum": ["easy", "medium", "hard"]
+              "example": "en,es"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "description": "Filter by difficulty level (comma-separated for multiple)",
+            "schema": {
+              "type": "string",
+              "enum": ["easy", "medium", "hard"],
+              "example": "easy,medium"
             }
           },
           {
             "name": "type",
             "in": "query",
-            "description": "Filter by word type",
+            "description": "Filter by word type (comma-separated for multiple)",
             "schema": {
               "type": "string",
-              "example": "noun"
+              "example": "noun,verb"
+            }
+          },
+          {
+            "name": "seenMin",
+            "in": "query",
+            "description": "Minimum number of times the word has been seen",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "example": 5
+            }
+          },
+          {
+            "name": "seenMax",
+            "in": "query",
+            "description": "Maximum number of times the word has been seen",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "example": 20
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "updatedAt", "word", "seen", "level"],
+              "default": "createdAt",
+              "example": "createdAt"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc",
+              "example": "desc"
+            }
+          },
+          {
+            "name": "definition",
+            "in": "query",
+            "description": "Filter by definition content",
+            "schema": {
+              "type": "string",
+              "example": "example"
+            }
+          },
+          {
+            "name": "IPA",
+            "in": "query",
+            "description": "Filter by IPA pronunciation",
+            "schema": {
+              "type": "string",
+              "example": "/ɪɡˈzæmpəl/"
+            }
+          },
+          {
+            "name": "hasImage",
+            "in": "query",
+            "description": "Filter by words that have an image",
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"],
+              "example": "true"
+            }
+          },
+          {
+            "name": "hasExamples",
+            "in": "query",
+            "description": "Filter by words that have examples",
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"],
+              "example": "true"
+            }
+          },
+          {
+            "name": "hasSynonyms",
+            "in": "query",
+            "description": "Filter by words that have synonyms",
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"],
+              "example": "true"
+            }
+          },
+          {
+            "name": "hasCodeSwitching",
+            "in": "query",
+            "description": "Filter by words that have code-switching examples",
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"],
+              "example": "true"
+            }
+          },
+          {
+            "name": "spanishWord",
+            "in": "query",
+            "description": "Filter by Spanish word translation",
+            "schema": {
+              "type": "string",
+              "example": "ejemplo"
+            }
+          },
+          {
+            "name": "spanishDefinition",
+            "in": "query",
+            "description": "Filter by Spanish definition",
+            "schema": {
+              "type": "string",
+              "example": "ejemplo representativo"
+            }
+          },
+          {
+            "name": "createdAfter",
+            "in": "query",
+            "description": "Filter by creation date after this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "in": "query",
+            "description": "Filter by creation date before this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-12-31T23:59:59Z"
+            }
+          },
+          {
+            "name": "updatedAfter",
+            "in": "query",
+            "description": "Filter by update date after this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-01-01T00:00:00Z"
+            }
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "Filter by update date before this date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-12-31T23:59:59Z"
             }
           }
         ],
@@ -361,6 +529,16 @@
             "in": "path",
             "required": true,
             "description": "The actual word to search for",
+            "schema": {
+              "type": "string",
+              "example": "example"
+            }
+          },
+          {
+            "name": "word",
+            "in": "query",
+            "required": false,
+            "description": "Alternative way to pass the word as query parameter",
             "schema": {
               "type": "string",
               "example": "example"
@@ -1603,6 +1781,446 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/words/anki-cards": {
+      "get": {
+        "summary": "Get Anki cards",
+        "description": "Retrieve words formatted as Anki cards with filtering options",
+        "tags": ["Words", "Anki"],
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "description": "Mode for retrieving cards",
+            "schema": {
+              "type": "string",
+              "enum": ["random", "review"],
+              "default": "random",
+              "example": "random"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of cards to retrieve",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 30,
+              "example": 30
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "description": "Difficulty levels (comma-separated)",
+            "schema": {
+              "type": "string",
+              "example": "hard,medium"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Anki cards retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Anki cards retrieved successfully (random mode)"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../schemas/common.json#/components/schemas/AnkiCard"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving Anki cards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/words/by-type-optimized": {
+      "get": {
+        "summary": "Get words by type (optimized)",
+        "description": "Retrieve words filtered by type with optimized performance",
+        "tags": ["Words"],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "description": "Word type to filter by",
+            "schema": {
+              "type": "string",
+              "example": "noun"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of words to retrieve",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          },
+          {
+            "name": "wordUser",
+            "in": "query",
+            "description": "Search term for word filtering",
+            "schema": {
+              "type": "string",
+              "example": "example"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Specific fields to return",
+            "schema": {
+              "type": "string",
+              "example": "word,definition"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Words by type retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Words of type noun retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../schemas/common.json#/components/schemas/Word"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Type parameter is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving words by type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/words/generate": {
+      "post": {
+        "summary": "Generate word using AI",
+        "description": "Generate a complete word with all its data using AI",
+        "tags": ["Words", "AI Generation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["word"],
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "The word to generate data for",
+                    "example": "example"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Target language for the word (optional)",
+                    "example": "en"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "description": "AI provider to use",
+                    "enum": ["openai", "anthropic"],
+                    "default": "openai",
+                    "example": "openai"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Word generated and saved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Word generated and saved successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Word"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Word is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error generating or saving word",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/words/{idword}/generate-examples": {
+      "post": {
+        "summary": "Generate examples for a word",
+        "description": "Generate examples for an existing word using AI",
+        "tags": ["Words", "AI Generation"],
+        "parameters": [
+          {
+            "name": "idword",
+            "in": "path",
+            "required": true,
+            "description": "Word ID",
+            "schema": {
+              "type": "string",
+              "example": "68be381010f78de8a7a18a5f"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "The word to generate examples for (required)",
+                    "example": "example"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Target language for the examples (optional)",
+                    "example": "en"
+                  },
+                  "oldExamples": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Existing examples to consider (optional)",
+                    "example": ["This is an example sentence"]
+                  },
+                  "provider": {
+                    "type": "string",
+                    "description": "AI provider to use",
+                    "enum": ["openai", "anthropic"],
+                    "default": "openai",
+                    "example": "openai"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Examples generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Examples generated successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Word"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Word not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error generating examples",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/words/{idword}/generate-image": {
+      "post": {
+        "summary": "Generate image for a word",
+        "description": "Generate an image for an existing word using AI",
+        "tags": ["Words", "AI Generation"],
+        "parameters": [
+          {
+            "name": "idword",
+            "in": "path",
+            "required": true,
+            "description": "Word ID",
+            "schema": {
+              "type": "string",
+              "example": "68be381010f78de8a7a18a5f"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "description": "AI provider to use",
+                    "enum": ["openai", "anthropic"],
+                    "default": "openai",
+                    "example": "openai"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Image generated successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Word"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Word not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error generating image",
             "content": {
               "application/json": {
                 "schema": {

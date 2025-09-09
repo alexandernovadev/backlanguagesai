@@ -12,9 +12,7 @@ import {
   exportWordsToJSON,
   importWordsFromFile,
   updateWordReview,
-  getWordsByType,
   getWordsByTypeOptimized,
-  getWordsOnly,
   addChatMessage,
   getChatHistory,
   clearChatHistory,
@@ -38,9 +36,7 @@ router.post("/import-file", ...createJsonUploadMiddleware(), importWordsFromFile
 // Static routes
 // Ruta unificada para tarjetas Anki
 router.get("/anki-cards", getAnkiCards);
-router.get("/by-type/:type", getWordsByType);
 router.get("/by-type-optimized", getWordsByTypeOptimized);
-router.get("/words-only", getWordsOnly);
 
 // Dynamic routes with parameters
 router.get("/:word/word", getWordByName);

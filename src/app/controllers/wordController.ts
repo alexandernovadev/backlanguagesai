@@ -268,26 +268,6 @@ export const getAnkiCards = async (
 };
 
 
-export const getWordsByType = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const { type } = req.params;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const search = req.query.search as string;
-
-    const words = await wordService.getWordsByType(type, limit, search);
-    return successResponse(res, `Words of type ${type} retrieved successfully`, words);
-  } catch (error) {
-    return errorResponse(
-      res,
-      "An error occurred while retrieving words by type",
-      500,
-      error
-    );
-  }
-};
 
 export const getWordsByTypeOptimized = async (
   req: Request,
@@ -315,46 +295,6 @@ export const getWordsByTypeOptimized = async (
   }
 };
 
-export const getWordsOnly = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit as string) || 10, 1);
-    const fields = req.query.fields as string;
-
-    // Filtros básicos
-    const wordUser = req.query.wordUser as string;
-    const difficulty = req.query.difficulty as string;
-    const language = req.query.language as string;
-    const type = req.query.type as string;
-
-    // Procesar filtros que pueden tener múltiples valores
-    const difficulties = difficulty ? difficulty.split(',').map(d => d.trim()) : undefined;
-    const languages = language ? language.split(',').map(l => l.trim()) : undefined;
-    const types = type ? type.split(',').map(t => t.trim()) : undefined;
-
-    const wordList = await wordService.getWordsOnly({
-      page,
-      limit,
-      wordUser,
-      difficulty: difficulties,
-      language: languages,
-      type: types,
-      fields
-    });
-
-    return successResponse(res, "Words retrieved successfully", wordList);
-  } catch (error) {
-    return errorResponse(
-      res,
-      "An error occurred while retrieving words",
-      500,
-      error
-    );
-  }
-};
 
 
 // Nuevo endpoint para actualizar el progreso de repaso de una palabra

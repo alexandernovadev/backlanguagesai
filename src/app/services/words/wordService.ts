@@ -390,22 +390,6 @@ export class WordService {
       .lean();
   }
 
-  async getWordsByType(
-    type: string,
-    limit: number = 10,
-    search?: string
-  ): Promise<IWord[]> {
-    const query: any = { type: { $in: [type] } };
-
-    if (search) {
-      query.$or = [
-        { word: { $regex: search, $options: "i" } },
-        { definition: { $regex: search, $options: "i" } },
-      ];
-    }
-
-    return await Word.find(query).sort({ createdAt: -1 }).limit(limit).lean();
-  }
 
   async getWordsByTypeOptimized(
     type: string,
@@ -428,90 +412,6 @@ export class WordService {
       .lean();
   }
 
-  async getWordsOnly(
-    filters: {
-      page?: number;
-      limit?: number;
-      wordUser?: string;
-      difficulty?: string | string[];
-      language?: string | string[];
-      type?: string | string[];
-      fields?: string;
-    } = {}
-  ): Promise<PaginatedResult<{ word: string }>> {
-    const {
-      page = 1,
-      limit = 10,
-      wordUser,
-      difficulty,
-      language,
-      type,
-      fields,
-    } = filters;
-
-    const filter: Record<string, unknown> = {};
-
-    // Filtro por palabra
-    if (wordUser) {
-      filter.word = { $regex: wordUser, $options: "i" };
-    }
-
-    // Filtro por dificultad
-    if (difficulty) {
-      if (Array.isArray(difficulty)) {
-        const validDifficulties = difficulty.filter((d) =>
-          ["easy", "medium", "hard"].includes(d)
-        );
-        if (validDifficulties.length > 0) {
-          filter.difficulty = { $in: validDifficulties };
-        }
-      } else {
-        if (["easy", "medium", "hard"].includes(difficulty)) {
-          filter.difficulty = difficulty;
-        }
-      }
-    }
-
-    // Filtro por idioma
-    if (language) {
-      if (Array.isArray(language)) {
-        const languageRegex = language.map((lang) => new RegExp(lang, "i"));
-        filter.language = { $in: languageRegex };
-      } else {
-        filter.language = { $regex: language, $options: "i" };
-      }
-    }
-
-    // Filtro por tipo
-    if (type) {
-      if (Array.isArray(type)) {
-        filter.type = { $in: type };
-      } else {
-        filter.type = { $in: [type] };
-      }
-    }
-
-    const projection = fields ? { word: 1 } : { word: 1, _id: 0 };
-
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      Word.find(filter)
-        .select(projection)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      Word.countDocuments(filter),
-    ]);
-
-    return {
-      data,
-      total,
-      page,
-      pages: Math.ceil(total / limit),
-    };
-  }
 
   async getAllWordsForExport(): Promise<IWord[]> {
     return await Word.find({}).sort({ createdAt: -1 }).lean().exec();

@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import { ChatMessage } from "./ChatMessage";
-import { Difficulty, Language } from "../business";
+import { Difficulty, Language } from "../business/index";
 
 export interface IExpression extends Document {
   expression: string;

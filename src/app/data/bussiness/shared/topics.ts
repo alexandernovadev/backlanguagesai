@@ -1,4 +1,11 @@
-const topicsJson = [
+import { Topic } from "../../../../../types/business";
+
+interface TopicOption {
+  value: Topic;
+  label: string;
+}
+
+const topicsJson: TopicOption[] = [
   { value: "family", label: "Familia y relaciones" },
   { value: "appearance", label: "Apariencia y personalidad" },
   { value: "daily-routines", label: "Rutinas diarias" },
@@ -37,6 +44,6 @@ const topicsJson = [
   },
 ];
 
-const topicsList = topicsJson.map((topic) => topic.value);
+const topicsList: Topic[] = topicsJson.map((topic) => topic.value);
 
 export { topicsJson, topicsList };

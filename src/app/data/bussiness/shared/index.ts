@@ -9,3 +9,10 @@ export { chatRolesJson, chatRolesList } from './chatRoles';
 export { readingTypesJson, readingTypesList } from './readingTypes';
 export { systemRolesJson, systemRolesList } from './systemRoles';
 export { wordTypesJson, wordTypesList } from './wordTypes';
+
+// 📝 Re-exportar tipos de business para conveniencia
+export type { 
+  Topic, Skill, WordType, ExpressionType, ReadingType, 
+  Difficulty, CertificationLevel, Language, UserRole, ChatRole,
+  GrammarTopic, GrammarTopicOption 
+} from '../../../../../types/business';

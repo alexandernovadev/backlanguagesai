@@ -1,4 +1,6 @@
-const grammarTopicsJson = [
+import { GrammarTopicOption } from "../../../../../types/business";
+
+const grammarTopicsJson: GrammarTopicOption[] = [
   {
     value: "sentence-basics",
     label: "Fundamentos de la Oración",

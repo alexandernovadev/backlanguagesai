@@ -1,4 +1,11 @@
-const readingTypesJson = [
+import { ReadingType } from "../../../../../types/business";
+
+interface ReadingTypeOption {
+  value: ReadingType;
+  label: string;
+}
+
+const readingTypesJson: ReadingTypeOption[] = [
   { value: "analysis", label: "Análisis" },
   { value: "argumentative", label: "Argumentativo" },
   { value: "narrative", label: "Narrativo" },
@@ -25,6 +32,6 @@ const readingTypesJson = [
   { value: "blog", label: "Blog" },
 ];
 
-const readingTypesList = readingTypesJson.map((type) => type.value);
+const readingTypesList: ReadingType[] = readingTypesJson.map((type) => type.value);
 
 export { readingTypesJson, readingTypesList };

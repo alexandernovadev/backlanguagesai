@@ -1,4 +1,11 @@
-const certificationLevelsJson = [
+import { CertificationLevel } from "../../../../../types/business";
+
+interface CertificationLevelOption {
+  value: CertificationLevel;
+  label: string;
+}
+
+const certificationLevelsJson: CertificationLevelOption[] = [
   { value: "A1", label: "A1" },
   { value: "A2", label: "A2" },
   { value: "B1", label: "B1" },
@@ -7,7 +14,7 @@ const certificationLevelsJson = [
   { value: "C2", label: "C2" },
 ];
 
-const certificationLevelsList = certificationLevelsJson.map(
+const certificationLevelsList: CertificationLevel[] = certificationLevelsJson.map(
   (level) => level.value
 );
 

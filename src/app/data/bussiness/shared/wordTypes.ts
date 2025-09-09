@@ -1,4 +1,11 @@
-const wordTypesJson = [
+import { WordType } from "../../../../../types/business";
+
+interface WordTypeOption {
+  value: WordType;
+  label: string;
+}
+
+const wordTypesJson: WordTypeOption[] = [
   { value: "noun", label: "Sustantivo" },
   { value: "verb", label: "Verbo" },
   { value: "auxiliary verb", label: "Verbo Auxiliar" },
@@ -17,6 +24,6 @@ const wordTypesJson = [
   { value: "particle", label: "Partícula" },
 ];
 
-const wordTypesList = wordTypesJson.map((type) => type.value);
+const wordTypesList: WordType[] = wordTypesJson.map((type) => type.value);
 
 export { wordTypesJson, wordTypesList };

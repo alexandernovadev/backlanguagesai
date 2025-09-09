@@ -7,13 +7,11 @@ import {
   deleteWord,
   getWordByName,
   updateWordLevel,
-  getRecentHardOrMediumWords,
+  getAnkiCards,
   updateIncrementWordSeens,
   exportWordsToJSON,
   importWordsFromFile,
-  getWordsForReview,
   updateWordReview,
-  getReviewStats,
   getWordsByType,
   getWordsByTypeOptimized,
   getWordsOnly,
@@ -38,9 +36,8 @@ router.get("/export-file", exportWordsToJSON);
 router.post("/import-file", ...createJsonUploadMiddleware(), importWordsFromFile);
 
 // Static routes
-router.get("/get-cards-anki", getRecentHardOrMediumWords);
-router.get("/get-words-for-review", getWordsForReview);
-router.get("/get-review-stats", getReviewStats);
+// Ruta unificada para tarjetas Anki
+router.get("/anki-cards", getAnkiCards);
 router.get("/by-type/:type", getWordsByType);
 router.get("/by-type-optimized", getWordsByTypeOptimized);
 router.get("/words-only", getWordsOnly);

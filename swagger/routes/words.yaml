@@ -5,52 +5,35 @@ info:
   description: API for managing words, AI generation, and learning features
 paths:
   # ===== STATIC ROUTES =====
-  /api/words/get-cards-anki:
+  /api/words/anki-cards:
     get:
-      summary: Get recent hard or medium words for Anki cards
+      summary: Get Anki cards (unified endpoint)
       tags:
         - Words
-      description: Retrieves 30 randomly shuffled words with difficulty 'hard' or 'medium' for Anki-style learning
-      responses:
-        '200':
-          description: Successfully retrieved words for Anki cards
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "List Recent Hard Or Medium Words successfully"
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      description: Word object
-        '500':
-          description: Internal server error
-
-  /api/words/get-words-for-review:
-    get:
-      summary: Get words for intelligent review
-      tags:
-        - Words
-      description: Retrieves words that need review based on difficulty and frequency
+      description: Retrieves words for Anki-style learning with configurable modes and parameters
       parameters:
+        - in: query
+          name: mode
+          schema:
+            type: string
+            enum: [random, review]
+            default: random
+          description: Mode for card selection - 'random' for shuffled cards, 'review' for intelligent review
         - in: query
           name: limit
           schema:
             type: integer
-            default: 20
-            minimum: 1
-            maximum: 100
-          description: Maximum number of words to return
+            default: 30
+          description: Number of cards to retrieve
+        - in: query
+          name: difficulty
+          schema:
+            type: string
+            default: "hard,medium"
+          description: Comma-separated difficulty levels (easy, medium, hard)
       responses:
         '200':
-          description: Successfully retrieved words for review
+          description: Successfully retrieved Anki cards
           content:
             application/json:
               schema:
@@ -61,7 +44,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Words for review retrieved successfully"
+                    example: "Anki cards retrieved successfully (random mode)"
                   data:
                     type: array
                     items:
@@ -70,31 +53,6 @@ paths:
         '500':
           description: Internal server error
 
-  /api/words/get-review-stats:
-    get:
-      summary: Get review statistics
-      tags:
-        - Words
-      description: Retrieves statistics about word review progress
-      responses:
-        '200':
-          description: Successfully retrieved review statistics
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Review statistics retrieved successfully"
-                  data:
-                    type: object
-                    description: Review statistics object
-        '500':
-          description: Internal server error
 
   /api/words/by-type/{type}:
     get:

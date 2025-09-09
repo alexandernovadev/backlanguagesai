@@ -324,35 +324,7 @@ export class WordService {
     return await Word.findOne({ word });
   }
 
-  async getRecentHardOrMediumWords(): Promise<IWord[]> {
-    // Obtener 30 palabras medium y hard aleatorias para el juego Anki
-    // Usar $sample + $sort con $random para máxima aleatorización
-    return await Word.aggregate([
-      { $match: { difficulty: { $in: ["hard", "medium"] } } },
-      { $addFields: { randomSort: { $rand: {} } } }, // Agregar campo aleatorio
-      { $sort: { randomSort: 1 } }, // Ordenar por el campo aleatorio
-      { $limit: 30 }, // Limitar a 30 palabras para el juego
-      { $project: { randomSort: 0 } }, // Remover el campo aleatorio del resultado
-    ]);
-  }
 
-  // Nuevo método para obtener palabras para repaso inteligente
-  async getWordsForReview(limit: number = 20): Promise<IWord[]> {
-    // Obtener palabras que necesitan repaso (priorizando las más difíciles y menos vistas)
-    const wordsForReview = await Word.find({
-      difficulty: { $in: ["hard", "medium"] },
-    })
-      .sort({
-        // Priorizar por: 1) Más difíciles, 2) Menos vistas, 3) Más recientes
-        difficulty: -1,
-        seen: 1,
-        createdAt: -1,
-      })
-      .limit(limit)
-      .lean();
-
-    return wordsForReview;
-  }
 
   // Método para actualizar el progreso de repaso de una palabra
   async updateWordReview(
@@ -378,67 +350,38 @@ export class WordService {
     return updatedWord;
   }
 
-  // Método para obtener estadísticas de repaso
-  async getReviewStats(): Promise<{
-    totalWords: number;
-    wordsReviewedToday: number;
-    wordsDueForReview: number;
-    averageSeen: number;
-    difficultyDistribution: { easy: number; medium: number; hard: number };
-  }> {
-    const now = new Date();
-    const startOfDay = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
+  // Método unificado para obtener tarjetas Anki
+  async getAnkiCards(options: {
+    mode?: 'random' | 'review';
+    limit?: number;
+    difficulty?: string[];
+  } = {}): Promise<IWord[]> {
+    const { mode = 'random', limit = 30, difficulty = ['hard', 'medium'] } = options;
 
-    const [
-      totalWords,
-      wordsReviewedToday,
-      wordsDueForReview,
-      averageSeen,
-      difficultyDistribution,
-    ] = await Promise.all([
-      Word.countDocuments({ difficulty: { $in: ["hard", "medium"] } }),
-      Word.countDocuments({
-        difficulty: { $in: ["hard", "medium"] },
-        updatedAt: { $gte: startOfDay },
-      }),
-      Word.countDocuments({
-        difficulty: { $in: ["hard", "medium"] },
-        seen: { $lt: 3 }, // Palabras que han sido vistas menos de 3 veces
-      }),
-      Word.aggregate([
-        { $match: { difficulty: { $in: ["hard", "medium"] } } },
-        { $group: { _id: null, avgSeen: { $avg: "$seen" } } },
-      ]),
-      Word.aggregate([
-        {
-          $group: {
-            _id: "$difficulty",
-            count: { $sum: 1 },
-          },
-        },
-      ]),
-    ]);
-
-    // Procesar distribución de dificultad
-    const dist = { easy: 0, medium: 0, hard: 0 };
-    difficultyDistribution.forEach((item) => {
-      if (item._id === "easy") dist.easy = item.count;
-      else if (item._id === "medium") dist.medium = item.count;
-      else if (item._id === "hard") dist.hard = item.count;
-    });
-
-    return {
-      totalWords,
-      wordsReviewedToday,
-      wordsDueForReview,
-      averageSeen: averageSeen[0]?.avgSeen || 0,
-      difficultyDistribution: dist,
-    };
+    if (mode === 'random') {
+      // Modo aleatorio: obtener palabras aleatorias (comportamiento original de get-cards-anki)
+      return await Word.aggregate([
+        { $match: { difficulty: { $in: difficulty } } },
+        { $addFields: { randomSort: { $rand: {} } } },
+        { $sort: { randomSort: 1 } },
+        { $limit: limit },
+        { $project: { randomSort: 0 } },
+      ]);
+    } else {
+      // Modo review: obtener palabras para repaso inteligente (comportamiento original de get-words-for-review)
+      return await Word.find({
+        difficulty: { $in: difficulty },
+      })
+        .sort({
+          difficulty: -1,
+          seen: 1,
+          createdAt: -1,
+        })
+        .limit(limit)
+        .lean();
+    }
   }
+
 
   async getLastEasyWords(): Promise<IWord[]> {
     return await Word.find({ difficulty: "easy" })

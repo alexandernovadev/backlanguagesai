@@ -234,26 +234,39 @@ export const deleteWord = async (
   }
 };
 
-export const getRecentHardOrMediumWords = async (
+// Controlador unificado para tarjetas Anki
+export const getAnkiCards = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
   try {
-    const words = await wordService.getRecentHardOrMediumWords();
-    return successResponse(
-      res,
-      "List Recent Hard Or Medium Words successfully",
-      words
-    );
+    const mode = (req.query.mode as string) || 'random';
+    const limit = parseInt(req.query.limit as string) || 30;
+    const difficulty = req.query.difficulty 
+      ? (req.query.difficulty as string).split(',')
+      : ['hard', 'medium'];
+
+    const words = await wordService.getAnkiCards({
+      mode: mode as 'random' | 'review',
+      limit,
+      difficulty
+    });
+
+    const message = mode === 'random' 
+      ? "Anki cards retrieved successfully (random mode)"
+      : "Anki cards retrieved successfully (review mode)";
+
+    return successResponse(res, message, words);
   } catch (error) {
     return errorResponse(
       res,
-      "An error occurred while retrieving recent hard or medium words",
+      "An error occurred while retrieving Anki cards",
       500,
       error
     );
   }
 };
+
 
 export const getWordsByType = async (
   req: Request,
@@ -343,28 +356,6 @@ export const getWordsOnly = async (
   }
 };
 
-// Nuevo endpoint para obtener palabras para repaso inteligente
-export const getWordsForReview = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const limit = parseInt(req.query.limit as string) || 20;
-    const words = await wordService.getWordsForReview(limit);
-    return successResponse(
-      res,
-      "Words for review retrieved successfully",
-      words
-    );
-  } catch (error) {
-    return errorResponse(
-      res,
-      "An error occurred while retrieving words for review",
-      500,
-      error
-    );
-  }
-};
 
 // Nuevo endpoint para actualizar el progreso de repaso de una palabra
 export const updateWordReview = async (
@@ -404,27 +395,6 @@ export const updateWordReview = async (
   }
 };
 
-// Nuevo endpoint para obtener estadísticas de repaso
-export const getReviewStats = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const stats = await wordService.getReviewStats();
-    return successResponse(
-      res,
-      "Review statistics retrieved successfully",
-      stats
-    );
-  } catch (error) {
-    return errorResponse(
-      res,
-      "An error occurred while retrieving review statistics",
-      500,
-      error
-    );
-  }
-};
 
 export const updateIncrementWordSeens = async (
   req: Request,

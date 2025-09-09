@@ -20,7 +20,6 @@ A powerful AI-driven backend API for language learning applications. Generate ed
 - **🔄 Code-switching Examples**: Natural language mixing for bilingual learners
 - **📈 Progress Tracking**: Word difficulty levels and usage statistics
 - **🔐 JWT Authentication**: Secure user management system
-- **📖 Swagger Documentation**: Complete API documentation
 - **🐳 Docker Ready**: Containerized deployment
 
 ## 🏗️ Architecture
@@ -40,8 +39,7 @@ src/
 │   │   ├── lectures/    # Educational content
 │   │   └── words/       # Vocabulary management
 │   └── utils/           # Helper functions
-├── main.ts              # Application entry point
-└── swagger/             # API documentation
+└── main.ts              # Application entry point
 ```
 
 ## 🚀 Quick Start
@@ -114,7 +112,6 @@ PASSWORD_NOVA=adminpassword
 
 2. **Access the application**
    - API: http://localhost:3000
-   - Swagger Docs: http://localhost:3000/api-docs
 
 ## 📚 API Documentation
 
@@ -311,7 +308,6 @@ npm run backup      # Backup database collections
 │   │   │   └── words/            # Vocabulary management
 │   │   └── utils/                # Helper functions
 │   └── main.ts                   # Application entry point
-├── swagger/                      # API documentation
 ├── public/                       # Static files (images, audio)
 ├── logs/                         # Application logs
 └── docs/                         # Project documentation

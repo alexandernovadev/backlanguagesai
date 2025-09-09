@@ -83,13 +83,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
 
 // ---------- Init Function ----------
 async function init() {
-  // Setup Swagger only in dev
-  if (NODE_ENV === "development") {
-    const { setupSwagger } = await import("../swagger/swaggerConfig");
-    setupSwagger(app); 
-    console.log("Swagger docs enabled at /api-docs");
-  }
-
   // Connect DB and start server
   connectDB()
     .then(() => {

@@ -1,0 +1,500 @@
+{
+  "paths": {
+    "/api/upload/image": {
+      "post": {
+        "summary": "Upload image file",
+        "description": "Upload an image file to the server and get the file URL",
+        "tags": ["Upload"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image file to upload (JPG, PNG, GIF, WebP)"
+                  },
+                  "folder": {
+                    "type": "string",
+                    "description": "Folder to store the image",
+                    "example": "words"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Image uploaded successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "URL of the uploaded image",
+                          "example": "https://example.com/images/word-123.jpg"
+                        },
+                        "filename": {
+                          "type": "string",
+                          "description": "Original filename",
+                          "example": "word-image.jpg"
+                        },
+                        "size": {
+                          "type": "integer",
+                          "description": "File size in bytes",
+                          "example": 1024000
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "description": "MIME type of the file",
+                          "example": "image/jpeg"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file format or size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/upload/audio": {
+      "post": {
+        "summary": "Upload audio file",
+        "description": "Upload an audio file to the server and get the file URL",
+        "tags": ["Upload"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Audio file to upload (MP3, WAV, OGG, M4A)"
+                  },
+                  "folder": {
+                    "type": "string",
+                    "description": "Folder to store the audio",
+                    "example": "lectures"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Audio uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Audio uploaded successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "URL of the uploaded audio",
+                          "example": "https://example.com/audio/lecture-123.mp3"
+                        },
+                        "filename": {
+                          "type": "string",
+                          "description": "Original filename",
+                          "example": "lecture-audio.mp3"
+                        },
+                        "size": {
+                          "type": "integer",
+                          "description": "File size in bytes",
+                          "example": 2048000
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "description": "MIME type of the file",
+                          "example": "audio/mpeg"
+                        },
+                        "duration": {
+                          "type": "number",
+                          "description": "Audio duration in seconds",
+                          "example": 120.5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file format or size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/upload/document": {
+      "post": {
+        "summary": "Upload document file",
+        "description": "Upload a document file to the server and get the file URL",
+        "tags": ["Upload"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Document file to upload (PDF, DOC, DOCX, TXT)"
+                  },
+                  "folder": {
+                    "type": "string",
+                    "description": "Folder to store the document",
+                    "example": "documents"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Document uploaded successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "URL of the uploaded document",
+                          "example": "https://example.com/documents/file-123.pdf"
+                        },
+                        "filename": {
+                          "type": "string",
+                          "description": "Original filename",
+                          "example": "document.pdf"
+                        },
+                        "size": {
+                          "type": "integer",
+                          "description": "File size in bytes",
+                          "example": 512000
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "description": "MIME type of the file",
+                          "example": "application/pdf"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file format or size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/upload/json": {
+      "post": {
+        "summary": "Upload JSON file",
+        "description": "Upload a JSON file for data import (words, expressions, lectures, etc.)",
+        "tags": ["Upload"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file to upload"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["words", "expressions", "lectures", "labs", "users"],
+                    "description": "Type of data in the JSON file",
+                    "example": "words"
+                  }
+                },
+                "required": ["file", "type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON file uploaded and processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "JSON file uploaded and processed successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "description": "Number of items imported",
+                          "example": 25
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "description": "Number of import errors",
+                          "example": 2
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Type of data imported",
+                          "example": "words"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file format or JSON structure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/upload/delete": {
+      "delete": {
+        "summary": "Delete uploaded file",
+        "description": "Delete an uploaded file from the server",
+        "tags": ["Upload"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "URL of the file to delete",
+                    "example": "https://example.com/images/word-123.jpg"
+                  }
+                },
+                "required": ["url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "File deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "File not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

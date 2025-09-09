@@ -1,0 +1,781 @@
+{
+  "paths": {
+    "/api/lectures": {
+      "get": {
+        "summary": "Get all lectures",
+        "description": "Retrieve a paginated list of lectures with optional filtering",
+        "tags": ["Lectures"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "description": "Filter by language",
+            "schema": {
+              "type": "string",
+              "example": "en"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "description": "Filter by CEFR level",
+            "schema": {
+              "type": "string",
+              "enum": ["A1", "A2", "B1", "B2", "C1", "C2"]
+            }
+          },
+          {
+            "name": "typeWrite",
+            "in": "query",
+            "description": "Filter by content type",
+            "schema": {
+              "type": "string",
+              "example": "Article"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of lectures retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lectures retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../schemas/common.json#/components/schemas/Lecture"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "../schemas/common.json#/components/schemas/PaginationResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new lecture",
+        "description": "Create a new educational lecture with content, level, and metadata",
+        "tags": ["Lectures"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/common.json#/components/schemas/Lecture"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lecture created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lecture created successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Lecture"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lectures/{id}": {
+      "get": {
+        "summary": "Get lecture by ID",
+        "description": "Retrieve a specific lecture by its unique identifier",
+        "tags": ["Lectures"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the lecture",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lecture found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lecture retrieved successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Lecture"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lecture not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update lecture",
+        "description": "Update an existing lecture with new content and metadata",
+        "tags": ["Lectures"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the lecture to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/common.json#/components/schemas/Lecture"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lecture updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lecture updated successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Lecture"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lecture not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete lecture",
+        "description": "Delete a lecture permanently",
+        "tags": ["Lectures"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the lecture to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lecture deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lecture deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lecture not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lectures/export-file": {
+      "get": {
+        "summary": "Export lectures to JSON",
+        "description": "Export all lectures to a downloadable JSON file",
+        "tags": ["Lectures"],
+        "responses": {
+          "200": {
+            "description": "Lectures exported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lectures exported successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../schemas/common.json#/components/schemas/Lecture"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lectures/import-file": {
+      "post": {
+        "summary": "Import lectures from JSON file",
+        "description": "Import lectures from an uploaded JSON file",
+        "tags": ["Lectures"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file containing lectures data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lectures imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lectures imported successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "description": "Number of lectures imported"
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "description": "Number of import errors"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lectures/generate-text": {
+      "post": {
+        "summary": "Generate lecture text with AI",
+        "description": "Generate educational content for a lecture using AI with streaming response",
+        "tags": ["Lectures"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "Topic or prompt for the lecture",
+                    "example": "The importance of renewable energy"
+                  },
+                  "level": {
+                    "type": "string",
+                    "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
+                    "description": "CEFR level for the content",
+                    "example": "B2"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for the lecture",
+                    "example": "en"
+                  },
+                  "typeWrite": {
+                    "type": "string",
+                    "description": "Type of content to generate",
+                    "example": "Article"
+                  },
+                  "time": {
+                    "type": "integer",
+                    "description": "Estimated reading time in seconds",
+                    "example": 300
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lecture text generated successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "description": "Streaming text response with generated content"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lectures/generate-topic-stream": {
+      "post": {
+        "summary": "Generate lecture topics with AI",
+        "description": "Generate educational topics for lectures using AI with streaming response",
+        "tags": ["Lectures"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "description": "Subject area for topic generation",
+                    "example": "Science"
+                  },
+                  "level": {
+                    "type": "string",
+                    "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
+                    "description": "CEFR level for the topics",
+                    "example": "B1"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for the topics",
+                    "example": "en"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "description": "Number of topics to generate",
+                    "example": 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Topics generated successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "description": "Streaming text response with generated topics"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lectures/generate-image/{idlecture}": {
+      "post": {
+        "summary": "Generate lecture image with AI",
+        "description": "Generate an image for a specific lecture using AI and update the lecture record",
+        "tags": ["Lectures"],
+        "parameters": [
+          {
+            "name": "idlecture",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lecture to generate image for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Image generated successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imageUrl": {
+                          "type": "string",
+                          "description": "URL of the generated image"
+                        },
+                        "lecture": {
+                          "$ref": "../schemas/common.json#/components/schemas/Lecture"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lecture not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lectures/image/{id}": {
+      "put": {
+        "summary": "Update lecture image",
+        "description": "Update the image URL for a specific lecture",
+        "tags": ["Lectures"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lecture to update image for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "img": {
+                    "type": "string",
+                    "description": "New image URL",
+                    "example": "https://example.com/new-image.jpg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lecture image updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Lecture image updated successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Lecture"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lecture not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

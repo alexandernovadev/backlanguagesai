@@ -1,0 +1,765 @@
+{
+  "paths": {
+    "/api/expressions": {
+      "get": {
+        "summary": "Get all expressions",
+        "description": "Retrieve a paginated list of expressions with optional filtering",
+        "tags": ["Expressions"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "description": "Filter by language",
+            "schema": {
+              "type": "string",
+              "example": "en"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "description": "Filter by difficulty level",
+            "schema": {
+              "type": "string",
+              "enum": ["easy", "medium", "hard"]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by expression type",
+            "schema": {
+              "type": "string",
+              "example": "idiom"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of expressions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../schemas/common.json#/components/schemas/Expression"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "../schemas/common.json#/components/schemas/PaginationResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new expression",
+        "description": "Create a new expression with all its properties",
+        "tags": ["Expressions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/common.json#/components/schemas/Expression"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Expression created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expression created successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Expression"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/{id}": {
+      "get": {
+        "summary": "Get expression by ID",
+        "description": "Retrieve a specific expression by its unique identifier",
+        "tags": ["Expressions"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the expression",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expression found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expression retrieved successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Expression"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Expression not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update expression",
+        "description": "Update an existing expression with new data",
+        "tags": ["Expressions"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the expression to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/common.json#/components/schemas/Expression"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Expression updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expression updated successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Expression"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Expression not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete expression",
+        "description": "Delete an expression permanently",
+        "tags": ["Expressions"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the expression to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expression deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expression deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Expression not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/generate": {
+      "post": {
+        "summary": "Generate expression with AI",
+        "description": "Generate a new expression with definition, examples, and metadata using AI",
+        "tags": ["Expressions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expression": {
+                    "type": "string",
+                    "description": "Expression to generate",
+                    "example": "break the ice"
+                  },
+                  "language": {
+                    "type": "string",
+                    "default": "en",
+                    "description": "Language code"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": ["openai", "deepseek"],
+                    "default": "openai",
+                    "description": "AI provider to use for generation"
+                  }
+                },
+                "required": ["expression"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Expression generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expression generated successfully"
+                    },
+                    "data": {
+                      "$ref": "../schemas/common.json#/components/schemas/Expression"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Expression is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/{idexpression}/generate-examples": {
+      "post": {
+        "summary": "Generate expression examples with AI",
+        "description": "Generate example sentences for a specific expression using AI",
+        "tags": ["Expressions"],
+        "parameters": [
+          {
+            "name": "idexpression",
+            "in": "path",
+            "required": true,
+            "description": "ID of the expression to generate examples for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expression": {
+                    "type": "string",
+                    "description": "Expression to generate examples for"
+                  },
+                  "language": {
+                    "type": "string",
+                    "default": "en",
+                    "description": "Language code"
+                  },
+                  "oldExamples": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Existing examples"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": ["openai", "deepseek"],
+                    "default": "openai",
+                    "description": "AI provider to use for generation"
+                  }
+                },
+                "required": ["expression"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Examples generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Examples generated successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "examples": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Expression is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Expression not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/{idexpression}/generate-image": {
+      "post": {
+        "summary": "Generate expression image with AI",
+        "description": "Generate an image for an expression using AI and update the expression record",
+        "tags": ["Expressions"],
+        "parameters": [
+          {
+            "name": "idexpression",
+            "in": "path",
+            "required": true,
+            "description": "ID of the expression to generate image for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "enum": ["openai", "google"],
+                    "default": "openai",
+                    "description": "AI provider to use for image generation"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Image generated successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imageUrl": {
+                          "type": "string",
+                          "description": "URL of the generated image"
+                        },
+                        "expression": {
+                          "$ref": "../schemas/common.json#/components/schemas/Expression"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Expression not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/export-file": {
+      "get": {
+        "summary": "Export expressions to JSON",
+        "description": "Export all expressions to a downloadable JSON file",
+        "tags": ["Expressions"],
+        "responses": {
+          "200": {
+            "description": "Expressions exported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions exported successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../schemas/common.json#/components/schemas/Expression"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expressions/import-file": {
+      "post": {
+        "summary": "Import expressions from JSON file",
+        "description": "Import expressions from an uploaded JSON file",
+        "tags": ["Expressions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JSON file containing expressions data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Expressions imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Expressions imported successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "imported": {
+                          "type": "integer",
+                          "description": "Number of expressions imported"
+                        },
+                        "errors": {
+                          "type": "integer",
+                          "description": "Number of import errors"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

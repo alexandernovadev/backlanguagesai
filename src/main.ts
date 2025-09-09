@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
+import { apiReference } from '@scalar/express-api-reference';
 
 import { connectDB } from "./app/db/mongoConnection";
 import { initializeBackupScheduler } from "./app/services/backup/backupSchedulerService";
@@ -70,7 +71,7 @@ app.use("/api", authMiddleware, UploadRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   successResponse(res, "Server is running", {
-    date: new Date().toISOString(),
+    date: "2025-09-09T18:08:59.207Z",
     version: VERSION,
     environment: NODE_ENV,
   });
@@ -83,6 +84,23 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
 
 // ---------- Init Function ----------
 async function init() {
+  // Setup Scalar documentation
+  if (NODE_ENV === "development") {
+    const openApiSpecPath = path.join(__dirname, "..", "openapi.json");
+    const spec = require(openApiSpecPath);
+    
+    app.use(
+      '/api-docs',
+      apiReference({
+        theme: 'purple',
+        spec: {
+          content: spec,
+        },
+      })
+    );
+    console.log("Scalar docs enabled at /api-docs");
+  }
+
   // Connect DB and start server
   connectDB()
     .then(() => {

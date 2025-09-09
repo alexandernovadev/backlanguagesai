@@ -1,5 +1,17 @@
 {
   "components": {
+    "parameters": {
+      "AuthorizationHeader": {
+        "name": "Authorization",
+        "in": "header",
+        "description": "Authorization header global",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "default": "gaott"
+        }
+      }
+    },
     "securitySchemes": {
       "BearerAuth": {
         "type": "http",

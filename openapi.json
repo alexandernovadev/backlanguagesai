@@ -71,6 +71,9 @@
               "type": "string",
               "example": "noun"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -175,7 +178,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/words/{id}": {
@@ -194,6 +202,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -257,6 +268,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -330,6 +344,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -393,6 +410,9 @@
               "type": "string",
               "example": "example"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -473,6 +493,9 @@
                 "hard"
               ]
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -540,6 +563,9 @@
               "type": "string",
               "example": "en"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -626,7 +652,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/words/import-file": {
@@ -707,7 +738,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/words/generate": {
@@ -771,7 +807,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/words/{idword}/generate-examples": {
@@ -790,6 +831,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -885,6 +929,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -958,6 +1005,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -1031,6 +1081,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -1104,6 +1157,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -1178,6 +1234,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -1264,6 +1323,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -1329,6 +1391,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -1421,6 +1486,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -1488,6 +1556,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -1578,6 +1649,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -1641,6 +1715,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -1754,6 +1831,9 @@
               "type": "string",
               "example": "idiom"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -1858,7 +1938,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/expressions/{id}": {
@@ -1877,6 +1962,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -1940,6 +2028,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -2013,6 +2104,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -2144,7 +2238,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/expressions/{idexpression}/generate-examples": {
@@ -2163,6 +2262,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -2286,6 +2388,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -2409,7 +2514,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/expressions/import-file": {
@@ -2490,7 +2600,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/lectures": {
@@ -2555,6 +2670,9 @@
               "type": "string",
               "example": "Article"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -2659,7 +2777,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/lectures/{id}": {
@@ -2678,6 +2801,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -2741,6 +2867,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -2814,6 +2943,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -2904,7 +3036,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/lectures/import-file": {
@@ -2985,7 +3122,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/lectures/generate-text": {
@@ -3072,7 +3214,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/lectures/generate-topic-stream": {
@@ -3154,7 +3301,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/lectures/generate-image/{idlecture}": {
@@ -3173,6 +3325,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -3247,6 +3402,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -3367,6 +3525,9 @@
                 "pending"
               ]
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -3471,7 +3632,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/users/{id}": {
@@ -3490,6 +3656,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -3553,6 +3722,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -3626,6 +3798,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -3713,7 +3888,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       },
       "put": {
         "summary": "Update current user profile",
@@ -3794,7 +3974,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/users/{id}/role": {
@@ -3813,6 +3998,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -3950,7 +4138,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/auth/register": {
@@ -4046,7 +4239,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/auth/login": {
@@ -4136,7 +4334,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/auth/logout": {
@@ -4177,7 +4380,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/auth/verify": {
@@ -4230,7 +4438,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/auth/refresh": {
@@ -4280,7 +4493,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/auth/forgot-password": {
@@ -4352,7 +4570,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/auth/reset-password": {
@@ -4420,7 +4643,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/auth/change-password": {
@@ -4498,7 +4726,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/labs": {
@@ -4560,6 +4793,9 @@
               "type": "string",
               "example": "grammar"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -4664,7 +4900,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/labs/{id}": {
@@ -4683,6 +4924,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -4746,6 +4990,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -4819,6 +5066,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "responses": {
@@ -4967,7 +5217,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/labs/{id}/submit": {
@@ -4986,6 +5241,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
         "requestBody": {
@@ -5149,7 +5407,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/labs/import-file": {
@@ -5230,7 +5493,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/upload/image": {
@@ -5341,7 +5609,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/upload/audio": {
@@ -5457,7 +5730,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/upload/document": {
@@ -5568,7 +5846,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/upload/json": {
@@ -5682,7 +5965,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     },
     "/api/upload/delete": {
@@ -5753,7 +6041,12 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorizationHeader"
+          }
+        ]
       }
     }
   },
@@ -6248,6 +6541,28 @@
             "description": "Difficulty level",
             "example": "B2"
           }
+        }
+      }
+    },
+    "parameters": {
+      "MiperroHeader": {
+        "name": "Miperro",
+        "in": "header",
+        "description": "Header personalizado global",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "default": "gaott"
+        }
+      },
+      "AuthorizationHeader": {
+        "name": "Authorization",
+        "in": "header",
+        "description": "Authorization header global",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "default": "gaott"
         }
       }
     }

@@ -70,6 +70,34 @@ function combinePaths() {
       if (data && data.paths) {
         // Resolver referencias en los paths
         const resolvedPaths = resolveRefs(data.paths);
+        
+        // Agregar header Miperro a todos los endpoints
+        let headersAdded = 0;
+        Object.keys(resolvedPaths).forEach(pathKey => {
+          const path = resolvedPaths[pathKey];
+          Object.keys(path).forEach(method => {
+            if (path[method] && typeof path[method] === 'object') {
+              if (!path[method].parameters) {
+                path[method].parameters = [];
+              }
+              // Agregar header Authorization si no existe
+              const hasAuthHeader = path[method].parameters.some(param => 
+                (param.name === 'Authorization' && param.in === 'header') || 
+                (param.$ref && param.$ref.includes('AuthorizationHeader'))
+              );
+              if (!hasAuthHeader) {
+                path[method].parameters.push({
+                  "$ref": "#/components/parameters/AuthorizationHeader"
+                });
+                headersAdded++;
+              }
+            }
+          });
+        });
+        if (headersAdded > 0) {
+          console.log(`🔧 Added Authorization header to ${headersAdded} endpoints`);
+        }
+        
         Object.assign(combinedPaths, resolvedPaths);
         console.log(`✅ Combined paths from ${file}`);
       }
@@ -81,7 +109,7 @@ function combinePaths() {
   return combinedPaths;
 }
 
-// Función para combinar schemas
+// Función para combinar schemas y parámetros
 function combineSchemas() {
   const schemasFile = path.join(
     __dirname,
@@ -93,12 +121,15 @@ function combineSchemas() {
   );
   const schemasData = readJsonFile(schemasFile);
 
-  if (schemasData && schemasData.components && schemasData.components.schemas) {
+  if (schemasData && schemasData.components) {
     console.log(`✅ Combined schemas from common.json`);
-    return schemasData.components.schemas;
+    return {
+      schemas: schemasData.components.schemas || {},
+      parameters: schemasData.components.parameters || {}
+    };
   }
 
-  return {};
+  return { schemas: {}, parameters: {} };
 }
 
 // Función principal
@@ -123,15 +154,20 @@ function buildApiDocs() {
   // Reemplazar completamente los paths con el orden correcto
   mainSpec.paths = combinedPaths;
 
-  // Actualizar schemas
+  // Actualizar schemas y parámetros
   if (mainSpec.components) {
     mainSpec.components.schemas = {
       ...mainSpec.components.schemas,
-      ...combinedSchemas,
+      ...combinedSchemas.schemas,
+    };
+    mainSpec.components.parameters = {
+      ...mainSpec.components.parameters,
+      ...combinedSchemas.parameters,
     };
   } else {
     mainSpec.components = {
-      schemas: combinedSchemas,
+      schemas: combinedSchemas.schemas,
+      parameters: combinedSchemas.parameters,
     };
   }
 

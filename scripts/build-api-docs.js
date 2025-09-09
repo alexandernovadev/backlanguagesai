@@ -94,6 +94,69 @@ function combineSchemas() {
   return {};
 }
 
+// Función para configurar autenticación
+function setupAuthentication(mainSpec) {
+  const jwt = require('jsonwebtoken');
+  require('dotenv').config();
+  
+  const JWT_SECRET = process.env.JWT_SECRET || "default_secret_key";
+  
+  // Usuario real basado en las credenciales de entorno
+  const realUser = {
+    _id: "real-user-id",
+    username: "novask88",
+    email: "nova@example.com", 
+    role: "admin",
+    firstName: "Nova",
+    lastName: "User",
+    isActive: true,
+    language: "en"
+  };
+  
+  // Generar token
+  const token = jwt.sign({ user: realUser }, JWT_SECRET, { expiresIn: "7d" });
+  
+  // Agregar configuración de seguridad
+  mainSpec.components = {
+    ...mainSpec.components,
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+        description: "JWT token obtained from /api/auth/login endpoint"
+      }
+    }
+  };
+  
+  // Configurar seguridad global
+  mainSpec.security = [
+    {
+      bearerAuth: []
+    }
+  ];
+  
+  // Agregar información de autenticación en la descripción
+  mainSpec.info.description = `A powerful AI-driven backend API for language learning applications
+
+🔑 **AUTHENTICATION REQUIRED**
+Most endpoints require authentication. Use the token below:
+
+**Token:** \`${token}\`
+
+**How to use:**
+1. Click the "Authorize" button (🔒) in Scalar
+2. Select "Bearer Token"
+3. Paste the token above
+4. Click "Authorize"
+
+**Alternative:** Use the login endpoint:
+POST /api/auth/login
+Body: {"username": "novask88", "password": "sashateamomucho"}`;
+  
+  return token;
+}
+
 // Función principal
 function buildApiDocs() {
   console.log('🚀 Building API documentation...');
@@ -128,6 +191,9 @@ function buildApiDocs() {
     };
   }
   
+  // Configurar autenticación automáticamente
+  const token = setupAuthentication(mainSpec);
+  
   // Escribir el archivo final
   const outputFile = path.join(__dirname, '..', 'openapi.json');
   fs.writeFileSync(outputFile, JSON.stringify(mainSpec, null, 2));
@@ -135,6 +201,8 @@ function buildApiDocs() {
   console.log(`✅ API documentation built successfully: ${outputFile}`);
   console.log(`📊 Total paths: ${Object.keys(mainSpec.paths).length}`);
   console.log(`📊 Total schemas: ${Object.keys(mainSpec.components.schemas).length}`);
+  console.log(`🔑 Authentication configured with token`);
+  console.log(`🚀 Ready to use in Scalar!`);
 }
 
 // Ejecutar si es llamado directamente

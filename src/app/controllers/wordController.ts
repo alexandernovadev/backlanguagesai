@@ -683,12 +683,9 @@ export const generateWordExamplesJson = async (req: Request, res: Response) => {
   }
 
   try {
-    const generated = await generateWordExamples(
-      word,
-      language,
-      oldExamples,
-      { provider }
-    );
+    const generated = await generateWordExamples(word, language, oldExamples, {
+      provider,
+    });
     const updated = await wordService.updateWordExamples(
       idword,
       generated.examples || []

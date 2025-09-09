@@ -599,6 +599,17 @@
         "tags": ["Words"],
         "parameters": [
           {
+            "name": "mode",
+            "in": "query",
+            "description": "Mode for retrieving cards",
+            "schema": {
+              "type": "string",
+              "enum": ["random", "review"],
+              "default": "random",
+              "example": "random"
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
             "description": "Number of cards to retrieve",
@@ -606,16 +617,17 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100,
-              "default": 20
+              "default": 30,
+              "example": 30
             }
           },
           {
-            "name": "level",
+            "name": "difficulty",
             "in": "query",
-            "description": "Filter by difficulty level",
+            "description": "Filter by difficulty levels (comma-separated)",
             "schema": {
               "type": "string",
-              "enum": ["easy", "medium", "hard"]
+              "example": "hard,medium"
             }
           }
         ],
@@ -668,6 +680,7 @@
           {
             "name": "type",
             "in": "query",
+            "required": true,
             "description": "Grammatical type to filter by",
             "schema": {
               "type": "string",
@@ -675,12 +688,32 @@
             }
           },
           {
-            "name": "language",
+            "name": "limit",
             "in": "query",
-            "description": "Language to filter by",
+            "description": "Number of words to retrieve",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          },
+          {
+            "name": "wordUser",
+            "in": "query",
+            "description": "Search term for filtering words",
             "schema": {
               "type": "string",
-              "example": "en"
+              "example": "example"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Specific fields to include in response",
+            "schema": {
+              "type": "string",
+              "example": "word,definition,type"
             }
           }
         ],
@@ -1006,7 +1039,7 @@
     "/api/words/{idword}/generate-code-switching": {
       "post": {
         "summary": "Generate code-switching examples",
-        "description": "Generate code-switching examples for a word using AI",
+        "description": "Generate code-switching examples for a word using AI. Requires either 'prompt' or 'word' in the request body.",
         "tags": ["Words"],
         "parameters": [
           {
@@ -1014,11 +1047,50 @@
             "in": "path",
             "required": true,
             "description": "ID of the word to generate code-switching examples for",
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "Prompt text for generation (alternative to 'word')"
+                  },
+                  "word": {
+                    "type": "string",
+                    "description": "Target word (alternative to 'prompt')"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for examples (e.g., 'en', 'es')",
+                    "example": "es"
+                  },
+                  "oldExamples": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Existing examples to avoid duplicates"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": ["openai", "other"],
+                    "default": "openai",
+                    "description": "AI provider to use"
+                  }
+                },
+                "required": ["language"],
+                "anyOf": [
+                  { "required": ["prompt"] },
+                  { "required": ["word"] }
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Code-switching examples generated successfully",
@@ -1027,22 +1099,14 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Code-switching examples generated successfully"
-                    },
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Code-switching examples generated successfully" },
                     "data": {
                       "type": "object",
                       "properties": {
                         "codeSwitching": {
                           "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
+                          "items": { "type": "string" }
                         }
                       }
                     }
@@ -1051,8 +1115,8 @@
               }
             }
           },
-          "404": {
-            "description": "Word not found",
+          "400": {
+            "description": "Missing required fields (prompt/word or language)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1061,8 +1125,8 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
+          "404": {
+            "description": "Word not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1781,446 +1845,6 @@
           },
           "401": {
             "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/words/anki-cards": {
-      "get": {
-        "summary": "Get Anki cards",
-        "description": "Retrieve words formatted as Anki cards with filtering options",
-        "tags": ["Words", "Anki"],
-        "parameters": [
-          {
-            "name": "mode",
-            "in": "query",
-            "description": "Mode for retrieving cards",
-            "schema": {
-              "type": "string",
-              "enum": ["random", "review"],
-              "default": "random",
-              "example": "random"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Number of cards to retrieve",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 30,
-              "example": 30
-            }
-          },
-          {
-            "name": "difficulty",
-            "in": "query",
-            "description": "Difficulty levels (comma-separated)",
-            "schema": {
-              "type": "string",
-              "example": "hard,medium"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Anki cards retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Anki cards retrieved successfully (random mode)"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "../schemas/common.json#/components/schemas/AnkiCard"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error retrieving Anki cards",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/words/by-type-optimized": {
-      "get": {
-        "summary": "Get words by type (optimized)",
-        "description": "Retrieve words filtered by type with optimized performance",
-        "tags": ["Words"],
-        "parameters": [
-          {
-            "name": "type",
-            "in": "query",
-            "required": true,
-            "description": "Word type to filter by",
-            "schema": {
-              "type": "string",
-              "example": "noun"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Number of words to retrieve",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 10,
-              "example": 10
-            }
-          },
-          {
-            "name": "wordUser",
-            "in": "query",
-            "description": "Search term for word filtering",
-            "schema": {
-              "type": "string",
-              "example": "example"
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "description": "Specific fields to return",
-            "schema": {
-              "type": "string",
-              "example": "word,definition"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Words by type retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Words of type noun retrieved successfully"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "../schemas/common.json#/components/schemas/Word"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Type parameter is required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error retrieving words by type",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/words/generate": {
-      "post": {
-        "summary": "Generate word using AI",
-        "description": "Generate a complete word with all its data using AI",
-        "tags": ["Words", "AI Generation"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["word"],
-                "properties": {
-                  "word": {
-                    "type": "string",
-                    "description": "The word to generate data for",
-                    "example": "example"
-                  },
-                  "language": {
-                    "type": "string",
-                    "description": "Target language for the word (optional)",
-                    "example": "en"
-                  },
-                  "provider": {
-                    "type": "string",
-                    "description": "AI provider to use",
-                    "enum": ["openai", "anthropic"],
-                    "default": "openai",
-                    "example": "openai"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Word generated and saved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Word generated and saved successfully"
-                    },
-                    "data": {
-                      "$ref": "../schemas/common.json#/components/schemas/Word"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request - Word is required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error generating or saving word",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/words/{idword}/generate-examples": {
-      "post": {
-        "summary": "Generate examples for a word",
-        "description": "Generate examples for an existing word using AI",
-        "tags": ["Words", "AI Generation"],
-        "parameters": [
-          {
-            "name": "idword",
-            "in": "path",
-            "required": true,
-            "description": "Word ID",
-            "schema": {
-              "type": "string",
-              "example": "68be381010f78de8a7a18a5f"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "word": {
-                    "type": "string",
-                    "description": "The word to generate examples for (required)",
-                    "example": "example"
-                  },
-                  "language": {
-                    "type": "string",
-                    "description": "Target language for the examples (optional)",
-                    "example": "en"
-                  },
-                  "oldExamples": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "Existing examples to consider (optional)",
-                    "example": ["This is an example sentence"]
-                  },
-                  "provider": {
-                    "type": "string",
-                    "description": "AI provider to use",
-                    "enum": ["openai", "anthropic"],
-                    "default": "openai",
-                    "example": "openai"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Examples generated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Examples generated successfully"
-                    },
-                    "data": {
-                      "$ref": "../schemas/common.json#/components/schemas/Word"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Word not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error generating examples",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/words/{idword}/generate-image": {
-      "post": {
-        "summary": "Generate image for a word",
-        "description": "Generate an image for an existing word using AI",
-        "tags": ["Words", "AI Generation"],
-        "parameters": [
-          {
-            "name": "idword",
-            "in": "path",
-            "required": true,
-            "description": "Word ID",
-            "schema": {
-              "type": "string",
-              "example": "68be381010f78de8a7a18a5f"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string",
-                    "description": "AI provider to use",
-                    "enum": ["openai", "anthropic"],
-                    "default": "openai",
-                    "example": "openai"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Image generated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Image generated successfully"
-                    },
-                    "data": {
-                      "$ref": "../schemas/common.json#/components/schemas/Word"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Word not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error generating image",
             "content": {
               "application/json": {
                 "schema": {

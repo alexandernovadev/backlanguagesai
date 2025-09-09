@@ -664,10 +664,9 @@
     "/api/words/anki-cards": {
       "get": {
         "summary": "Get Anki cards",
-        "description": "Retrieve words formatted as Anki cards with filtering options",
+        "description": "Retrieve words formatted as Anki flashcards for spaced repetition learning",
         "tags": [
-          "Words",
-          "Anki"
+          "Words"
         ],
         "parameters": [
           {
@@ -691,6 +690,7 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
+              "maximum": 100,
               "default": 30,
               "example": 30
             }
@@ -698,7 +698,7 @@
           {
             "name": "difficulty",
             "in": "query",
-            "description": "Difficulty levels (comma-separated)",
+            "description": "Filter by difficulty levels (comma-separated)",
             "schema": {
               "type": "string",
               "example": "hard,medium"
@@ -722,7 +722,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Anki cards retrieved successfully (random mode)"
+                      "example": "Anki cards retrieved successfully"
                     },
                     "data": {
                       "type": "array",
@@ -735,8 +735,8 @@
               }
             }
           },
-          "500": {
-            "description": "Error retrieving Anki cards",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -751,7 +751,7 @@
     "/api/words/by-type-optimized": {
       "get": {
         "summary": "Get words by type (optimized)",
-        "description": "Retrieve words filtered by type with optimized performance",
+        "description": "Retrieve words grouped by their grammatical type with optimized performance",
         "tags": [
           "Words"
         ],
@@ -760,7 +760,7 @@
             "name": "type",
             "in": "query",
             "required": true,
-            "description": "Word type to filter by",
+            "description": "Grammatical type to filter by",
             "schema": {
               "type": "string",
               "example": "noun"
@@ -780,7 +780,7 @@
           {
             "name": "wordUser",
             "in": "query",
-            "description": "Search term for word filtering",
+            "description": "Search term for filtering words",
             "schema": {
               "type": "string",
               "example": "example"
@@ -789,10 +789,10 @@
           {
             "name": "fields",
             "in": "query",
-            "description": "Specific fields to return",
+            "description": "Specific fields to include in response",
             "schema": {
               "type": "string",
-              "example": "word,definition"
+              "example": "word,definition,type"
             }
           },
           {
@@ -813,7 +813,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Words of type noun retrieved successfully"
+                      "example": "Words by type retrieved successfully"
                     },
                     "data": {
                       "type": "array",
@@ -826,18 +826,8 @@
               }
             }
           },
-          "400": {
-            "description": "Type parameter is required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error retrieving words by type",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -989,50 +979,24 @@
     },
     "/api/words/generate": {
       "post": {
-        "summary": "Generate word using AI",
-        "description": "Generate a complete word with all its data using AI",
+        "summary": "Generate word with AI",
+        "description": "Generate a new word with definition, examples, and metadata using AI",
         "tags": [
-          "Words",
-          "AI Generation"
+          "Words"
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "word"
-                ],
-                "properties": {
-                  "word": {
-                    "type": "string",
-                    "description": "The word to generate data for",
-                    "example": "example"
-                  },
-                  "language": {
-                    "type": "string",
-                    "description": "Target language for the word (optional)",
-                    "example": "en"
-                  },
-                  "provider": {
-                    "type": "string",
-                    "description": "AI provider to use",
-                    "enum": [
-                      "openai",
-                      "anthropic"
-                    ],
-                    "default": "openai",
-                    "example": "openai"
-                  }
-                }
+                "$ref": "#/components/schemas/AIGenerationRequest"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Word generated and saved successfully",
+            "description": "Word generated successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -1044,7 +1008,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Word generated and saved successfully"
+                      "example": "Word generated successfully"
                     },
                     "data": {
                       "$ref": "#/components/schemas/Word"
@@ -1055,7 +1019,7 @@
             }
           },
           "400": {
-            "description": "Bad request - Word is required",
+            "description": "Invalid request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1064,8 +1028,8 @@
               }
             }
           },
-          "500": {
-            "description": "Error generating or saving word",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -1084,21 +1048,19 @@
     },
     "/api/words/{idword}/generate-examples": {
       "post": {
-        "summary": "Generate examples for a word",
-        "description": "Generate examples for an existing word using AI",
+        "summary": "Generate word examples with AI",
+        "description": "Generate example sentences for a specific word using AI",
         "tags": [
-          "Words",
-          "AI Generation"
+          "Words"
         ],
         "parameters": [
           {
             "name": "idword",
             "in": "path",
             "required": true,
-            "description": "Word ID",
+            "description": "ID of the word to generate examples for",
             "schema": {
-              "type": "string",
-              "example": "68be381010f78de8a7a18a5f"
+              "type": "string"
             }
           },
           {
@@ -1106,41 +1068,21 @@
           }
         ],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "word": {
-                    "type": "string",
-                    "description": "The word to generate examples for (required)",
-                    "example": "example"
-                  },
                   "language": {
                     "type": "string",
-                    "description": "Target language for the examples (optional)",
+                    "description": "Language for examples",
                     "example": "en"
                   },
-                  "oldExamples": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "Existing examples to consider (optional)",
-                    "example": [
-                      "This is an example sentence"
-                    ]
-                  },
-                  "provider": {
-                    "type": "string",
-                    "description": "AI provider to use",
-                    "enum": [
-                      "openai",
-                      "anthropic"
-                    ],
-                    "default": "openai",
-                    "example": "openai"
+                  "count": {
+                    "type": "integer",
+                    "description": "Number of examples to generate",
+                    "example": 3
                   }
                 }
               }
@@ -1164,15 +1106,23 @@
                       "example": "Examples generated successfully"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/Word"
+                      "type": "object",
+                      "properties": {
+                        "examples": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
                     }
                   }
                 }
               }
             }
           },
-          "404": {
-            "description": "Word not found",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -1181,8 +1131,8 @@
               }
             }
           },
-          "500": {
-            "description": "Error generating examples",
+          "404": {
+            "description": "Word not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1197,7 +1147,7 @@
     "/api/words/{idword}/generate-code-switching": {
       "post": {
         "summary": "Generate code-switching examples",
-        "description": "Generate code-switching examples for a word using AI",
+        "description": "Generate code-switching examples for a word using AI. Requires either 'prompt' or 'word' in the request body.",
         "tags": [
           "Words"
         ],
@@ -1215,6 +1165,62 @@
             "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "Prompt text for generation (alternative to 'word')"
+                  },
+                  "word": {
+                    "type": "string",
+                    "description": "Target word (alternative to 'prompt')"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for examples (e.g., 'en', 'es')",
+                    "example": "es"
+                  },
+                  "oldExamples": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Existing examples to avoid duplicates"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "openai",
+                      "other"
+                    ],
+                    "default": "openai",
+                    "description": "AI provider to use"
+                  }
+                },
+                "required": [
+                  "language"
+                ],
+                "anyOf": [
+                  {
+                    "required": [
+                      "prompt"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "word"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Code-switching examples generated successfully",
@@ -1247,8 +1253,8 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
+          "400": {
+            "description": "Missing required fields (prompt/word or language)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1424,49 +1430,25 @@
     },
     "/api/words/{idword}/generate-image": {
       "post": {
-        "summary": "Generate image for a word",
-        "description": "Generate an image for an existing word using AI",
+        "summary": "Generate word image with AI",
+        "description": "Generate an image for a word using AI and update the word record",
         "tags": [
-          "Words",
-          "AI Generation"
+          "Words"
         ],
         "parameters": [
           {
             "name": "idword",
             "in": "path",
             "required": true,
-            "description": "Word ID",
+            "description": "ID of the word to generate image for",
             "schema": {
-              "type": "string",
-              "example": "68be381010f78de8a7a18a5f"
+              "type": "string"
             }
           },
           {
             "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string",
-                    "description": "AI provider to use",
-                    "enum": [
-                      "openai",
-                      "anthropic"
-                    ],
-                    "default": "openai",
-                    "example": "openai"
-                  }
-                }
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Image generated successfully",
@@ -1484,15 +1466,24 @@
                       "example": "Image generated successfully"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/Word"
+                      "type": "object",
+                      "properties": {
+                        "imageUrl": {
+                          "type": "string",
+                          "description": "URL of the generated image"
+                        },
+                        "word": {
+                          "$ref": "#/components/schemas/Word"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
           },
-          "404": {
-            "description": "Word not found",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -1501,8 +1492,8 @@
               }
             }
           },
-          "500": {
-            "description": "Error generating image",
+          "404": {
+            "description": "Word not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -7693,7 +7684,7 @@
         "required": true,
         "schema": {
           "type": "string",
-          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMDlUMjI6NDE6MTMuMzU1WiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0wOVQyMjo0MToxMy4zNTBaIn0sImlhdCI6MTc1NzQ1NzY3MywiZXhwIjoxNzU4MDYyNDczfQ.36Sqg_NvBejBQkWM5ZVjbonI2C5c8VIpGvFoAGIEDdg"
+          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMDlUMjM6MTI6MjcuMTk3WiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0wOVQyMzoxMjoyNy4xOTNaIn0sImlhdCI6MTc1NzQ1OTU0NywiZXhwIjoxNzU4MDY0MzQ3fQ.vcAYb3gcmKIXQGbQJ_vy2Bcjk5CbtnUFbGS8Gk5T6Y4"
         }
       }
     }

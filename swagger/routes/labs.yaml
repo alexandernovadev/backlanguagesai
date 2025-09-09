@@ -53,7 +53,8 @@ paths:
                     type: object
                     properties:
                       user:
-                        $ref: '#/components/schemas/AdminUser'
+                        type: object
+                        description: Created admin user object
         '401':
           description: Unauthorized - Token not provided
         '403':
@@ -112,7 +113,8 @@ paths:
                     type: string
                     example: "Backup sent by email successfully"
                   data:
-                    $ref: '#/components/schemas/BackupResult'
+                    type: object
+                    description: Backup result object
         '401':
           description: Unauthorized - Token not provided
         '403':
@@ -130,215 +132,6 @@ paths:
                   message:
                     type: string
                     example: "Error sending backup by email"
-
-components:
-  schemas:
-    AdminUser:
-      type: object
-      properties:
-        _id:
-          type: string
-          example: "507f1f77bcf86cd799439011"
-        username:
-          type: string
-          example: "admin"
-          description: Admin username
-        email:
-          type: string
-          example: "admin@example.com"
-          description: Admin email address
-        role:
-          type: string
-          enum: [admin]
-          example: "admin"
-          description: User role
-        firstName:
-          type: string
-          example: "System"
-          description: Admin first name
-        lastName:
-          type: string
-          example: "Administrator"
-          description: Admin last name
-        isActive:
-          type: boolean
-          example: true
-          description: Whether the user is active
-        createdAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-        updatedAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-      required:
-        - username
-        - email
-        - role
-        - firstName
-        - lastName
-        - isActive
-
-    BackupResult:
-      type: object
-      properties:
-        wordsCount:
-          type: integer
-          example: 150
-          description: Number of words in backup
-        lecturesCount:
-          type: integer
-          example: 25
-          description: Number of lectures in backup
-        expressionsCount:
-          type: integer
-          example: 75
-          description: Number of expressions in backup
-        examsCount:
-          type: integer
-          example: 10
-          description: Number of exams in backup
-        questionsCount:
-          type: integer
-          example: 50
-          description: Number of questions in backup
-        emailSent:
-          type: boolean
-          example: true
-          description: Whether the email was sent successfully
-        messageId:
-          type: string
-          example: "msg_123456789"
-          description: Email message ID (if sent successfully)
-        timestamp:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-          description: Backup timestamp
-        error:
-          type: string
-          example: null
-          description: Error message (if any)
-      required:
-        - wordsCount
-        - lecturesCount
-        - expressionsCount
-        - examsCount
-        - questionsCount
-        - emailSent
-        - timestamp
-
-    BackupCollection:
-      type: object
-      properties:
-        name:
-          type: string
-          example: "words"
-          description: Collection name
-        count:
-          type: integer
-          example: 150
-          description: Number of documents in collection
-        filename:
-          type: string
-          example: "words-backup-2025-01-15T10-30-00-000Z.json"
-          description: Backup filename
-        size:
-          type: string
-          example: "2.5MB"
-          description: File size
-        status:
-          type: string
-          enum: [success, error, skipped]
-          example: "success"
-          description: Backup status
-
-    BackupEmailConfig:
-      type: object
-      properties:
-        recipient:
-          type: string
-          example: "admin@example.com"
-          description: Email recipient
-        subject:
-          type: string
-          example: "🔒 Backup Diario - LanguageAI [15/01/2025]"
-          description: Email subject
-        enabled:
-          type: boolean
-          example: true
-          description: Whether email backup is enabled
-        cronSchedule:
-          type: string
-          example: "0 30 23 * * *"
-          description: Cron schedule for automatic backups
-        timezone:
-          type: string
-          example: "America/New_York"
-          description: Timezone for cron schedule
-
-    BackupSchedulerStatus:
-      type: object
-      properties:
-        isActive:
-          type: boolean
-          example: true
-          description: Whether the backup scheduler is active
-        lastRunTime:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-          description: Last backup run time
-        nextRunTime:
-          type: string
-          format: date-time
-          example: "2025-01-16T10:30:00.000Z"
-          description: Next scheduled backup time
-        totalRuns:
-          type: integer
-          example: 30
-          description: Total number of backup runs
-        successfulRuns:
-          type: integer
-          example: 28
-          description: Number of successful backup runs
-        failedRuns:
-          type: integer
-          example: 2
-          description: Number of failed backup runs
-        schedule:
-          type: string
-          example: "0 30 23 * * *"
-          description: Current cron schedule
-        timezone:
-          type: string
-          example: "America/New_York"
-          description: Scheduler timezone
-
-    ErrorResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-        message:
-          type: string
-          example: "An error occurred"
-        error:
-          type: string
-          example: "Detailed error message"
-        timestamp:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT token for authentication
 
 tags:
   - name: Labs

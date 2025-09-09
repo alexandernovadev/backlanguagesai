@@ -19,11 +19,11 @@ paths:
               type: object
               properties:
                 username:
-                  type: string
                   description: Username or email for authentication
+                  example: "novask88"
                 password:
-                  type: string
                   description: User password
+                  example: "sashateamomucho"
               required:
                 - username
                 - password
@@ -53,7 +53,8 @@ paths:
                         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                         description: JWT refresh token
                       user:
-                        $ref: '#/components/schemas/User'
+                        type: object
+                        description: User information
         '400':
           description: Username and password are required
         '401':
@@ -105,7 +106,8 @@ paths:
                         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                         description: New JWT refresh token
                       user:
-                        $ref: '#/components/schemas/User'
+                        type: object
+                        description: User information
         '400':
           description: Refresh token is required
         '401':
@@ -232,7 +234,8 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/User'
+                          type: object
+                          description: User object
                       total:
                         type: integer
                         example: 100
@@ -261,7 +264,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserInput'
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Unique username
+                email:
+                  type: string
+                  description: Unique email address
+                password:
+                  type: string
+                  description: User password
+                role:
+                  type: string
+                  enum: [admin, teacher, student]
+                  description: User role
+                firstName:
+                  type: string
+                  description: User first name
+                lastName:
+                  type: string
+                  description: User last name
+                address:
+                  type: string
+                  description: User address
+                phone:
+                  type: string
+                  description: User phone number
+              required:
+                - username
+                - email
+                - password
+                - role
       responses:
         '201':
           description: User created successfully
@@ -277,7 +311,8 @@ paths:
                     type: string
                     example: "User created successfully"
                   data:
-                    $ref: '#/components/schemas/User'
+                    type: object
+                    description: Created user object
         '400':
           description: Validation error
           content:
@@ -328,7 +363,8 @@ paths:
                     type: string
                     example: "User found"
                   data:
-                    $ref: '#/components/schemas/User'
+                    type: object
+                    description: User object
         '401':
           description: Unauthorized - Token not provided
         '403':
@@ -357,7 +393,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserInput'
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Updated username
+                email:
+                  type: string
+                  description: Updated email address
+                firstName:
+                  type: string
+                  description: Updated first name
+                lastName:
+                  type: string
+                  description: Updated last name
+                address:
+                  type: string
+                  description: Updated address
+                phone:
+                  type: string
+                  description: Updated phone number
+                isActive:
+                  type: boolean
+                  description: Updated active status
       responses:
         '200':
           description: User updated successfully
@@ -373,7 +431,8 @@ paths:
                     type: string
                     example: "User updated successfully"
                   data:
-                    $ref: '#/components/schemas/User'
+                    type: object
+                    description: Updated user object
         '400':
           description: Validation error
         '401':
@@ -414,7 +473,8 @@ paths:
                     type: string
                     example: "User deleted successfully"
                   data:
-                    $ref: '#/components/schemas/User'
+                    type: object
+                    description: Deleted user object
         '401':
           description: Unauthorized - Token not provided
         '403':
@@ -460,7 +520,8 @@ paths:
                       users:
                         type: array
                         items:
-                          $ref: '#/components/schemas/User'
+                          type: object
+                          description: User object
         '401':
           description: Unauthorized - Token not provided
         '403':
@@ -526,7 +587,8 @@ paths:
                     type: string
                     example: "Import completed successfully"
                   data:
-                    $ref: '#/components/schemas/ImportResult'
+                    type: object
+                    description: Import result object
         '400':
           description: Bad request - Invalid file format or parameters
           content:
@@ -546,222 +608,6 @@ paths:
           description: Forbidden - Invalid token
         '500':
           description: Internal server error during import
-
-components:
-  schemas:
-    User:
-      type: object
-      properties:
-        _id:
-          type: string
-          example: "507f1f77bcf86cd799439011"
-        username:
-          type: string
-          example: "john_doe"
-          description: Unique username
-        email:
-          type: string
-          example: "john.doe@example.com"
-          description: Unique email address
-        role:
-          type: string
-          enum: [admin, teacher, student]
-          example: "student"
-          description: User role
-        firstName:
-          type: string
-          nullable: true
-          example: "John"
-          description: User's first name
-        lastName:
-          type: string
-          nullable: true
-          example: "Doe"
-          description: User's last name
-        image:
-          type: string
-          nullable: true
-          example: "https://res.cloudinary.com/example/image/upload/v1234567890/user.jpg"
-          description: User profile image URL
-        language:
-          type: string
-          enum: [es, en, fr, de, it, pt]
-          example: "en"
-          description: User's preferred language
-        isActive:
-          type: boolean
-          example: true
-          description: Whether the user account is active
-        address:
-          type: string
-          nullable: true
-          example: "123 Main St, City, Country"
-          description: User's address
-        phone:
-          type: string
-          nullable: true
-          example: "+1234567890"
-          description: User's phone number
-        lastLogin:
-          type: string
-          format: date-time
-          nullable: true
-          example: "2025-01-15T10:30:00.000Z"
-          description: Last login timestamp
-        createdAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-        updatedAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-      required:
-        - username
-        - email
-        - role
-        - language
-        - isActive
-
-    UserInput:
-      type: object
-      properties:
-        username:
-          type: string
-          minLength: 3
-          maxLength: 50
-          description: Unique username
-        email:
-          type: string
-          format: email
-          description: Unique email address
-        password:
-          type: string
-          minLength: 6
-          description: User password (will be hashed)
-        role:
-          type: string
-          enum: [admin, teacher, student]
-          default: student
-          description: User role
-        firstName:
-          type: string
-          maxLength: 50
-          description: User's first name
-        lastName:
-          type: string
-          maxLength: 50
-          description: User's last name
-        image:
-          type: string
-          description: User profile image URL
-        language:
-          type: string
-          enum: [es, en, fr, de, it, pt]
-          default: es
-          description: User's preferred language
-        isActive:
-          type: boolean
-          default: true
-          description: Whether the user account is active
-        address:
-          type: string
-          maxLength: 200
-          description: User's address
-        phone:
-          type: string
-          maxLength: 20
-          description: User's phone number
-      required:
-        - username
-        - email
-        - password
-        - role
-        - language
-
-    ImportResult:
-      type: object
-      properties:
-        totalItems:
-          type: integer
-          example: 50
-        totalInserted:
-          type: integer
-          example: 48
-        totalUpdated:
-          type: integer
-          example: 0
-        totalSkipped:
-          type: integer
-          example: 2
-        totalErrors:
-          type: integer
-          example: 0
-        batches:
-          type: array
-          items:
-            $ref: '#/components/schemas/BatchResult'
-        summary:
-          $ref: '#/components/schemas/ImportSummary'
-
-    BatchResult:
-      type: object
-      properties:
-        batchIndex:
-          type: integer
-          example: 0
-        processed:
-          type: integer
-          example: 10
-        inserted:
-          type: integer
-          example: 9
-        updated:
-          type: integer
-          example: 0
-        skipped:
-          type: integer
-          example: 1
-        errors:
-          type: integer
-          example: 0
-
-    ImportSummary:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: "Import completed. 48 inserted, 0 updated, 2 skipped, 0 errors"
-        duration:
-          type: integer
-          example: 1250
-
-    ErrorResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-        message:
-          type: string
-          example: "An error occurred"
-        error:
-          type: string
-          example: "Detailed error message"
-        timestamp:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT token for authentication
 
 tags:
   - name: Users

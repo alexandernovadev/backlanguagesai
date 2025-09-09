@@ -60,7 +60,8 @@ paths:
                     type: string
                     example: "Expression generated successfully"
                   data:
-                    $ref: '#/components/schemas/Expression'
+                    type: object
+                    description: Generated expression object
         '400':
           description: Prompt is required
           content:
@@ -119,7 +120,8 @@ paths:
                     type: string
                     example: "Expression image updated successfully"
                   data:
-                    $ref: '#/components/schemas/Expression'
+                    type: object
+                    description: Updated expression object
         '400':
           description: Expression prompt is required
         '404':
@@ -170,7 +172,8 @@ paths:
                     type: object
                     properties:
                       expression:
-                        $ref: '#/components/schemas/Expression'
+                        type: object
+                        description: Expression object with updated chat
         '400':
           description: Message is required
         '404':
@@ -206,7 +209,8 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ChatMessage'
+                      type: object
+                      description: Chat message object
         '404':
           description: Expression not found
         '500':
@@ -343,7 +347,8 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Expression'
+                          type: object
+                          description: Expression object
                       total:
                         type: integer
                         example: 25
@@ -415,7 +420,8 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/ExpressionLight'
+                          type: object
+                          description: Lightweight expression object
                       total:
                         type: integer
                         example: 50
@@ -455,7 +461,8 @@ paths:
                     type: string
                     example: "Expression retrieved successfully"
                   data:
-                    $ref: '#/components/schemas/Expression'
+                    type: object
+                    description: Expression object
         '404':
           description: Expression not found
         '500':
@@ -550,7 +557,8 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Expression'
+                          type: object
+                          description: Expression object
                       total:
                         type: integer
                         example: 100
@@ -572,7 +580,43 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExpressionInput'
+              type: object
+              properties:
+                expression:
+                  type: string
+                  description: The expression text
+                definition:
+                  type: string
+                  description: Definition of the expression
+                context:
+                  type: string
+                  description: Context or usage example
+                language:
+                  type: string
+                  enum: [en, es, pt]
+                  description: Language of the expression
+                difficulty:
+                  type: string
+                  enum: [easy, medium, hard]
+                  description: Difficulty level
+                type:
+                  type: array
+                  items:
+                    type: string
+                    enum: [idiom, phrase, collocation, slang, formal, informal]
+                  description: Types of expression
+                spanish:
+                  type: object
+                  properties:
+                    expression:
+                      type: string
+                    definition:
+                      type: string
+                  description: Spanish translation
+              required:
+                - expression
+                - definition
+                - language
       responses:
         '201':
           description: Expression created successfully
@@ -588,7 +632,8 @@ paths:
                     type: string
                     example: "Expression created successfully"
                   data:
-                    $ref: '#/components/schemas/Expression'
+                    type: object
+                    description: Created expression object
         '400':
           description: Validation error
           content:
@@ -632,7 +677,8 @@ paths:
                     type: string
                     example: "Expression retrieved successfully"
                   data:
-                    $ref: '#/components/schemas/Expression'
+                    type: object
+                    description: Expression object
         '404':
           description: Expression not found
         '500':
@@ -654,7 +700,39 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExpressionInput'
+              type: object
+              properties:
+                expression:
+                  type: string
+                  description: The expression text
+                definition:
+                  type: string
+                  description: Definition of the expression
+                context:
+                  type: string
+                  description: Context or usage example
+                language:
+                  type: string
+                  enum: [en, es, pt]
+                  description: Language of the expression
+                difficulty:
+                  type: string
+                  enum: [easy, medium, hard]
+                  description: Difficulty level
+                type:
+                  type: array
+                  items:
+                    type: string
+                    enum: [idiom, phrase, collocation, slang, formal, informal]
+                  description: Types of expression
+                spanish:
+                  type: object
+                  properties:
+                    expression:
+                      type: string
+                    definition:
+                      type: string
+                  description: Spanish translation
       responses:
         '200':
           description: Expression updated successfully
@@ -670,7 +748,8 @@ paths:
                     type: string
                     example: "Expression updated successfully"
                   data:
-                    $ref: '#/components/schemas/Expression'
+                    type: object
+                    description: Updated expression object
         '404':
           description: Expression not found
         '500':
@@ -744,7 +823,8 @@ paths:
                       expressions:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Expression'
+                          type: object
+                          description: Expression object
         '401':
           description: Unauthorized - Token not provided
         '403':
@@ -808,7 +888,8 @@ paths:
                     type: string
                     example: "Import completed successfully"
                   data:
-                    $ref: '#/components/schemas/ImportResult'
+                    type: object
+                    description: Import result object
         '400':
           description: Bad request - Invalid file format or parameters
           content:
@@ -824,342 +905,6 @@ paths:
                     example: "Invalid JSON file format"
         '500':
           description: Internal server error during import
-
-components:
-  schemas:
-    Expression:
-      type: object
-      properties:
-        _id:
-          type: string
-          example: "507f1f77bcf86cd799439011"
-        expression:
-          type: string
-          example: "Break the ice"
-          description: The idiomatic expression
-          minLength: 1
-          maxLength: 200
-        definition:
-          type: string
-          example: "To initiate conversation in a social setting"
-          description: Definition of the expression
-          minLength: 5
-          maxLength: 1000
-        examples:
-          type: array
-          items:
-            type: string
-          example: ["Let's break the ice with some small talk", "She broke the ice by telling a joke"]
-          description: Example sentences using the expression
-        type:
-          type: array
-          items:
-            type: string
-            enum: [idiom, phrase, collocation, slang, formal, informal]
-          example: ["idiom"]
-          description: Types of expression
-        context:
-          type: string
-          nullable: true
-          example: "Social situations, meetings, first encounters"
-          description: Context where the expression is used
-          maxLength: 500
-        difficulty:
-          type: string
-          enum: [easy, medium, hard]
-          example: "medium"
-          description: Difficulty level of the expression
-        img:
-          type: string
-          nullable: true
-          example: "https://res.cloudinary.com/example/image/upload/v1234567890/expression.png"
-          description: Optional image URL
-        language:
-          type: string
-          enum: [en, es, pt]
-          example: "en"
-          description: Language code (ISO 639-1)
-        spanish:
-          type: object
-          nullable: true
-          properties:
-            definition:
-              type: string
-              example: "Iniciar conversación en un entorno social"
-              minLength: 5
-              maxLength: 1000
-            expression:
-              type: string
-              example: "Romper el hielo"
-              minLength: 1
-              maxLength: 200
-          description: Spanish translation of the expression
-        chat:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChatMessage'
-          description: Chat history for this expression
-        createdAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-        updatedAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-      required:
-        - expression
-        - definition
-        - language
-
-    ExpressionInput:
-      type: object
-      properties:
-        expression:
-          type: string
-          minLength: 1
-          maxLength: 200
-          description: The idiomatic expression
-        definition:
-          type: string
-          minLength: 5
-          maxLength: 1000
-          description: Definition of the expression
-        examples:
-          type: array
-          items:
-            type: string
-          description: Example sentences using the expression
-        type:
-          type: array
-          items:
-            type: string
-            enum: [idiom, phrase, collocation, slang, formal, informal]
-          description: Types of expression
-        context:
-          type: string
-          maxLength: 500
-          description: Context where the expression is used
-        difficulty:
-          type: string
-          enum: [easy, medium, hard]
-          description: Difficulty level of the expression
-        img:
-          type: string
-          description: Optional image URL
-        language:
-          type: string
-          enum: [en, es, pt]
-          description: Language code (ISO 639-1)
-        spanish:
-          type: object
-          properties:
-            definition:
-              type: string
-              minLength: 5
-              maxLength: 1000
-            expression:
-              type: string
-              minLength: 1
-              maxLength: 200
-          description: Spanish translation of the expression
-      required:
-        - expression
-        - definition
-        - language
-
-    ExpressionLight:
-      type: object
-      properties:
-        _id:
-          type: string
-          example: "507f1f77bcf86cd799439011"
-        expression:
-          type: string
-          example: "Break the ice"
-        definition:
-          type: string
-          example: "To initiate conversation in a social setting"
-        difficulty:
-          type: string
-          enum: [easy, medium, hard]
-          example: "medium"
-        language:
-          type: string
-          enum: [en, es, pt]
-          example: "en"
-        type:
-          type: array
-          items:
-            type: string
-            enum: [idiom, phrase, collocation, slang, formal, informal]
-          example: ["idiom"]
-        img:
-          type: string
-          nullable: true
-          example: "https://res.cloudinary.com/example/image/upload/v1234567890/expression.png"
-        createdAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-
-    ChatMessage:
-      type: object
-      properties:
-        id:
-          type: string
-          example: "msg_123456789"
-          description: Unique message ID
-        role:
-          type: string
-          enum: [user, assistant]
-          example: "user"
-          description: Role of the message sender
-        content:
-          type: string
-          example: "Can you explain this expression in more detail?"
-          description: Message content
-        timestamp:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-          description: Message timestamp
-      required:
-        - id
-        - role
-        - content
-        - timestamp
-
-    ImportResult:
-      type: object
-      properties:
-        totalExpressions:
-          type: integer
-          example: 50
-        totalBatches:
-          type: integer
-          example: 5
-        totalValid:
-          type: integer
-          example: 48
-        totalInvalid:
-          type: integer
-          example: 2
-        totalDuplicates:
-          type: integer
-          example: 0
-        totalErrors:
-          type: integer
-          example: 0
-        totalInserted:
-          type: integer
-          example: 48
-        totalUpdated:
-          type: integer
-          example: 0
-        totalSkipped:
-          type: integer
-          example: 2
-        batches:
-          type: array
-          items:
-            $ref: '#/components/schemas/BatchResult'
-        summary:
-          $ref: '#/components/schemas/ImportSummary'
-
-    BatchResult:
-      type: object
-      properties:
-        batchIndex:
-          type: integer
-          example: 0
-        processed:
-          type: integer
-          example: 10
-        valid:
-          type: integer
-          example: 9
-        invalid:
-          type: integer
-          example: 1
-        duplicates:
-          type: integer
-          example: 0
-        errors:
-          type: integer
-          example: 0
-        inserted:
-          type: integer
-          example: 9
-        updated:
-          type: integer
-          example: 0
-        skipped:
-          type: integer
-          example: 1
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProcessingResult'
-          description: Optional detailed results for each expression in the batch
-
-    ProcessingResult:
-      type: object
-      properties:
-        index:
-          type: integer
-          example: 0
-        data:
-          $ref: '#/components/schemas/Expression'
-        status:
-          type: string
-          enum: [valid, invalid, duplicate, error]
-          example: "valid"
-        validationResult:
-          $ref: '#/components/schemas/ValidationResult'
-        error:
-          type: string
-          example: "Database connection error"
-        action:
-          type: string
-          enum: [skipped, inserted, updated, merged]
-          example: "inserted"
-
-    ValidationResult:
-      type: object
-      properties:
-        isValid:
-          type: boolean
-          example: true
-        errors:
-          type: array
-          items:
-            type: string
-          example: []
-        warnings:
-          type: array
-          items:
-            type: string
-          example: ["Definition is very long (>500 characters)"]
-
-    ImportSummary:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: "Import completed. 48 inserted, 0 updated, 2 skipped, 0 errors"
-        duration:
-          type: integer
-          example: 1250
-
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
 
 tags:
   - name: Expressions

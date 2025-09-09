@@ -28,7 +28,8 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Word'
+                      type: object
+                      description: Word object
         '500':
           description: Internal server error
 
@@ -64,7 +65,8 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Word'
+                      type: object
+                      description: Word object
         '500':
           description: Internal server error
 
@@ -89,7 +91,8 @@ paths:
                     type: string
                     example: "Review statistics retrieved successfully"
                   data:
-                    $ref: '#/components/schemas/ReviewStats'
+                    type: object
+                    description: Review statistics object
         '500':
           description: Internal server error
 
@@ -136,7 +139,8 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Word'
+                      type: object
+                      description: Word object
         '500':
           description: Internal server error
 
@@ -311,7 +315,8 @@ paths:
                     type: string
                     example: "Get Word successFully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Word object
         '404':
           description: Word not found
         '500':
@@ -364,7 +369,8 @@ paths:
                     type: string
                     example: "Word review updated successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Updated word object
         '400':
           description: Invalid parameters
         '404':
@@ -409,7 +415,8 @@ paths:
                     type: string
                     example: "Chat message added successfully"
                   word:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Word object with updated chat
         '400':
           description: Message is required
         '404':
@@ -436,7 +443,8 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ChatMessage'
+                  type: object
+                  description: Chat message object
         '500':
           description: Internal server error
 
@@ -463,7 +471,8 @@ paths:
                     type: string
                     example: "Chat history cleared successfully"
                   word:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Word object
         '404':
           description: Word not found
         '500':
@@ -545,7 +554,8 @@ paths:
                     type: string
                     example: "Word generated and saved successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Generated word object
         '400':
           description: Prompt is required
         '500':
@@ -600,7 +610,8 @@ paths:
                     type: string
                     example: "Word examples updated successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Updated word object
         '400':
           description: Prompt (word) is required
         '404':
@@ -657,7 +668,8 @@ paths:
                     type: string
                     example: "Word code-switching updated successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Updated word object
         '400':
           description: Prompt (word) is required
         '404':
@@ -714,7 +726,8 @@ paths:
                     type: string
                     example: "Word types updated successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Updated word object
         '400':
           description: Prompt (word) is required
         '404':
@@ -771,7 +784,8 @@ paths:
                     type: string
                     example: "Word synonyms updated successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Updated word object
         '400':
           description: Prompt (word) is required
         '404':
@@ -822,7 +836,8 @@ paths:
                     type: string
                     example: "Word image updated successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Updated word object
         '400':
           description: Word prompt is required
         '500':
@@ -986,7 +1001,8 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Word'
+                          type: object
+                          description: Word object
                       total:
                         type: integer
                         example: 150
@@ -1008,7 +1024,58 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WordInput'
+              type: object
+              properties:
+                word:
+                  type: string
+                  description: The word text
+                definition:
+                  type: string
+                  description: Definition of the word
+                language:
+                  type: string
+                  enum: [en, es, pt]
+                  description: Language of the word
+                difficulty:
+                  type: string
+                  enum: [easy, medium, hard]
+                  description: Difficulty level
+                type:
+                  type: array
+                  items:
+                    type: string
+                    enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
+                  description: Grammatical types
+                examples:
+                  type: array
+                  items:
+                    type: string
+                  description: Usage examples
+                synonyms:
+                  type: array
+                  items:
+                    type: string
+                  description: Synonyms
+                codeSwitching:
+                  type: array
+                  items:
+                    type: string
+                  description: Code-switching examples
+                IPA:
+                  type: string
+                  description: IPA phonetic transcription
+                spanish:
+                  type: object
+                  properties:
+                    word:
+                      type: string
+                    definition:
+                      type: string
+                  description: Spanish translation
+              required:
+                - word
+                - definition
+                - language
       responses:
         '201':
           description: Word created successfully
@@ -1024,7 +1091,8 @@ paths:
                     type: string
                     example: "Word created successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Created word object
         '400':
           description: Validation error
         '500':
@@ -1057,7 +1125,8 @@ paths:
                     type: string
                     example: "Word listed by Id successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Word object
         '404':
           description: Word not found
         '500':
@@ -1079,7 +1148,54 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WordInput'
+              type: object
+              properties:
+                word:
+                  type: string
+                  description: The word text
+                definition:
+                  type: string
+                  description: Definition of the word
+                language:
+                  type: string
+                  enum: [en, es, pt]
+                  description: Language of the word
+                difficulty:
+                  type: string
+                  enum: [easy, medium, hard]
+                  description: Difficulty level
+                type:
+                  type: array
+                  items:
+                    type: string
+                    enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
+                  description: Grammatical types
+                examples:
+                  type: array
+                  items:
+                    type: string
+                  description: Usage examples
+                synonyms:
+                  type: array
+                  items:
+                    type: string
+                  description: Synonyms
+                codeSwitching:
+                  type: array
+                  items:
+                    type: string
+                  description: Code-switching examples
+                IPA:
+                  type: string
+                  description: IPA phonetic transcription
+                spanish:
+                  type: object
+                  properties:
+                    word:
+                      type: string
+                    definition:
+                      type: string
+                  description: Spanish translation
       responses:
         '200':
           description: Word updated successfully
@@ -1095,7 +1211,8 @@ paths:
                     type: string
                     example: "Word updated successfully"
                   data:
-                    $ref: '#/components/schemas/Word'
+                    type: object
+                    description: Updated word object
         '404':
           description: Word not found
         '500':
@@ -1256,7 +1373,8 @@ paths:
                       words:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Word'
+                          type: object
+                          description: Word object
         '401':
           description: Unauthorized - Token not provided
         '403':
@@ -1320,7 +1438,8 @@ paths:
                     type: string
                     example: "Import completed successfully"
                   data:
-                    $ref: '#/components/schemas/ImportResult'
+                    type: object
+                    description: Import result object
         '400':
           description: Bad request - Invalid file format or parameters
           content:
@@ -1336,337 +1455,6 @@ paths:
                     example: "Invalid JSON file format"
         '500':
           description: Internal server error during import
-
-components:
-  schemas:
-    Word:
-      type: object
-      properties:
-        _id:
-          type: string
-          example: "507f1f77bcf86cd799439011"
-        word:
-          type: string
-          example: "challenge"
-          minLength: 1
-          maxLength: 100
-        definition:
-          type: string
-          example: "A difficult task or situation that requires effort to overcome."
-          minLength: 5
-          maxLength: 1000
-        examples:
-          type: array
-          items:
-            type: string
-          example:
-            - "Starting a new job comes with its own set of challenges."
-            - "The project presented several challenges."
-        type:
-          type: array
-          items:
-            type: string
-            enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
-          example: ["noun", "verb"]
-        IPA:
-          type: string
-          example: "/ˈtʃæl.ɪn.dʒ/"
-        seen:
-          type: number
-          example: 5
-          minimum: 0
-        img:
-          type: string
-          nullable: true
-          example: "https://res.cloudinary.com/example/image/upload/v1234567890/challenge.png"
-          description: Optional image URL (can be empty or null)
-        difficulty:
-          type: string
-          enum: [easy, medium, hard]
-          example: "medium"
-          default: "hard"
-        sinonyms:
-          type: array
-          items:
-            type: string
-          example: ["difficulty", "obstacle", "hurdle"]
-        codeSwitching:
-          type: array
-          items:
-            type: string
-          example:
-            - "Enfrentamos varios challenges al implementar el proyecto."
-            - "La vida está llena de challenges que nos ayudan a crecer."
-        language:
-          type: string
-          example: "en"
-        spanish:
-          type: object
-          properties:
-            definition:
-              type: string
-              example: "Situaciones o tareas difíciles que requieren esfuerzo y determinación para superarse."
-              minLength: 5
-              maxLength: 1000
-            word:
-              type: string
-              example: "desafío"
-              minLength: 1
-              maxLength: 100
-        chat:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChatMessage'
-          description: Chat history with AI
-        createdAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-        updatedAt:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-      required:
-        - word
-        - definition
-        - language
-
-    WordInput:
-      type: object
-      properties:
-        word:
-          type: string
-          minLength: 1
-          maxLength: 100
-        definition:
-          type: string
-          minLength: 5
-          maxLength: 1000
-        examples:
-          type: array
-          items:
-            type: string
-        type:
-          type: array
-          items:
-            type: string
-            enum: [noun, verb, adjective, adverb, personal pronoun, possessive pronoun, preposition, conjunction, determiner, article, quantifier, interjection, auxiliary verb, modal verb, infinitive, participle, gerund, other, phrasal verb]
-        IPA:
-          type: string
-        seen:
-          type: number
-          minimum: 0
-        img:
-          type: string
-        difficulty:
-          type: string
-          enum: [easy, medium, hard]
-        sinonyms:
-          type: array
-          items:
-            type: string
-        codeSwitching:
-          type: array
-          items:
-            type: string
-        language:
-          type: string
-        spanish:
-          type: object
-          properties:
-            definition:
-              type: string
-              minLength: 5
-              maxLength: 1000
-            word:
-              type: string
-              minLength: 1
-              maxLength: 100
-      required:
-        - word
-        - definition
-        - language
-
-    ChatMessage:
-      type: object
-      properties:
-        id:
-          type: string
-          example: "abc123def"
-        role:
-          type: string
-          enum: [user, assistant]
-          example: "user"
-        content:
-          type: string
-          example: "Can you explain this word better?"
-        timestamp:
-          type: string
-          format: date-time
-          example: "2025-01-15T10:30:00.000Z"
-      required:
-        - id
-        - role
-        - content
-        - timestamp
-
-    ReviewStats:
-      type: object
-      properties:
-        totalWords:
-          type: integer
-          example: 150
-          description: Total number of words available for review
-        wordsReviewedToday:
-          type: integer
-          example: 25
-          description: Number of words reviewed today
-        wordsDueForReview:
-          type: integer
-          example: 45
-          description: Number of words due for review
-        averageSeen:
-          type: number
-          example: 3.2
-          description: Average number of times words have been seen
-        difficultyDistribution:
-          type: object
-          properties:
-            easy:
-              type: integer
-              example: 50
-            medium:
-              type: integer
-              example: 75
-            hard:
-              type: integer
-              example: 25
-          description: Distribution of words by difficulty level
-
-    ImportResult:
-      type: object
-      properties:
-        totalWords:
-          type: integer
-          example: 314
-        totalBatches:
-          type: integer
-          example: 32
-        totalValid:
-          type: integer
-          example: 310
-        totalInvalid:
-          type: integer
-          example: 2
-        totalDuplicates:
-          type: integer
-          example: 2
-        totalErrors:
-          type: integer
-          example: 0
-        totalInserted:
-          type: integer
-          example: 308
-        totalUpdated:
-          type: integer
-          example: 2
-        totalSkipped:
-          type: integer
-          example: 4
-        batches:
-          type: array
-          items:
-            $ref: '#/components/schemas/BatchResult'
-        summary:
-          $ref: '#/components/schemas/ImportSummary'
-
-    BatchResult:
-      type: object
-      properties:
-        batchIndex:
-          type: integer
-          example: 0
-        processed:
-          type: integer
-          example: 10
-        valid:
-          type: integer
-          example: 9
-        invalid:
-          type: integer
-          example: 1
-        duplicates:
-          type: integer
-          example: 0
-        errors:
-          type: integer
-          example: 0
-        inserted:
-          type: integer
-          example: 9
-        updated:
-          type: integer
-          example: 0
-        skipped:
-          type: integer
-          example: 1
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProcessingResult'
-          description: Optional detailed results for each word in the batch
-
-    ProcessingResult:
-      type: object
-      properties:
-        index:
-          type: integer
-          example: 0
-        data:
-          $ref: '#/components/schemas/Word'
-        status:
-          type: string
-          enum: [valid, invalid, duplicate, error]
-          example: "valid"
-        validationResult:
-          $ref: '#/components/schemas/ValidationResult'
-        error:
-          type: string
-          example: "Database connection error"
-        action:
-          type: string
-          enum: [skipped, inserted, updated, merged]
-          example: "inserted"
-
-    ValidationResult:
-      type: object
-      properties:
-        isValid:
-          type: boolean
-          example: true
-        errors:
-          type: array
-          items:
-            type: string
-          example: []
-        warnings:
-          type: array
-          items:
-            type: string
-          example: ["Definition is very long (>1,000 characters)"]
-
-    ImportSummary:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: "Import completed. 308 inserted, 2 updated, 4 skipped, 0 errors"
-        duration:
-          type: integer
-          example: 1250
 
 tags:
   - name: Words

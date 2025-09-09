@@ -14,8 +14,5 @@ export { wordTypesJson, wordTypesList } from './wordTypes';
 export type { 
   Topic, Skill, WordType, ExpressionType, ReadingType, 
   Difficulty, CertificationLevel, Language, UserRole, ChatRole,
-  GrammarTopic, GrammarTopicOption,
-  EnglishGrammarTopic, EnglishGrammarTopicOption,
-  SpanishGrammarTopic, SpanishGrammarTopicOption,
-  PortugueseGrammarTopic, PortugueseGrammarTopicOption
+  GrammarTopic, GrammarTopicOption 
 } from '../../../../../types/business';

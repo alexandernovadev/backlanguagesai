@@ -1,6 +1,6 @@
-import { PortugueseGrammarTopicOption } from "../../../../../types/business";
+import { GrammarTopicOption } from "../../../../../types/business";
 
-const grammarTopicsJson: PortugueseGrammarTopicOption[] = [
+const grammarTopicsJson: GrammarTopicOption[] = [
   {
     value: "sentence-basics",
     label: "Fundamentos da Frase",

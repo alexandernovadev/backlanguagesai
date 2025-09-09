@@ -9,9 +9,4 @@ export type { Skill } from './skills';
 export type { WordType } from './wordTypes';
 export type { ExpressionType } from './expressionTypes';
 export type { ReadingType } from './readingTypes';
-export type { 
-  GrammarTopic, GrammarTopicOption,
-  EnglishGrammarTopic, EnglishGrammarTopicOption,
-  SpanishGrammarTopic, SpanishGrammarTopicOption,
-  PortugueseGrammarTopic, PortugueseGrammarTopicOption
-} from './grammarTopics';
+export type { GrammarTopic, GrammarTopicOption } from './grammarTopics';

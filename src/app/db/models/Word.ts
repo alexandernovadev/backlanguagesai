@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { ChatMessage, IWord } from "../../../../types/models";
+import { chatRolesList, difficultyList, languagesList, wordTypesList } from "../../data/bussiness/shared";
 
 const ChatMessageSchema: Schema = new Schema<ChatMessage>({
   id: {
@@ -8,7 +9,7 @@ const ChatMessageSchema: Schema = new Schema<ChatMessage>({
   },
   role: {
     type: String,
-    enum: ["user", "assistant"],
+    enum: chatRolesList,
     required: true,
   },
   content: {
@@ -33,6 +34,7 @@ const WordSchema: Schema = new Schema<IWord>(
     language: {
       type: String,
       required: true,
+      enum: languagesList,
     },
     definition: {
       type: String,
@@ -50,27 +52,8 @@ const WordSchema: Schema = new Schema<IWord>(
     },
     type: {
       type: [String],
-      enum: [
-        "noun",
-        "verb",
-        "adjective",
-        "adverb",
-        "personal pronoun",
-        "possessive pronoun",
-        "preposition",
-        "conjunction",
-        "determiner",
-        "article",
-        "quantifier",
-        "interjection",
-        "auxiliary verb",
-        "modal verb",
-        "infinitive",
-        "participle",
-        "gerund",
-        "other",
-        "phrasal verb",
-      ],
+      // Que pasa si quiero aprender chino ???? en fin algun dia
+      enum: wordTypesList,
       default: [],
     },
     IPA: {
@@ -85,7 +68,7 @@ const WordSchema: Schema = new Schema<IWord>(
     },
     difficulty: {
       type: String,
-      enum: ["easy", "medium", "hard"],
+      enum: difficultyList,
       default: "hard",
     },
     codeSwitching: {

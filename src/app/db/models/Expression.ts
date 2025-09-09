@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { ChatMessage, IExpression } from "../../../../types/models";
+import { chatRolesList, difficultyList, expressionTypesList } from "../../data/bussiness/shared";
 
 const ChatMessageSchema: Schema = new Schema<ChatMessage>({
   id: {
@@ -8,7 +9,7 @@ const ChatMessageSchema: Schema = new Schema<ChatMessage>({
   },
   role: {
     type: String,
-    enum: ["user", "assistant"],
+    enum: chatRolesList,
     required: true,
   },
   content: {
@@ -46,14 +47,7 @@ const ExpressionSchema: Schema = new Schema<IExpression>(
     },
     type: {
       type: [String],
-      enum: [
-        "idiom",
-        "phrase",
-        "collocation",
-        "slang",
-        "formal",
-        "informal",
-      ],
+      enum: expressionTypesList,
       default: [],
     },
     context: {
@@ -65,7 +59,7 @@ const ExpressionSchema: Schema = new Schema<IExpression>(
     },
     difficulty: {
       type: String,
-      enum: ["easy", "medium", "hard"],
+      enum: difficultyList,
       default: "hard",
     },
     spanish: {

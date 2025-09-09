@@ -1,6 +1,5 @@
 // 📚 Exportación centralizada de datos en portugués
 export { grammarTopicsJson, grammarTopicsList } from './grammar';
-export { wordTypesJson, wordTypesList } from './wordType';
 
 // Re-exportar datos compartidos
 export * from '../shared';

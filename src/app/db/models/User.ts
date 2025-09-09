@@ -1,18 +1,19 @@
 import mongoose, { Schema } from "mongoose";
 import { IUser } from "../../../../types/models";
+import { systemRolesList, languagesList } from "../../data/bussiness/shared";
 
 const UserSchema: Schema = new Schema(
   {
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ["admin", "teacher", "student"], default: "student" },
+    role: { type: String, enum: systemRolesList, default: "student" },
     firstName: { type: String },
     lastName: { type: String },
     language: {
       type: String,
       default: "es",
-      enum: ["es", "en", "fr", "de", "it", "pt"],
+      enum: languagesList,
     },
     isActive: { type: Boolean, default: true },
     address: { type: String },

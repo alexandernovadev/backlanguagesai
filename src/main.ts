@@ -68,7 +68,6 @@ if (LABS_AUTH) {
 // Upload routes (must be after labs to avoid conflict)
 app.use("/api", authMiddleware, UploadRoutes);
 
-// ✅ Root endpoint (lo que borré sin querer)
 app.get("/", (req: Request, res: Response) => {
   successResponse(res, "Server is running", {
     date: new Date().toISOString(),
@@ -87,7 +86,7 @@ async function init() {
   // Setup Swagger only in dev
   if (NODE_ENV === "development") {
     const { setupSwagger } = await import("../swagger/swaggerConfig");
-    setupSwagger(app); // <-- ahora sí está listo cuando arranca
+    setupSwagger(app); 
     console.log("Swagger docs enabled at /api-docs");
   }
 

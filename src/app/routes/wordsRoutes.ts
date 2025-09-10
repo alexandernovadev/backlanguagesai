@@ -24,6 +24,7 @@ import {
   generateWordTypesJson,
   generateWordSynomymsJson,
   updateImageWord,
+  updateWordDifficulty,
 } from "../controllers/wordController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
@@ -62,7 +63,7 @@ router.get("/", getWords);
 router.post("/", createWord);
 router.put("/:id", updateWord);
 router.delete("/:id", deleteWord);
-router.put("/:id/level", updateWordLevel);
+router.put('/:id/difficulty', updateWordDifficulty);
 router.put("/:id/increment-seen", updateIncrementWordSeens);
 
 export default router;

@@ -1438,17 +1438,17 @@
         }
       }
     },
-    "/api/words/{id}/level": {
+    "/api/words/{id}/difficulty": {
       "put": {
-        "summary": "Update word level",
-        "description": "Update the difficulty level of a word",
+        "summary": "Update word difficulty",
+        "description": "Update the difficulty of a word",
         "tags": ["Words"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the word to update",
+            "description": "ID of the word to update difficulty for",
             "schema": {
               "type": "string"
             }
@@ -1461,35 +1461,28 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "level": {
+                  "difficulty": {
                     "type": "string",
-                    "enum": ["easy", "medium", "hard"],
-                    "description": "New difficulty level"
+                    "description": "New difficulty value",
+                    "example": "medium"
                   }
-                }
+                },
+                "required": ["difficulty"]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Word level updated successfully",
+            "description": "Word difficulty updated successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Word level updated successfully"
-                    },
-                    "data": {
-                      "$ref": "../schemas/common.json#/components/schemas/Word"
-                    }
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Word difficulty updated successfully" },
+                    "data": { "$ref": "../schemas/common.json#/components/schemas/Word" }
                   }
                 }
               }
@@ -1499,19 +1492,15 @@
             "description": "Word not found",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
+                "schema": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" }
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
+          "400": {
+            "description": "Invalid request",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
+                "schema": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" }
               }
             }
           }

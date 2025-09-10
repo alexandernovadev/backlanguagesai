@@ -243,7 +243,7 @@ export class WordService {
     return await Word.findByIdAndUpdate(id, updateData, { new: true });
   }
 
-  async updateWordLevel(
+  async updateWordDifficulty(
     id: string,
     difficulty: string
   ): Promise<{ difficulty?: string } | null> {

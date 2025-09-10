@@ -201,7 +201,7 @@ export const updateWord = async (
   }
 };
 
-export const updateWordLevel = async (
+export const updateWordDifficulty = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
@@ -209,16 +209,16 @@ export const updateWordLevel = async (
     const { id } = req.params;
     const difficulty = req.body.difficulty;
 
-    const updatedWord = await wordService.updateWordLevel(id, difficulty);
+    const updatedWord = await wordService.updateWordDifficulty(id, difficulty);
     if (!updatedWord) {
       return errorResponse(res, "Word not found", 404);
     }
 
-    return successResponse(res, "Word level updated successfully", updatedWord);
+    return successResponse(res, "Word difficulty updated successfully", updatedWord);
   } catch (error) {
     return errorResponse(
       res,
-      "An error occurred while updating difficulty the word ",
+      "An error occurred while updating the word difficulty ",
       500,
       error
     );

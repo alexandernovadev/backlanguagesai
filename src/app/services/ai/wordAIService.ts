@@ -15,7 +15,7 @@ import {
   createWordTypesPrompt,
   createWordExamplesPrompt,
   createWordCodeSwitchingPrompt,
-} from "./prompts/wordPrompts";
+} from "./prompts/words";
 import { TextProvider } from "../../../config/aiConfig";
 import { Language } from "../../../../types/business";
 

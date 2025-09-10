@@ -21,20 +21,7 @@ export {
 } from './expressionPrompts';
 
 // Word Prompts
-export {
-  createWordGenerationPrompt,
-  createWordChatPrompt,
-  createWordSynonymsPrompt,
-  createWordTypesPrompt,
-  createWordExamplesPrompt,
-  createWordCodeSwitchingPrompt,
-  type WordGenerationPromptParams,
-  type WordChatPromptParams,
-  type WordSynonymsPromptParams,
-  type WordTypesPromptParams,
-  type WordExamplesPromptParams,
-  type WordCodeSwitchingPromptParams,
-} from './wordPrompts';
+export * from './words';
 
 // Image Prompts
 export {

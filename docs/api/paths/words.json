@@ -891,7 +891,26 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "../schemas/common.json#/components/schemas/AIGenerationRequest"
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Word to generate",
+                    "example": "chance"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for the word (e.g., 'en', 'es')",
+                    "example": "en"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": ["openai", "other"],
+                    "default": "openai",
+                    "description": "AI provider to use"
+                  }
+                },
+                "required": ["word"]
               }
             }
           }
@@ -966,17 +985,29 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Target word to generate examples for",
+                    "example": "run"
+                  },
                   "language": {
                     "type": "string",
-                    "description": "Language for examples",
+                    "description": "Language for examples (e.g., 'en', 'es')",
                     "example": "en"
                   },
-                  "count": {
-                    "type": "integer",
-                    "description": "Number of examples to generate",
-                    "example": 3
+                  "oldExamples": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Existing examples to avoid duplicates"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": ["openai", "other"],
+                    "default": "openai",
+                    "description": "AI provider to use"
                   }
-                }
+                },
+                "required": ["word"]
               }
             }
           }
@@ -995,20 +1026,22 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Examples generated successfully"
+                      "example": "Word examples updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "examples": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
+                      "$ref": "../schemas/common.json#/components/schemas/Word"
                     }
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Word is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
                 }
               }
             }

@@ -989,7 +989,31 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AIGenerationRequest"
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Word to generate",
+                    "example": "chance"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for the word (e.g., 'en', 'es')",
+                    "example": "en"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "openai",
+                      "other"
+                    ],
+                    "default": "openai",
+                    "description": "AI provider to use"
+                  }
+                },
+                "required": [
+                  "word"
+                ]
               }
             }
           }
@@ -1074,17 +1098,36 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Target word to generate examples for",
+                    "example": "run"
+                  },
                   "language": {
                     "type": "string",
-                    "description": "Language for examples",
+                    "description": "Language for examples (e.g., 'en', 'es')",
                     "example": "en"
                   },
-                  "count": {
-                    "type": "integer",
-                    "description": "Number of examples to generate",
-                    "example": 3
+                  "oldExamples": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Existing examples to avoid duplicates"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "openai",
+                      "other"
+                    ],
+                    "default": "openai",
+                    "description": "AI provider to use"
                   }
-                }
+                },
+                "required": [
+                  "word"
+                ]
               }
             }
           }
@@ -1103,20 +1146,22 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Examples generated successfully"
+                      "example": "Word examples updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "examples": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
+                      "$ref": "#/components/schemas/Word"
                     }
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Word is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1147,7 +1192,7 @@
     "/api/words/{idword}/generate-code-switching": {
       "post": {
         "summary": "Generate code-switching examples",
-        "description": "Generate code-switching examples for a word using AI. Requires either 'prompt' or 'word' in the request body.",
+        "description": "Generate code-switching examples for a word using AI.",
         "tags": [
           "Words"
         ],
@@ -1172,13 +1217,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "prompt": {
-                    "type": "string",
-                    "description": "Prompt text for generation (alternative to 'word')"
-                  },
                   "word": {
                     "type": "string",
-                    "description": "Target word (alternative to 'prompt')"
+                    "description": "Target word to generate code-switching examples for",
+                    "example": "hello"
                   },
                   "language": {
                     "type": "string",
@@ -1203,19 +1245,7 @@
                   }
                 },
                 "required": [
-                  "language"
-                ],
-                "anyOf": [
-                  {
-                    "required": [
-                      "prompt"
-                    ]
-                  },
-                  {
-                    "required": [
-                      "word"
-                    ]
-                  }
+                  "word"
                 ]
               }
             }
@@ -1235,18 +1265,10 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Code-switching examples generated successfully"
+                      "example": "Word code-switching updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "codeSwitching": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
+                      "$ref": "#/components/schemas/Word"
                     }
                   }
                 }
@@ -1254,7 +1276,7 @@
             }
           },
           "400": {
-            "description": "Missing required fields (prompt/word or language)",
+            "description": "Word is required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1297,6 +1319,47 @@
             "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Target word to generate types for",
+                    "example": "run"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for types (e.g., 'en', 'es')",
+                    "example": "en"
+                  },
+                  "oldExamples": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Existing types to avoid duplicates"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "openai",
+                      "other"
+                    ],
+                    "default": "openai",
+                    "description": "AI provider to use"
+                  }
+                },
+                "required": [
+                  "word"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Word types generated successfully",
@@ -1311,18 +1374,10 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Word types generated successfully"
+                      "example": "Word types updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "types": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
+                      "$ref": "#/components/schemas/Word"
                     }
                   }
                 }
@@ -1373,6 +1428,47 @@
             "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Target word to generate synonyms for",
+                    "example": "happy"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language for synonyms (e.g., 'en', 'es')",
+                    "example": "en"
+                  },
+                  "oldExamples": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Existing synonyms to avoid duplicates"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "openai",
+                      "other"
+                    ],
+                    "default": "openai",
+                    "description": "AI provider to use"
+                  }
+                },
+                "required": [
+                  "word"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Synonyms generated successfully",
@@ -1387,18 +1483,10 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Synonyms generated successfully"
+                      "example": "Word synonyms updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "synonyms": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
+                      "$ref": "#/components/schemas/Word"
                     }
                   }
                 }
@@ -1449,6 +1537,31 @@
             "$ref": "#/components/parameters/AuthorizationHeader"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Word to generate image for",
+                    "example": "cat"
+                  },
+                  "imgOld": {
+                    "type": "string",
+                    "description": "URL of old image to replace (optional)",
+                    "example": "https://res.cloudinary.com/..."
+                  }
+                },
+                "required": [
+                  "word"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Image generated successfully",
@@ -1463,19 +1576,10 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Image generated successfully"
+                      "example": "Word image updated successfully"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "imageUrl": {
-                          "type": "string",
-                          "description": "URL of the generated image"
-                        },
-                        "word": {
-                          "$ref": "#/components/schemas/Word"
-                        }
-                      }
+                      "$ref": "#/components/schemas/Word"
                     }
                   }
                 }
@@ -6351,7 +6455,7 @@
         "required": true,
         "schema": {
           "type": "string",
-          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMDlUMjM6NDQ6NTkuMDkwWiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0wOVQyMzo0NDo1OS4wODZaIn0sImlhdCI6MTc1NzQ2MTQ5OSwiZXhwIjoxNzU4MDY2Mjk5fQ.XsmrIyI7BE_Wfaix3aAPs1LtsF3oMYHUB9OHBxVLqTw"
+          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMTBUMDA6MTM6MTYuMTAyWiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0xMFQwMDoxMzoxNi4wOThaIn0sImlhdCI6MTc1NzQ2MzE5NiwiZXhwIjoxNzU4MDY3OTk2fQ.Lnzwp8cZBy-yzInXE0tBGHpxmHAJ9LAr6_S4dHiWb_Q"
         }
       }
     }

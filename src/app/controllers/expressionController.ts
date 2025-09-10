@@ -389,7 +389,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     };
     const stream = await generateExpressionChat(params, { stream: true });
     let fullResponse = "";
-    for await (const chunk of stream) {
+    for await (const chunk of stream as any) {
       const content = chunk.choices?.[0]?.delta?.content || "";
       if (content) {
         fullResponse += content;

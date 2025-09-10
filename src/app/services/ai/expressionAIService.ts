@@ -1,4 +1,4 @@
-import { generateText, generateChat } from "./aiService";
+import { generateText } from "./aiService";
 import { TextProvider } from "../../../config/aiConfig";
 import {
   createExpressionGenerationPrompt,
@@ -6,6 +6,7 @@ import {
   ExpressionGenerationPromptParams,
   ExpressionChatPromptParams,
 } from "./prompts/expressions";
+import { generateChat } from "./textAIService";
 
 export interface ExpressionGenerationOptions {
   provider?: TextProvider;

@@ -10,7 +10,6 @@ import {
   updateIncrementWordSeens,
   exportWordsToJSON,
   importWordsFromFile,
-  updateWordReview,
   getWordsByTypeOptimized,
   addChatMessage,
   getChatHistory,

@@ -1,4 +1,4 @@
-import { Language } from '../../../../../types/business';
+import { Language } from "../../../../../../types/business/languages";
 
 export interface TopicGenerationPromptParams {
   existingText?: string;

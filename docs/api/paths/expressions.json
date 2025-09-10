@@ -585,7 +585,7 @@
     "/api/expressions/generate": {
       "post": {
         "summary": "Generate expression with AI",
-        "description": "Generate a new expression with definition, examples, and metadata using AI",
+        "description": "Generate a new expression with definition, examples, and metadata using AI.",
         "tags": ["Expressions"],
         "requestBody": {
           "required": true,
@@ -594,30 +594,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "prompt": {
-                    "type": "string",
-                    "description": "Prompt for generating the expression",
-                    "example": "Generate an idiom about friendship"
-                  },
-                  "options": {
-                    "type": "object",
-                    "description": "Additional options for generation",
-                    "properties": {
-                      "language": {
-                        "type": "string",
-                        "default": "en",
-                        "description": "Language code"
-                      },
-                      "provider": {
-                        "type": "string",
-                        "enum": ["openai", "deepseek"],
-                        "default": "openai",
-                        "description": "AI provider to use for generation"
-                      }
-                    }
-                  }
+                  "prompt": { "type": "string", "description": "Prompt for generating the expression." },
+                  "language": { "type": "string", "description": "Language code.", "default": "en" },
+                  "options": { "type": "object", "description": "Additional AI options (e.g., provider)." }
                 },
                 "required": ["prompt"]
+              },
+              "example": {
+                "prompt": "Generate an idiom about friendship",
+                "language": "en",
+                "options": { "provider": "openai" }
               }
             }
           }
@@ -627,63 +613,22 @@
             "description": "Expression generated successfully",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Expression generated successfully"
-                    },
-                    "data": {
-                      "$ref": "../schemas/common.json#/components/schemas/Expression"
-                    }
-                  }
-                }
+                "schema": { "$ref": "../schemas/common.json#/components/schemas/Expression" }
               }
             }
           },
-          "400": {
-            "description": "Prompt is required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error generating expression",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
+          "400": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" },
+          "500": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" }
         }
       }
     },
     "/api/expressions/{idexpression}/generate-image": {
       "post": {
         "summary": "Generate expression image with AI",
-        "description": "Generate an image for an expression using AI and update the expression record",
+        "description": "Generate an image for an expression using AI and update the expression record.",
         "tags": ["Expressions"],
         "parameters": [
-          {
-            "name": "idexpression",
-            "in": "path",
-            "required": true,
-            "description": "ID of the expression to generate image for",
-            "schema": {
-              "type": "string"
-            }
-          }
+          { "name": "idexpression", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "requestBody": {
           "required": true,
@@ -692,18 +637,14 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "expressionString": {
-                    "type": "string",
-                    "description": "Expression text to generate image for",
-                    "example": "break the ice"
-                  },
-                  "imgOld": {
-                    "type": "string",
-                    "description": "URL of old image to replace (optional)",
-                    "example": "https://res.cloudinary.com/..."
-                  }
+                  "expressionString": { "type": "string", "description": "Expression text to generate image for." },
+                  "imgOld": { "type": "string", "description": "URL of old image to replace (optional)." }
                 },
                 "required": ["expressionString"]
+              },
+              "example": {
+                "expressionString": "break the ice",
+                "imgOld": "https://res.cloudinary.com/..."
               }
             }
           }
@@ -713,45 +654,12 @@
             "description": "Expression image updated successfully",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Expression image updated successfully"
-                    },
-                    "data": {
-                      "$ref": "../schemas/common.json#/components/schemas/Expression"
-                    }
-                  }
-                }
+                "schema": { "$ref": "../schemas/common.json#/components/schemas/Expression" }
               }
             }
           },
-          "400": {
-            "description": "Expression prompt is required or Failed to generate image",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error generating expression image",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
+          "400": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" },
+          "500": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" }
         }
       }
     },
@@ -1224,18 +1132,10 @@
     "/api/expressions/{expressionId}/chat/stream": {
       "post": {
         "summary": "Stream chat response for expression",
-        "description": "Send a message and receive a streaming AI response for expression chat",
+        "description": "Send a message and receive a streaming AI response for expression chat.",
         "tags": ["Expressions", "Chat"],
         "parameters": [
-          {
-            "name": "expressionId",
-            "in": "path",
-            "required": true,
-            "description": "ID of the expression to chat about",
-            "schema": {
-              "type": "string"
-            }
-          }
+          { "name": "expressionId", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "requestBody": {
           "required": true,
@@ -1244,14 +1144,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "message": {
-                    "type": "string",
-                    "description": "User message to send",
-                    "example": "Can you give me more examples of this expression?"
-                  }
+                  "message": { "type": "string", "description": "User message to send." }
                 },
                 "required": ["message"]
-              }
+              },
+              "example": { "message": "Can you give me more examples of this expression?" }
             }
           }
         },
@@ -1260,63 +1157,18 @@
             "description": "Streaming response started",
             "content": {
               "text/plain": {
-                "schema": {
-                  "type": "string",
-                  "description": "Streaming text response from AI"
-                }
+                "schema": { "type": "string", "description": "Streaming text response from AI." }
               }
             },
             "headers": {
-              "Content-Type": {
-                "schema": {
-                  "type": "string",
-                  "example": "text/plain; charset=utf-8"
-                }
-              },
-              "Cache-Control": {
-                "schema": {
-                  "type": "string",
-                  "example": "no-cache"
-                }
-              },
-              "Connection": {
-                "schema": {
-                  "type": "string",
-                  "example": "keep-alive"
-                }
-              }
+              "Content-Type": { "schema": { "type": "string", "example": "text/plain; charset=utf-8" } },
+              "Cache-Control": { "schema": { "type": "string", "example": "no-cache" } },
+              "Connection": { "schema": { "type": "string", "example": "keep-alive" } }
             }
           },
-          "400": {
-            "description": "Message is required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Expression not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error streaming chat response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../schemas/common.json#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
+          "400": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" },
+          "404": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" },
+          "500": { "$ref": "../schemas/common.json#/components/schemas/ErrorResponse" }
         }
       }
     }

@@ -1609,10 +1609,10 @@
         }
       }
     },
-    "/api/words/{id}/level": {
+    "/api/words/{id}/difficulty": {
       "put": {
-        "summary": "Update word level",
-        "description": "Update the difficulty level of a word",
+        "summary": "Update word difficulty",
+        "description": "Update the difficulty of a word",
         "tags": [
           "Words"
         ],
@@ -1621,7 +1621,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID of the word to update",
+            "description": "ID of the word to update difficulty for",
             "schema": {
               "type": "string"
             }
@@ -1637,23 +1637,22 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "level": {
+                  "difficulty": {
                     "type": "string",
-                    "enum": [
-                      "easy",
-                      "medium",
-                      "hard"
-                    ],
-                    "description": "New difficulty level"
+                    "description": "New difficulty value",
+                    "example": "medium"
                   }
-                }
+                },
+                "required": [
+                  "difficulty"
+                ]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Word level updated successfully",
+            "description": "Word difficulty updated successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -1665,7 +1664,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Word level updated successfully"
+                      "example": "Word difficulty updated successfully"
                     },
                     "data": {
                       "$ref": "#/components/schemas/Word"
@@ -1675,8 +1674,8 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
+          "400": {
+            "description": "Invalid request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6455,7 +6454,7 @@
         "required": true,
         "schema": {
           "type": "string",
-          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMTBUMDA6MTM6MTYuMTAyWiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0xMFQwMDoxMzoxNi4wOThaIn0sImlhdCI6MTc1NzQ2MzE5NiwiZXhwIjoxNzU4MDY3OTk2fQ.Lnzwp8cZBy-yzInXE0tBGHpxmHAJ9LAr6_S4dHiWb_Q"
+          "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YmYyNTQxZWVkNDU0YjAxMjAyN2NjNSIsInVzZXJuYW1lIjoibm92YXNrODgiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkMkxQeTBQbkFKbEJoWlprR3BnYnAzLlJCWEc2S3k5SnFRMy56VURFMjFhbENGdHNUbG9ibFciLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJTeXN0ZW0iLCJsYXN0TmFtZSI6IkFkbWluaXN0cmF0b3IiLCJsYW5ndWFnZSI6ImVzIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjUtMDktMDhUMTg6NDk6MzcuMzA4WiIsInVwZGF0ZWRBdCI6IjIwMjUtMDktMTBUMDA6NDk6MTQuNDYzWiIsIl9fdiI6MCwibGFzdExvZ2luIjoiMjAyNS0wOS0xMFQwMDo0OToxNC40NTlaIn0sImlhdCI6MTc1NzQ2NTM1NCwiZXhwIjoxNzU4MDcwMTU0fQ.6JC7jNhWGYNrj5-BnoxDLcqiLipxVXo1KbklWDM3EMk"
         }
       }
     }

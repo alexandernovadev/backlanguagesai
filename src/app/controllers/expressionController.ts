@@ -3,7 +3,7 @@ import { ExpressionService } from "../services/expressions/expressionService";
 import { generateExpressionChatStream } from "../services/ai/generateExpressionChatStream";
 import { generateImage } from "../services/ai/generateImage";
 import { deleteImageFromCloudinary, uploadImageToCloudinary } from "../services/cloudinary/cloudinaryService";
-import { imageExpressionPrompt } from "./helpers/ImagePrompt";
+import { createExpressionImagePrompt } from '../services/ai/prompts';
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 import logger from "../utils/logger";
 
@@ -422,7 +422,7 @@ export const updateImageExpression = async (req: Request, res: Response) => {
   try {
     // Generate image
     const imageBase64 = await generateImage(
-      imageExpressionPrompt(expressionString)
+      createExpressionImagePrompt(expressionString)
     );
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);

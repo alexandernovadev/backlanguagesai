@@ -6,7 +6,6 @@ import {
   updateWord,
   deleteWord,
   getWordByName,
-  updateWordLevel,
   getAnkiCards,
   updateIncrementWordSeens,
   exportWordsToJSON,

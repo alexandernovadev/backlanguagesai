@@ -40,7 +40,6 @@ router.get("/by-type-optimized", getWordsByTypeOptimized);
 
 // Dynamic routes with parameters
 router.get("/:word/word", getWordByName);
-router.post("/:wordId/update-review", updateWordReview);
 
 // Chat routes
 router.post("/:wordId/chat", addChatMessage);

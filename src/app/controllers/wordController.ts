@@ -316,56 +316,6 @@ export const getWordsByTypeOptimized = async (
   }
 };
 
-// Nuevo endpoint para actualizar el progreso de repaso de una palabra
-export const updateWordReview = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  try {
-    const { wordId } = req.params;
-    const { difficulty, quality } = req.body;
-
-    if (!wordId || !difficulty || !quality) {
-      return errorResponse(
-        res,
-        "wordId, difficulty, and quality are required",
-        400
-      );
-    }
-
-    if (difficulty < 1 || difficulty > 5 || quality < 1 || quality > 5) {
-      return errorResponse(
-        res,
-        "difficulty and quality must be between 1 and 5",
-        400
-      );
-    }
-
-    const updatedWord = await wordService.updateWordReview(
-      wordId,
-      difficulty,
-      quality
-    );
-
-    if (!updatedWord) {
-      return errorResponse(res, "Word not found", 404);
-    }
-
-    return successResponse(
-      res,
-      "Word review updated successfully",
-      updatedWord
-    );
-  } catch (error) {
-    return errorResponse(
-      res,
-      "An error occurred while updating word review",
-      500,
-      error
-    );
-  }
-};
-
 export const updateIncrementWordSeens = async (
   req: Request,
   res: Response

@@ -8,7 +8,7 @@ export const createImagePrompt = (params: ImagePromptParams) => {
   const { word, expression, lectureContent } = params;
 
   if (word) {
-    return createWordImagePrompt(word);
+    return imageWordPrompt(word);
   }
   
   if (expression) {
@@ -22,7 +22,7 @@ export const createImagePrompt = (params: ImagePromptParams) => {
   throw new Error("At least one parameter (word, expression, or lectureContent) must be provided");
 };
 
-const createWordImagePrompt = (word: string) => {
+const imageWordPrompt = (word: string) => {
   return `
 •(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
 Create a clean educational illustration that conveys the meaning of "${word}" for a language‑learning dictionary
@@ -147,3 +147,5 @@ EDUCATIONAL PURPOSE:
 Create an educational illustration that represents the main theme of this reading content.
 `.trim();
 };
+
+export { imageWordPrompt };

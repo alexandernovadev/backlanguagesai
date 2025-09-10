@@ -40,4 +40,5 @@ export {
 export {
   createImagePrompt,
   type ImagePromptParams,
+  imageWordPrompt
 } from './imagePrompts';

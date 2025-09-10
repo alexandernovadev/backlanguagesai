@@ -11,11 +11,11 @@ import {
   generateWordChat,
   generateImage,
 } from "../services/ai";
+import { imageWordPrompt } from "../services/ai/prompts";
 import {
   deleteImageFromCloudinary,
   uploadImageToCloudinary,
 } from "../services/cloudinary/cloudinaryService";
-import { imageWordPrompt } from "./helpers/ImagePrompt";
 import logger from "../utils/logger";
 
 const wordService = new WordService();

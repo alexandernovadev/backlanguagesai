@@ -1,6 +1,5 @@
 import Expression from "../../db/models/Expression";
 import { IExpression, ChatMessage } from "../../../../types/models";
-import { generateExpressionJson } from "../ai/generateExpressionJson";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -305,22 +304,5 @@ export class ExpressionService {
         duration,
       },
     };
-  }
-
-  async generateExpression(prompt: string, options: any = {}): Promise<any> {
-    try {
-      const language = options.language || "en";
-      const generatedData = await generateExpressionJson(prompt, language);
-      
-      // Return the generated data without saving to database
-      // The frontend will decide whether to save it or not
-      return {
-        success: true,
-        data: generatedData,
-        message: "Expression generated successfully"
-      };
-    } catch (error: any) {
-      throw new Error(`Error generating expression: ${error.message}`);
-    }
   }
 } 

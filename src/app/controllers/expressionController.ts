@@ -1,11 +1,17 @@
 import { Request, Response } from "express";
 import { ExpressionService } from "../services/expressions/expressionService";
-import { generateExpressionChatStream } from "../services/ai/generateExpressionChatStream";
-import { generateImage } from "../services/ai/generateImage";
-import { deleteImageFromCloudinary, uploadImageToCloudinary } from "../services/cloudinary/cloudinaryService";
-import { createExpressionImagePrompt } from '../services/ai/prompts';
+import {
+  generateExpressionData,
+  generateExpressionChat,
+} from "../services/ai/expressionAIService";
+import {
+  deleteImageFromCloudinary,
+  uploadImageToCloudinary,
+} from "../services/cloudinary/cloudinaryService";
+import { createExpressionImagePrompt } from "../services/ai/prompts";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 import logger from "../utils/logger";
+import { generateImage } from "../services/ai/imageAIService";
 
 const expressionService = new ExpressionService();
 
@@ -191,12 +197,18 @@ export const importExpressionsFromFile = async (
 
     // Validate file structure - handle both direct and nested structures
     let expressions: any[] = [];
-    
+
     // Try to find expressions in different possible structures
-    if (fileData.data?.expressions && Array.isArray(fileData.data.expressions)) {
+    if (
+      fileData.data?.expressions &&
+      Array.isArray(fileData.data.expressions)
+    ) {
       // Direct structure: data.expressions
       expressions = fileData.data.expressions;
-    } else if (fileData.data?.data?.expressions && Array.isArray(fileData.data.data.expressions)) {
+    } else if (
+      fileData.data?.data?.expressions &&
+      Array.isArray(fileData.data.data.expressions)
+    ) {
       // Nested structure: data.data.expressions (from export)
       expressions = fileData.data.data.expressions;
     } else if (fileData.expressions && Array.isArray(fileData.expressions)) {
@@ -242,31 +254,50 @@ export const importExpressionsFromFile = async (
 
     // If validateOnly is true, just validate without importing
     if (validateOnlyBool) {
-      const validationResults = expressions.map((expression: any, index: number) => ({
-        index,
-        data: expression,
-        status: expression.expression && expression.definition ? 'valid' : 'invalid',
-        errors: !expression.expression ? ['Expression is required'] : 
-                !expression.definition ? ['Definition is required'] : []
-      }));
+      const validationResults = expressions.map(
+        (expression: any, index: number) => ({
+          index,
+          data: expression,
+          status:
+            expression.expression && expression.definition
+              ? "valid"
+              : "invalid",
+          errors: !expression.expression
+            ? ["Expression is required"]
+            : !expression.definition
+            ? ["Definition is required"]
+            : [],
+        })
+      );
 
-      const validCount = validationResults.filter((r: any) => r.status === 'valid').length;
-      const invalidCount = validationResults.filter((r: any) => r.status === 'invalid').length;
+      const validCount = validationResults.filter(
+        (r: any) => r.status === "valid"
+      ).length;
+      const invalidCount = validationResults.filter(
+        (r: any) => r.status === "invalid"
+      ).length;
 
       return successResponse(res, "Validation completed", {
         totalExpressions: expressions.length,
         valid: validCount,
         invalid: invalidCount,
         validationResults,
-        message: `Validation completed. ${validCount} valid, ${invalidCount} invalid`
+        message: `Validation completed. ${validCount} valid, ${invalidCount} invalid`,
       });
     }
 
     // Import expressions
-    const importResult = await expressionService.importExpressions(expressions, {
-      duplicateStrategy: duplicateStrategy as 'skip' | 'overwrite' | 'error' | 'merge',
-      batchSize: batchSizeNum
-    });
+    const importResult = await expressionService.importExpressions(
+      expressions,
+      {
+        duplicateStrategy: duplicateStrategy as
+          | "skip"
+          | "overwrite"
+          | "error"
+          | "merge",
+        batchSize: batchSizeNum,
+      }
+    );
 
     return successResponse(res, "Import completed successfully", importResult);
   } catch (error: any) {
@@ -331,51 +362,41 @@ export const clearChatHistory = async (req: Request, res: Response) => {
   }
 };
 
-// Streaming chat response
+// Streaming chat response (AI)
 export const streamChatResponse = async (req: Request, res: Response) => {
   try {
     const { expressionId } = req.params;
     const { message } = req.body;
-
     if (!message) {
       return errorResponse(res, "Message is required", 400);
     }
-
     const expression = await expressionService.getExpressionById(expressionId);
     if (!expression) {
       return errorResponse(res, "Expression not found", 404);
     }
-
-    // Add user message first
     await expressionService.addUserMessage(expressionId, message);
-
-    // Set up streaming
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-    const stream = await generateExpressionChatStream(
-      expression.expression,
-      expression.definition,
-      message,
-      expression.chat || []
-    );
-
+    const chatHistory = expression.chat || [];
+    const params = {
+      expressionText: expression.expression,
+      expressionDefinition: expression.definition,
+      userMessage: message,
+      chatHistory,
+    };
+    const stream = await generateExpressionChat(params, { stream: true });
     let fullResponse = "";
-
     for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content || "";
+      const content = chunk.choices?.[0]?.delta?.content || "";
       if (content) {
         fullResponse += content;
         res.write(content);
       }
     }
-
-    // Save the complete AI response
     await expressionService.addAssistantMessage(expressionId, fullResponse);
-
     res.end();
   } catch (error: any) {
     logger.error("Error streaming chat response:", error);
@@ -386,23 +407,12 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 // Nueva función para generar expresiones con AI
 export const generateExpression = async (req: Request, res: Response) => {
   try {
-    const { prompt, options } = req.body;
-
+    const { prompt, language = "en", options = {} } = req.body;
     if (!prompt) {
       return errorResponse(res, "Prompt is required", 400);
     }
-
-    const result = await expressionService.generateExpression(
-      prompt,
-      options
-    );
-    
-    // Use successResponse wrapper for consistency
-    return successResponse(
-      res,
-      result.message || "Expression generated successfully",
-      result.data
-    );
+    const data = await generateExpressionData({ prompt, language }, options);
+    return successResponse(res, "Expression generated successfully", data);
   } catch (error: any) {
     logger.error("Error generating expression:", error);
     return errorResponse(res, error.message, 500, error);
@@ -422,6 +432,7 @@ export const updateImageExpression = async (req: Request, res: Response) => {
   try {
     // Generate image
     const imageBase64 = await generateImage(
+      "openai",
       createExpressionImagePrompt(expressionString)
     );
     if (!imageBase64) {

@@ -2,16 +2,18 @@ import { Request, Response } from "express";
 import { LectureService } from "../services/lectures/LectureService";
 import { LectureImportService } from "../services/import/LectureImportService";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
-import { generateImage } from "../services/ai/generateImage";
 import {
   deleteImageFromCloudinary,
   uploadImageToCloudinary,
 } from "../services/cloudinary/cloudinaryService";
-import { generateTextStreamService } from "../services/ai/generateTextStream";
-import { generateTopicStreamService } from "../services/ai/generateTopicStream";
+import {
+  generateLectureText,
+  generateLectureTopic,
+  createLectureImagePrompt,
+} from "../services/ai/lectureAIService";
 import { WordService } from "../services/words/wordService";
 import { promptAddEasyWords } from "../services/ai/prompts/promptAddEasyWords";
-import { createLectureImagePrompt } from "../services/ai/prompts";
+import { generateImage } from "../services/ai/imageAIService";
 
 const lectureService = new LectureService();
 const lectureImportService = new LectureImportService();
@@ -98,14 +100,6 @@ export const updateImageLecureById = async (req: Request, res: Response) => {
     return errorResponse(res, "Error updating Image lecture", 500, error);
   }
 };
-
-// Audio generation function removed - service no longer available
-// export const updateUrlAudioLectureByIdByGPT = async (
-//   req: Request,
-//   res: Response
-// ): Promise<Response> => {
-//   return errorResponse(res, "Audio generation service not available", 501);
-// };
 
 export const getAllLectures = async (
   req: Request,
@@ -304,6 +298,7 @@ export const updateImageLecture = async (req: Request, res: Response) => {
   try {
     // Generate image
     const imageBase64 = await generateImage(
+      "openai",
       createLectureImagePrompt(lectureString)
     );
     if (!imageBase64) {
@@ -377,7 +372,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
       promptWords = promptAddEasyWords(wordsArray);
     }
 
-    const stream = await generateTextStreamService({
+    const stream = await generateLectureText({
       // If prompt is empty or whitespace, we still pass it, and the service will handle random generation
       prompt: (prompt || "").toString(),
       level,
@@ -439,17 +434,14 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     res.setHeader("Connection", "keep-alive");
 
     // Generate topic stream
-    const stream = await generateTopicStreamService({
+    const stream = await generateLectureTopic({
       existingText: existingText || "",
       type,
     });
 
     // Stream the response
     for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
-      if (content) {
-        res.write(content);
-      }
+      res.write(chunk);
     }
 
     res.end();

@@ -22,6 +22,8 @@ import { TextProvider, ImageProvider, ChatGPTModel, DeepSeekModel, DalleModel, G
 export type { TextGenerationOptions, ImageGenerationOptions };
 export type { TextProvider, ImageProvider, ChatGPTModel, DeepSeekModel, DalleModel, GoogleImagenModel };
 
+export { generateText };
+
 /**
  * Unified AI service
  * Provides a consistent interface for all AI services

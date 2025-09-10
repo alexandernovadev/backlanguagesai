@@ -3,12 +3,15 @@ import { LectureService } from "../services/lectures/LectureService";
 import { LectureImportService } from "../services/import/LectureImportService";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 import { generateImage } from "../services/ai/generateImage";
-import { deleteImageFromCloudinary, uploadImageToCloudinary } from "../services/cloudinary/cloudinaryService";
-import { imageLecturePrompt } from "./helpers/ImagePrompt";
+import {
+  deleteImageFromCloudinary,
+  uploadImageToCloudinary,
+} from "../services/cloudinary/cloudinaryService";
 import { generateTextStreamService } from "../services/ai/generateTextStream";
 import { generateTopicStreamService } from "../services/ai/generateTopicStream";
 import { WordService } from "../services/words/wordService";
-import { promptAddEasyWords } from "./helpers/promptAddEasyWords";
+import { promptAddEasyWords } from "../services/ai/prompts/promptAddEasyWords";
+import { createLectureImagePrompt } from "../services/ai/prompts";
 
 const lectureService = new LectureService();
 const lectureImportService = new LectureImportService();
@@ -202,12 +205,15 @@ export const importLecturesFromFile = async (
 
     // Validate file structure - handle both direct and nested structures
     let lectures: any[] = [];
-    
+
     // Try to find lectures in different possible structures
     if (fileData.data?.lectures && Array.isArray(fileData.data.lectures)) {
       // Direct structure: data.lectures
       lectures = fileData.data.lectures;
-    } else if (fileData.data?.data?.lectures && Array.isArray(fileData.data.data.lectures)) {
+    } else if (
+      fileData.data?.data?.lectures &&
+      Array.isArray(fileData.data.data.lectures)
+    ) {
       // Nested structure: data.data.lectures (from export)
       lectures = fileData.data.data.lectures;
     } else if (fileData.lectures && Array.isArray(fileData.lectures)) {
@@ -253,7 +259,9 @@ export const importLecturesFromFile = async (
 
     // If validateOnly is true, just validate without importing
     if (validateOnlyBool) {
-      const validationResults = await lectureImportService.validateLectures(lectures);
+      const validationResults = await lectureImportService.validateLectures(
+        lectures
+      );
       const validCount = validationResults.filter(
         (r) => r.status === "valid"
       ).length;
@@ -295,7 +303,9 @@ export const updateImageLecture = async (req: Request, res: Response) => {
 
   try {
     // Generate image
-    const imageBase64 = await generateImage(imageLecturePrompt(lectureString));
+    const imageBase64 = await generateImage(
+      createLectureImagePrompt(lectureString)
+    );
     if (!imageBase64) {
       return errorResponse(res, "Failed to generate image.", 400);
     }

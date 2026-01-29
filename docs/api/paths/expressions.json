@@ -622,13 +622,13 @@
         }
       }
     },
-    "/api/expressions/{idexpression}/generate-image": {
+    "/api/expressions/{id}/generate-image": {
       "post": {
         "summary": "Generate expression image with AI",
         "description": "Generate an image for an expression using AI and update the expression record.",
         "tags": ["Expressions"],
         "parameters": [
-          { "name": "idexpression", "in": "path", "required": true, "schema": { "type": "string" } }
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "requestBody": {
           "required": true,
@@ -917,14 +917,14 @@
         }
       }
     },
-    "/api/expressions/{expressionId}/chat": {
+    "/api/expressions/{id}/chat": {
       "post": {
         "summary": "Add chat message to expression",
         "description": "Add a user message to the expression chat history",
         "tags": ["Expressions", "Chat"],
         "parameters": [
           {
-            "name": "expressionId",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the expression to add chat message to",
@@ -1018,7 +1018,7 @@
         "tags": ["Expressions", "Chat"],
         "parameters": [
           {
-            "name": "expressionId",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the expression to get chat history for",
@@ -1072,7 +1072,7 @@
         "tags": ["Expressions", "Chat"],
         "parameters": [
           {
-            "name": "expressionId",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the expression to clear chat history for",
@@ -1129,13 +1129,13 @@
         }
       }
     },
-    "/api/expressions/{expressionId}/chat/stream": {
+    "/api/expressions/{id}/chat/stream": {
       "post": {
         "summary": "Stream chat response for expression",
         "description": "Send a message and receive a streaming AI response for expression chat.",
         "tags": ["Expressions", "Chat"],
         "parameters": [
-          { "name": "expressionId", "in": "path", "required": true, "schema": { "type": "string" } }
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "requestBody": {
           "required": true,

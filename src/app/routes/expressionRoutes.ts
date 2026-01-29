@@ -16,7 +16,7 @@ router.post("/import-file", ...createJsonUploadMiddleware(), importExpressionsFr
 
 // AI Generation routes
 router.post("/generate", generateExpression);
-router.post("/:idexpression/generate-image", updateImageExpression);
+router.post("/:id/generate-image", updateImageExpression);
 
 // Filter and search routes
 router.get("/by-type/:type", getExpressionsByType);
@@ -24,10 +24,10 @@ router.get("/expressions-only", getExpressionsOnly);
 router.get("/:expression/expression", getExpressionByExpression);
 
 // Chat routes
-router.post("/:expressionId/chat", addChatMessage);
-router.post("/:expressionId/chat/stream", streamChatResponse);
-router.get("/:expressionId/chat", getChatHistory);
-router.delete("/:expressionId/chat", clearChatHistory);
+router.post("/:id/chat", addChatMessage);
+router.post("/:id/chat/stream", streamChatResponse);
+router.get("/:id/chat", getChatHistory);
+router.delete("/:id/chat", clearChatHistory);
 
 // CRUD routes (MUST BE LAST)
 router.get("/:id", getExpressionById);

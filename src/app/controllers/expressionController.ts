@@ -309,7 +309,7 @@ export const importExpressionsFromFile = async (
 // Chat methods
 export const addChatMessage = async (req: Request, res: Response) => {
   try {
-    const { expressionId } = req.params;
+    const { id } = req.params;
     const { message } = req.body;
 
     if (!message) {
@@ -317,7 +317,7 @@ export const addChatMessage = async (req: Request, res: Response) => {
     }
 
     const expression = await expressionService.addChatMessage(
-      expressionId,
+      id,
       message
     );
     if (!expression) {
@@ -335,8 +335,8 @@ export const addChatMessage = async (req: Request, res: Response) => {
 
 export const getChatHistory = async (req: Request, res: Response) => {
   try {
-    const { expressionId } = req.params;
-    const chatHistory = await expressionService.getChatHistory(expressionId);
+    const { id } = req.params;
+    const chatHistory = await expressionService.getChatHistory(id);
     return successResponse(
       res,
       "Chat history retrieved successfully",
@@ -350,8 +350,8 @@ export const getChatHistory = async (req: Request, res: Response) => {
 
 export const clearChatHistory = async (req: Request, res: Response) => {
   try {
-    const { expressionId } = req.params;
-    const expression = await expressionService.clearChatHistory(expressionId);
+    const { id } = req.params;
+    const expression = await expressionService.clearChatHistory(id);
     if (!expression) {
       return errorResponse(res, "Expression not found", 404);
     }
@@ -365,12 +365,12 @@ export const clearChatHistory = async (req: Request, res: Response) => {
 // Streaming chat response (AI)
 export const streamChatResponse = async (req: Request, res: Response) => {
   try {
-    const { expressionId } = req.params;
+    const { id } = req.params;
     const { message } = req.body;
     if (!message) {
       return errorResponse(res, "Message is required", 400);
     }
-    const expression = await expressionService.getExpressionById(expressionId);
+    const expression = await expressionService.getExpressionById(id);
     if (!expression) {
       return errorResponse(res, "Expression not found", 404);
     }
@@ -423,7 +423,7 @@ export const generateExpression = async (req: Request, res: Response) => {
 
 export const updateImageExpression = async (req: Request, res: Response) => {
   const { expressionString, imgOld } = req.body;
-  const IDExpression = req.params.idexpression;
+  const IDExpression = req.params.id;
 
   if (!expressionString) {
     return errorResponse(res, "Expression prompt is required.", 400);

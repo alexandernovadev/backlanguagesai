@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
-import { apiReference } from '@scalar/express-api-reference';
 
 import { connectDB } from "./app/db/mongoConnection";
 import { initializeBackupScheduler } from "./app/services/backup/backupSchedulerService";
@@ -89,6 +88,7 @@ async function init() {
     const openApiSpecPath = path.join(__dirname, "..", "openapi.json");
     const spec = require(openApiSpecPath);
     
+    const { apiReference } = await import('@scalar/express-api-reference');
     app.use(
       '/api-docs',
       apiReference({

@@ -374,7 +374,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     if (!expression) {
       return errorResponse(res, "Expression not found", 404);
     }
-    await expressionService.addUserMessage(expressionId, message);
+    await expressionService.addUserMessage(id, message);
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -396,7 +396,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
         res.write(content);
       }
     }
-    await expressionService.addAssistantMessage(expressionId, fullResponse);
+    await expressionService.addAssistantMessage(id, fullResponse);
     res.end();
   } catch (error: any) {
     logger.error("Error streaming chat response:", error);

@@ -44,8 +44,6 @@ export const sendBackupNow = async (req: Request, res: Response) => {
       wordsCount: result.wordsCount,
       lecturesCount: result.lecturesCount,
       expressionsCount: result.expressionsCount,
-      examsCount: result.examsCount,
-      questionsCount: result.questionsCount,
       emailSent: result.emailSent,
       duration: `${duration}ms`,
       timestamp: new Date().toISOString()

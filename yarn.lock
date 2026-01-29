@@ -48,36 +48,6 @@
   dependencies:
     sparse-bitfield "^3.0.3"
 
-"@scalar/core@0.2.16":
-  version "0.2.16"
-  resolved "https://registry.yarnpkg.com/@scalar/core/-/core-0.2.16.tgz#678b945b2cf2cd87e3c804d2a38c3c67fb449e84"
-  integrity sha512-PYIsWbaC/0jE61aundn3koUE+m9beOSEgu+fCxB1G31PmoloIQdVcRp6O95uCa89TofPU317u+8SjeIG8NuWpw==
-  dependencies:
-    "@scalar/types" "0.1.16"
-
-"@scalar/express-api-reference@^0.7.6":
-  version "0.7.6"
-  resolved "https://registry.yarnpkg.com/@scalar/express-api-reference/-/express-api-reference-0.7.6.tgz#7033b91fc0ab97369a7a0f23c1d6edba7ada12de"
-  integrity sha512-TT8m39d+rBGrWjwyHzGA/E5sYvLGGfbuqPyumLB52M0YngNJDtQkALFNuYQnVnbtchVhGei3yiFiFTOVmSMg/A==
-  dependencies:
-    "@scalar/core" "0.2.16"
-
-"@scalar/openapi-types@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@scalar/openapi-types/-/openapi-types-0.2.3.tgz#92bf1a53bacf8c41e28e821b42ae1d713648151d"
-  integrity sha512-O1GwqLpcRc3GKXTbeBZ5E12fXR2ltpqGWk4RfhoN4ebKZsPVknV5at5425G97E1SwMy12BporRvn90k1Z+MruQ==
-  dependencies:
-    zod "3.24.1"
-
-"@scalar/types@0.1.16":
-  version "0.1.16"
-  resolved "https://registry.yarnpkg.com/@scalar/types/-/types-0.1.16.tgz#17309b4f7445e8acb123c6c4936eecca167ed3a0"
-  integrity sha512-v1L96F8Inn27NUw5Xcl0iifw3SOX0R9WBV6GeswR23s8i1SJz7UiLEi8rLOqOB5DiLtC8hDK0kNl4TKn7MNJWQ==
-  dependencies:
-    "@scalar/openapi-types" "0.2.3"
-    nanoid "^5.1.5"
-    zod "3.24.1"
-
 "@so-ric/colorspace@^1.1.6":
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@so-ric/colorspace/-/colorspace-1.1.6.tgz#62515d8b9f27746b76950a83bde1af812d91923b"
@@ -1044,11 +1014,6 @@ multer@^2.0.1:
     type-is "^1.6.18"
     xtend "^4.0.2"
 
-nanoid@^5.1.5:
-  version "5.1.6"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-5.1.6.tgz#30363f664797e7d40429f6c16946d6bd7a3f26c9"
-  integrity sha512-c7+7RQ+dMB5dPwwCp4ee1/iV/q2P6aK1mTZcfr1BTuVlyW9hJYiMPybJCcnBlQtuSmTIWNeazm/zqNoZSSElBg==
-
 negotiator@0.6.3:
   version "0.6.3"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.3.tgz#58e323a72fedc0d6f9cd4d31fe49f51479590ccd"
@@ -1486,8 +1451,3 @@ yn@3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
-
-zod@3.24.1:
-  version "3.24.1"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.1.tgz#27445c912738c8ad1e9de1bea0359fa44d9d35ee"
-  integrity sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==

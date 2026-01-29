@@ -81,26 +81,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
   errorResponse(res, "Something went wrong: " + err, 500);
 });
 
-// ---------- Init Function ----------
 async function init() {
-  // Setup Scalar documentation
-  if (NODE_ENV === "development") {
-    const openApiSpecPath = path.join(__dirname, "..", "openapi.json");
-    const spec = require(openApiSpecPath);
-    
-    const { apiReference } = await import('@scalar/express-api-reference');
-    app.use(
-      '/api-docs',
-      apiReference({
-        theme: 'purple',
-        spec: {
-          content: spec,
-        },
-      })
-    );
-    console.log("Scalar docs enabled at /api-docs");
-  }
-
   // Connect DB and start server
   connectDB()
     .then(() => {

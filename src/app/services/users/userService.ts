@@ -134,11 +134,11 @@ export class UserService {
 
   // Export all users for backup/transfer
   async getAllUsersForExport(): Promise<IUser[]> {
-    return await User.find({})
+    return (await User.find({})
       .select("-password") // Never export passwords
       .sort({ createdAt: -1 })
       .lean()
-      .exec();
+      .exec()) as unknown as IUser[];
   }
 
   // Import users from JSON data

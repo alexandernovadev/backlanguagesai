@@ -85,10 +85,10 @@ export class LectureService {
   }
 
   async getAllLecturesForExport(): Promise<ILecture[]> {
-    return await Lecture.find({})
+    return (await Lecture.find({})
       .sort({ createdAt: -1 })
       .lean()
-      .exec();
+      .exec()) as unknown as ILecture[];
   }
 
   // Find operations

@@ -361,16 +361,16 @@ export class WordService {
 
     if (mode === 'random') {
       // Modo aleatorio: obtener palabras aleatorias (comportamiento original de get-cards-anki)
-      return await Word.aggregate([
+      return (await Word.aggregate([
         { $match: { difficulty: { $in: difficulty } } },
         { $addFields: { randomSort: { $rand: {} } } },
         { $sort: { randomSort: 1 } },
         { $limit: limit },
         { $project: { randomSort: 0 } },
-      ]);
+      ])) as unknown as IWord[];
     } else {
       // Modo review: obtener palabras para repaso inteligente (comportamiento original de get-words-for-review)
-      return await Word.find({
+      return (await Word.find({
         difficulty: { $in: difficulty },
       })
         .sort({
@@ -379,16 +379,16 @@ export class WordService {
           createdAt: -1,
         })
         .limit(limit)
-        .lean();
+        .lean()) as unknown as IWord[];
     }
   }
 
 
   async getLastEasyWords(): Promise<IWord[]> {
-    return await Word.find({ difficulty: "easy" })
+    return (await Word.find({ difficulty: "easy" })
       .sort({ createdAt: -1 })
       .limit(100)
-      .lean();
+      .lean()) as unknown as IWord[];
   }
 
 
@@ -415,7 +415,7 @@ export class WordService {
 
 
   async getAllWordsForExport(): Promise<IWord[]> {
-    return await Word.find({}).sort({ createdAt: -1 }).lean().exec();
+    return (await Word.find({}).sort({ createdAt: -1 }).lean().exec()) as unknown as IWord[];
   }
 
   // Chat methods

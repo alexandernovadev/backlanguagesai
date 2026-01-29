@@ -201,10 +201,10 @@ export class ExpressionService {
   }
 
   async getAllExpressionsForExport(): Promise<IExpression[]> {
-    return await Expression.find({})
+    return (await Expression.find({})
       .sort({ createdAt: -1 })
       .lean()
-      .exec();
+      .exec()) as unknown as IExpression[];
   }
 
   // Import expressions from JSON data

@@ -962,14 +962,14 @@
         }
       }
     },
-    "/api/words/{idword}/generate-examples": {
+    "/api/words/{id}/generate-examples": {
       "post": {
         "summary": "Generate word examples with AI",
         "description": "Generate example sentences for a specific word using AI",
         "tags": ["Words"],
         "parameters": [
           {
-            "name": "idword",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to generate examples for",
@@ -1069,14 +1069,14 @@
         }
       }
     },
-    "/api/words/{idword}/generate-code-switching": {
+    "/api/words/{id}/generate-code-switching": {
       "post": {
         "summary": "Generate code-switching examples",
         "description": "Generate code-switching examples for a word using AI.",
         "tags": ["Words"],
         "parameters": [
           {
-            "name": "idword",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to generate code-switching examples for",
@@ -1158,14 +1158,14 @@
         }
       }
     },
-    "/api/words/{idword}/generate-types": {
+    "/api/words/{id}/generate-types": {
       "post": {
         "summary": "Generate word types with AI",
         "description": "Generate grammatical types for a word using AI",
         "tags": ["Words"],
         "parameters": [
           {
-            "name": "idword",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to generate types for",
@@ -1255,14 +1255,14 @@
         }
       }
     },
-    "/api/words/{idword}/generate-synonyms": {
+    "/api/words/{id}/generate-synonyms": {
       "post": {
         "summary": "Generate word synonyms with AI",
         "description": "Generate synonyms for a word using AI",
         "tags": ["Words"],
         "parameters": [
           {
-            "name": "idword",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to generate synonyms for",
@@ -1352,14 +1352,14 @@
         }
       }
     },
-    "/api/words/{idword}/generate-image": {
+    "/api/words/{id}/generate-image": {
       "post": {
         "summary": "Generate word image with AI",
         "description": "Generate an image for a word using AI and update the word record",
         "tags": ["Words"],
         "parameters": [
           {
-            "name": "idword",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to generate image for",
@@ -1570,14 +1570,14 @@
         }
       }
     },
-    "/api/words/{wordId}/chat": {
+    "/api/words/{id}/chat": {
       "get": {
         "summary": "Get chat history for word",
         "description": "Retrieve chat history for a specific word",
         "tags": ["Words", "Chat"],
         "parameters": [
           {
-            "name": "wordId",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to get chat history for",
@@ -1641,7 +1641,7 @@
         "tags": ["Words", "Chat"],
         "parameters": [
           {
-            "name": "wordId",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to add chat message for",
@@ -1725,7 +1725,7 @@
         "tags": ["Words", "Chat"],
         "parameters": [
           {
-            "name": "wordId",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to clear chat history for",
@@ -1778,14 +1778,14 @@
         }
       }
     },
-    "/api/words/{wordId}/chat/stream": {
+    "/api/words/{id}/chat/stream": {
       "post": {
         "summary": "Stream chat response for word",
         "description": "Get a streaming AI response for a word chat",
         "tags": ["Words", "Chat"],
         "parameters": [
           {
-            "name": "wordId",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "ID of the word to get streaming response for",

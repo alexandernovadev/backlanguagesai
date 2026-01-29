@@ -741,7 +741,7 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
 
 export const updateImageWord = async (req: Request, res: Response) => {
   const { word, imgOld } = req.body;
-  const IDWord = req.params.idword;
+  const IDWord = req.params.id;
 
   if (!word) {
     return errorResponse(res, "Word is required.", 400);

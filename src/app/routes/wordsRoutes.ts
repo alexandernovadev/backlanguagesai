@@ -41,18 +41,18 @@ router.get("/by-type-optimized", getWordsByTypeOptimized);
 router.get("/:word/word", getWordByName);
 
 // Chat routes
-router.post("/:wordId/chat", addChatMessage);
-router.post("/:wordId/chat/stream", streamChatResponse);
-router.get("/:wordId/chat", getChatHistory);
-router.delete("/:wordId/chat", clearChatHistory);
+router.post("/:id/chat", addChatMessage);
+router.post("/:id/chat/stream", streamChatResponse);
+router.get("/:id/chat", getChatHistory);
+router.delete("/:id/chat", clearChatHistory);
 
 // AI Generation routes
 router.post("/generate", generateWordJson);
-router.post("/:idword/generate-examples", generateWordExamplesJson);
-router.post("/:idword/generate-code-switching", generateWordExamplesCodeSwitchingJson);
-router.post("/:idword/generate-types", generateWordTypesJson);
-router.post("/:idword/generate-synonyms", generateWordSynomymsJson);
-router.post("/:idword/generate-image", updateImageWord);
+router.post("/:id/generate-examples", generateWordExamplesJson);
+router.post("/:id/generate-code-switching", generateWordExamplesCodeSwitchingJson);
+router.post("/:id/generate-types", generateWordTypesJson);
+router.post("/:id/generate-synonyms", generateWordSynomymsJson);
+router.post("/:id/generate-image", updateImageWord);
 
 // CRUD routes (MUST BE LAST)
 router.get("/:id", getWordById);

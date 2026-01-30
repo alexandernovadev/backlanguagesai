@@ -538,20 +538,20 @@ export const clearChatHistory = async (req: Request, res: Response) => {
 // Streaming chat response
 export const streamChatResponse = async (req: Request, res: Response) => {
   try {
-    const { wordId } = req.params;
+    const { id } = req.params;
     const { message } = req.body;
 
     if (!message) {
       return res.status(400).json({ message: "Message is required" });
     }
 
-    const word = await wordService.getWordById(wordId);
+    const word = await wordService.getWordById(id);
     if (!word) {
       return res.status(404).json({ message: "Word not found" });
     }
 
     // Add user message first
-    await wordService.addUserMessage(wordId, message);
+    await wordService.addUserMessage(id, message);
 
     // Set up streaming
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -589,7 +589,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     }
 
     // Save the complete AI response
-    await wordService.addAssistantMessage(wordId, fullResponse);
+    await wordService.addAssistantMessage(id, fullResponse);
 
     res.end();
   } catch (error: any) {

@@ -38,7 +38,7 @@ app.use(express.json());
 // Middleware to handle CORS
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://languages-ai.alexandernova.pro"],
+    origin: ["http://localhost:5173", "https://languages-ai.alexandernova.pro","https://frontlanguagesai.netlify.app"],
     credentials: true,
   })
 );

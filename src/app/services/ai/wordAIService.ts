@@ -203,7 +203,8 @@ export const generateWordChat = async (
   wordDefinition: string,
   userMessage: string,
   chatHistory: Array<{ role: string; content: string }> = [],
-  options: WordGenerationOptions = {}
+  options: WordGenerationOptions = {},
+  language?: string
 ) => {
   const provider = options.provider || "openai";
 
@@ -212,6 +213,7 @@ export const generateWordChat = async (
     wordDefinition,
     userMessage,
     chatHistory,
+    language,
   });
 
   return generateChat(provider, promptData.messages, undefined, {

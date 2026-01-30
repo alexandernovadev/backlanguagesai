@@ -484,14 +484,14 @@ export const importWordsFromFile = async (
 // Chat methods
 export const addChatMessage = async (req: Request, res: Response) => {
   try {
-    const { wordId } = req.params;
+    const { id } = req.params;
     const { message } = req.body;
 
     if (!message) {
       return res.status(400).json({ message: "Message is required" });
     }
 
-    const word = await wordService.addChatMessage(wordId, message);
+    const word = await wordService.addChatMessage(id, message);
     if (!word) {
       return res.status(404).json({ message: "Word not found" });
     }
@@ -508,8 +508,8 @@ export const addChatMessage = async (req: Request, res: Response) => {
 
 export const getChatHistory = async (req: Request, res: Response) => {
   try {
-    const { wordId } = req.params;
-    const chatHistory = await wordService.getChatHistory(wordId);
+    const { id } = req.params;
+    const chatHistory = await wordService.getChatHistory(id);
     res.json(chatHistory);
   } catch (error: any) {
     logger.error("Error getting chat history:", error);
@@ -519,8 +519,8 @@ export const getChatHistory = async (req: Request, res: Response) => {
 
 export const clearChatHistory = async (req: Request, res: Response) => {
   try {
-    const { wordId } = req.params;
-    const word = await wordService.clearChatHistory(wordId);
+    const { id } = req.params;
+    const word = await wordService.clearChatHistory(id);
     if (!word) {
       return res.status(404).json({ message: "Word not found" });
     }
@@ -565,25 +565,17 @@ export const streamChatResponse = async (req: Request, res: Response) => {
       word.definition,
       message,
       word.chat || [],
-      { stream: true }
+      { stream: true },
+      word.language
     );
 
     let fullResponse = "";
 
-    // Handle streaming response
-    if (stream && "choices" in stream && Array.isArray(stream.choices)) {
-      for await (const chunk of stream as any) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        if (content) {
-          fullResponse += content;
-          res.write(content);
-        }
-      }
-    } else {
-      // Handle non-streaming response
-      const content = (stream as any).choices[0]?.message?.content || "";
+    // Handle streaming response (stream is an AsyncIterable when stream: true)
+    for await (const chunk of stream as any) {
+      const content = chunk.choices?.[0]?.delta?.content || "";
       if (content) {
-        fullResponse = content;
+        fullResponse += content;
         res.write(content);
       }
     }

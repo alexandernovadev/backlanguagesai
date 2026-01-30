@@ -15,6 +15,7 @@ import LabsRoutes from "./app/routes/labsRoutes";
 import UploadRoutes from "./app/routes/uploadRoutes";
 import AuthRoutes from "./app/routes/authRoutes";
 import UserRoutes from "./app/routes/userRoutes";
+import StatsRoutes from "./app/routes/statsRoutes";
 
 // Utils
 import { errorResponse, successResponse } from "./app/utils/responseHelpers";
@@ -57,6 +58,7 @@ app.use("/api/lectures", authMiddleware, LectureRoutes);
 app.use("/api/words", authMiddleware, WordsRoutes);
 app.use("/api/expressions", authMiddleware, ExpressionRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
+app.use("/api/stats", authMiddleware, StatsRoutes);
 
 // Labs routes (conditional auth)
 if (LABS_AUTH) {

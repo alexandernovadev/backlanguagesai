@@ -4,7 +4,7 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "echo 'Building...ho' && node scripts/build-date.js && rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public",
-    "start": "echo 'Starting...hola' && yarn build && yarn dist/main.js",
+    "start": "yarn dev",
     "dev": "nodemon --exec ts-node src/main.ts",
     "clean:logs": "node scripts/clean-logs.js"
   },

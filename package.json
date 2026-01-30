@@ -1,11 +1,11 @@
 {
   "name": "back",
   "version": "2.8.29alpha",
-  "main": "dist/src/main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "build": "node scripts/build-date.js && rm -rf ./dist && tsc && cp -r public dist/public",
-    "build:dev": "node scripts/build-date.js && rm -rf ./dist && tsc && cp -r public dist/public",
-    "start": "NODE_ENV=production node dist/src/main.js",
+    "build": "node scripts/build-date.js && rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public",
+    "build:dev": "node scripts/build-date.js && rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public",
+    "start": "NODE_ENV=production node dist/main.js",
     "dev": "nodemon --exec ts-node src/main.ts",
     "clean:logs": "node scripts/clean-logs.js"
   },

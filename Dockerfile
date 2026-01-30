@@ -17,8 +17,8 @@ RUN yarn install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build TypeScript
-RUN yarn build
+# Build TypeScript (skip build-date script for Docker)
+RUN rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public
 
 # Remove dev dependencies
 RUN yarn install --production --frozen-lockfile && yarn cache clean

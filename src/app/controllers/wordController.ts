@@ -626,7 +626,7 @@ export const generateWordJson = async (req: Request, res: Response) => {
 
 export const generateWordExamplesJson = async (req: Request, res: Response) => {
   const { word, language, oldExamples, provider = "openai" } = req.body;
-  const { idword } = req.params as { idword: string };
+  const { id } = req.params as { id: string };
 
   if (!word) {
     return errorResponse(res, "Word is required.", 400);
@@ -637,7 +637,7 @@ export const generateWordExamplesJson = async (req: Request, res: Response) => {
       provider,
     });
     const updated = await wordService.updateWordExamples(
-      idword,
+      id,
       generated.examples || []
     );
     if (!updated) {
@@ -654,7 +654,7 @@ export const generateWordExamplesCodeSwitchingJson = async (
   res: Response
 ) => {
   const { word, language, oldExamples, provider = "openai" } = req.body;
-  const { idword } = req.params as { idword: string };
+  const { id } = req.params as { id: string };
 
   if (!word) {
     return errorResponse(res, "Word is required.", 400);
@@ -668,7 +668,7 @@ export const generateWordExamplesCodeSwitchingJson = async (
       { provider }
     );
     const updated = await wordService.updateWordCodeSwitching(
-      idword,
+      id,
       generated.codeSwitching || []
     );
     if (!updated) {
@@ -691,7 +691,7 @@ export const generateWordExamplesCodeSwitchingJson = async (
 
 export const generateWordTypesJson = async (req: Request, res: Response) => {
   const { word, language, oldExamples, provider = "openai" } = req.body;
-  const { idword } = req.params as { idword: string };
+  const { id } = req.params as { id: string };
 
   if (!word) {
     return errorResponse(res, "Word is required.", 400);
@@ -702,7 +702,7 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
       provider,
     });
     const updated = await wordService.updateWordType(
-      idword,
+      id,
       generated.type || []
     );
     if (!updated) {
@@ -716,7 +716,7 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
 
 export const generateWordSynomymsJson = async (req: Request, res: Response) => {
   const { word, language, oldExamples, provider = "openai" } = req.body;
-  const { idword } = req.params as { idword: string };
+  const { id } = req.params as { id: string };
 
   if (!word) {
     return errorResponse(res, "Word is required.", 400);
@@ -727,7 +727,7 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
       provider,
     });
     const updated = await wordService.updateWordSynonyms(
-      idword,
+      id,
       generated.sinonyms || []
     );
     if (!updated) {

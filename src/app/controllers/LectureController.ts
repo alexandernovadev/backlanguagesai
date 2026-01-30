@@ -115,8 +115,12 @@ export const getAllLectures = async (
       typeWrite,
       timeMin,
       timeMax,
+      hasImg,
+      hasUrlAudio,
       createdAfter,
       createdBefore,
+      updatedAfter,
+      updatedBefore,
       sortBy,
       sortOrder,
     } = req.query as any;
@@ -124,17 +128,32 @@ export const getAllLectures = async (
     const page = parseInt(qPage) || 1;
     const limit = parseInt(qLimit) || 10;
 
+    // Parse comma-separated strings into arrays for level, language, typeWrite
+    const parseArrayParam = (param: string | string[] | undefined): string | string[] | undefined => {
+      if (!param) return undefined;
+      if (Array.isArray(param)) return param;
+      // If it's a string with commas, split it
+      if (typeof param === 'string' && param.includes(',')) {
+        return param.split(',').map(v => v.trim()).filter(v => v);
+      }
+      return param;
+    };
+
     const lectures = await lectureService.getLecturesAdvanced({
       page,
       limit,
       search,
-      level,
-      language,
-      typeWrite,
+      level: parseArrayParam(level),
+      language: parseArrayParam(language),
+      typeWrite: parseArrayParam(typeWrite),
       timeMin: timeMin ? Number(timeMin) : undefined,
       timeMax: timeMax ? Number(timeMax) : undefined,
+      hasImg: hasImg as "true" | "false" | undefined,
+      hasUrlAudio: hasUrlAudio as "true" | "false" | undefined,
       createdAfter,
       createdBefore,
+      updatedAfter,
+      updatedBefore,
       sortBy,
       sortOrder,
     });

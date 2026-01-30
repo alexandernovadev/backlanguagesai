@@ -192,9 +192,9 @@ export class LectureService {
       query.$text = { $search: search.trim() };
     }
 
-    // Level filter
+    // Level filter (map to difficulty field in model)
     if (level) {
-      query.level = Array.isArray(level) ? { $in: level } : level;
+      query.difficulty = Array.isArray(level) ? { $in: level } : level;
     }
 
     // Language filter

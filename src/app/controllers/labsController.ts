@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { seedAdminUser } from "../services/seed/user";
 import { sendBackupByEmail } from "../services/backup/backupEmailService";
+import { LabsService } from "../services/labs/labsService";
 import logger from "../utils/logger";
+
+const labsService = new LabsService();
 
 /**
  * LABS CONTROLLER - Development & Maintenance Endpoints
@@ -16,6 +19,11 @@ import logger from "../utils/logger";
  * 
  * Backup & Maintenance:
  * - POST /api/labs/backup/send-email - Send backup by email
+ * 
+ * Data Management (DANGEROUS):
+ * - DELETE /api/labs/data/words/delete-all - Delete all words
+ * - DELETE /api/labs/data/expressions/delete-all - Delete all expressions
+ * - DELETE /api/labs/data/lectures/delete-all - Delete all lectures
  */
 
 /**
@@ -80,5 +88,80 @@ export const sendBackupByEmailHandler = async (
       stack: error.stack
     });
     return errorResponse(res, "Error sending backup by email", 500, error);
+  }
+};
+
+/**
+ * Delete all words from the database
+ * ⚠️ DANGEROUS OPERATION - Cannot be undone
+ */
+export const deleteAllWords = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const result = await labsService.deleteAllWords();
+    
+    return successResponse(
+      res,
+      `Successfully deleted all words`,
+      {
+        deletedCount: result.deletedCount,
+        timestamp: result.timestamp
+      }
+    );
+  } catch (error) {
+    logger.error("Error in deleteAllWords controller:", error);
+    return errorResponse(res, "Error deleting all words", 500, error);
+  }
+};
+
+/**
+ * Delete all expressions from the database
+ * ⚠️ DANGEROUS OPERATION - Cannot be undone
+ */
+export const deleteAllExpressions = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const result = await labsService.deleteAllExpressions();
+    
+    return successResponse(
+      res,
+      `Successfully deleted all expressions`,
+      {
+        deletedCount: result.deletedCount,
+        timestamp: result.timestamp
+      }
+    );
+  } catch (error) {
+    logger.error("Error in deleteAllExpressions controller:", error);
+    return errorResponse(res, "Error deleting all expressions", 500, error);
+  }
+};
+
+/**
+ * Delete all lectures from the database
+ * ⚠️ DANGEROUS OPERATION - Cannot be undone
+ */
+export const deleteAllLectures = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const result = await labsService.deleteAllLectures();
+    
+    return successResponse(
+      res,
+      `Successfully deleted all lectures`,
+      {
+        deletedCount: result.deletedCount,
+        timestamp: result.timestamp
+      }
+    );
+  } catch (error) {
+    logger.error("Error in deleteAllLectures controller:", error);
+    return errorResponse(res, "Error deleting all lectures", 500, error);
   }
 };

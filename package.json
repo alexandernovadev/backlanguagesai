@@ -1,7 +1,7 @@
 {
   "name": "back",
   "version": "2.8.29alpha",
-  "main": "dist/main.js",
+  "main": "dist/src/main.js",
   "scripts": {
     "build": "node scripts/build-date.js && rm -rf ./dist && tsc && cp -r public dist/public",
     "build:dev": "node scripts/build-date.js && rm -rf ./dist && tsc && cp -r public dist/public",

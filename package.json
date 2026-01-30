@@ -4,7 +4,7 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "node scripts/build-date.js && rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public",
-    "start": "echo 'ls dist=-' && ls . && node dist/main.js",
+    "start": "echo 'ls dist=-Z' && ls src && node dist/main.js",
     "dev": "nodemon --exec ts-node src/main.ts",
     "clean:logs": "node scripts/clean-logs.js"
   },

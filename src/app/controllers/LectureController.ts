@@ -398,6 +398,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
+    const userId = req.user?._id || req.user?.id || null;
     // Pasar stream: true en las opciones
     const stream = await generateLectureText({
       // If prompt is empty or whitespace, we still pass it, and the service will handle random generation
@@ -412,6 +413,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
       selectedWords: Array.isArray(selectedWords) ? selectedWords : [],
     }, {
       stream: true,
+      userId,
     });
 
     // Read the stream and send the data to the client
@@ -463,12 +465,14 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
+    const userId = req.user?._id || req.user?.id || null;
     // Pasar stream: true en las opciones
     const stream = await generateLectureTopic({
       existingText: existingText || "",
       type,
     }, {
       stream: true,
+      userId,
     });
 
     // Stream the response

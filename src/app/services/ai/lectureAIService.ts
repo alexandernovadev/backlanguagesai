@@ -5,9 +5,11 @@ import {
   createTopicGenerationPrompt,
   createLectureImagePrompt,
 } from "./prompts/lectures";
+import { getAIProvider } from "./aiConfigHelper";
 
 export interface LectureTextGenerationOptions {
   provider?: TextProvider;
+  userId?: string | null; // Para obtener configuración del usuario
   stream?: boolean;
   [key: string]: any;
 }
@@ -16,8 +18,7 @@ export const generateLectureText = async (
   params: Parameters<typeof createLectureTextGenerationPrompt>[0],
   options: LectureTextGenerationOptions = {}
 ) => {
-  // DEEPSEEK
-  const provider = options.provider || "deepseek";
+  const provider = await getAIProvider(options.userId, 'lecture', 'text', options);
   const promptData = createLectureTextGenerationPrompt(params);
   
   // Si stream está activado, retornar el stream directamente
@@ -57,8 +58,7 @@ export const generateLectureTopic = async (
   params: Parameters<typeof createTopicGenerationPrompt>[0],
   options: LectureTextGenerationOptions = {}
 ) => {
-  // DEEPSEEK
-  const provider = options.provider || "deepseek";
+  const provider = await getAIProvider(options.userId, 'lecture', 'topic', options);
   const promptData = createTopicGenerationPrompt(params);
   
   // Si stream está activado, retornar el stream directamente

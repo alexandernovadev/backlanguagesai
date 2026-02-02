@@ -7,9 +7,11 @@ import {
   ExpressionChatPromptParams,
 } from "./prompts/expressions";
 import { generateChat } from "./textAIService";
+import { getAIProvider } from "./aiConfigHelper";
 
 export interface ExpressionGenerationOptions {
   provider?: TextProvider;
+  userId?: string | null; // Para obtener configuración del usuario
   [key: string]: any;
 }
 
@@ -17,7 +19,7 @@ export const generateExpressionData = async (
   params: ExpressionGenerationPromptParams,
   options: ExpressionGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  const provider = await getAIProvider(options.userId, 'expression', 'generate', options);
   const promptData = createExpressionGenerationPrompt(params);
   const response = await generateText(
     provider,
@@ -38,7 +40,7 @@ export const generateExpressionChat = async (
   params: ExpressionChatPromptParams,
   options: ExpressionGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  const provider = await getAIProvider(options.userId, 'expression', 'chat', options);
   const promptData = createExpressionChatPrompt(params);
   return generateChat(provider, promptData.messages, undefined, {
     ...options,

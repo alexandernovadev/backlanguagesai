@@ -387,7 +387,8 @@ export const streamChatResponse = async (req: Request, res: Response) => {
       userMessage: message,
       chatHistory,
     };
-    const stream = await generateExpressionChat(params, { stream: true });
+    const userId = req.user?._id || req.user?.id || null;
+    const stream = await generateExpressionChat(params, { stream: true, userId });
     let fullResponse = "";
     for await (const chunk of stream as any) {
       const content = chunk.choices?.[0]?.delta?.content || "";
@@ -408,10 +409,11 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 export const generateExpression = async (req: Request, res: Response) => {
   try {
     const { prompt, language = "en", options = {} } = req.body;
+    const userId = req.user?._id || req.user?.id || null;
     if (!prompt) {
       return errorResponse(res, "Prompt is required", 400);
     }
-    const data = await generateExpressionData({ prompt, language }, options);
+    const data = await generateExpressionData({ prompt, language }, { ...options, userId });
     return successResponse(res, "Expression generated successfully", data);
   } catch (error: any) {
     logger.error("Error generating expression:", error);

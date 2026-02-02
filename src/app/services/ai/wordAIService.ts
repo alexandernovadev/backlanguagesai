@@ -18,10 +18,12 @@ import {
 } from "./prompts/words";
 import { TextProvider } from "../../../config/aiConfig";
 import { Language } from "../../../../types/business";
+import { getAIProvider } from "./aiConfigHelper";
 
 // Options for word generation
 export interface WordGenerationOptions extends TextGenerationOptions {
   provider?: TextProvider;
+  userId?: string | null; // Para obtener configuración del usuario
 }
 
 // Generate complete word data
@@ -31,7 +33,7 @@ export const generateWordData = async (
   wordDataExamples: any[] = [],
   options: WordGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  const provider = await getAIProvider(options.userId, 'word', 'generate', options);
 
   // Create prompt using separated function
   const promptData = createWordGenerationPrompt({
@@ -68,7 +70,7 @@ export const generateWordExamples = async (
   oldExamples: string = "",
   options: WordGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  const provider = await getAIProvider(options.userId, 'word', 'examples', options);
 
   const promptData = createWordExamplesPrompt({
     word: word,
@@ -102,7 +104,7 @@ export const generateWordCodeSwitching = async (
   oldExamples: string = "",
   options: WordGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  const provider = await getAIProvider(options.userId, 'word', 'codeSwitching', options);
 
   const promptData = createWordCodeSwitchingPrompt({
     prompt: word,
@@ -136,7 +138,7 @@ export const generateWordTypes = async (
   oldExamples: string = "",
   options: WordGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  const provider = await getAIProvider(options.userId, 'word', 'types', options);
 
   const promptData = createWordTypesPrompt({
     word,
@@ -170,7 +172,7 @@ export const generateWordSynonyms = async (
   oldExamples: string = "",
   options: WordGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  const provider = await getAIProvider(options.userId, 'word', 'synonyms', options);
 
   const promptData = createWordSynonymsPrompt({
     word,
@@ -206,7 +208,7 @@ export const generateWordChat = async (
   options: WordGenerationOptions = {},
   language?: string
 ) => {
-  const provider = options.provider || "openai";
+  const provider = await getAIProvider(options.userId, 'word', 'chat', options);
 
   const promptData = createWordChatPrompt({
     wordText,

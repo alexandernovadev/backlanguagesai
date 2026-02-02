@@ -391,6 +391,14 @@ export const generateTextStream = async (req: Request, res: Response) => {
       promptWords = promptAddEasyWords(wordsArray);
     }
 
+    // Set up streaming headers
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+    // Pasar stream: true en las opciones
     const stream = await generateLectureText({
       // If prompt is empty or whitespace, we still pass it, and the service will handle random generation
       prompt: (prompt || "").toString(),
@@ -401,16 +409,17 @@ export const generateTextStream = async (req: Request, res: Response) => {
       rangeMin,
       rangeMax,
       grammarTopics: Array.isArray(grammarTopics) ? grammarTopics : [],
-      selectedWords: Array.isArray(selectedWords) ? selectedWords : [], // Pasar selectedWords
+      selectedWords: Array.isArray(selectedWords) ? selectedWords : [],
+    }, {
+      stream: true,
     });
 
-    res.setHeader("Content-Type", "application/json");
-    res.flushHeaders();
-
     // Read the stream and send the data to the client
-    for await (const chunk of stream) {
-      const piece = chunk.choices[0].delta.content || "";
-      res.write(piece);
+    for await (const chunk of stream as any) {
+      const content = chunk.choices?.[0]?.delta?.content || "";
+      if (content) {
+        res.write(content);
+      }
     }
 
     // Close the stream when done
@@ -451,16 +460,23 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // Generate topic stream
+    // Pasar stream: true en las opciones
     const stream = await generateLectureTopic({
       existingText: existingText || "",
       type,
+    }, {
+      stream: true,
     });
 
     // Stream the response
-    for await (const chunk of stream) {
-      res.write(chunk);
+    for await (const chunk of stream as any) {
+      const content = chunk.choices?.[0]?.delta?.content || "";
+      if (content) {
+        res.write(content);
+      }
     }
 
     res.end();

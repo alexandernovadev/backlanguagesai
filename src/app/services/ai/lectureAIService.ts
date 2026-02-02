@@ -8,6 +8,7 @@ import {
 
 export interface LectureTextGenerationOptions {
   provider?: TextProvider;
+  stream?: boolean;
   [key: string]: any;
 }
 
@@ -17,6 +18,23 @@ export const generateLectureText = async (
 ) => {
   const provider = options.provider || "openai";
   const promptData = createLectureTextGenerationPrompt(params);
+  
+  // Si stream está activado, retornar el stream directamente
+  if (options.stream) {
+    return generateText(
+      provider,
+      `${promptData.system}\n\n${promptData.user}`,
+      undefined,
+      {
+        ...options,
+        responseFormat: "json_object",
+        temperature: options.temperature || 0.5,
+        stream: true,
+      }
+    );
+  }
+  
+  // Si no es streaming, retornar JSON parseado (comportamiento original)
   const response = await generateText(
     provider,
     `${promptData.system}\n\n${promptData.user}`,
@@ -25,6 +43,7 @@ export const generateLectureText = async (
       ...options,
       responseFormat: "json_object",
       temperature: options.temperature || 0.5,
+      stream: false,
     }
   );
   const content = response.choices[0].message.content;
@@ -38,6 +57,23 @@ export const generateLectureTopic = async (
 ) => {
   const provider = options.provider || "openai";
   const promptData = createTopicGenerationPrompt(params);
+  
+  // Si stream está activado, retornar el stream directamente
+  if (options.stream) {
+    return generateText(
+      provider,
+      `${promptData.system}\n\n${promptData.user}`,
+      undefined,
+      {
+        ...options,
+        responseFormat: "text",
+        temperature: options.temperature || 0.7,
+        stream: true,
+      }
+    );
+  }
+  
+  // Si no es streaming, retornar texto (comportamiento original)
   const response = await generateText(
     provider,
     `${promptData.system}\n\n${promptData.user}`,
@@ -46,6 +82,7 @@ export const generateLectureTopic = async (
       ...options,
       responseFormat: "text",
       temperature: options.temperature || 0.7,
+      stream: false,
     }
   );
   const content = response.choices[0].message.content;

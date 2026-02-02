@@ -16,7 +16,8 @@ export const generateLectureText = async (
   params: Parameters<typeof createLectureTextGenerationPrompt>[0],
   options: LectureTextGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  // DEEPSEEK
+  const provider = options.provider || "deepseek";
   const promptData = createLectureTextGenerationPrompt(params);
   
   // Si stream está activado, retornar el stream directamente
@@ -56,7 +57,8 @@ export const generateLectureTopic = async (
   params: Parameters<typeof createTopicGenerationPrompt>[0],
   options: LectureTextGenerationOptions = {}
 ) => {
-  const provider = options.provider || "openai";
+  // DEEPSEEK
+  const provider = options.provider || "deepseek";
   const promptData = createTopicGenerationPrompt(params);
   
   // Si stream está activado, retornar el stream directamente

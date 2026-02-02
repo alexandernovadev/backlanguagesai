@@ -10,8 +10,7 @@ export const createWordChatPrompt = (params: WordChatPromptParams) => {
   const { wordText, wordDefinition, userMessage, chatHistory, language = "en" } = params;
   const wordLanguage = language.toUpperCase();
   
-  return {
-    system: `
+  const systemPrompt = `
       You are a helpful and friendly language teacher helping a student learn vocabulary. 
       You're teaching about the word: "${wordText}" (${wordDefinition}).
       The word is in ${wordLanguage} language.
@@ -41,18 +40,28 @@ export const createWordChatPrompt = (params: WordChatPromptParams) => {
       - Focus on helping the user understand and use this word correctly
 Remember: Your goal is to help the user learn, not to follow a template. 
 Respond naturally to their needs. ALWAYS provide examples in ${wordLanguage} when the word is in ${wordLanguage}.
-`.trim(),
-    messages: [
-      // Add chat history for context
-      ...chatHistory.slice(-6).map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      // Add current user message
-      {
-        role: "user" as const,
-        content: userMessage,
-      },
-    ],
+`.trim();
+
+  const messages = [
+    // Add system message first
+    {
+      role: "system" as const,
+      content: systemPrompt,
+    },
+    // Add chat history for context
+    ...chatHistory.slice(-6).map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    })),
+    // Add current user message
+    {
+      role: "user" as const,
+      content: userMessage,
+    },
+  ];
+
+  return {
+    system: systemPrompt,
+    messages,
   };
 };

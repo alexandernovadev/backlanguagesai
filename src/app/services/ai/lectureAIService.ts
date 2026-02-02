@@ -20,6 +20,7 @@ export const generateLectureText = async (
   const promptData = createLectureTextGenerationPrompt(params);
   
   // Si stream está activado, retornar el stream directamente
+  // Para streaming, usamos "text" porque enviamos texto plano, no JSON
   if (options.stream) {
     return generateText(
       provider,
@@ -27,7 +28,7 @@ export const generateLectureText = async (
       undefined,
       {
         ...options,
-        responseFormat: "json_object",
+        responseFormat: "text",
         temperature: options.temperature || 0.5,
         stream: true,
       }

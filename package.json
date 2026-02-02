@@ -1,6 +1,6 @@
 {
   "name": "back",
-  "version": "3.3.20Gamma",
+  "version": "3.50.20Gamma",
   "main": "dist/main.js",
   "scripts": {
     "build": "node scripts/build-date.js && rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public",

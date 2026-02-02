@@ -7,8 +7,8 @@ export interface ExpressionChatPromptParams {
 
 export const createExpressionChatPrompt = (params: ExpressionChatPromptParams) => {
   const { expressionText, expressionDefinition, userMessage, chatHistory } = params;
-  return {
-    system: `
+  
+  const systemPrompt = `
 You are a helpful and friendly English teacher helping a Spanish-speaking student learn English expressions. 
 You're teaching about the expression: "${expressionText}" (${expressionDefinition}).
 CORE PRINCIPLES:
@@ -33,16 +33,28 @@ CONTEXT:
 - Definition: ${expressionDefinition}
 - Focus on helping the user understand and use this expression correctly
 Remember: Your goal is to help the user learn, not to follow a template. Respond naturally to their needs.
-`.trim(),
-    messages: [
-      ...chatHistory.slice(-6).map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      {
-        role: "user" as const,
-        content: userMessage,
-      },
-    ],
+`.trim();
+
+  const messages = [
+    // Add system message first
+    {
+      role: "system" as const,
+      content: systemPrompt,
+    },
+    // Add chat history for context
+    ...chatHistory.slice(-6).map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    })),
+    // Add current user message
+    {
+      role: "user" as const,
+      content: userMessage,
+    },
+  ];
+
+  return {
+    system: systemPrompt,
+    messages,
   };
 };

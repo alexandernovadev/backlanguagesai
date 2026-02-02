@@ -17,17 +17,17 @@ const DEFAULT_CONFIGS: Record<AIFeature, Record<string, TextProvider>> = {
     types: "openai",
     synonyms: "openai",
     chat: "openai",
-    image: "openai",
+    image: "openai", // Imágenes siempre usan OpenAI (DALL-E)
   },
   expression: {
     generate: "openai",
     chat: "openai",
-    image: "openai",
+    image: "openai", // Imágenes siempre usan OpenAI (DALL-E)
   },
   lecture: {
     text: "deepseek",
     topic: "deepseek",
-    image: "openai",
+    image: "openai", // Imágenes siempre usan OpenAI (DALL-E)
   },
 };
 
@@ -36,12 +36,18 @@ export class AIConfigService {
    * Obtiene el provider configurado para una operación
    * Llamada directa a DB, sin caché
    * Si falla, retorna el default
+   * Las imágenes siempre usan OpenAI (DeepSeek no soporta imágenes)
    */
   static async getProvider(
     userId: string | null | undefined,
     feature: AIFeature,
     operation: AIOperation
   ): Promise<TextProvider> {
+    // Las imágenes siempre usan OpenAI (DeepSeek no soporta imágenes)
+    if (operation === "image") {
+      return "openai";
+    }
+
     const normalizedUserId = userId || null;
     
     try {
@@ -53,6 +59,10 @@ export class AIConfigService {
       });
 
       if (config) {
+        // Validar que las imágenes no usen DeepSeek
+        if (operation === "image" && config.provider === "deepseek") {
+          return "openai";
+        }
         return config.provider as TextProvider;
       }
     } catch (error) {

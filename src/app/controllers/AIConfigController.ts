@@ -75,6 +75,11 @@ export const saveAIConfig = async (req: Request, res: Response) => {
       return errorResponse(res, "Invalid provider. Must be 'openai' or 'deepseek'", 400);
     }
 
+    // Las imágenes no pueden usar DeepSeek (solo OpenAI soporta imágenes)
+    if (operation === "image" && provider === "deepseek") {
+      return errorResponse(res, "Las imágenes solo pueden usar OpenAI. DeepSeek no soporta generación de imágenes.", 400);
+    }
+
     const config = await AIConfigService.saveConfig(userId, feature, operation, provider);
 
     return successResponse(res, "AI configuration saved successfully", config);

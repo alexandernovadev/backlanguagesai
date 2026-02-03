@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { LogsService, LogQueryParams } from "../services/logs/logsService";
+import { LogsService } from "../services/logs/logsService";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 
 const logsService = new LogsService();
@@ -32,7 +32,7 @@ export const getLogs = async (
       search,
     } = req.query;
 
-    const params: LogQueryParams = {
+    const params: any = {
       page: page ? parseInt(page as string, 10) : undefined,
       limit: limit ? parseInt(limit as string, 10) : undefined,
       statusCode: statusCode ? parseInt(statusCode as string, 10) : undefined,
@@ -120,7 +120,7 @@ export const deleteLogs = async (
       search,
     } = req.query;
 
-    const params: LogQueryParams = {
+    const params: any = {
       statusCode: statusCode ? parseInt(statusCode as string, 10) : undefined,
       startDate: startDate as string | undefined,
       endDate: endDate as string | undefined,

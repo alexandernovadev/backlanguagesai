@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { LogsService } from "../services/logs/logsService";
+import { LogsService } from "../services/logs";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 
 const logsService = new LogsService();

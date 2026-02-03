@@ -433,12 +433,18 @@ export const updateImageExpression = async (req: Request, res: Response) => {
 
   try {
     // Generate image
-    const imageBase64 = await generateImage(
+    const imageResponse = await generateImage(
       "openai",
       createExpressionImagePrompt(expressionString)
     );
-    if (!imageBase64) {
+    if (!imageResponse) {
       return errorResponse(res, "Failed to generate image.", 400);
+    }
+
+    // Extract base64 string from the response object
+    const imageBase64 = (imageResponse as any).b64_json;
+    if (!imageBase64) {
+      return errorResponse(res, "Failed to get image data from response.", 400);
     }
 
     let deleteOldImagePromise: Promise<void> = Promise.resolve();
@@ -461,15 +467,28 @@ export const updateImageExpression = async (req: Request, res: Response) => {
       uploadImageToCloudinary(imageBase64, "expressions"),
     ]);
 
+    if (!urlImage) {
+      return errorResponse(res, "Failed to upload image to Cloudinary.", 500);
+    }
+
     const updatedExpression = await expressionService.updateExpressionImg(
       IDExpression,
       urlImage as string
     );
 
+    if (!updatedExpression) {
+      return errorResponse(res, "Expression not found or failed to update.", 404);
+    }
+
+    // Ensure the response includes the img field
+    const responseData = {
+      img: updatedExpression.img || urlImage,
+    };
+
     return successResponse(
       res,
       "Expression image updated successfully",
-      updatedExpression
+      responseData
     );
   } catch (error) {
     return errorResponse(res, "Error generating expression image", 500, error);

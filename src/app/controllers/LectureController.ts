@@ -14,6 +14,7 @@ import {
 import { WordService } from "../services/words/wordService";
 import { promptAddEasyWords } from "../services/ai/prompts/promptAddEasyWords";
 import { generateImage } from "../services/ai/imageAIService";
+import logger from "../utils/logger";
 
 const lectureService = new LectureService();
 const lectureImportService = new LectureImportService();
@@ -316,12 +317,18 @@ export const updateImageLecture = async (req: Request, res: Response) => {
 
   try {
     // Generate image
-    const imageBase64 = await generateImage(
+    const imageResponse = await generateImage(
       "openai",
       createLectureImagePrompt(lectureString)
     );
-    if (!imageBase64) {
+    if (!imageResponse) {
       return errorResponse(res, "Failed to generate image.", 400);
+    }
+
+    // Extract base64 string from the response object
+    const imageBase64 = (imageResponse as any).b64_json;
+    if (!imageBase64) {
+      return errorResponse(res, "Failed to get image data from response.", 400);
     }
 
     let deleteOldImagePromise: Promise<void> = Promise.resolve();

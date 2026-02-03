@@ -11,12 +11,20 @@ export const uploadImageToCloudinary = async (
   folder = "lectures"
 ): Promise<string | null> => {
   try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return null;
+    }
+
     const uploadResponse = await cloudinary.v2.uploader.upload(
       `data:image/png;base64,${imageBase64}`,
       {
         folder: `languagesai/${folder}`,
       }
     );
+
+    if (!uploadResponse || !uploadResponse.secure_url) {
+      return null;
+    }
 
     return uploadResponse.secure_url;
   } catch (error) {

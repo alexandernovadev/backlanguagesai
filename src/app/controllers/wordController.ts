@@ -750,9 +750,15 @@ export const updateImageWord = async (req: Request, res: Response) => {
 
   try {
     // Generate image with primary prompt only
-    const imageBase64 = await generateImage("openai", imageWordPrompt(word));
-    if (!imageBase64) {
+    const imageResponse = await generateImage("openai", imageWordPrompt(word));
+    if (!imageResponse) {
       return errorResponse(res, "Failed to generate image.", 400);
+    }
+
+    // Extract base64 string from the response object
+    const imageBase64 = (imageResponse as any).b64_json;
+    if (!imageBase64) {
+      return errorResponse(res, "Failed to get image data from response.", 400);
     }
 
     let deleteOldImagePromise: Promise<void> = Promise.resolve();
@@ -778,10 +784,23 @@ export const updateImageWord = async (req: Request, res: Response) => {
       uploadImageToCloudinary(imageBase64, "words"),
     ]);
 
+    if (!urlImage) {
+      return errorResponse(res, "Failed to upload image to Cloudinary.", 500);
+    }
+
     // Update word image
     const updatedWord = await wordService.updateWordImg(IDWord, urlImage);
 
-    return successResponse(res, "Word image updated successfully", updatedWord);
+    if (!updatedWord) {
+      return errorResponse(res, "Word not found or failed to update.", 404);
+    }
+
+    // Ensure the response includes the img field
+    const responseData = {
+      img: updatedWord.img || urlImage,
+    };
+
+    return successResponse(res, "Word image updated successfully", responseData);
   } catch (error) {
     return errorResponse(res, "Error generating word image", 500, error);
   }

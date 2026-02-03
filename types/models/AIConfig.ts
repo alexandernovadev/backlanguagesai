@@ -12,7 +12,7 @@ export type AIOperation =
 
 export type AIProvider = 'openai' | 'deepseek';
 
-export interface IAIConfig extends Document {
+export interface IAIConfig extends Omit<Document, 'model'> {
   userId?: string | null; // null = configuración global/default
   feature: AIFeature;
   operation: AIOperation;

@@ -1,5 +1,6 @@
 import { Response } from "express";
 import logger from "./logger";
+import Log from "../db/models/Log";
 
 export const successResponse = (
   res: Response,
@@ -31,6 +32,16 @@ export const errorResponse = (
   logger.error("Error Response:", {
     message: errorMessage + " - " + errordata,
     stack: errorInstance.stack || "No stack available",
+  });
+
+  // Guardar en la base de datos
+  Log.create({
+    errorMessage: typeof errorMessage === "string" ? errorMessage : JSON.stringify(errorMessage),
+    statusCode,
+    errorData: errordata,
+    stack: errorInstance.stack || "No stack available",
+  }).catch(() => {
+    // Ignorar errores al guardar
   });
 
   return res.status(statusCode).json({ success: false, error: errorMessage });

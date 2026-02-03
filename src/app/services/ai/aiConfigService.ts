@@ -59,10 +59,6 @@ export class AIConfigService {
       });
 
       if (config) {
-        // Validar que las imágenes no usen DeepSeek
-        if (operation === "image" && config.provider === "deepseek") {
-          return "openai";
-        }
         return config.provider as TextProvider;
       }
     } catch (error) {

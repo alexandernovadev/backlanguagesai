@@ -12,6 +12,7 @@ import LectureRoutes from "./app/routes/lectureRoutes";
 import WordsRoutes from "./app/routes/wordsRoutes";
 import ExpressionRoutes from "./app/routes/expressionRoutes";
 import LabsRoutes from "./app/routes/labsRoutes";
+import LogsRoutes from "./app/routes/logsRoutes";
 import UploadRoutes from "./app/routes/uploadRoutes";
 import AuthRoutes from "./app/routes/authRoutes";
 import UserRoutes from "./app/routes/userRoutes";
@@ -67,6 +68,13 @@ if (LABS_AUTH) {
   app.use("/api/labs", authMiddleware, LabsRoutes);
 } else {
   app.use("/api/labs", LabsRoutes);
+}
+
+// Logs routes (conditional auth, same as labs)
+if (LABS_AUTH) {
+  app.use("/api/labs/logs", authMiddleware, LogsRoutes);
+} else {
+  app.use("/api/labs/logs", LogsRoutes);
 }
 
 // Upload routes (must be after labs to avoid conflict)

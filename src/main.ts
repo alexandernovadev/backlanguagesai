@@ -17,7 +17,6 @@ import AuthRoutes from "./app/routes/authRoutes";
 import UserRoutes from "./app/routes/userRoutes";
 import StatsRoutes from "./app/routes/statsRoutes";
 import AIConfigRoutes from "./app/routes/aiConfigRoutes";
-import LogsRoutes from "./app/routes/logsRoutes";
 
 // Utils
 import { errorResponse, successResponse } from "./app/utils/responseHelpers";
@@ -62,7 +61,6 @@ app.use("/api/expressions", authMiddleware, ExpressionRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 app.use("/api/stats", authMiddleware, StatsRoutes);
 app.use("/api/ai-config", authMiddleware, AIConfigRoutes);
-app.use("/api/logs", authMiddleware, LogsRoutes);
 
 // Labs routes (conditional auth)
 if (LABS_AUTH) {

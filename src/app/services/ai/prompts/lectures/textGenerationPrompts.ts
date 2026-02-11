@@ -54,21 +54,32 @@ Generate a Markdown text in language "${language}" according to ISO 639-1 standa
 This text is for educational purposes with a "${typeWrite}" style, using vocabulary and 
 complexity appropriate for a ${level} level. 
 
+CRITICAL - Vocabulary:
+- ALWAYS use everyday, common vocabulary regardless of level. Never use rare, archaic, or overly formal words.
+- Complexity comes from grammar and sentence structure, NOT from obscure vocabulary.
+- Each word should be clickable and easily searchable in a dictionary.
+
 Formatting guidelines:
 - Title must be "# Title".
 - Use one main subtitle as "## Subtitle".
-- Use additional subtitles as "### Subtitle" if needed.
-- You can use h4 (####) and h5 (#####) headers if needed for better structure.
+- Use additional subtitles as "### Subtitle" frequently (every 2-3 paragraphs) for clear structure.
+- You can use h4 (####) and h5 (#####) headers for sub-sections.
 - Avoid using additional H1 or H2 headers after the initial title and subtitle.
-- Don't use old fashioned words
+- Don't use old fashioned words.
 - Don't use nested lists (sub-lists) in the Markdown.
 
+Rich markdown formatting:
+- Use **bold** generously to highlight key vocabulary, important concepts, and punchy phrases (2-4 per paragraph).
+- Use *italic* for emphasis, emotions, or to draw attention to specific words.
+- Use blockquotes (>) for dialogue, memorable quotes, or key takeaways.
+- Vary paragraph length—mix short impactful sentences with longer descriptive ones.
+- Make the text visually rich and engaging with clear visual hierarchy.
+
 Content guidelines:
-- Avoid using rare, uncommon words or special symbols, as each word should be clickable and easily searchable in a dictionary.
 - For ${level} level:
   - **A1-A2:** Use simple words, basic sentences, and give short, clear examples. Define complex words as needed.
   - **B1-B2:** Use intermediate vocabulary, compound sentences, and provide real-world examples.
-  - **C1-C2:** Use advanced vocabulary, complex sentence structures, and offer deeper analysis or insights.
+  - **C1-C2:** Use everyday, common English vocabulary (same as A1-B2). Only increase complexity through grammar, sentence structure, and nuance—never through rare or fancy words. Deeper analysis but with simple, accessible words.
 - Include quotes or examples to enrich the content where relevant.
 - If grammar topics are provided, REFLECT them only through sentence construction. Do NOT mention or explain grammar topics explicitly.
 ${promptWords ? `Include these easy words: ${promptWords}` : ""}

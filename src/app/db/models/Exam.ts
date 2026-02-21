@@ -5,7 +5,7 @@ import { certificationLevelsList, languagesList } from "../../data/bussiness/sha
 const examQuestionSchema = new Schema(
   {
     id: { type: String },
-    type: { type: String, required: true, enum: ["multiple", "unique", "fillInBlank", "completeText"] },
+    type: { type: String, required: true, enum: ["multiple", "unique", "fillInBlank", "translateText"] },
     text: { type: String, required: true },
     options: [{ type: String }],
     correctIndex: { type: Number },

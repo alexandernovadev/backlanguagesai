@@ -9,7 +9,7 @@
  */
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
-import { generateExam, validateExam, generateExamQuestionChat } from "../services/ai/examAIService";
+import { generateExam, validateExam, correctExam, generateExamQuestionChat } from "../services/ai/examAIService";
 import { ExamService } from "../services/exams/ExamService";
 import { ExamAttemptService } from "../services/exams/ExamAttemptService";
 
@@ -54,6 +54,26 @@ export const validate = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Exam validate error:", error);
     return errorResponse(res, error.message || "Error validating exam", 500, error);
+  }
+};
+
+/**
+ * POST /api/exams/correct
+ * Corrects an exam based on validation feedback. Body: { exam, validation }.
+ * Returns corrected exam { title, questions }.
+ */
+export const correct = async (req: Request, res: Response) => {
+  try {
+    const { exam, validation } = req.body;
+    if (!exam || !validation) {
+      return errorResponse(res, "exam and validation required", 400);
+    }
+
+    const result = await correctExam(exam, validation);
+    return successResponse(res, "Exam corrected", result);
+  } catch (error: any) {
+    console.error("Exam correct error:", error);
+    return errorResponse(res, error.message || "Error correcting exam", 500, error);
   }
 };
 
@@ -125,7 +145,7 @@ export const startAttempt = async (req: Request, res: Response) => {
 
 /**
  * POST /api/exams/:id/attempts/:attemptId/submit
- * Submits answers. Body: { answers: (number|string)[] } - number for multiple, string for unique/fillInBlank/completeText
+ * Submits answers. Body: { answers: (number|string)[] } - number for multiple/unique/fillInBlank (with options), string for translateText
  */
 export const submitAttempt = async (req: Request, res: Response) => {
   try {

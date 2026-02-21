@@ -1,7 +1,7 @@
 import { Document, Types } from "mongoose";
 import { CertificationLevel, Language } from "../business";
 
-export type ExamQuestionType = "multiple" | "unique" | "fillInBlank" | "completeText";
+export type ExamQuestionType = "multiple" | "unique" | "fillInBlank" | "translateText";
 
 export interface IExamQuestion {
   id?: string;

@@ -31,8 +31,8 @@ export class ExamAttemptService {
 
   /**
    * Submits answers and evaluates. answers[i] matches question i:
-   * - multiple: number (0-3 index). Compare with correctIndex.
-   * - unique/fillInBlank/completeText: string. Compare with correctAnswer (normalized).
+   * - multiple/unique/fillInBlank (with options): number (0-3 index). Compare with correctIndex.
+   * - translateText: string. Compare with correctAnswer (normalized).
    * We snapshot question data into attemptQuestions so results stay correct even if the exam changes later.
    * @param attemptId - Attempt to submit
    * @param answers - Array of answers: number for multiple, string for text-based types
@@ -49,7 +49,7 @@ export class ExamAttemptService {
     const exam = attempt.examId as any;
     if (!exam?.questions) return null;
 
-    // Case-insensitive, trimmed comparison for text answers (unique/fillInBlank/completeText)
+    // Case-insensitive, trimmed comparison for text answers (translateText)
     const normalize = (s: string) => String(s || "").toLowerCase().trim();
 
     const attemptQuestions: IAttemptQuestion[] = exam.questions.map(
@@ -60,7 +60,8 @@ export class ExamAttemptService {
         let userAnswer: number | string;
         let isCorrect: boolean;
 
-        if (type === "multiple") {
+        const hasOptions = q.options && q.options.length > 0;
+        if (type === "multiple" || (type === "unique" && hasOptions) || (type === "fillInBlank" && hasOptions)) {
           userAnswer = typeof rawAnswer === "number" ? rawAnswer : -1;
           isCorrect = userAnswer === (q.correctIndex ?? -1);
         } else {

@@ -1,4 +1,4 @@
-export type QuestionType = "multiple" | "unique" | "fillInBlank" | "completeText";
+export type QuestionType = "multiple" | "unique" | "fillInBlank" | "translateText";
 
 export interface ExamGenerationParams {
   language: string;
@@ -13,11 +13,11 @@ const typeDescriptions: Record<QuestionType, string> = {
   multiple:
     "4 options, one correct. Schema: text, options[], correctIndex (0-3), grammarTopic, explanation",
   unique:
-    "Single word/phrase answer. Text with blank or instruction. Schema: text, correctAnswer, grammarTopic, explanation",
+    "4 options, one correct (like multiple but 'single choice'). Schema: text, options[], correctIndex (0-3), grammarTopic, explanation. MUST include options array.",
   fillInBlank:
-    "Sentence with _____ for blank(s). Schema: text (use _____ for blank), correctAnswer, grammarTopic, explanation",
-  completeText:
-    "Incomplete sentence to complete. Schema: text (incomplete), correctAnswer, grammarTopic, explanation",
+    "Sentence with _____ for blank(s). MUST have 4 options. Schema: text (use _____ for blank), options[], correctIndex (0-3), grammarTopic, explanation. Distractors: plausible learner errors.",
+  translateText:
+    "Translate text to exam language. Schema: text (source text to translate), correctAnswer (correct translation), grammarTopic, explanation. Text can be a sentence or short paragraph.",
 };
 
 export const createExamGenerationPrompt = (params: ExamGenerationParams) => {
@@ -47,7 +47,9 @@ OUTPUT: Return ONLY valid JSON. No markdown, no explanation.
   "title": "string",
   "questions": [
     { "type": "multiple", "text": "...", "options": ["A","B","C","D"], "correctIndex": 0, "grammarTopic": "...", "explanation": "..." },
-    { "type": "fillInBlank", "text": "She _____ to school.", "correctAnswer": "goes", "grammarTopic": "...", "explanation": "..." }
+    { "type": "unique", "text": "...", "options": ["A","B","C","D"], "correctIndex": 1, "grammarTopic": "...", "explanation": "..." },
+    { "type": "fillInBlank", "text": "She _____ to school.", "options": ["goes","go","going","gone"], "correctIndex": 0, "grammarTopic": "...", "explanation": "..." },
+    { "type": "translateText", "text": "Source text to translate", "correctAnswer": "Correct translation", "grammarTopic": "...", "explanation": "..." }
   ]
 }
 
@@ -56,8 +58,8 @@ RULES:
 - Distribute grammar topics across questions
 - Match vocabulary and structures to ${difficulty} level
 - explanation: brief, pedagogical, in ${language}
-- For fillInBlank/completeText: use _____ for blanks in text
-- CRITICAL for multiple: Wrong options (distractors) must be PLAUSIBLE - common learner mistakes, not random words. E.g. for "She _____ to school" (correct: goes), use "go", "going", "gone" as distractors; never "banana" or unrelated words`,
+- For fillInBlank: use _____ for blanks in text; MUST include options array with plausible distractors
+- CRITICAL for multiple/fillInBlank: Wrong options (distractors) must be PLAUSIBLE - common learner mistakes, not random words. E.g. for "She _____ to school" (correct: goes), use "go", "going", "gone" as distractors; never "banana" or unrelated words`,
     user: `Generate ${questionCount} questions in ${language} for level ${difficulty}. Types: ${typesList}. Grammar: ${grammarTopics.join(", ")}.`,
   };
 };

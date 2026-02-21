@@ -29,15 +29,15 @@ export const createExamQuestionChatPrompt = (params: ExamQuestionChatParams) => 
     language,
   } = params;
 
-  const isMultiple = questionType === "multiple";
-  const correctDisplay = isMultiple
+  const hasOptions = options && options.length > 0;
+  const correctDisplay = hasOptions
     ? `Option ${correctIndex}: ${options[correctIndex] || "N/A"}`
     : correctAnswer || "N/A";
-  const userDisplay = isMultiple
+  const userDisplay = hasOptions
     ? `Option ${userAnswer}: ${options[Number(userAnswer)] || "N/A"}`
     : String(userAnswer || "");
 
-  const optionsPart = isMultiple
+  const optionsPart = hasOptions
     ? `OPTIONS: ${options.map((o, i) => `${i}: ${o}`).join(" | ")}\n`
     : "";
 

@@ -6,7 +6,7 @@ TASK: Evaluate this exam as you would review a colleague's work.
 
 Check:
 1. Grammar correctness - are questions and options grammatically correct?
-2. Answer accuracy - for "multiple": correctIndex is right; for "unique/fillInBlank/completeText": correctAnswer is right
+2. Answer accuracy - for "multiple"/"unique"/"fillInBlank" (with options): correctIndex is right; for "translateText": correctAnswer is right
 3. Plausible distractors - for multiple choice, are wrong options common learner errors (not random)?
 4. No duplicate/similar questions - are any two questions testing the same thing in the same way?
 5. Language consistency - is everything in the stated exam language?

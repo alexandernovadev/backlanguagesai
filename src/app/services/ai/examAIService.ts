@@ -2,6 +2,7 @@ import { generateText, generateChat } from "./textAIService";
 import {
   createExamGenerationPrompt,
   createExamValidationPrompt,
+  createExamCorrectionPrompt,
   createExamQuestionChatPrompt,
 } from "./prompts/exams";
 
@@ -60,6 +61,29 @@ export const validateExam = async (examJson: string) => {
 
   const content = response.choices?.[0]?.message?.content;
   if (!content) throw new Error("Validation returned empty content");
+
+  return JSON.parse(content);
+};
+
+/**
+ * Corrects an exam based on validation feedback. AI applies fixes to issues and returns corrected exam.
+ * @param exam - The exam object
+ * @param validation - Validation result with issues, feedback, suggestions
+ * @returns Corrected exam { title, questions }
+ */
+export const correctExam = async (exam: object, validation: object) => {
+  const examJson = JSON.stringify(exam);
+  const validationJson = JSON.stringify(validation);
+  const promptData = createExamCorrectionPrompt({ examJson, validationJson });
+  const fullPrompt = `${promptData.system}\n\n${promptData.user}`;
+
+  const response = await generateText("openai", fullPrompt, undefined, {
+    responseFormat: "json_object",
+    temperature: 0.3,
+  });
+
+  const content = response.choices?.[0]?.message?.content;
+  if (!content) throw new Error("Correction returned empty content");
 
   return JSON.parse(content);
 };

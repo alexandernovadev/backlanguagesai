@@ -5,7 +5,7 @@ const attemptQuestionSchema = new Schema(
   {
     questionIndex: { type: Number, required: true },
     questionText: { type: String, required: true },
-    questionType: { type: String, required: true, enum: ["multiple", "unique", "fillInBlank", "completeText"] },
+    questionType: { type: String, required: true, enum: ["multiple", "unique", "fillInBlank", "translateText"] },
     options: [{ type: String }],
     correctIndex: { type: Number },
     correctAnswer: { type: String },

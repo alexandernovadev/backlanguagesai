@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   generate,
   validate,
+  correct,
   create,
   getById,
   list,
@@ -15,9 +16,10 @@ import {
 
 const router = Router();
 
-// Generate & validate (no persistence)
+// Generate, validate, correct (no persistence)
 router.post("/generate", generate);
 router.post("/validate", validate);
+router.post("/correct", correct);
 
 // Exam CRUD
 router.get("/", list);

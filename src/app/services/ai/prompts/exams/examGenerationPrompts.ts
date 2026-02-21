@@ -11,13 +11,13 @@ export interface ExamGenerationParams {
 
 const typeDescriptions: Record<QuestionType, string> = {
   multiple:
-    "4 options, 2 or more correct (select all that apply). Schema: text, options[], correctIndices (array of 0-3, e.g. [0,2]), grammarTopic, explanation",
+    "4 options, 2+ correct (select all that apply). Schema: text, options[], correctIndices [0-3], grammarTopic, explanation. Wrong options MUST be clearly incorrect for the question.",
   unique:
-    "4 options, one correct (like multiple but 'single choice'). Schema: text, options[], correctIndex (0-3), grammarTopic, explanation. MUST include options array.",
+    "4 options, EXACTLY ONE correct. Schema: text, options[], correctIndex (0-3), grammarTopic, explanation. Wrong options: plausible learner errors that are GRAMMATICALLY WRONG in context.",
   fillInBlank:
-    "Sentence with _____ for blank(s). MUST have 4 options. Schema: text (use _____ for blank), options[], correctIndex (0-3), grammarTopic, explanation. Distractors: plausible learner errors.",
+    "Sentence with _____ for blank(s). 4 options, EXACTLY ONE correct. Schema: text, options[], correctIndex (0-3), grammarTopic, explanation. Wrong options: verb forms/tenses that make the sentence grammatically wrong.",
   translateText:
-    "Translate text to exam language. Schema: text (source text to translate), correctAnswer (correct translation), grammarTopic, explanation. Text can be a sentence or short paragraph.",
+    "Translate text to exam language. Schema: text (Spanish), correctAnswer (in exam language), grammarTopic, explanation.",
 };
 
 export const createExamGenerationPrompt = (params: ExamGenerationParams) => {
@@ -58,10 +58,23 @@ RULES:
 - Distribute grammar topics across questions
 - Match vocabulary and structures to ${difficulty} level
 - explanation: brief, pedagogical, in ${language}
-- For fillInBlank: use _____ for blanks in text; MUST include options array with plausible distractors
-- CRITICAL for multiple: use correctIndices (array), never correctIndex. At least 2 correct options
-- CRITICAL for multiple/fillInBlank: Wrong options (distractors) must be PLAUSIBLE - common learner mistakes, not random words. E.g. for "She _____ to school" (correct: goes), use "go", "going", "gone" as distractors; never "banana" or unrelated words
-- CRITICAL for translateText: text ALWAYS in Spanish. correctAnswer ALWAYS in ${language}. User translates Spanish → ${language}.`,
+
+CRITICAL - COHERENCE BETWEEN QUESTION AND OPTIONS:
+- The question text and options MUST be tightly linked. The blank or question must directly test what the options offer.
+- Options must fit the grammatical context. Never use options that are unrelated to the question.
+
+CRITICAL - SINGLE CHOICE (unique, fillInBlank):
+- EXACTLY ONE option is correct. The other 3 MUST be grammatically wrong when inserted/selected.
+- Distractors = plausible learner errors: forms a learner might try (e.g. "go" instead of "goes") but that make the sentence INCORRECT. They test the specific grammar point.
+- BAD: 4 options that could all work in different contexts. GOOD: 1 correct + 3 wrong forms (wrong tense, wrong agreement, wrong structure).
+- Example fillInBlank "She _____ to school": correct "goes"; wrong "go" (no -s), "going" (needs auxiliary), "gone" (past participle wrong). All wrong options are plausible mistakes but clearly incorrect.
+
+CRITICAL - MULTIPLE CHOICE (multiple):
+- Use correctIndices (array), never correctIndex. At least 2 correct options.
+- The 2+ correct options must BOTH be valid answers to the question.
+- Wrong options must be clearly incorrect - not alternatives that could also work.
+
+CRITICAL - translateText: text ALWAYS in Spanish. correctAnswer ALWAYS in ${language}. User translates Spanish → ${language}.`,
     user: `Generate ${questionCount} questions in ${language} for level ${difficulty}. Types: ${typesList}. Grammar: ${grammarTopics.join(", ")}.`,
   };
 };

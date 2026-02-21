@@ -15,7 +15,8 @@ TASK: Apply the validation feedback and return the CORRECTED exam. Fix only what
 - wrong_answer: fix correctIndices (for multiple) or correctIndex or correctAnswer
 - grammar: fix grammar errors in text/options
 - clarity: rephrase for clarity
-- distractor: improve distractors (make them plausible learner errors)
+- distractor: improve distractors (plausible learner errors that are grammatically wrong)
+- ambiguous: for unique/fillInBlank, ensure EXACTLY ONE option is correct; rewrite wrong options so they are clearly grammatically incorrect
 - duplicate: rephrase or replace to avoid duplication
 - language: ensure everything is in the exam language
 
@@ -23,7 +24,7 @@ RULES:
 - Keep the SAME structure: title, questions array with same types and count
 - Preserve question order and types
 - Only modify what needs fixing; leave correct questions unchanged
-- For multiple (with options): options array, correctIndices (array, e.g. [0,2]); for unique/fillInBlank: correctIndex (0-3)
+- For multiple: correctIndices (array); for unique/fillInBlank: correctIndex (0-3). Single choice: only ONE correct; wrong options must be grammatically wrong in context.
 - For translateText: text in Spanish, correctAnswer in exam language
 - Each question: type, text, options? (for multiple), correctIndices? (for multiple), correctIndex? (for unique/fillInBlank), correctAnswer? (for others), grammarTopic, explanation
 

@@ -38,7 +38,7 @@ export const generateExam = async (
 
   const response = await generateText("openai", fullPrompt, undefined, {
     responseFormat: "json_object",
-    temperature: 0.6,
+    temperature: 0.3,
   });
 
   const content = response.choices?.[0]?.message?.content;
@@ -56,9 +56,10 @@ export const validateExam = async (examJson: string) => {
   const promptData = createExamValidationPrompt(examJson);
   const fullPrompt = `${promptData.system}\n\n${promptData.user}`;
 
-  const response = await generateText("openai", fullPrompt, undefined, {
+  const response = await generateText("deepseek", fullPrompt, "deepseek-reasoner", {
     responseFormat: "json_object",
     temperature: 0.3,
+    maxTokens: 4000,
   });
 
   const content = response.choices?.[0]?.message?.content;
@@ -114,7 +115,7 @@ export const generateExamQuestionChat = async (params: ExamQuestionChatParams) =
   const { messages } = createExamQuestionChatPrompt(params);
 
   const response = await generateChat("openai", messages, undefined, {
-    temperature: 0.7,
+    temperature: 0.3,
   });
 
   const content = response.choices?.[0]?.message?.content;
@@ -149,7 +150,7 @@ export const generateExamQuestionFeedback = async (
   const fullPrompt = `${system}\n\n${messages[0].content}`;
 
   const response = await generateText("openai", fullPrompt, undefined, {
-    temperature: 0.5,
+    temperature: 0.3,
     maxTokens: 300,
   });
 

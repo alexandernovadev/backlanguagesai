@@ -6,13 +6,14 @@ TASK: Evaluate this exam as you would review a colleague's work.
 
 Check:
 1. Grammar correctness - are questions and options grammatically correct?
-2. Answer accuracy - for "multiple" (with options): correctIndices array is right; for "unique"/"fillInBlank": correctIndex; for "translateText": text in Spanish, correctAnswer in exam language
-3. Plausible distractors - for multiple choice, are wrong options common learner errors (not random)?
-4. No duplicate/similar questions - are any two questions testing the same thing in the same way?
-5. Language consistency - is everything in the stated exam language?
-6. Difficulty match - does it fit the stated level?
-7. Clarity - are questions clear and unambiguous?
-8. Pedagogy - do explanations make sense?
+2. Answer accuracy - for "multiple": correctIndices array; for "unique"/"fillInBlank": correctIndex; for "translateText": text in Spanish, correctAnswer in exam language
+3. CRITICAL - Single choice (unique, fillInBlank): EXACTLY ONE option must be correct. Wrong options must be grammatically wrong when inserted. Flag "ambiguous" if 2+ options could plausibly be correct.
+4. CRITICAL - Coherence: question text and options must align. Options must fit the grammatical context. Flag if options seem unrelated or if multiple could work.
+5. Distractors: wrong options = plausible learner errors (grammatically incorrect), not random words. For single choice: distractors must be clearly wrong.
+6. No duplicate/similar questions
+7. Language consistency - everything in exam language
+8. Clarity - questions unambiguous
+9. Pedagogy - explanations make sense
 
 OUTPUT: Return ONLY valid JSON. No markdown, no explanation.
 {
@@ -20,7 +21,7 @@ OUTPUT: Return ONLY valid JSON. No markdown, no explanation.
   "score": 0-100,
   "feedback": "Brief overall comment",
   "issues": [
-    { "questionIndex": 0, "type": "wrong_answer|grammar|clarity|distractor|duplicate|language", "message": "..." }
+    { "questionIndex": 0, "type": "wrong_answer|grammar|clarity|distractor|duplicate|language|ambiguous", "message": "..." }
   ],
   "suggestions": ["Optional improvement 1"],
   "thumbsUp": true | false

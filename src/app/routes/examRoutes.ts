@@ -10,6 +10,7 @@ import {
   startAttempt,
   submitAttempt,
   getAttempt,
+  deleteAttempt,
   listAttempts,
   listAttemptsByExam,
   chatOnQuestion,
@@ -34,6 +35,7 @@ router.delete("/:id", remove);
 router.get("/:id/attempts", listAttemptsByExam);
 router.post("/:id/attempts", startAttempt);
 router.get("/:id/attempts/:attemptId", getAttempt);
+router.delete("/:id/attempts/:attemptId", deleteAttempt);
 router.post("/:id/attempts/:attemptId/submit", submitAttempt);
 router.post("/:id/attempts/:attemptId/questions/:questionIndex/chat", chatOnQuestion);
 

@@ -104,12 +104,13 @@ export const getById = async (req: Request, res: Response) => {
   }
 };
 
-/** GET /api/exams - Paginated list. Query: page?, limit? */
+/** GET /api/exams - Paginated list. Query: page?, limit? Includes attemptCount when user is authenticated. */
 export const list = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const result = await examService.list(page, limit);
+    const userId = req.user?._id?.toString() || req.user?.id;
+    const result = await examService.list(page, limit, userId);
     return successResponse(res, "Exams listed", result);
   } catch (error: any) {
     return errorResponse(res, error.message || "Error listing exams", 500, error);
@@ -164,6 +165,20 @@ export const submitAttempt = async (req: Request, res: Response) => {
     return successResponse(res, "Attempt submitted", attempt);
   } catch (error: any) {
     return errorResponse(res, error.message || "Error submitting attempt", 500, error);
+  }
+};
+
+/** DELETE /api/exams/:id/attempts/:attemptId - Deletes an attempt (owner only) */
+export const deleteAttempt = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id || req.user?.id;
+    if (!userId) return errorResponse(res, "Unauthorized", 401);
+
+    const deleted = await attemptService.delete(req.params.attemptId, userId.toString());
+    if (!deleted) return errorResponse(res, "Attempt not found", 404);
+    return successResponse(res, "Attempt deleted", {});
+  } catch (error: any) {
+    return errorResponse(res, error.message || "Error deleting attempt", 500, error);
   }
 };
 

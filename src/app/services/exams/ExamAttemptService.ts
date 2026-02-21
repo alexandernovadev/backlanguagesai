@@ -154,6 +154,19 @@ export class ExamAttemptService {
   }
 
   /**
+   * Deletes an attempt. Only the owner can delete.
+   * @param attemptId - Attempt to delete
+   * @param userId - Must match attempt owner
+   * @returns true if deleted, false if not found or not owner
+   */
+  async delete(attemptId: string, userId: string): Promise<boolean> {
+    const attempt = await ExamAttempt.findById(attemptId);
+    if (!attempt || attempt.userId.toString() !== userId) return false;
+    await ExamAttempt.findByIdAndDelete(attemptId);
+    return true;
+  }
+
+  /**
    * Appends a chat message to a failed question. Chat is stored per question
    * so the user can ask the AI to explain their mistake and get pedagogical feedback.
    * @param attemptId - Attempt containing the question

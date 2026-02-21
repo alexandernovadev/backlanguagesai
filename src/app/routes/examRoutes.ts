@@ -11,6 +11,7 @@ import {
   submitAttempt,
   getAttempt,
   listAttempts,
+  listAttemptsByExam,
   chatOnQuestion,
 } from "../controllers/ExamController";
 
@@ -30,6 +31,7 @@ router.get("/attempts/my", listAttempts);
 
 router.get("/:id", getById);
 router.delete("/:id", remove);
+router.get("/:id/attempts", listAttemptsByExam);
 router.post("/:id/attempts", startAttempt);
 router.get("/:id/attempts/:attemptId", getAttempt);
 router.post("/:id/attempts/:attemptId/submit", submitAttempt);

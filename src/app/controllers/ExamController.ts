@@ -178,6 +178,24 @@ export const getAttempt = async (req: Request, res: Response) => {
   }
 };
 
+/** GET /api/exams/:id/attempts - Lists attempts for a specific exam. Query: limit? */
+export const listAttemptsByExam = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id || req.user?.id;
+    if (!userId) return errorResponse(res, "Unauthorized", 401);
+
+    const limit = parseInt(req.query.limit as string) || 20;
+    const attempts = await attemptService.getByExam(
+      req.params.id,
+      userId.toString(),
+      limit
+    );
+    return successResponse(res, "Attempts listed", attempts);
+  } catch (error: any) {
+    return errorResponse(res, error.message || "Error listing attempts", 500, error);
+  }
+};
+
 /** GET /api/exams/attempts/my - Lists current user's attempts. Query: limit? */
 export const listAttempts = async (req: Request, res: Response) => {
   try {

@@ -118,6 +118,13 @@ export class ExamAttemptService {
       .limit(limit);
   }
 
+  async getByExam(examId: string, userId: string, limit = 20): Promise<IExamAttempt[]> {
+    return ExamAttempt.find({ examId, userId })
+      .populate("examId")
+      .sort({ completedAt: -1 })
+      .limit(limit);
+  }
+
   /**
    * Appends a chat message to a failed question. Chat is stored per question
    * so the user can ask the AI to explain their mistake and get pedagogical feedback.

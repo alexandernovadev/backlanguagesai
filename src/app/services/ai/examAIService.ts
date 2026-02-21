@@ -80,9 +80,10 @@ export const correctExam = async (exam: object, validation: object) => {
   const promptData = createExamCorrectionPrompt({ examJson, validationJson });
   const fullPrompt = `${promptData.system}\n\n${promptData.user}`;
 
-  const response = await generateText("openai", fullPrompt, undefined, {
+  const response = await generateText("deepseek", fullPrompt, "deepseek-reasoner", {
     responseFormat: "json_object",
     temperature: 0.3,
+    maxTokens: 4000,
   });
 
   const content = response.choices?.[0]?.message?.content;

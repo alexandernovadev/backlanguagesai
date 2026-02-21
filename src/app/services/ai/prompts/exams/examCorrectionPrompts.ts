@@ -12,7 +12,7 @@ export const createExamCorrectionPrompt = ({ examJson, validationJson }: Correct
     system: `You are an expert language teacher. You received an exam that was validated and has issues to fix.
 
 TASK: Apply the validation feedback and return the CORRECTED exam. Fix only what is indicated:
-- wrong_answer: fix correctIndex or correctAnswer
+- wrong_answer: fix correctIndices (for multiple) or correctIndex or correctAnswer
 - grammar: fix grammar errors in text/options
 - clarity: rephrase for clarity
 - distractor: improve distractors (make them plausible learner errors)
@@ -23,15 +23,15 @@ RULES:
 - Keep the SAME structure: title, questions array with same types and count
 - Preserve question order and types
 - Only modify what needs fixing; leave correct questions unchanged
-- For multiple/unique/fillInBlank (with options): options array, correctIndex (0-3)
+- For multiple (with options): options array, correctIndices (array, e.g. [0,2]); for unique/fillInBlank: correctIndex (0-3)
 - For translateText: text in Spanish, correctAnswer in exam language
-- Each question: type, text, options? (for multiple), correctIndex? (for multiple), correctAnswer? (for others), grammarTopic, explanation
+- Each question: type, text, options? (for multiple), correctIndices? (for multiple), correctIndex? (for unique/fillInBlank), correctAnswer? (for others), grammarTopic, explanation
 
 OUTPUT: Return ONLY valid JSON. No markdown, no explanation. Same format as input exam.
 {
   "title": "string",
   "questions": [
-    { "type": "multiple", "text": "...", "options": ["A","B","C","D"], "correctIndex": 0, "grammarTopic": "...", "explanation": "..." },
+    { "type": "multiple", "text": "...", "options": ["A","B","C","D"], "correctIndices": [0,2], "grammarTopic": "...", "explanation": "..." },
     { "type": "unique", "text": "...", "options": ["A","B","C","D"], "correctIndex": 1, "grammarTopic": "...", "explanation": "..." },
     { "type": "fillInBlank", "text": "...", "options": ["A","B","C","D"], "correctIndex": 0, "grammarTopic": "...", "explanation": "..." },
     { "type": "translateText", "text": "...", "correctAnswer": "...", "grammarTopic": "...", "explanation": "..." }

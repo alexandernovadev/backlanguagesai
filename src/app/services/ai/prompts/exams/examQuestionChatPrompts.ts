@@ -5,9 +5,10 @@ export interface ExamQuestionChatParams {
   difficulty?: string;
   options?: string[];
   correctIndex?: number;
+  correctIndices?: number[];
   correctAnswer?: string;
   explanation: string;
-  userAnswer: number | string;
+  userAnswer: number | number[] | string;
   userMessage: string;
   chatHistory: Array<{ role: string; content: string }>;
   language: string;
@@ -21,6 +22,7 @@ export const createExamQuestionChatPrompt = (params: ExamQuestionChatParams) => 
     difficulty = "",
     options = [],
     correctIndex = 0,
+    correctIndices,
     correctAnswer,
     explanation,
     userAnswer,
@@ -30,11 +32,18 @@ export const createExamQuestionChatPrompt = (params: ExamQuestionChatParams) => 
   } = params;
 
   const hasOptions = options && options.length > 0;
+  const isMultipleSelect = questionType === "multiple" && hasOptions;
+  const correctIndicesArr = correctIndices ?? (correctIndex != null ? [correctIndex] : []);
   const correctDisplay = hasOptions
-    ? `Option ${correctIndex}: ${options[correctIndex] || "N/A"}`
+    ? isMultipleSelect
+      ? correctIndicesArr.map((i) => options[i]).filter(Boolean).join(", ")
+      : `Option ${correctIndex}: ${options[correctIndex] || "N/A"}`
     : correctAnswer || "N/A";
+  const userIndices = Array.isArray(userAnswer) ? userAnswer : typeof userAnswer === "number" ? [userAnswer] : [];
   const userDisplay = hasOptions
-    ? `Option ${userAnswer}: ${options[Number(userAnswer)] || "N/A"}`
+    ? isMultipleSelect
+      ? userIndices.map((i) => options[i]).filter(Boolean).join(", ")
+      : `Option ${userAnswer}: ${options[Number(userAnswer)] || "N/A"}`
     : String(userAnswer || "");
 
   const optionsPart = hasOptions

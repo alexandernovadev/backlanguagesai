@@ -9,6 +9,7 @@ const examQuestionSchema = new Schema(
     text: { type: String, required: true },
     options: [{ type: String }],
     correctIndex: { type: Number },
+    correctIndices: [{ type: Number }],
     correctAnswer: { type: String },
     grammarTopic: { type: String, required: true },
     explanation: { type: String, required: true },

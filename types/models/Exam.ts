@@ -9,6 +9,7 @@ export interface IExamQuestion {
   text: string;
   options?: string[];
   correctIndex?: number;
+  correctIndices?: number[];
   correctAnswer?: string;
   grammarTopic: string;
   explanation: string;
@@ -32,8 +33,9 @@ export interface IAttemptQuestion {
   questionType: ExamQuestionType;
   options?: string[];
   correctIndex?: number;
+  correctIndices?: number[];
   correctAnswer?: string;
-  userAnswer: number | string;
+  userAnswer: number | number[] | string;
   isCorrect: boolean;
   partialScore?: number;
   isPartial?: boolean;

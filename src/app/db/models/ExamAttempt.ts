@@ -8,6 +8,7 @@ const attemptQuestionSchema = new Schema(
     questionType: { type: String, required: true, enum: ["multiple", "unique", "fillInBlank", "translateText"] },
     options: [{ type: String }],
     correctIndex: { type: Number },
+    correctIndices: [{ type: Number }],
     correctAnswer: { type: String },
     userAnswer: { type: Schema.Types.Mixed, required: true },
     isCorrect: { type: Boolean, required: true },

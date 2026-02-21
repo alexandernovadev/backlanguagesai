@@ -40,7 +40,7 @@ export class ExamAttemptService {
    */
   async submit(
     attemptId: string,
-    answers: (number | string)[],
+    answers: (number | string | number[])[],
     userId: string
   ): Promise<IExamAttempt | null> {
     const attempt = await ExamAttempt.findById(attemptId).populate("examId");
@@ -59,7 +59,7 @@ export class ExamAttemptService {
         const type = q.type || "multiple";
         const hasOptions = q.options && q.options.length > 0;
 
-        let userAnswer: number | string;
+        let userAnswer: number | number[] | string;
         let isCorrect: boolean;
         let partialScore: number | undefined;
         let isPartial = false;
@@ -88,7 +88,18 @@ export class ExamAttemptService {
             aiFeedback = isCorrect ? "Correct." : "Incorrect.";
           }
         } else {
-          if (type === "multiple" || (type === "unique" && hasOptions) || (type === "fillInBlank" && hasOptions)) {
+          if (type === "multiple" && hasOptions) {
+            const userArr = Array.isArray(rawAnswer)
+              ? [...rawAnswer].sort((a, b) => a - b)
+              : typeof rawAnswer === "number"
+                ? [rawAnswer]
+                : [];
+            const correctArr = (q.correctIndices ?? (q.correctIndex != null ? [q.correctIndex] : [])).sort((a, b) => a - b);
+            userAnswer = userArr;
+            isCorrect =
+              userArr.length === correctArr.length &&
+              userArr.every((v, i) => v === correctArr[i]);
+          } else if ((type === "unique" && hasOptions) || (type === "fillInBlank" && hasOptions)) {
             userAnswer = typeof rawAnswer === "number" ? rawAnswer : -1;
             isCorrect = userAnswer === (q.correctIndex ?? -1);
           } else {
@@ -103,6 +114,7 @@ export class ExamAttemptService {
               difficulty,
               options: q.options,
               correctIndex: q.correctIndex,
+              correctIndices: q.correctIndices,
               correctAnswer: q.correctAnswer,
               explanation: q?.explanation || "",
               userAnswer,
@@ -121,6 +133,7 @@ export class ExamAttemptService {
           questionType: type,
           options: q.options,
           correctIndex: q.correctIndex,
+          correctIndices: q.correctIndices,
           correctAnswer: q.correctAnswer,
           userAnswer,
           isCorrect,

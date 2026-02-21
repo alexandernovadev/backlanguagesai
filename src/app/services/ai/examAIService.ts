@@ -97,9 +97,10 @@ export interface ExamQuestionChatParams {
   difficulty?: string;
   options?: string[];
   correctIndex?: number;
+  correctIndices?: number[];
   correctAnswer?: string;
   explanation: string;
-  userAnswer: number | string;
+  userAnswer: number | number[] | string;
   userMessage: string;
   chatHistory: Array<{ role: string; content: string }>;
   language: string;
@@ -129,9 +130,10 @@ export interface ExamQuestionFeedbackParams {
   difficulty?: string;
   options?: string[];
   correctIndex?: number;
+  correctIndices?: number[];
   correctAnswer?: string;
   explanation: string;
-  userAnswer: number | string;
+  userAnswer: number | number[] | string;
   isCorrect: boolean;
   language: string;
 }

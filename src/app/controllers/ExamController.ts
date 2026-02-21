@@ -258,6 +258,7 @@ export const chatOnQuestion = async (req: Request, res: Response) => {
       difficulty: exam.difficulty,
       options: q.options,
       correctIndex: q.correctIndex,
+      correctIndices: q.correctIndices,
       correctAnswer: q.correctAnswer,
       explanation: q.explanation,
       userAnswer: aq.userAnswer,

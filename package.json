@@ -6,7 +6,7 @@
     "build": "node scripts/build-date.js && rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public",
     "build:dev": "node scripts/build-date.js && rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public",
     "start": "node dist/main.js",
-    "dev": "nodemon --exec ts-node src/main.ts",
+    "dev": "yarn clean:logs && nodemon --exec ts-node src/main.ts",
     "clean:logs": "node scripts/clean-logs.js"
   },
   "keywords": [],

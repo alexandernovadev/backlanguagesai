@@ -5,9 +5,10 @@ export interface ExamQuestionFeedbackParams {
   difficulty?: string;
   options?: string[];
   correctIndex?: number;
+  correctIndices?: number[];
   correctAnswer?: string;
   explanation: string;
-  userAnswer: number | string;
+  userAnswer: number | number[] | string;
   isCorrect: boolean;
   language: string;
 }
@@ -20,6 +21,7 @@ export const createExamQuestionFeedbackPrompt = (params: ExamQuestionFeedbackPar
     difficulty = "",
     options = [],
     correctIndex = 0,
+    correctIndices,
     correctAnswer,
     explanation,
     userAnswer,
@@ -28,11 +30,18 @@ export const createExamQuestionFeedbackPrompt = (params: ExamQuestionFeedbackPar
   } = params;
 
   const hasOptions = options && options.length > 0;
+  const isMultipleSelect = params.questionType === "multiple" && hasOptions;
+  const correctIndicesArr = correctIndices ?? (correctIndex != null ? [correctIndex] : []);
   const correctDisplay = hasOptions
-    ? options[correctIndex] || "N/A"
+    ? isMultipleSelect
+      ? correctIndicesArr.map((i) => options[i]).filter(Boolean).join(", ") || "N/A"
+      : options[correctIndex] || "N/A"
     : correctAnswer || "N/A";
+  const userIndices = Array.isArray(userAnswer) ? userAnswer : typeof userAnswer === "number" ? [userAnswer] : [];
   const userDisplay = hasOptions
-    ? (typeof userAnswer === "number" && options[userAnswer] ? options[userAnswer] : String(userAnswer || ""))
+    ? isMultipleSelect
+      ? userIndices.map((i) => options[i]).filter(Boolean).join(", ") || String(userAnswer || "")
+      : (typeof userAnswer === "number" && options[userAnswer] ? options[userAnswer] : String(userAnswer || ""))
     : String(userAnswer || "");
 
   const optionsPart = hasOptions

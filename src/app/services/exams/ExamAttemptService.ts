@@ -96,9 +96,15 @@ export class ExamAttemptService {
                 : [];
             const correctArr = (q.correctIndices ?? (q.correctIndex != null ? [q.correctIndex] : [])).sort((a, b) => a - b);
             userAnswer = userArr;
-            isCorrect =
-              userArr.length === correctArr.length &&
-              userArr.every((v, i) => v === correctArr[i]);
+            const correctSet = new Set(correctArr);
+            const correctSelected = userArr.filter((i) => correctSet.has(i)).length;
+            const wrongSelected = userArr.filter((i) => !correctSet.has(i)).length;
+            const totalCorrect = correctArr.length || 1;
+            partialScore = Math.round(
+              Math.max(0, Math.min(100, ((correctSelected - wrongSelected) / totalCorrect) * 100))
+            );
+            isCorrect = partialScore === 100;
+            isPartial = partialScore > 0 && partialScore < 100;
           } else if ((type === "unique" && hasOptions) || (type === "fillInBlank" && hasOptions)) {
             userAnswer = typeof rawAnswer === "number" ? rawAnswer : -1;
             isCorrect = userAnswer === (q.correctIndex ?? -1);

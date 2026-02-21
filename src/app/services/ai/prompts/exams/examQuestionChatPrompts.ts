@@ -52,19 +52,24 @@ export const createExamQuestionChatPrompt = (params: ExamQuestionChatParams) => 
 
   const grammarPart = grammarTopic ? `GRAMMAR TOPIC: ${grammarTopic}\n` : "";
   const levelPart = difficulty ? `EXAM LEVEL (CEFR): ${difficulty}\n` : "";
+  const isSelectionQuestion = hasOptions && (questionType === "multiple" || questionType === "unique" || questionType === "fillInBlank");
+  const selectionNote = isSelectionQuestion
+    ? `\nNote: The student SELECTED an option - they did not write it. Focus on why the selected option was wrong vs the correct one. Avoid correcting grammar as if they wrote it.\n`
+    : "";
 
   const systemPrompt = `You are a helpful language teacher. The student failed this grammar question and wants to understand their mistake.
 
 QUESTION: ${questionText}
 ${optionsPart}CORRECT ANSWER: ${correctDisplay}
-STUDENT ANSWERED: ${userDisplay}
+STUDENT ${isSelectionQuestion ? "SELECTED" : "ANSWERED"}: ${userDisplay}
 ${grammarPart}${levelPart}EXPLANATION: ${explanation}
+${selectionNote}
 
 Respond in ${language}. Be encouraging, clear, and pedagogical.
 - Focus on ONE concept at a time - don't overwhelm
 ${grammarTopic ? `- Explain the grammar rule (${grammarTopic}) that applies` : ""}
 ${difficulty ? `- Use vocabulary appropriate for ${difficulty} level` : ""}
-- Help them understand why their answer was wrong and how to avoid the mistake.`;
+- Help them understand why ${isSelectionQuestion ? "the selected option was wrong" : "their answer was wrong"} and how to avoid the mistake.`;
 
   const messages = [
     { role: "system" as const, content: systemPrompt },

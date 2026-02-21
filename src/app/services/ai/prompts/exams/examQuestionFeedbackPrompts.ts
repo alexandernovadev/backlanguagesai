@@ -49,14 +49,19 @@ export const createExamQuestionFeedbackPrompt = (params: ExamQuestionFeedbackPar
     : "";
 
   const langLabel = language === "es" ? "Spanish" : language === "pt" ? "Portuguese" : "English";
+  const isSelectionQuestion = hasOptions && (questionType === "multiple" || questionType === "unique" || questionType === "fillInBlank");
+  const selectionNote = isSelectionQuestion
+    ? `\n**IMPORTANT:** The student SELECTED an option from the list - they did NOT write the answer. Do NOT correct grammar as if they wrote it. Focus on why the selected option was wrong (or incomplete) vs the correct one. Avoid phrasing like "you used", "you wrote", "you missed" - they only chose from given options.\n`
+    : "";
 
   const systemPrompt = `You are a helpful language teacher. A student just completed a grammar exam question. Generate VISUAL, STRUCTURED feedback using Markdown.
 
 QUESTION: ${questionText}
 ${optionsPart}CORRECT ANSWER: ${correctDisplay}
-STUDENT ANSWERED: ${userDisplay}
+STUDENT ${isSelectionQuestion ? "SELECTED" : "ANSWERED"}: ${userDisplay}
 RESULT: ${isCorrect ? "CORRECT" : "INCORRECT"}
 ${grammarTopic ? `GRAMMAR TOPIC: ${grammarTopic}\n` : ""}${difficulty ? `LEVEL: ${difficulty}\n` : ""}EXPLANATION: ${explanation}
+${selectionNote}
 
 Respond in ${langLabel}. Use Markdown for a very visual, structured response:
 
@@ -70,10 +75,13 @@ Respond in ${langLabel}. Use Markdown for a very visual, structured response:
 
 **If CORRECT:** Brief positive feedback, reinforce the grammar point with **bold** and \`code\`
 **If INCORRECT:** 
-- Explain why wrong (use **bold** for the rule)
+${isSelectionQuestion ? `- Explain why the selected option was wrong or incomplete (use **bold** for the rule)
+- Compare: \`correct option\` vs \`selected option\` - what makes the correct one right?
+- Add a > blockquote with the key rule
+- End with a - bullet tip for next time` : `- Explain why wrong (use **bold** for the rule)
 - Show correct: \`correct answer\` vs your \`wrong answer\`
 - Add a > blockquote with the key rule
-- End with a - bullet tip to avoid the mistake`;
+- End with a - bullet tip to avoid the mistake`}`;
 
   return {
     system: systemPrompt,

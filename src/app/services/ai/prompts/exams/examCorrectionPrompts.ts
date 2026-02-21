@@ -24,7 +24,7 @@ RULES:
 - Preserve question order and types
 - Only modify what needs fixing; leave correct questions unchanged
 - For multiple/unique/fillInBlank (with options): options array, correctIndex (0-3)
-- For translateText: correctAnswer
+- For translateText: text in Spanish, correctAnswer in exam language
 - Each question: type, text, options? (for multiple), correctIndex? (for multiple), correctAnswer? (for others), grammarTopic, explanation
 
 OUTPUT: Return ONLY valid JSON. No markdown, no explanation. Same format as input exam.

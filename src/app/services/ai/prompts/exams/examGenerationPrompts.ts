@@ -49,7 +49,7 @@ OUTPUT: Return ONLY valid JSON. No markdown, no explanation.
     { "type": "multiple", "text": "...", "options": ["A","B","C","D"], "correctIndex": 0, "grammarTopic": "...", "explanation": "..." },
     { "type": "unique", "text": "...", "options": ["A","B","C","D"], "correctIndex": 1, "grammarTopic": "...", "explanation": "..." },
     { "type": "fillInBlank", "text": "She _____ to school.", "options": ["goes","go","going","gone"], "correctIndex": 0, "grammarTopic": "...", "explanation": "..." },
-    { "type": "translateText", "text": "Source text to translate", "correctAnswer": "Correct translation", "grammarTopic": "...", "explanation": "..." }
+    { "type": "translateText", "text": "Texto en español", "correctAnswer": "Translation in exam language", "grammarTopic": "...", "explanation": "..." }
   ]
 }
 
@@ -59,7 +59,8 @@ RULES:
 - Match vocabulary and structures to ${difficulty} level
 - explanation: brief, pedagogical, in ${language}
 - For fillInBlank: use _____ for blanks in text; MUST include options array with plausible distractors
-- CRITICAL for multiple/fillInBlank: Wrong options (distractors) must be PLAUSIBLE - common learner mistakes, not random words. E.g. for "She _____ to school" (correct: goes), use "go", "going", "gone" as distractors; never "banana" or unrelated words`,
+- CRITICAL for multiple/fillInBlank: Wrong options (distractors) must be PLAUSIBLE - common learner mistakes, not random words. E.g. for "She _____ to school" (correct: goes), use "go", "going", "gone" as distractors; never "banana" or unrelated words
+- CRITICAL for translateText: text ALWAYS in Spanish. correctAnswer ALWAYS in ${language}. User translates Spanish → ${language}.`,
     user: `Generate ${questionCount} questions in ${language} for level ${difficulty}. Types: ${typesList}. Grammar: ${grammarTopics.join(", ")}.`,
   };
 };

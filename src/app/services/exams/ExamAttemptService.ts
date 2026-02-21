@@ -1,7 +1,7 @@
 import ExamAttempt from "../../db/models/ExamAttempt";
 import Exam from "../../db/models/Exam";
 import { IExamAttempt, IAttemptQuestion } from "../../../../types/models";
-import { generateExamQuestionFeedback } from "../ai/examAIService";
+import { generateExamQuestionFeedback, evaluateTranslationAnswer } from "../ai/examAIService";
 
 /**
  * Manages exam attempts: create, submit answers, and chat on failed questions.
@@ -31,12 +31,11 @@ export class ExamAttemptService {
   }
 
   /**
-   * Submits answers and evaluates. answers[i] matches question i:
-   * - multiple/unique/fillInBlank (with options): number (0-3 index). Compare with correctIndex.
-   * - translateText: string. Compare with correctAnswer (normalized).
-   * We snapshot question data into attemptQuestions so results stay correct even if the exam changes later.
+   * Submits answers and evaluates.
+   * - multiple/unique/fillInBlank: formula (correctIndex match)
+   * - translateText: AI evaluation with partial credit (partial = morado/purple)
    * @param attemptId - Attempt to submit
-   * @param answers - Array of answers: number for multiple, string for text-based types
+   * @param answers - Array of answers: number for multiple, string for translateText
    * @param userId - Must match attempt owner
    */
   async submit(
@@ -50,24 +49,70 @@ export class ExamAttemptService {
     const exam = attempt.examId as any;
     if (!exam?.questions) return null;
 
-    // Case-insensitive, trimmed comparison for text answers (translateText)
     const normalize = (s: string) => String(s || "").toLowerCase().trim();
+    const language = exam.language || "en";
+    const difficulty = exam.difficulty || "";
 
-    const attemptQuestionsBase: IAttemptQuestion[] = exam.questions.map(
-      (q: any, i: number) => {
+    const attemptQuestions: IAttemptQuestion[] = await Promise.all(
+      exam.questions.map(async (q: any, i: number) => {
         const rawAnswer = answers[i];
         const type = q.type || "multiple";
+        const hasOptions = q.options && q.options.length > 0;
 
         let userAnswer: number | string;
         let isCorrect: boolean;
+        let partialScore: number | undefined;
+        let isPartial = false;
+        let aiFeedback = "";
 
-        const hasOptions = q.options && q.options.length > 0;
-        if (type === "multiple" || (type === "unique" && hasOptions) || (type === "fillInBlank" && hasOptions)) {
-          userAnswer = typeof rawAnswer === "number" ? rawAnswer : -1;
-          isCorrect = userAnswer === (q.correctIndex ?? -1);
-        } else {
+        if (type === "translateText") {
           userAnswer = rawAnswer != null ? String(rawAnswer) : "";
-          isCorrect = normalize(userAnswer) === normalize(q.correctAnswer || "");
+          try {
+            const result = await evaluateTranslationAnswer({
+              questionText: q.text,
+              grammarTopic: q?.grammarTopic,
+              difficulty,
+              correctAnswer: q.correctAnswer,
+              explanation: q?.explanation || "",
+              userAnswer: userAnswer as string,
+              language,
+            });
+            partialScore = result.score;
+            aiFeedback = result.feedback;
+            isCorrect = partialScore >= 70;
+            isPartial = partialScore > 0 && partialScore < 100;
+          } catch (err) {
+            console.error("AI translation eval error for question", i, err);
+            isCorrect = normalize(userAnswer as string) === normalize(q.correctAnswer || "");
+            partialScore = isCorrect ? 100 : 0;
+            aiFeedback = isCorrect ? "Correct." : "Incorrect.";
+          }
+        } else {
+          if (type === "multiple" || (type === "unique" && hasOptions) || (type === "fillInBlank" && hasOptions)) {
+            userAnswer = typeof rawAnswer === "number" ? rawAnswer : -1;
+            isCorrect = userAnswer === (q.correctIndex ?? -1);
+          } else {
+            userAnswer = rawAnswer != null ? String(rawAnswer) : "";
+            isCorrect = normalize(userAnswer as string) === normalize(q.correctAnswer || "");
+          }
+          try {
+            aiFeedback = await generateExamQuestionFeedback({
+              questionText: q.text,
+              questionType: type,
+              grammarTopic: q?.grammarTopic,
+              difficulty,
+              options: q.options,
+              correctIndex: q.correctIndex,
+              correctAnswer: q.correctAnswer,
+              explanation: q?.explanation || "",
+              userAnswer,
+              isCorrect,
+              language,
+            });
+          } catch (err) {
+            console.error("AI feedback error for question", i, err);
+            aiFeedback = isCorrect ? "Correct." : "Incorrect.";
+          }
         }
 
         return {
@@ -79,41 +124,20 @@ export class ExamAttemptService {
           correctAnswer: q.correctAnswer,
           userAnswer,
           isCorrect,
+          partialScore,
+          isPartial,
+          aiFeedback,
           chat: attempt.attemptQuestions[i]?.chat || [],
         };
-      }
-    );
-
-    const language = exam.language || "en";
-    const difficulty = exam.difficulty || "";
-
-    const attemptQuestions: IAttemptQuestion[] = await Promise.all(
-      attemptQuestionsBase.map(async (aq) => {
-        try {
-          const q = exam.questions[aq.questionIndex];
-          const aiFeedback = await generateExamQuestionFeedback({
-            questionText: aq.questionText,
-            questionType: aq.questionType,
-            grammarTopic: q?.grammarTopic,
-            difficulty,
-            options: aq.options,
-            correctIndex: aq.correctIndex,
-            correctAnswer: aq.correctAnswer,
-            explanation: q?.explanation || "",
-            userAnswer: aq.userAnswer,
-            isCorrect: aq.isCorrect,
-            language,
-          });
-          return { ...aq, aiFeedback };
-        } catch (err) {
-          console.error("AI feedback error for question", aq.questionIndex, err);
-          return aq;
-        }
       })
     );
 
-    const correctCount = attemptQuestions.filter((a) => a.isCorrect).length;
-    const score = Math.round((correctCount / attemptQuestions.length) * 100);
+    const score = Math.round(
+      attemptQuestions.reduce((sum, a) => {
+        if (a.partialScore != null) return sum + a.partialScore;
+        return sum + (a.isCorrect ? 100 : 0);
+      }, 0) / attemptQuestions.length
+    );
 
     return ExamAttempt.findByIdAndUpdate(
       attemptId,

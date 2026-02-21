@@ -5,6 +5,7 @@ import {
   createExamCorrectionPrompt,
   createExamQuestionChatPrompt,
   createExamQuestionFeedbackPrompt,
+  createExamEvaluateTranslationPrompt,
 } from "./prompts/exams";
 
 export interface GenerateExamParams {
@@ -154,4 +155,47 @@ export const generateExamQuestionFeedback = async (
   if (!content) throw new Error("Feedback returned empty content");
 
   return content.trim();
+};
+
+export interface EvaluateTranslationResult {
+  score: number;
+  reasoning: string;
+  feedback: string;
+}
+
+/**
+ * AI evaluates a translation answer with partial credit (0-100).
+ * Only for translateText type.
+ */
+export const evaluateTranslationAnswer = async (params: {
+  questionText: string;
+  grammarTopic?: string;
+  difficulty?: string;
+  correctAnswer?: string;
+  explanation: string;
+  userAnswer: string;
+  language: string;
+}): Promise<EvaluateTranslationResult> => {
+  const { system, user } = createExamEvaluateTranslationPrompt({
+    ...params,
+    questionType: "translateText",
+  });
+  const fullPrompt = `${system}\n\n${user}`;
+
+  const response = await generateText("openai", fullPrompt, undefined, {
+    responseFormat: "json_object",
+    temperature: 0.3,
+    maxTokens: 500,
+  });
+
+  const content = response.choices?.[0]?.message?.content;
+  if (!content) throw new Error("Evaluate translation returned empty content");
+
+  const parsed = JSON.parse(content) as { score?: number; reasoning?: string; feedback?: string };
+  const score = Math.min(100, Math.max(0, Math.round(Number(parsed.score) || 0)));
+  return {
+    score,
+    reasoning: String(parsed.reasoning || ""),
+    feedback: String(parsed.feedback || "").trim(),
+  };
 };

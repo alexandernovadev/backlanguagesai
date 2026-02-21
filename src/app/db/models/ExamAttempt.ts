@@ -11,6 +11,8 @@ const attemptQuestionSchema = new Schema(
     correctAnswer: { type: String },
     userAnswer: { type: Schema.Types.Mixed, required: true },
     isCorrect: { type: Boolean, required: true },
+    partialScore: { type: Number },
+    isPartial: { type: Boolean },
     aiFeedback: { type: String },
     chat: [
       {

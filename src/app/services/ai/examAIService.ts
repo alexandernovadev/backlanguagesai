@@ -4,6 +4,7 @@ import {
   createExamValidationPrompt,
   createExamCorrectionPrompt,
   createExamQuestionChatPrompt,
+  createExamQuestionFeedbackPrompt,
 } from "./prompts/exams";
 
 export interface GenerateExamParams {
@@ -118,4 +119,39 @@ export const generateExamQuestionChat = async (params: ExamQuestionChatParams) =
   if (!content) throw new Error("Chat returned empty content");
 
   return content;
+};
+
+export interface ExamQuestionFeedbackParams {
+  questionText: string;
+  questionType: string;
+  grammarTopic?: string;
+  difficulty?: string;
+  options?: string[];
+  correctIndex?: number;
+  correctAnswer?: string;
+  explanation: string;
+  userAnswer: number | string;
+  isCorrect: boolean;
+  language: string;
+}
+
+/**
+ * Generates AI feedback for a single exam question (correct or incorrect).
+ * Returns 2-4 sentences of pedagogical feedback.
+ */
+export const generateExamQuestionFeedback = async (
+  params: ExamQuestionFeedbackParams
+): Promise<string> => {
+  const { system, messages } = createExamQuestionFeedbackPrompt(params);
+  const fullPrompt = `${system}\n\n${messages[0].content}`;
+
+  const response = await generateText("openai", fullPrompt, undefined, {
+    temperature: 0.5,
+    maxTokens: 300,
+  });
+
+  const content = response.choices?.[0]?.message?.content;
+  if (!content) throw new Error("Feedback returned empty content");
+
+  return content.trim();
 };

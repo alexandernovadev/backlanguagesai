@@ -11,6 +11,7 @@ const attemptQuestionSchema = new Schema(
     correctAnswer: { type: String },
     userAnswer: { type: Schema.Types.Mixed, required: true },
     isCorrect: { type: Boolean, required: true },
+    aiFeedback: { type: String },
     chat: [
       {
         role: { type: String, required: true },

@@ -1,6 +1,7 @@
 import ExamAttempt from "../../db/models/ExamAttempt";
 import Exam from "../../db/models/Exam";
 import { IExamAttempt, IAttemptQuestion } from "../../../../types/models";
+import { generateExamQuestionFeedback } from "../ai/examAIService";
 
 /**
  * Manages exam attempts: create, submit answers, and chat on failed questions.
@@ -52,7 +53,7 @@ export class ExamAttemptService {
     // Case-insensitive, trimmed comparison for text answers (translateText)
     const normalize = (s: string) => String(s || "").toLowerCase().trim();
 
-    const attemptQuestions: IAttemptQuestion[] = exam.questions.map(
+    const attemptQuestionsBase: IAttemptQuestion[] = exam.questions.map(
       (q: any, i: number) => {
         const rawAnswer = answers[i];
         const type = q.type || "multiple";
@@ -78,10 +79,37 @@ export class ExamAttemptService {
           correctAnswer: q.correctAnswer,
           userAnswer,
           isCorrect,
-          // Preserve any existing chat (e.g. from a previous partial save); usually empty at submit
           chat: attempt.attemptQuestions[i]?.chat || [],
         };
       }
+    );
+
+    const language = exam.language || "en";
+    const difficulty = exam.difficulty || "";
+
+    const attemptQuestions: IAttemptQuestion[] = await Promise.all(
+      attemptQuestionsBase.map(async (aq) => {
+        try {
+          const q = exam.questions[aq.questionIndex];
+          const aiFeedback = await generateExamQuestionFeedback({
+            questionText: aq.questionText,
+            questionType: aq.questionType,
+            grammarTopic: q?.grammarTopic,
+            difficulty,
+            options: aq.options,
+            correctIndex: aq.correctIndex,
+            correctAnswer: aq.correctAnswer,
+            explanation: q?.explanation || "",
+            userAnswer: aq.userAnswer,
+            isCorrect: aq.isCorrect,
+            language,
+          });
+          return { ...aq, aiFeedback };
+        } catch (err) {
+          console.error("AI feedback error for question", aq.questionIndex, err);
+          return aq;
+        }
+      })
     );
 
     const correctCount = attemptQuestions.filter((a) => a.isCorrect).length;

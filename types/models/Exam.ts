@@ -35,6 +35,7 @@ export interface IAttemptQuestion {
   correctAnswer?: string;
   userAnswer: number | string;
   isCorrect: boolean;
+  aiFeedback?: string;
   chat: Array<{ role: string; content: string }>;
 }
 

@@ -6,6 +6,9 @@
 app = 'backlanguagesai'
 primary_region = 'iad'
 
+[env]
+  NODE_ENV = "production"
+
 [build]
 
 [http_service]

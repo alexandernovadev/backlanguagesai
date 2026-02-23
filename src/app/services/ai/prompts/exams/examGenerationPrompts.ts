@@ -59,6 +59,10 @@ RULES:
 - Match vocabulary and structures to ${difficulty} level
 - explanation: brief, pedagogical, in ${language}
 
+CRITICAL - UNIQUENESS:
+- Each question must be clearly different from the others. No duplicate or near-duplicate questions.
+- Use varied contexts, vocabulary, and sentence structures. Avoid repeating the same grammar point with the same wording.
+
 CRITICAL - COHERENCE BETWEEN QUESTION AND OPTIONS:
 - The question text and options MUST be tightly linked. The blank or question must directly test what the options offer.
 - Options must fit the grammatical context. Never use options that are unrelated to the question.

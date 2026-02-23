@@ -57,6 +57,7 @@ const grammarTopicsJson: GrammarTopicOption[] = [
     label: "Special Verbs",
     children: [
       { value: "modal-verbs", label: "Modal Verbs" },
+      { value: "past-modals", label: "Past Modals" },
       { value: "auxiliary-verbs", label: "Auxiliary Verbs" },
       { value: "phrasal-verbs", label: "Phrasal Verbs" },
       { value: "conditionals", label: "Conditionals" },
@@ -73,6 +74,7 @@ const grammarTopicsJson: GrammarTopicOption[] = [
       { value: "if-clauses", label: "If Clauses" },
       { value: "conjunctions", label: "Conjunctions" },
       { value: "prepositions", label: "Prepositions" },
+      { value: "prepositions-of-time", label: "Prepositions of Time" },
     ],
   },
   {

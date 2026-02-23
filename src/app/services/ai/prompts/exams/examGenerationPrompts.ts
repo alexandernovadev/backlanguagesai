@@ -57,7 +57,6 @@ RULES:
 - Each question has "type" matching the requested type
 - Distribute grammar topics across questions
 - Match vocabulary and structures to ${difficulty} level
-- Use modern, everyday vocabulary. Avoid antiquated, archaic, or uncommon words (e.g. "thou", "henceforth", "whilst"). Prefer common words learners encounter in real life.
 - explanation: brief, pedagogical, in ${language}
 
 CRITICAL - COHERENCE BETWEEN QUESTION AND OPTIONS:

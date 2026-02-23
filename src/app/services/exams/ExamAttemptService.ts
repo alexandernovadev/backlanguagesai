@@ -79,6 +79,9 @@ export class ExamAttemptService {
             });
             partialScore = result.score;
             aiFeedback = result.feedback;
+            if (q.correctAnswer?.trim()) {
+              aiFeedback += `\n\n**Traducción correcta:** ${q.correctAnswer.trim()}`;
+            }
             isCorrect = partialScore >= 70;
             isPartial = partialScore > 0 && partialScore < 100;
           } catch (err) {

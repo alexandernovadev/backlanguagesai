@@ -38,7 +38,7 @@ export const generateExam = async (
 
   const response = await generateText("openai", fullPrompt, undefined, {
     responseFormat: "json_object",
-    temperature: 0.3,
+    temperature: 0.6,
   });
 
   const content = response.choices?.[0]?.message?.content;

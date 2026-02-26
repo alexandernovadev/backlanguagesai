@@ -62,19 +62,26 @@ export class ExamService {
                 userId: new mongoose.Types.ObjectId(userId),
               },
             },
-            { $count: "count" },
+            {
+              $group: {
+                _id: null,
+                count: { $sum: 1 },
+                bestScore: { $max: "$score" },
+              },
+            },
           ],
-          as: "attemptCountResult",
+          as: "attemptStats",
         },
       },
       {
         $addFields: {
           attemptCount: {
-            $ifNull: [{ $arrayElemAt: ["$attemptCountResult.count", 0] }, 0],
+            $ifNull: [{ $arrayElemAt: ["$attemptStats.count", 0] }, 0],
           },
+          bestScore: { $arrayElemAt: ["$attemptStats.bestScore", 0] },
         },
       },
-      { $unset: "attemptCountResult" },
+      { $unset: "attemptStats" },
     ]);
 
     return { data, total };

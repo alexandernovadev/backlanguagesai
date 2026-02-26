@@ -17,6 +17,7 @@ import AuthRoutes from "./app/routes/authRoutes";
 import UserRoutes from "./app/routes/userRoutes";
 import StatsRoutes from "./app/routes/statsRoutes";
 import ExamRoutes from "./app/routes/examRoutes";
+import ChatRoutes from "./app/routes/chatRoutes";
 import AIConfigRoutes from "./app/routes/aiConfigRoutes";
 
 // Utils
@@ -62,6 +63,7 @@ app.use("/api/expressions", authMiddleware, ExpressionRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 app.use("/api/stats", authMiddleware, StatsRoutes);
 app.use("/api/exams", authMiddleware, ExamRoutes);
+app.use("/api/chats", authMiddleware, ChatRoutes);
 app.use("/api/ai-config", authMiddleware, AIConfigRoutes);
 
 // Labs routes (conditional auth)

@@ -6,6 +6,7 @@ export type { IExpression } from './Expression';
 export type { ILecture } from './Lecture';
 export type { IAIConfig } from './AIConfig';
 export type { IExam, IExamQuestion, IExamAttempt, IAttemptQuestion, ExamQuestionType } from './Exam';
+export type { IWordChat, IChatMessage, WordSelectionType } from './WordChat';
 export type { AIFeature } from './AIConfig';
 export type { AIOperation } from './AIConfig';
 export type { AIProvider } from './AIConfig';

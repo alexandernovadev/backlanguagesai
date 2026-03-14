@@ -22,9 +22,10 @@ const attemptService = new ExamAttemptService();
  */
 export const generate = async (req: Request, res: Response) => {
   try {
-    const { language, grammarTopics, difficulty, questionCount, questionTypes, topic } = req.body;
-    if (!language || !grammarTopics?.length || !difficulty || !questionCount) {
-      return errorResponse(res, "language, grammarTopics, difficulty, questionCount required", 400);
+    const { grammarTopics, difficulty, questionCount, questionTypes, topic } = req.body;
+    const language = req.body.language || req.user?.language || "en";
+    if (!grammarTopics?.length || !difficulty || !questionCount) {
+      return errorResponse(res, "grammarTopics, difficulty, questionCount required", 400);
     }
 
     const result = await generateExam(

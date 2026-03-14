@@ -140,12 +140,13 @@ export const getAllLectures = async (
       return param;
     };
 
+    const languageToUse = parseArrayParam(language) ?? (req.user?.language ? [req.user.language] : undefined);
     const lectures = await lectureService.getLecturesAdvanced({
       page,
       limit,
       search,
       level: parseArrayParam(level),
-      language: parseArrayParam(language),
+      language: languageToUse,
       typeWrite: parseArrayParam(typeWrite),
       timeMin: timeMin ? Number(timeMin) : undefined,
       timeMax: timeMax ? Number(timeMax) : undefined,
@@ -408,12 +409,11 @@ export const generateTextStream = async (req: Request, res: Response) => {
     const userId = req.user?._id || req.user?.id || null;
     // Pasar stream: true en las opciones
     const stream = await generateLectureText({
-      // If prompt is empty or whitespace, we still pass it, and the service will handle random generation
       prompt: (prompt || "").toString(),
       level,
       typeWrite,
       promptWords,
-      language,
+      language: language || req.user?.language || "en",
       rangeMin,
       rangeMax,
       grammarTopics: Array.isArray(grammarTopics) ? grammarTopics : [],
@@ -473,10 +473,11 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     const userId = req.user?._id || req.user?.id || null;
-    // Pasar stream: true en las opciones
+    const language = req.user?.language || "en";
     const stream = await generateLectureTopic({
       existingText: existingText || "",
       type,
+      language,
     }, {
       stream: true,
       userId,

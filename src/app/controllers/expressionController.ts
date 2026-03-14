@@ -52,7 +52,7 @@ export const getExpressionById = async (req: Request, res: Response) => {
 // Get all expressions with filters
 export const getExpressions = async (req: Request, res: Response) => {
   try {
-    const filters = req.query;
+    const filters = { ...req.query, language: (req.query.language as string) || req.user?.language };
     const result = await expressionService.getExpressions(filters);
     return successResponse(res, "Expressions retrieved successfully", result);
   } catch (error: any) {
@@ -139,7 +139,7 @@ export const getExpressionsByType = async (req: Request, res: Response) => {
 // Get expressions only (for performance)
 export const getExpressionsOnly = async (req: Request, res: Response) => {
   try {
-    const filters = req.query;
+    const filters = { ...req.query, language: (req.query.language as string) || req.user?.language };
     const result = await expressionService.getExpressionsOnly(filters);
     return successResponse(res, "Expressions retrieved successfully", result);
   } catch (error: any) {
@@ -408,7 +408,8 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 // Nueva función para generar expresiones con AI
 export const generateExpression = async (req: Request, res: Response) => {
   try {
-    const { prompt, language = "en", options = {} } = req.body;
+    const { prompt, options = {} } = req.body;
+    const language = req.body.language || req.user?.language || "en";
     const userId = req.user?._id || req.user?.id || null;
     if (!prompt) {
       return errorResponse(res, "Prompt is required", 400);

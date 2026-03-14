@@ -30,7 +30,7 @@ export const create = async (req: Request, res: Response) => {
       return errorResponse(res, "wordSelectionType required: last10, hard10, medium10, easy10", 400);
     }
 
-    const chat = await chatService.create(userId, wordSelectionType, language || "en");
+    const chat = await chatService.create(userId, wordSelectionType, language || req.user?.language || "en");
     return successResponse(res, "Chat created", chat, 201);
   } catch (error: any) {
     console.error("Chat create error:", error);

@@ -140,7 +140,7 @@ export const getWords = async (
       : undefined;
     const languages = language
       ? language.split(",").map((l) => l.trim())
-      : undefined;
+      : (req.user?.language ? [req.user.language] : undefined);
     const types = type ? type.split(",").map((t) => t.trim()) : undefined;
 
     const wordList = await wordService.getWords({
@@ -594,7 +594,8 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 // ===== AI GENERATION FUNCTIONS FOR WORDS =====
 
 export const generateWordJson = async (req: Request, res: Response) => {
-  const { word, language, provider } = req.body;
+  const { word, provider } = req.body;
+  const language = req.body.language || req.user?.language || "en";
   const userId = req.user?._id || req.user?.id || null;
 
   if (!word) {
@@ -619,7 +620,8 @@ export const generateWordJson = async (req: Request, res: Response) => {
 };
 
 export const generateWordExamplesJson = async (req: Request, res: Response) => {
-  const { word, language, oldExamples, provider } = req.body;
+  const { word, oldExamples, provider } = req.body;
+  const language = req.body.language || req.user?.language || "en";
   const { id } = req.params as { id: string };
   const userId = req.user?._id || req.user?.id || null;
 
@@ -649,7 +651,8 @@ export const generateWordExamplesCodeSwitchingJson = async (
   req: Request,
   res: Response
 ) => {
-  const { word, language, oldExamples, provider } = req.body;
+  const { word, oldExamples, provider } = req.body;
+  const language = req.body.language || req.user?.language || "en";
   const { id } = req.params as { id: string };
   const userId = req.user?._id || req.user?.id || null;
 
@@ -687,7 +690,8 @@ export const generateWordExamplesCodeSwitchingJson = async (
 };
 
 export const generateWordTypesJson = async (req: Request, res: Response) => {
-  const { word, language, oldExamples, provider } = req.body;
+  const { word, oldExamples, provider } = req.body;
+  const language = req.body.language || req.user?.language || "en";
   const { id } = req.params as { id: string };
   const userId = req.user?._id || req.user?.id || null;
 
@@ -714,7 +718,8 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
 };
 
 export const generateWordSynomymsJson = async (req: Request, res: Response) => {
-  const { word, language, oldExamples, provider } = req.body;
+  const { word, oldExamples, provider } = req.body;
+  const language = req.body.language || req.user?.language || "en";
   const { id } = req.params as { id: string };
   const userId = req.user?._id || req.user?.id || null;
 

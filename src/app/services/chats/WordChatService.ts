@@ -56,8 +56,8 @@ export class WordChatService {
       language: language,
     });
 
-    if (!words?.length) {
-      throw new Error("No words found for the selected criteria");
+    if (!words?.length || words.length < 10) {
+      throw new Error("Debes agregar más de 10 palabras al diccionario");
     }
 
     const wordIds = words.map((w: { _id: unknown }) => w._id);

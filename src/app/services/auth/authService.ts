@@ -60,7 +60,7 @@ export const AuthService = {
           firstName: user.firstName,
           lastName: user.lastName,
           image: user.image,
-          language: user.language || 'es',
+          language: user.language || 'en',
           isActive: user.isActive,
           address: user.address,
           phone: user.phone,

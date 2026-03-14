@@ -41,7 +41,8 @@ export class ExamAttemptService {
   async submit(
     attemptId: string,
     answers: (number | string | number[])[],
-    userId: string
+    userId: string,
+    explainsLanguage: string = "es"
   ): Promise<IExamAttempt | null> {
     const attempt = await ExamAttempt.findById(attemptId).populate("examId");
     if (!attempt || attempt.userId.toString() !== userId) return null;
@@ -76,6 +77,7 @@ export class ExamAttemptService {
               explanation: q?.explanation || "",
               userAnswer: userAnswer as string,
               language,
+              explainsLanguage,
             });
             partialScore = result.score;
             aiFeedback = result.feedback;
@@ -126,6 +128,7 @@ export class ExamAttemptService {
               userAnswer,
               isCorrect,
               language,
+              explainsLanguage,
             });
           } catch (err) {
             console.error("AI feedback error for question", i, err);

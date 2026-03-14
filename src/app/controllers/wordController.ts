@@ -563,13 +563,15 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     const userId = req.user?._id || req.user?.id || null;
+    const explainsLanguage = req.user?.explainsLanguage || "es";
     const stream = await generateWordChat(
       word.word,
       word.definition,
       message,
       word.chat || [],
       { stream: true, userId },
-      word.language
+      word.language,
+      explainsLanguage
     );
 
     let fullResponse = "";

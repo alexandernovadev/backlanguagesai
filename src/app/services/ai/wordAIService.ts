@@ -206,7 +206,8 @@ export const generateWordChat = async (
   userMessage: string,
   chatHistory: Array<{ role: string; content: string }> = [],
   options: WordGenerationOptions = {},
-  language?: string
+  language?: string,
+  explainsLanguage?: string
 ) => {
   const provider = await getAIProvider(options.userId, 'word', 'chat', options);
 
@@ -216,6 +217,7 @@ export const generateWordChat = async (
     userMessage,
     chatHistory,
     language,
+    explainsLanguage,
   });
 
   return generateChat(provider, promptData.messages, undefined, {

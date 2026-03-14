@@ -4,8 +4,8 @@ export interface WordSummary {
   examples?: string[];
 }
 
-const getTargetLang = (lang: string) =>
-  lang === "es" ? "Spanish" : lang === "pt" ? "Portuguese" : lang === "fr" ? "French" : "English";
+import { getLangLabel } from "../langUtils";
+const getTargetLang = getLangLabel;
 
 export function createInitialMessagePrompt(
   words: WordSummary[],
@@ -61,9 +61,11 @@ Respond with ONLY the message text (no JSON, no markdown).`;
 
 export function createCorrectionPrompt(
   userMessage: string,
-  language: string
+  language: string,
+  explainsLanguage: string = "es"
 ): string {
   const targetLang = getTargetLang(language);
+  const explainLang = getTargetLang(explainsLanguage);
 
   return `You are a language teacher. Correct the student's ${targetLang} message.
 
@@ -71,7 +73,7 @@ Student wrote: "${userMessage}"
 
 Provide:
 1. The corrected version (in ${targetLang})
-2. Brief explanation of errors in Spanish (1-2 sentences)
+2. Brief explanation of errors in ${explainLang} (1-2 sentences)
 
 Format: "**Corrección:** [corrected text]\n\n**Explicación:** [brief explanation]"
 

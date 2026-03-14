@@ -1,14 +1,18 @@
+import { getLangLabel } from "../langUtils";
+
 export interface WordChatPromptParams {
   wordText: string;
   wordDefinition: string;
   userMessage: string;
   chatHistory: Array<{ role: string; content: string }>;
   language?: string;
+  explainsLanguage?: string;
 }
 
 export const createWordChatPrompt = (params: WordChatPromptParams) => {
-  const { wordText, wordDefinition, userMessage, chatHistory, language = "en" } = params;
+  const { wordText, wordDefinition, userMessage, chatHistory, language = "en", explainsLanguage = "es" } = params;
   const wordLanguage = language.toUpperCase();
+  const explainLang = getLangLabel(explainsLanguage);
   
   const systemPrompt = `
       You are a helpful and friendly language teacher helping a student learn vocabulary. 
@@ -20,8 +24,8 @@ export const createWordChatPrompt = (params: WordChatPromptParams) => {
       - Adapt your response style to the user's question
       - If they ask for examples, give examples. If they ask for pronunciation, focus on pronunciation.
       LANGUAGE BEHAVIOR:
-      - If user writes in Spanish: respond in Spanish but keep examples, dialogues, and key phrases in ${wordLanguage}
-      - If user writes in English: respond entirely in English
+      - Respond in ${explainLang} for explanations and pedagogy. Keep examples, dialogues, and key phrases in ${wordLanguage}.
+      - If user writes in ${wordLanguage}, you may respond in ${wordLanguage}. Otherwise use ${explainLang} for explanations.
       - CRITICAL: When providing examples, sentences, or dialogues, they MUST be in ${wordLanguage} (the word's language), NOT in Spanish or any other language
       - Examples must use the word "${wordText}" in natural ${wordLanguage} contexts
       - If the word is in English, examples must be in English. If the word is in French, examples must be in French, etc.

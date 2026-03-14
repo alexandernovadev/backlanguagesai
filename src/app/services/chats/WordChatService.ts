@@ -123,14 +123,19 @@ export class WordChatService {
     return chat;
   }
 
-  async requestCorrection(chatId: string, userId: string, messageIndex: number) {
+  async requestCorrection(
+    chatId: string,
+    userId: string,
+    messageIndex: number,
+    explainsLanguage: string = "es"
+  ) {
     const chat = await WordChat.findOne({ _id: chatId, userId });
     if (!chat) return null;
 
     const msg = chat.messages[messageIndex];
     if (!msg || msg.role !== "user") return null;
 
-    const correction = await generateCorrection(msg.content, chat.language);
+    const correction = await generateCorrection(msg.content, chat.language, explainsLanguage);
     if (!chat.corrections) chat.corrections = new Map();
     chat.corrections.set(String(messageIndex), correction);
     await chat.save();

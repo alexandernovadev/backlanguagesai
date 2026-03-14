@@ -1,3 +1,5 @@
+import { getLangLabel } from "../langUtils";
+
 export interface ExamQuestionChatParams {
   questionText: string;
   questionType: string;
@@ -12,6 +14,7 @@ export interface ExamQuestionChatParams {
   userMessage: string;
   chatHistory: Array<{ role: string; content: string }>;
   language: string;
+  explainsLanguage?: string;
 }
 
 export const createExamQuestionChatPrompt = (params: ExamQuestionChatParams) => {
@@ -29,6 +32,7 @@ export const createExamQuestionChatPrompt = (params: ExamQuestionChatParams) => 
     userMessage,
     chatHistory,
     language,
+    explainsLanguage = "es",
   } = params;
 
   const hasOptions = options && options.length > 0;
@@ -65,7 +69,7 @@ STUDENT ${isSelectionQuestion ? "SELECTED" : "ANSWERED"}: ${userDisplay}
 ${grammarPart}${levelPart}EXPLANATION: ${explanation}
 ${selectionNote}
 
-Respond in ${language}. Be encouraging, clear, and pedagogical.
+Respond in ${getLangLabel(explainsLanguage)}. Be encouraging, clear, and pedagogical.
 - Focus on ONE concept at a time - don't overwhelm
 ${grammarTopic ? `- Explain the grammar rule (${grammarTopic}) that applies` : ""}
 ${difficulty ? `- Use vocabulary appropriate for ${difficulty} level` : ""}

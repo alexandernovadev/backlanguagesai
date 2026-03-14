@@ -1,3 +1,5 @@
+import { getLangLabel } from "../langUtils";
+
 export interface ExamEvaluateAnswerParams {
   questionText: string;
   questionType: string;
@@ -7,6 +9,7 @@ export interface ExamEvaluateAnswerParams {
   explanation: string;
   userAnswer: string;
   language: string;
+  explainsLanguage?: string;
 }
 
 /**
@@ -22,9 +25,11 @@ export const createExamEvaluateTranslationPrompt = (params: ExamEvaluateAnswerPa
     explanation,
     userAnswer,
     language,
+    explainsLanguage = "es",
   } = params;
 
-  const targetLang = language === "es" ? "Spanish" : language === "pt" ? "Portuguese" : "English";
+  const targetLang = getLangLabel(language);
+  const feedbackLang = getLangLabel(explainsLanguage);
 
   const systemPrompt = `You are an expert language teacher evaluating a translation. Assign a score 0-100.
 
@@ -41,8 +46,8 @@ ACCEPT ALTERNATIVE VALID TRANSLATIONS:
 - Do NOT penalize valid alternatives that differ from the reference but are correct.
 
 FEEDBACK RULES:
-- Write ALL feedback in SPANISH (the user speaks Spanish). Explain errors, corrections, and tips in Spanish.
-- Show the correct translation ONCE at the end: "**Traducción correcta:** [reference in ${targetLang}]".
+- Write ALL feedback in ${feedbackLang}. Explain errors, corrections, and tips in ${feedbackLang}.
+- Show the correct translation ONCE at the end: "**Traducción correcta:** [reference in ${targetLang}]" (or equivalent label in ${feedbackLang}).
 - Use clear structure: separate paragraphs for different points. Use line breaks between sections. Use **bold**, \`code\`, lists where helpful.
 - NO generic motivational phrases: do NOT say "Keep practicing", "Keep up the good work", "You're doing great", "Don't give up", or similar. Be concise and pedagogical only.
 
@@ -50,7 +55,7 @@ Respond ONLY valid JSON:
 {
   "score": <0-100 integer>,
   "reasoning": "<1-2 sentences>",
-  "feedback": "<Markdown feedback in SPANISH. Structure: 1-2 paragraphs for explanation, then **Traducción correcta:** [reference]. Use line breaks between paragraphs. 3-8 lines. No motivational filler.>"
+  "feedback": "<Markdown feedback in ${feedbackLang}. Structure: 1-2 paragraphs for explanation, then correct translation. Use line breaks between paragraphs. 3-8 lines. No motivational filler.>"
 }`;
 
   return { system: systemPrompt, user: "Evaluate this translation and return the JSON." };

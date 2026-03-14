@@ -33,8 +33,12 @@ export async function generateChatResponse(
   return res.choices?.[0]?.message?.content?.trim() || "Keep going!";
 }
 
-export async function generateCorrection(userMessage: string, language: string): Promise<string> {
-  const prompt = createCorrectionPrompt(userMessage, language);
+export async function generateCorrection(
+  userMessage: string,
+  language: string,
+  explainsLanguage: string = "es"
+): Promise<string> {
+  const prompt = createCorrectionPrompt(userMessage, language, explainsLanguage);
   const res = await generateText("openai", prompt, undefined, {
     temperature: 0.3,
     maxTokens: 200,

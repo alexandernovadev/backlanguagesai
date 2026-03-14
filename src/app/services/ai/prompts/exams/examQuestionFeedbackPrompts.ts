@@ -1,3 +1,5 @@
+import { getLangLabel } from "../langUtils";
+
 export interface ExamQuestionFeedbackParams {
   questionText: string;
   questionType: string;
@@ -11,6 +13,7 @@ export interface ExamQuestionFeedbackParams {
   userAnswer: number | number[] | string;
   isCorrect: boolean;
   language: string;
+  explainsLanguage?: string;
 }
 
 export const createExamQuestionFeedbackPrompt = (params: ExamQuestionFeedbackParams) => {
@@ -27,6 +30,7 @@ export const createExamQuestionFeedbackPrompt = (params: ExamQuestionFeedbackPar
     userAnswer,
     isCorrect,
     language,
+    explainsLanguage = "es",
   } = params;
 
   const hasOptions = options && options.length > 0;
@@ -48,7 +52,7 @@ export const createExamQuestionFeedbackPrompt = (params: ExamQuestionFeedbackPar
     ? `OPTIONS: ${options.map((o, i) => `${i}: ${o}`).join(" | ")}\n`
     : "";
 
-  const langLabel = language === "es" ? "Spanish" : language === "pt" ? "Portuguese" : "English";
+  const langLabel = getLangLabel(explainsLanguage);
   const isSelectionQuestion = hasOptions && (questionType === "multiple" || questionType === "unique" || questionType === "fillInBlank");
   const selectionNote = isSelectionQuestion
     ? `\n**IMPORTANT:** The student SELECTED an option from the list - they did NOT write the answer. Do NOT correct grammar as if they wrote it. Focus on why the selected option was wrong (or incomplete) vs the correct one. Avoid phrasing like "you used", "you wrote", "you missed" - they only chose from given options.\n`

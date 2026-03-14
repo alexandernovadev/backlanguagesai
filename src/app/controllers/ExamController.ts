@@ -159,10 +159,12 @@ export const submitAttempt = async (req: Request, res: Response) => {
     const { answers } = req.body;
     if (!Array.isArray(answers)) return errorResponse(res, "answers array required", 400);
 
+    const explainsLanguage = req.user?.explainsLanguage || "es";
     const attempt = await attemptService.submit(
       req.params.attemptId,
       answers,
-      userId.toString()
+      userId.toString(),
+      explainsLanguage
     );
     if (!attempt) return errorResponse(res, "Attempt not found", 404);
     return successResponse(res, "Attempt submitted", attempt);
@@ -254,6 +256,7 @@ export const chatOnQuestion = async (req: Request, res: Response) => {
     if (!q || !aq) return errorResponse(res, "Question not found", 404);
     if (aq.isCorrect) return errorResponse(res, "Chat only for failed questions", 400);
 
+    const explainsLanguage = req.user?.explainsLanguage || "es";
     const aiResponse = await generateExamQuestionChat({
       questionText: q.text,
       questionType: q.type || "multiple",
@@ -268,6 +271,7 @@ export const chatOnQuestion = async (req: Request, res: Response) => {
       userMessage: message.trim(),
       chatHistory: aq.chat || [],
       language: exam.language || "en",
+      explainsLanguage,
     });
 
     await attemptService.addChatMessage(

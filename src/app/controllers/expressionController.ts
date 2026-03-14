@@ -381,11 +381,13 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     const chatHistory = expression.chat || [];
+    const explainsLanguage = req.user?.explainsLanguage || "es";
     const params = {
       expressionText: expression.expression,
       expressionDefinition: expression.definition,
       userMessage: message,
       chatHistory,
+      explainsLanguage,
     };
     const userId = req.user?._id || req.user?.id || null;
     const stream = await generateExpressionChat(params, { stream: true, userId });

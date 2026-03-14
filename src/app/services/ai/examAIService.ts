@@ -106,6 +106,7 @@ export interface ExamQuestionChatParams {
   userMessage: string;
   chatHistory: Array<{ role: string; content: string }>;
   language: string;
+  explainsLanguage?: string;
 }
 
 /**
@@ -138,6 +139,7 @@ export interface ExamQuestionFeedbackParams {
   userAnswer: number | number[] | string;
   isCorrect: boolean;
   language: string;
+  explainsLanguage?: string;
 }
 
 /**
@@ -179,6 +181,7 @@ export const evaluateTranslationAnswer = async (params: {
   explanation: string;
   userAnswer: string;
   language: string;
+  explainsLanguage?: string;
 }): Promise<EvaluateTranslationResult> => {
   const { system, user } = createExamEvaluateTranslationPrompt({
     ...params,

@@ -84,7 +84,13 @@ export const requestCorrection = async (req: Request, res: Response) => {
       return errorResponse(res, "messageIndex required (non-negative number)", 400);
     }
 
-    const chat = await chatService.requestCorrection(req.params.id, userId, messageIndex);
+    const explainsLanguage = req.user?.explainsLanguage || "es";
+    const chat = await chatService.requestCorrection(
+      req.params.id,
+      userId,
+      messageIndex,
+      explainsLanguage
+    );
     if (!chat) return errorResponse(res, "Chat not found or invalid message to correct", 404);
 
     return successResponse(res, "Correction saved", chat);

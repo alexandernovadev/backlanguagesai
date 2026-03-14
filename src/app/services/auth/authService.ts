@@ -61,6 +61,7 @@ export const AuthService = {
           lastName: user.lastName,
           image: user.image,
           language: user.language || 'en',
+          explainsLanguage: user.explainsLanguage || 'es',
           isActive: user.isActive,
           address: user.address,
           phone: user.phone,

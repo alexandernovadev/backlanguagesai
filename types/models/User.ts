@@ -10,6 +10,7 @@ export interface IUser extends Document {
   lastName?: string;
   image?: string;
   language: Language;
+  explainsLanguage?: Language;
   isActive: boolean;
   address?: string;
   phone?: string;

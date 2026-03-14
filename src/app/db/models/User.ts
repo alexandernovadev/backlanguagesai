@@ -15,6 +15,11 @@ const UserSchema: Schema = new Schema(
       default: "en",
       enum: languagesList,
     },
+    explainsLanguage: {
+      type: String,
+      default: "es",
+      enum: languagesList,
+    },
     isActive: { type: Boolean, default: true },
     address: { type: String },
     phone: { type: String },

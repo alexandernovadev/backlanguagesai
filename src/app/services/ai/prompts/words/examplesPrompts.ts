@@ -1,4 +1,5 @@
 import { Language } from '../../../../../../types/business';
+import { getLangLabel } from '../langUtils';
 
 export interface WordExamplesPromptParams {
   word: string;
@@ -8,29 +9,27 @@ export interface WordExamplesPromptParams {
 
 export const createWordExamplesPrompt = (params: WordExamplesPromptParams) => {
   const { word, language, oldExamples } = params;
+  const langLabel = getLangLabel(language);
   return {
     system: `
-    You are an expert in the English language with a focus on teaching and lexicography. 
-    Please generate a JSON object with the following properties, ensuring each is accurate, 
-    error-free, and appropriate for English learners:
-    EXAMPLES with word "challenges"
+    You are an expert in the ${langLabel} language with a focus on teaching and lexicography.
+    TARGET LANGUAGE: ${langLabel} (code: ${language}). All examples MUST be in ${langLabel}.
+
+    Please generate a JSON object with the following properties:
     {
       "examples": [
-        "Starting a new job comes with its own set of challenges.",
-        "The team faced several challenges in completing the project on time.",
-        "One of the main challenges in learning a language is mastering pronunciation.",
-        "They overcame many challenges to reach their goal.",
-        "Climate change presents serious challenges for all nations."
-        ]
+        "[5 example sentences in ${langLabel} using the word in realistic contexts, B2 level]"
+      ]
     }
-    The user has this examples and he wish to changue those, so be aware in no generate the sames
+    The user has these examples and wishes to change them, so do NOT generate the same ones:
     ${oldExamples}
     - Be creative with examples, ensuring they do not seem repetitive or too similar to the provided ones.
     - Ensure the examples are diverse and cover different contexts where the word might be used.
     - Avoid using the same sentence structure repeatedly.
     - Make sure the examples are suitable for learners at the B2 level.
+    - All examples MUST be in ${langLabel}.
     `.trim(),
-    user: `The word to generate examples is ${word}`,
+    user: `Generate examples in ${langLabel} for the word: ${word}`,
   };
 };
 
@@ -44,28 +43,25 @@ export const createWordCodeSwitchingPrompt = (
   params: WordCodeSwitchingPromptParams
 ) => {
   const { prompt, language, oldExamples } = params;
+  const langLabel = getLangLabel(language);
   return {
     system: `
-      You are an expert in the English Spanish language with a focus on teaching and lexicography. 
-      Please generate a JSON object with the following properties, ensuring each is accurate, 
-      error-free, and appropriate for English learners:
-      EXAMPLES with word "burst"
+      You are an expert in ${langLabel} and Spanish with a focus on teaching and lexicography.
+      TARGET: Code-switching sentences = word in ${langLabel} + rest of sentence in Spanish.
+
+      Generate a JSON object:
       {
-      "codeSwitching": [
-          "El globo bursts y todos se asustan.",
-          "Ella bursts en lágrimas al escuchar la noticia.",
-          "El río bursts sus orillas después de la tormenta.",
-          "Él bursts en la habitación con una sonrisa enorme.",
-          "El cohete bursts en el aire con colores brillantes."
+        "codeSwitching": [
+          "[5 sentences: use the word in ${langLabel}, rest of sentence in Spanish]"
         ]
       }
-      The user has this examples and he wish to changue those, so be aware in no generate the sames
+      Example format: "[${langLabel} word] + [rest in Spanish]" (e.g. "El globo burst y todos se asustan" for English "burst")
+
+      The user has these examples and wishes to change them, so do NOT generate the same ones:
       ${oldExamples}
-      - Be creative with examples, ensuring they do not seem repetitive or too similar to the provided ones.
-      - Ensure the examples are diverse and cover different contexts where the word might be used.
-      - Avoid using the same sentence structure repeatedly.
-      - Make sure the examples are suitable for learners at the B2 level.
+      - Be creative, diverse contexts, avoid repetitive structures.
+      - Suitable for B2 level. All sentences: word in ${langLabel}, rest in Spanish.
 `.trim(),
-    user: `The word to generate examples is ${prompt}`,
+    user: `Generate code-switching examples (word in ${langLabel}, rest in Spanish) for: ${prompt}`,
   };
 };

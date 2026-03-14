@@ -387,6 +387,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
       expressionDefinition: expression.definition,
       userMessage: message,
       chatHistory,
+      language: expression.language || "en",
       explainsLanguage,
     };
     const userId = req.user?._id || req.user?.id || null;

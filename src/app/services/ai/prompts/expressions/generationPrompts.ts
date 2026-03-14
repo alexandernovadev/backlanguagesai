@@ -1,4 +1,5 @@
 import { Language } from "../../../../../../types/business";
+import { getLangLabel } from "../langUtils";
 
 export interface ExpressionGenerationPromptParams {
   prompt: string;
@@ -9,21 +10,26 @@ export const createExpressionGenerationPrompt = (
   params: ExpressionGenerationPromptParams
 ) => {
   const { prompt, language } = params;
+  const langLabel = getLangLabel(language);
   return {
     system: `
-    You are an expert in English idioms, phrases, and expressions with a focus on teaching and language learning. 
-    The user will provide an expression, and you need to create a JSON object with detailed information about that specific expression.
-    Please generate a JSON object with the following properties, ensuring each is accurate, 
-    error-free, and appropriate for English learners:
+    You are an expert in ${langLabel} idioms, phrases, and expressions with a focus on teaching and language learning.
+    TARGET LANGUAGE: ${langLabel} (code: ${language}). All content must be in ${langLabel} unless specified otherwise.
+
+    CRITICAL - "expression" field: You MUST use the EXACT expression the user provides. DO NOT translate it to another language.
+    If the user gives "costar un ojo de la cara" (Spanish), return "costar un ojo de la cara". If they give "break the ice" (English), return "break the ice".
+    Never substitute the expression with a translation. Only fix obvious spelling/grammar typos.
+
+    Please generate a JSON object with the following properties:
     {
-      "expression": "[THE EXPRESSION PROVIDED BY THE USER, with minor spelling/grammar corrections if needed]",
+      "expression": "[USE THE EXACT EXPRESSION THE USER PROVIDED - DO NOT TRANSLATE]",
       "language": "${language}",
-      "definition": "[A clear and concise definition appropriate to B2 English level]",
+      "definition": "[A clear and concise definition in ${langLabel}, appropriate to B2 level]",
       "examples": [
-          "[5 example sentences in English using the expression in realistic contexts that are understandable at B2 level]"
+          "[5 example sentences in ${langLabel} using the expression in realistic contexts that are understandable at B2 level]"
       ],
       "type": [
-          "[one or more types, selected ONLY from this exact list: 'idiom', 'phrase', 'collocation', 'slang', 'formal', 'informal']"
+          "[one or more types, selected ONLY from: 'idiom', 'phrase', 'collocation', 'slang', 'formal', 'informal']"
       ],
       "context": "[Brief context about when and how to use this expression]",
       "difficulty": "[one of: 'easy', 'medium', 'hard']",
@@ -32,17 +38,12 @@ export const createExpressionGenerationPrompt = (
           "expression": "[Spanish equivalent of the expression]"
       }
     }
-    IMPORTANT: 
-    - The "expression" field should be the user's expression with minor corrections for spelling and grammar
-    - Only correct obvious spelling mistakes (e.g., "livin" → "living", "approchin" → "approaching")
-    - Do NOT change the meaning or create a completely different expression
-    - If the user's expression is correct, use it exactly as provided
-    - "type" can contain one or multiple values, but each must be selected only from the following allowed types:
-      ["idiom", "phrase", "collocation", "slang", "formal", "informal"]
+    IMPORTANT:
+    - "expression" MUST be the exact expression the user provided. NEVER translate it.
+    - Only correct obvious spelling mistakes. Do NOT change meaning or create a different expression.
+    - "type" can contain one or multiple values from: ["idiom", "phrase", "collocation", "slang", "formal", "informal"]
     - "difficulty" must be one of: "easy", "medium", "hard"
-    - Every field contains accurate, B2-appropriate content with correct grammar and relevant contexts
-    - The examples must be realistic and show different contexts of use
-    - The Spanish translation should be natural and idiomatic
+    - Examples must be in ${langLabel}. Spanish translation should be natural and idiomatic.
 `.trim(),
     user: `Analyze and provide detailed information for this expression: "${prompt}"`,
   };

@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import mongoose from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import Exam from "../../db/models/Exam";
 import { IExam } from "../../../../types/models";
 
@@ -34,20 +34,29 @@ export class ExamService {
   /**
    * Paginated list of exams, newest first.
    * When userId is provided, adds attemptCount (user's attempts per exam).
+   * When language is provided, filters by exam language.
    * @param page - Page number (1-based)
    * @param limit - Items per page
    * @param userId - Optional. When set, adds attemptCount for this user.
+   * @param language - Optional. When set, filters exams by this language.
    */
-  async list(page = 1, limit = 20, userId?: string): Promise<{ data: (IExam & { attemptCount?: number })[]; total: number }> {
+  async list(page = 1, limit = 20, userId?: string, language?: string): Promise<{ data: (IExam & { attemptCount?: number })[]; total: number }> {
     const skip = (page - 1) * limit;
-    const total = await Exam.countDocuments();
+    const matchFilter: Record<string, unknown> = {};
+    if (language) matchFilter.language = language;
+
+    const total = await Exam.countDocuments(matchFilter);
 
     if (!userId) {
-      const data = await Exam.find().skip(skip).sort({ createdAt: -1 }).limit(limit).lean();
+      const data = await Exam.find(matchFilter).skip(skip).sort({ createdAt: -1 }).limit(limit).lean();
       return { data: data as unknown as IExam[], total };
     }
 
-    const data = await Exam.aggregate([
+    const pipeline: PipelineStage[] = [];
+    if (Object.keys(matchFilter).length > 0) {
+      pipeline.push({ $match: matchFilter });
+    }
+    pipeline.push(
       { $sort: { createdAt: -1 } },
       { $skip: skip },
       { $limit: limit },
@@ -81,9 +90,10 @@ export class ExamService {
           bestScore: { $arrayElemAt: ["$attemptStats.bestScore", 0] },
         },
       },
-      { $unset: "attemptStats" },
-    ]);
+      { $unset: "attemptStats" }
+    );
 
+    const data = await Exam.aggregate(pipeline);
     return { data, total };
   }
 

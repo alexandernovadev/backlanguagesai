@@ -4,11 +4,14 @@ export interface WordSummary {
   examples?: string[];
 }
 
+const getTargetLang = (lang: string) =>
+  lang === "es" ? "Spanish" : lang === "pt" ? "Portuguese" : lang === "fr" ? "French" : "English";
+
 export function createInitialMessagePrompt(
   words: WordSummary[],
   language: string
 ): string {
-  const targetLang = language === "es" ? "Spanish" : language === "pt" ? "Portuguese" : "English";
+  const targetLang = getTargetLang(language);
   const wordsJson = JSON.stringify(words, null, 2);
 
   return `You are a friendly language teacher. Start a natural conversation to help the student practice vocabulary.
@@ -32,7 +35,7 @@ export function createChatResponsePrompt(
   messages: Array<{ role: string; content: string }>,
   language: string
 ): string {
-  const targetLang = language === "es" ? "Spanish" : language === "pt" ? "Portuguese" : "English";
+  const targetLang = getTargetLang(language);
   const wordsJson = JSON.stringify(words, null, 2);
   const remaining = words.filter((w) => !wordsUsed.includes(w.word)).map((w) => w.word);
 
@@ -60,7 +63,7 @@ export function createCorrectionPrompt(
   userMessage: string,
   language: string
 ): string {
-  const targetLang = language === "es" ? "Spanish" : language === "pt" ? "Portuguese" : "English";
+  const targetLang = getTargetLang(language);
 
   return `You are a language teacher. Correct the student's ${targetLang} message.
 

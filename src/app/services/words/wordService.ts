@@ -356,13 +356,21 @@ export class WordService {
     mode?: 'random' | 'review';
     limit?: number;
     difficulty?: string[];
+    language?: string;
   } = {}): Promise<IWord[]> {
-    const { mode = 'random', limit = 30, difficulty = ['hard', 'medium'] } = options;
+    const { mode = 'random', limit = 30, difficulty = ['hard', 'medium'], language } = options;
+
+    const matchFilter: Record<string, unknown> = {
+      difficulty: { $in: difficulty },
+    };
+    if (language) {
+      matchFilter.language = language;
+    }
 
     if (mode === 'random') {
       // Modo aleatorio: obtener palabras aleatorias (comportamiento original de get-cards-anki)
       return (await Word.aggregate([
-        { $match: { difficulty: { $in: difficulty } } },
+        { $match: matchFilter },
         { $addFields: { randomSort: { $rand: {} } } },
         { $sort: { randomSort: 1 } },
         { $limit: limit },
@@ -370,9 +378,7 @@ export class WordService {
       ])) as unknown as IWord[];
     } else {
       // Modo review: obtener palabras para repaso inteligente (comportamiento original de get-words-for-review)
-      return (await Word.find({
-        difficulty: { $in: difficulty },
-      })
+      return (await Word.find(matchFilter)
         .sort({
           difficulty: -1,
           seen: 1,

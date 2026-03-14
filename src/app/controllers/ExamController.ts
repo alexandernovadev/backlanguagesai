@@ -86,6 +86,7 @@ export const create = async (req: Request, res: Response) => {
   try {
     const exam = await examService.create({
       ...req.body,
+      language: req.body.language || req.user?.language || "en",
       createdBy: req.user?._id,
     });
     return successResponse(res, "Exam created", exam, 201);
@@ -105,13 +106,14 @@ export const getById = async (req: Request, res: Response) => {
   }
 };
 
-/** GET /api/exams - Paginated list. Query: page?, limit? Includes attemptCount when user is authenticated. */
+/** GET /api/exams - Paginated list. Query: page?, limit? Includes attemptCount when user is authenticated. Filters by req.user.language. */
 export const list = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const userId = req.user?._id?.toString() || req.user?.id;
-    const result = await examService.list(page, limit, userId);
+    const language = req.user?.language;
+    const result = await examService.list(page, limit, userId, language);
     return successResponse(res, "Exams listed", result);
   } catch (error: any) {
     return errorResponse(res, error.message || "Error listing exams", 500, error);

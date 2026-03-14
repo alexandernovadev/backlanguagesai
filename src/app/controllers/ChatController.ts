@@ -11,8 +11,9 @@ export const list = async (req: Request, res: Response) => {
 
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit as string) || 20, 1);
+    const language = req.user?.language || "en";
 
-    const result = await chatService.list(userId, page, limit);
+    const result = await chatService.list(userId, page, limit, language);
     return successResponse(res, "Chats listed", result);
   } catch (error: any) {
     console.error("Chat list error:", error);

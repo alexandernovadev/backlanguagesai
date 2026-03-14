@@ -30,10 +30,14 @@ function toWordSummary(w: { word: string; definition: string; examples?: string[
 }
 
 export class WordChatService {
-  async list(userId: string, page = 1, limit = 20) {
+  async list(userId: string, page = 1, limit = 20, language?: string) {
     const skip = (page - 1) * limit;
-    const total = await WordChat.countDocuments({ userId });
-    const data = await WordChat.find({ userId })
+    const filter: Record<string, unknown> = { userId };
+    if (language) {
+      filter.language = language;
+    }
+    const total = await WordChat.countDocuments(filter);
+    const data = await WordChat.find(filter)
       .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)

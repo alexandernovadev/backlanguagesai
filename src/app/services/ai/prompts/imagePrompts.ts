@@ -49,6 +49,7 @@ export const imageWordPrompt = (word: string) => {
     - Single, clear composition optimized for educational use.
     - No gore, no graphic injuries, no violence, no shocking or adult content.
     -(PLEASE DO NOT ADD TEXT, LETTERS, NUMBERS, LABELS, WATERMARKS, OR LOGOS)
+    Focus on extreme simplicity and tiny file size. BUT NOT bits images.
 `.trim();
 };
 

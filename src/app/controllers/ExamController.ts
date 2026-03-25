@@ -50,7 +50,9 @@ export const validate = async (req: Request, res: Response) => {
     const examJson = typeof examData === "string" ? examData : JSON.stringify(examData);
     if (!examJson || examJson === "{}") return errorResponse(res, "Exam data required", 400);
 
-    const result = await validateExam(examJson);
+    const userId =
+      req.user?._id?.toString?.() ?? (req.user as { id?: string })?.id ?? null;
+    const result = await validateExam(examJson, { userId });
     return successResponse(res, "Exam validated", result);
   } catch (error: any) {
     console.error("Exam validate error:", error);
@@ -70,7 +72,9 @@ export const correct = async (req: Request, res: Response) => {
       return errorResponse(res, "exam and validation required", 400);
     }
 
-    const result = await correctExam(exam, validation);
+    const userId =
+      req.user?._id?.toString?.() ?? (req.user as { id?: string })?.id ?? null;
+    const result = await correctExam(exam, validation, { userId });
     return successResponse(res, "Exam corrected", result);
   } catch (error: any) {
     console.error("Exam correct error:", error);
@@ -272,6 +276,7 @@ export const chatOnQuestion = async (req: Request, res: Response) => {
       chatHistory: aq.chat || [],
       language: exam.language || "en",
       explainsLanguage,
+      userId: userId.toString(),
     });
 
     await attemptService.addChatMessage(

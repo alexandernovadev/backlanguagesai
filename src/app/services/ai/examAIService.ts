@@ -1,4 +1,5 @@
 import { generateText, generateChat } from "./textAIService";
+import { getAIProvider } from "./aiConfigHelper";
 import {
   createExamGenerationPrompt,
   createExamValidationPrompt,
@@ -7,6 +8,11 @@ import {
   createExamQuestionFeedbackPrompt,
   createExamEvaluateTranslationPrompt,
 } from "./prompts/exams";
+import type { DeepSeekModel, TextProvider } from "../../../config/aiConfig";
+
+function reasoningModel(provider: TextProvider): DeepSeekModel | undefined {
+  return provider === "deepseek" ? "deepseek-reasoner" : undefined;
+}
 
 export interface GenerateExamParams {
   language: string;
@@ -19,9 +25,6 @@ export interface GenerateExamParams {
 
 /**
  * Generates an exam via AI. Returns JSON with title and questions.
- * questionTypes cycles if shorter than questionCount (e.g. ["multiple","fillInBlank"] x 6 = 3 each).
- * @param params - language, grammarTopics, difficulty, questionCount, questionTypes?, topic?
- * @returns { title, questions: [{ type, text, options?, correctIndex?, correctAnswer?, grammarTopic, explanation }] }
  */
 export const generateExam = async (
   params: GenerateExamParams,
@@ -36,7 +39,8 @@ export const generateExam = async (
   });
   const fullPrompt = `${promptData.system}\n\n${promptData.user}`;
 
-  const response = await generateText("openai", fullPrompt, undefined, {
+  const provider = await getAIProvider(options?.userId, "exam", "generate");
+  const response = await generateText(provider, fullPrompt, undefined, {
     responseFormat: "json_object",
     temperature: 0.3,
   });
@@ -47,16 +51,16 @@ export const generateExam = async (
   return JSON.parse(content);
 };
 
-/**
- * Validates an exam via AI (acts as a teacher reviewer).
- * @param examJson - Stringified exam object
- * @returns { valid, score, feedback, issues, suggestions, thumbsUp }
- */
-export const validateExam = async (examJson: string) => {
+export const validateExam = async (
+  examJson: string,
+  options?: { userId?: string | null }
+) => {
   const promptData = createExamValidationPrompt(examJson);
   const fullPrompt = `${promptData.system}\n\n${promptData.user}`;
 
-  const response = await generateText("deepseek", fullPrompt, "deepseek-reasoner", {
+  const provider = await getAIProvider(options?.userId, "exam", "validate");
+  const model = reasoningModel(provider);
+  const response = await generateText(provider, fullPrompt, model, {
     responseFormat: "json_object",
     temperature: 0.3,
     maxTokens: 4000,
@@ -68,19 +72,19 @@ export const validateExam = async (examJson: string) => {
   return JSON.parse(content);
 };
 
-/**
- * Corrects an exam based on validation feedback. AI applies fixes to issues and returns corrected exam.
- * @param exam - The exam object
- * @param validation - Validation result with issues, feedback, suggestions
- * @returns Corrected exam { title, questions }
- */
-export const correctExam = async (exam: object, validation: object) => {
+export const correctExam = async (
+  exam: object,
+  validation: object,
+  options?: { userId?: string | null }
+) => {
   const examJson = JSON.stringify(exam);
   const validationJson = JSON.stringify(validation);
   const promptData = createExamCorrectionPrompt({ examJson, validationJson });
   const fullPrompt = `${promptData.system}\n\n${promptData.user}`;
 
-  const response = await generateText("deepseek", fullPrompt, "deepseek-reasoner", {
+  const provider = await getAIProvider(options?.userId, "exam", "correct");
+  const model = reasoningModel(provider);
+  const response = await generateText(provider, fullPrompt, model, {
     responseFormat: "json_object",
     temperature: 0.3,
     maxTokens: 4000,
@@ -107,16 +111,15 @@ export interface ExamQuestionChatParams {
   chatHistory: Array<{ role: string; content: string }>;
   language: string;
   explainsLanguage?: string;
+  userId?: string | null;
 }
 
-/**
- * Generates AI chat response for a failed question. Uses question context + user message + chat history.
- * Handles both multiple-choice (options, correctIndex) and text-based (correctAnswer) types.
- */
 export const generateExamQuestionChat = async (params: ExamQuestionChatParams) => {
-  const { messages } = createExamQuestionChatPrompt(params);
+  const { userId, ...promptParams } = params;
+  const { messages } = createExamQuestionChatPrompt(promptParams);
 
-  const response = await generateChat("openai", messages, undefined, {
+  const provider = await getAIProvider(userId, "exam", "questionChat");
+  const response = await generateChat(provider, messages, undefined, {
     temperature: 0.3,
   });
 
@@ -140,19 +143,18 @@ export interface ExamQuestionFeedbackParams {
   isCorrect: boolean;
   language: string;
   explainsLanguage?: string;
+  userId?: string | null;
 }
 
-/**
- * Generates AI feedback for a single exam question (correct or incorrect).
- * Returns 2-4 sentences of pedagogical feedback.
- */
 export const generateExamQuestionFeedback = async (
   params: ExamQuestionFeedbackParams
 ): Promise<string> => {
-  const { system, messages } = createExamQuestionFeedbackPrompt(params);
+  const { userId, ...feedbackParams } = params;
+  const { system, messages } = createExamQuestionFeedbackPrompt(feedbackParams);
   const fullPrompt = `${system}\n\n${messages[0].content}`;
 
-  const response = await generateText("openai", fullPrompt, undefined, {
+  const provider = await getAIProvider(userId, "exam", "questionFeedback");
+  const response = await generateText(provider, fullPrompt, undefined, {
     temperature: 0.3,
     maxTokens: 300,
   });
@@ -169,10 +171,6 @@ export interface EvaluateTranslationResult {
   feedback: string;
 }
 
-/**
- * AI evaluates a translation answer with partial credit (0-100).
- * Only for translateText type.
- */
 export const evaluateTranslationAnswer = async (params: {
   questionText: string;
   grammarTopic?: string;
@@ -182,14 +180,17 @@ export const evaluateTranslationAnswer = async (params: {
   userAnswer: string;
   language: string;
   explainsLanguage?: string;
+  userId?: string | null;
 }): Promise<EvaluateTranslationResult> => {
+  const { userId, ...rest } = params;
   const { system, user } = createExamEvaluateTranslationPrompt({
-    ...params,
+    ...rest,
     questionType: "translateText",
   });
   const fullPrompt = `${system}\n\n${user}`;
 
-  const response = await generateText("openai", fullPrompt, undefined, {
+  const provider = await getAIProvider(userId, "exam", "evaluateTranslation");
+  const response = await generateText(provider, fullPrompt, undefined, {
     responseFormat: "json_object",
     temperature: 0.3,
     maxTokens: 500,
@@ -198,7 +199,11 @@ export const evaluateTranslationAnswer = async (params: {
   const content = response.choices?.[0]?.message?.content;
   if (!content) throw new Error("Evaluate translation returned empty content");
 
-  const parsed = JSON.parse(content) as { score?: number; reasoning?: string; feedback?: string };
+  const parsed = JSON.parse(content) as {
+    score?: number;
+    reasoning?: string;
+    feedback?: string;
+  };
   const score = Math.min(100, Math.max(0, Math.round(Number(parsed.score) || 0)));
   return {
     score,

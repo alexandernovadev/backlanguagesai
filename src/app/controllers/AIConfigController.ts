@@ -67,8 +67,12 @@ export const saveAIConfig = async (req: Request, res: Response) => {
       return errorResponse(res, "Feature, operation, and provider are required", 400);
     }
 
-    if (!['word', 'expression', 'lecture'].includes(feature)) {
-      return errorResponse(res, "Invalid feature. Must be 'word', 'expression', or 'lecture'", 400);
+    if (!["word", "expression", "lecture", "exam"].includes(feature)) {
+      return errorResponse(
+        res,
+        "Invalid feature. Must be 'word', 'expression', 'lecture', or 'exam'",
+        400
+      );
     }
 
     if (!['openai', 'deepseek'].includes(provider)) {

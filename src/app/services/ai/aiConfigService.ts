@@ -29,6 +29,14 @@ const DEFAULT_CONFIGS: Record<AIFeature, Record<string, TextProvider>> = {
     topic: "deepseek",
     image: "openai", // Imágenes siempre usan OpenAI (DALL-E)
   },
+  exam: {
+    generate: "openai",
+    validate: "deepseek",
+    correct: "deepseek",
+    questionChat: "openai",
+    questionFeedback: "openai",
+    evaluateTranslation: "openai",
+  },
 };
 
 export class AIConfigService {

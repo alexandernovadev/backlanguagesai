@@ -12,6 +12,8 @@ import { createExpressionImagePrompt } from "../services/ai/prompts";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 import logger from "../utils/logger";
 import { generateImage } from "../services/ai/imageAIService";
+import { getAIProvider } from "../services/ai/aiConfigHelper";
+import type { ImageProvider } from "../../config/aiConfig";
 
 const expressionService = new ExpressionService();
 
@@ -436,9 +438,15 @@ export const updateImageExpression = async (req: Request, res: Response) => {
   }
 
   try {
-    // Generate image
+    const userId =
+      req.user?._id?.toString?.() ?? (req.user as { id?: string })?.id ?? null;
+    const imageProvider = (await getAIProvider(
+      userId,
+      "expression",
+      "image"
+    )) as ImageProvider;
     const imageResponse = await generateImage(
-      "openai",
+      imageProvider,
       createExpressionImagePrompt(expressionString)
     );
     if (!imageResponse) {

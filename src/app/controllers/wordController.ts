@@ -11,6 +11,8 @@ import {
   generateWordChat,
   generateImage,
 } from "../services/ai";
+import { getAIProvider } from "../services/ai/aiConfigHelper";
+import type { ImageProvider } from "../../config/aiConfig";
 import { imageWordPrompt } from "../services/ai/prompts";
 import {
   deleteImageFromCloudinary,
@@ -777,8 +779,14 @@ export const updateImageWord = async (req: Request, res: Response) => {
   }
 
   try {
-    // Generate image with primary prompt only
-    const imageResponse = await generateImage("openai", imageWordPrompt(word));
+    const userId =
+      req.user?._id?.toString?.() ?? (req.user as { id?: string })?.id ?? null;
+    const imageProvider = (await getAIProvider(
+      userId,
+      "word",
+      "image"
+    )) as ImageProvider;
+    const imageResponse = await generateImage(imageProvider, imageWordPrompt(word));
     if (!imageResponse) {
       return errorResponse(res, "Failed to generate image.", 400);
     }

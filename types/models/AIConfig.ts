@@ -1,14 +1,22 @@
 import { Document } from "mongoose";
 
-export type AIFeature = 'word' | 'expression' | 'lecture';
+export type AIFeature = "word" | "expression" | "lecture" | "exam";
 
-export type AIOperation = 
-  // Words
-  | 'generate' | 'examples' | 'codeSwitching' | 'types' | 'synonyms' | 'chat' | 'image'
-  // Expressions
-  | 'generate' | 'chat' | 'image'
-  // Lectures
-  | 'text' | 'topic' | 'image';
+export type AIOperation =
+  | "generate"
+  | "examples"
+  | "codeSwitching"
+  | "types"
+  | "synonyms"
+  | "chat"
+  | "image"
+  | "text"
+  | "topic"
+  | "validate"
+  | "correct"
+  | "questionChat"
+  | "questionFeedback"
+  | "evaluateTranslation";
 
 export type AIProvider = 'openai' | 'deepseek';
 

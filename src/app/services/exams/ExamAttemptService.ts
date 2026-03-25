@@ -78,6 +78,7 @@ export class ExamAttemptService {
               userAnswer: userAnswer as string,
               language,
               explainsLanguage,
+              userId,
             });
             partialScore = result.score;
             aiFeedback = result.feedback;
@@ -129,6 +130,7 @@ export class ExamAttemptService {
               isCorrect,
               language,
               explainsLanguage,
+              userId,
             });
           } catch (err) {
             console.error("AI feedback error for question", i, err);

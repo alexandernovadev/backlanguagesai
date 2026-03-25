@@ -11,19 +11,27 @@ const AIConfigSchema: Schema = new Schema(
     feature: {
       type: String,
       required: true,
-      enum: ['word', 'expression', 'lecture'],
+      enum: ["word", "expression", "lecture", "exam"],
       index: true,
     },
     operation: {
       type: String,
       required: true,
       enum: [
-        // Words
-        'generate', 'examples', 'codeSwitching', 'types', 'synonyms', 'chat', 'image',
-        // Expressions
-        'generate', 'chat', 'image',
-        // Lectures
-        'text', 'topic', 'image',
+        "generate",
+        "examples",
+        "codeSwitching",
+        "types",
+        "synonyms",
+        "chat",
+        "image",
+        "text",
+        "topic",
+        "validate",
+        "correct",
+        "questionChat",
+        "questionFeedback",
+        "evaluateTranslation",
       ],
       index: true,
     },

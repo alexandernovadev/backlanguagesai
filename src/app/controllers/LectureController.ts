@@ -14,6 +14,8 @@ import {
 import { WordService } from "../services/words/wordService";
 import { promptAddEasyWords } from "../services/ai/prompts/promptAddEasyWords";
 import { generateImage } from "../services/ai/imageAIService";
+import { getAIProvider } from "../services/ai/aiConfigHelper";
+import type { ImageProvider } from "../../config/aiConfig";
 import logger from "../utils/logger";
 
 const lectureService = new LectureService();
@@ -317,9 +319,15 @@ export const updateImageLecture = async (req: Request, res: Response) => {
   }
 
   try {
-    // Generate image
+    const userId =
+      req.user?._id?.toString?.() ?? (req.user as { id?: string })?.id ?? null;
+    const imageProvider = (await getAIProvider(
+      userId,
+      "lecture",
+      "image"
+    )) as ImageProvider;
     const imageResponse = await generateImage(
-      "openai",
+      imageProvider,
       createLectureImagePrompt(lectureString)
     );
     if (!imageResponse) {

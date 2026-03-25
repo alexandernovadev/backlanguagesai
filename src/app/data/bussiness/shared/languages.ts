@@ -1,4 +1,4 @@
-import { Language } from "../../../../../types/business";
+import { ContentLanguage, Language } from "../../../../../types/business";
 
 export interface LanguageOption {
   value: Language;
@@ -17,4 +17,12 @@ const languagesJson: LanguageOption[] = [
 
 const languagesList: Language[] = languagesJson.map((language) => language.value);
 
-export { languagesJson, languagesList };
+/** Idioma de estudio (User.language): sin español; el español va en explainsLanguage */
+const contentLanguagesJson: LanguageOption[] = languagesJson.filter(
+  (l) => l.value !== "es"
+);
+const contentLanguagesList: ContentLanguage[] = contentLanguagesJson.map(
+  (l) => l.value as ContentLanguage
+);
+
+export { languagesJson, languagesList, contentLanguagesJson, contentLanguagesList };

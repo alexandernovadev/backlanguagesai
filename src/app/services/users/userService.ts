@@ -96,6 +96,10 @@ export class UserService {
 
   // Crear usuario
   async createUser(data: Partial<IUser> & { password: string }, req?: Request, performedBy?: string) {
+    const lang = (data as { language?: string }).language;
+    if (lang === "es") {
+      (data as { language: string }).language = "en";
+    }
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = new User({ ...data, password: hashedPassword });
     await user.save();
@@ -115,8 +119,16 @@ export class UserService {
     } else {
       delete data.password;
     }
+
+    const langUpd = (data as { language?: string }).language;
+    if (langUpd === "es") {
+      (data as { language: string }).language = "en";
+    }
     
-    const user = await User.findByIdAndUpdate(id, data, { new: true }).select("-password");
+    const user = await User.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
     
 
     

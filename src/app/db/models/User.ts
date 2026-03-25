@@ -1,6 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 import { IUser } from "../../../../types/models";
-import { systemRolesList, languagesList } from "../../data/bussiness/shared";
+import {
+  systemRolesList,
+  languagesList,
+  contentLanguagesList,
+} from "../../data/bussiness/shared";
 
 const UserSchema: Schema = new Schema(
   {
@@ -13,7 +17,7 @@ const UserSchema: Schema = new Schema(
     language: {
       type: String,
       default: "en",
-      enum: languagesList,
+      enum: contentLanguagesList,
     },
     explainsLanguage: {
       type: String,
@@ -28,5 +32,23 @@ const UserSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+
+UserSchema.pre("validate", function (next) {
+  const doc = this as unknown as { language?: string };
+  if (doc.language === "es") {
+    doc.language = "en";
+  }
+  next();
+});
+
+const coerceContentLanguage = (_doc: unknown, ret: Record<string, unknown>) => {
+  if (ret.language === "es") {
+    ret.language = "en";
+  }
+  return ret;
+};
+
+UserSchema.set("toJSON", { transform: coerceContentLanguage });
+UserSchema.set("toObject", { transform: coerceContentLanguage });
 
 export default mongoose.model<IUser>("User", UserSchema);

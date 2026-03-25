@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { Language, UserRole } from "../business";
+import { ContentLanguage, Language, UserRole } from "../business";
 
 export interface IUser extends Document {
   username: string;
@@ -9,7 +9,7 @@ export interface IUser extends Document {
   firstName?: string;
   lastName?: string;
   image?: string;
-  language: Language;
+  language: ContentLanguage;
   explainsLanguage?: Language;
   isActive: boolean;
   address?: string;

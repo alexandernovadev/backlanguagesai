@@ -51,7 +51,7 @@ export class ExamAttemptService {
     if (!exam?.questions) return null;
 
     const normalize = (s: string) => String(s || "").toLowerCase().trim();
-    const language = exam.language || "es";
+    const language = exam.language || "en";
     const difficulty = exam.difficulty || "";
 
     const attemptQuestions: IAttemptQuestion[] = await Promise.all(

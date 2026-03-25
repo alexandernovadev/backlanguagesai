@@ -23,7 +23,7 @@ const attemptService = new ExamAttemptService();
 export const generate = async (req: Request, res: Response) => {
   try {
     const { grammarTopics, difficulty, questionCount, questionTypes, topic } = req.body;
-    const language = req.body.language || req.user?.language || "es";
+    const language = req.body.language || req.user?.language || "en";
     if (!grammarTopics?.length || !difficulty || !questionCount) {
       return errorResponse(res, "grammarTopics, difficulty, questionCount required", 400);
     }
@@ -86,7 +86,7 @@ export const create = async (req: Request, res: Response) => {
   try {
     const exam = await examService.create({
       ...req.body,
-      language: req.body.language || req.user?.language || "es",
+      language: req.body.language || req.user?.language || "en",
       createdBy: req.user?._id,
     });
     return successResponse(res, "Exam created", exam, 201);
@@ -270,7 +270,7 @@ export const chatOnQuestion = async (req: Request, res: Response) => {
       userAnswer: aq.userAnswer,
       userMessage: message.trim(),
       chatHistory: aq.chat || [],
-      language: exam.language || "es",
+      language: exam.language || "en",
       explainsLanguage,
     });
 

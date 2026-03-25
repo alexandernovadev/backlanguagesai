@@ -8,8 +8,9 @@ export interface LanguageOption {
 }
 
 const languagesJson: LanguageOption[] = [
+  { value: "en", label: "Inglés", promptLabel: "English" },
   { value: "es", label: "Español", promptLabel: "Spanish" },
-    { value: "pt", label: "Portugués", promptLabel: "Portuguese" },
+  { value: "pt", label: "Portugués", promptLabel: "Portuguese" },
   { value: "it", label: "Italiano", promptLabel: "Italian" },
   { value: "fr", label: "Francés", promptLabel: "French" },
 ];

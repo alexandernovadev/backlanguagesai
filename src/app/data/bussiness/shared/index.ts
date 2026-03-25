@@ -9,6 +9,12 @@ export { chatRolesJson, chatRolesList } from './chatRoles';
 export { readingTypesJson, readingTypesList } from './readingTypes';
 export { systemRolesJson, systemRolesList } from './systemRoles';
 export { wordTypesJson, wordTypesList } from './wordTypes';
+export {
+  getWordTypesForLanguage,
+  validateWordTypesForLanguage,
+  filterTypesQueryForLanguage,
+  WordTypeValidationError,
+} from './wordTypeCatalog';
 
 // 📝 Re-exportar tipos de business para conveniencia
 export type { 

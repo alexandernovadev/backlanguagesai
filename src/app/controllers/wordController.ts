@@ -17,6 +17,7 @@ import {
   uploadImageToCloudinary,
 } from "../services/cloudinary/cloudinaryService";
 import logger from "../utils/logger";
+import { WordTypeValidationError } from "../data/bussiness/shared";
 
 const wordService = new WordService();
 const wordImportService = new WordImportService();
@@ -60,7 +61,10 @@ export const createWord = async (
 
     return successResponse(res, "Word created successfully", newWord, 201);
   } catch (error) {
-    if (error.name === "ValidationError") {
+    if (error instanceof WordTypeValidationError) {
+      return errorResponse(res, error.message, 400, error);
+    }
+    if ((error as Error).name === "ValidationError") {
       return errorResponse(res, "Validation error" + error);
     }
     return errorResponse(
@@ -192,6 +196,9 @@ export const updateWord = async (
     }
     return successResponse(res, "Word updated successfully", updatedWord);
   } catch (error) {
+    if (error instanceof WordTypeValidationError) {
+      return errorResponse(res, error.message, 400, error);
+    }
     return errorResponse(
       res,
       "An error occurred while updating the word ",
@@ -625,6 +632,9 @@ export const generateWordJson = async (req: Request, res: Response) => {
       savedWord
     );
   } catch (error) {
+    if (error instanceof WordTypeValidationError) {
+      return errorResponse(res, error.message, 400, error);
+    }
     return errorResponse(res, "Error generating or saving word", 500, error);
   }
 };
@@ -723,6 +733,9 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
     }
     return successResponse(res, "Word types updated successfully", updated);
   } catch (error) {
+    if (error instanceof WordTypeValidationError) {
+      return errorResponse(res, error.message, 400, error);
+    }
     return errorResponse(res, "Error generating word types", 500, error);
   }
 };

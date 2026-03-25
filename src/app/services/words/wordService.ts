@@ -1,5 +1,10 @@
 import Word from "../../db/models/Word";
 import { IWord, ChatMessage } from "../../../../types/models";
+import {
+  validateWordTypesForLanguage,
+  WordTypeValidationError,
+  filterTypesQueryForLanguage,
+} from "../../data/bussiness/shared/wordTypeCatalog";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -11,6 +16,11 @@ interface PaginatedResult<T> {
 export class WordService {
   // Create a new word
   async createWord(wordData: IWord): Promise<IWord> {
+    const lang = wordData.language;
+    const check = validateWordTypesForLanguage(wordData.type, lang);
+    if (check.ok === false) {
+      throw new WordTypeValidationError(check.invalid, lang);
+    }
     const word = new Word(wordData);
     return await word.save();
   }
@@ -114,15 +124,22 @@ export class WordService {
       }
     }
 
-    // Nuevo filtro por tipo gramatical
+    // Filtro por tipo (si el filtro de idioma es un solo código, solo tipos permitidos para ese idioma)
     if (type) {
-      if (Array.isArray(type)) {
-        // Múltiples tipos
-        filter.type = { $in: type };
-      } else {
-        // Un solo tipo
-        filter.type = { $in: [type] };
+      let typeArr = Array.isArray(type) ? type : [type];
+      const singleLang =
+        language != null
+          ? Array.isArray(language)
+            ? language.length === 1
+              ? language[0]
+              : undefined
+            : language
+          : undefined;
+      if (singleLang) {
+        typeArr = filterTypesQueryForLanguage(typeArr, singleLang);
       }
+      filter.type =
+        typeArr.length === 0 ? { $in: [] } : { $in: typeArr };
     }
 
     // Nuevo filtro por rango de vistas
@@ -240,6 +257,25 @@ export class WordService {
     id: string,
     updateData: Partial<IWord>
   ): Promise<IWord | null> {
+    const existing = await Word.findById(id);
+    if (!existing) return null;
+
+    const mergedLang =
+      updateData.language !== undefined
+        ? updateData.language
+        : existing.language;
+    const mergedTypes =
+      updateData.type !== undefined ? updateData.type : existing.type ?? [];
+
+    if (updateData.type !== undefined || updateData.language !== undefined) {
+      if (mergedTypes.length > 0) {
+        const check = validateWordTypesForLanguage(mergedTypes, mergedLang);
+        if (check.ok === false) {
+          throw new WordTypeValidationError(check.invalid, mergedLang);
+        }
+      }
+    }
+
     return await Word.findByIdAndUpdate(id, updateData, { new: true });
   }
 
@@ -291,6 +327,12 @@ export class WordService {
     id: string,
     type: string[]
   ): Promise<{ type?: string[] } | null> {
+    const word = await Word.findById(id);
+    if (!word) return null;
+    const check = validateWordTypesForLanguage(type, word.language);
+    if (check.ok === false) {
+      throw new WordTypeValidationError(check.invalid, word.language);
+    }
     return await Word.findByIdAndUpdate(
       id,
       { type },
@@ -368,7 +410,11 @@ export class WordService {
       matchFilter.language = language;
     }
     if (type && type.length > 0) {
-      matchFilter.type = { $in: type };
+      const typesFiltered = language
+        ? filterTypesQueryForLanguage(type, language)
+        : type;
+      matchFilter.type =
+        typesFiltered.length === 0 ? { $in: [] } : { $in: typesFiltered };
     }
 
     if (mode === 'random') {

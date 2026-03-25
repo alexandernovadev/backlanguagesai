@@ -7,6 +7,7 @@ import {
   ImportResult,
 } from "../../utils/importTypes";
 import { WordValidator } from "../../utils/validators/wordValidator";
+import { validateWordTypesForLanguage } from "../../data/bussiness/shared/wordTypeCatalog";
 
 export class WordImportService {
   private async checkDuplicate(word: Partial<IWord>): Promise<IWord | null> {
@@ -29,6 +30,35 @@ export class WordImportService {
         action: 'skipped',
       };
     }
+
+    const assertTypesOk = (
+      types: string[] | undefined,
+      lang: string | undefined
+    ): ProcessingResult<Partial<IWord>> | null => {
+      if (!lang) return null;
+      const check = validateWordTypesForLanguage(types, lang);
+      if (check.ok !== false) return null;
+      return {
+        index,
+        data: word,
+        status: "invalid",
+        validationResult: {
+          isValid: false,
+          errors: [
+            `Types not allowed for language "${lang}": ${check.invalid.join(", ")}`,
+          ],
+          warnings: [],
+        },
+        action: "skipped",
+      };
+    };
+
+    const typeReject = assertTypesOk(
+      word.type as string[] | undefined,
+      word.language as string | undefined
+    );
+    if (typeReject) return typeReject;
+
     const existingWord = await this.checkDuplicate(word);
     if (existingWord) {
       switch (config.duplicateStrategy) {
@@ -49,7 +79,17 @@ export class WordImportService {
             validationResult,
             action: 'skipped',
           };
-        case 'overwrite':
+        case 'overwrite': {
+          const merged = {
+            ...existingWord.toObject(),
+            ...word,
+            updatedAt: new Date(),
+          };
+          const owReject = assertTypesOk(
+            merged.type as string[] | undefined,
+            merged.language as string | undefined
+          );
+          if (owReject) return owReject;
           await Word.findByIdAndUpdate(
             existingWord._id,
             { ...word, updatedAt: new Date() },
@@ -62,7 +102,18 @@ export class WordImportService {
             validationResult,
             action: 'updated',
           };
-        case 'merge':
+        }
+        case 'merge': {
+          const mergedM = {
+            ...existingWord.toObject(),
+            ...word,
+            updatedAt: new Date(),
+          };
+          const mergeReject = assertTypesOk(
+            mergedM.type as string[] | undefined,
+            mergedM.language as string | undefined
+          );
+          if (mergeReject) return mergeReject;
           await Word.findByIdAndUpdate(
             existingWord._id,
             { ...word, updatedAt: new Date() },
@@ -75,6 +126,7 @@ export class WordImportService {
             validationResult,
             action: 'merged',
           };
+        }
       }
     }
     const newWord = new Word(word);

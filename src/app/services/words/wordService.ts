@@ -357,14 +357,18 @@ export class WordService {
     limit?: number;
     difficulty?: string[];
     language?: string;
+    type?: string[];
   } = {}): Promise<IWord[]> {
-    const { mode = 'random', limit = 30, difficulty = ['hard', 'medium'], language } = options;
+    const { mode = 'random', limit = 30, difficulty = ['hard', 'medium'], language, type } = options;
 
     const matchFilter: Record<string, unknown> = {
       difficulty: { $in: difficulty },
     };
     if (language) {
       matchFilter.language = language;
+    }
+    if (type && type.length > 0) {
+      matchFilter.type = { $in: type };
     }
 
     if (mode === 'random') {

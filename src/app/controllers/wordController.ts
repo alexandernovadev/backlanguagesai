@@ -259,12 +259,18 @@ export const getAnkiCards = async (
       ? (req.query.difficulty as string).split(",")
       : ["hard", "medium"];
     const language = req.user?.language || "en";
+    const typeParam = req.query.type as string | undefined;
+    const type =
+      typeParam
+        ? typeParam.split(",").map((t) => t.trim()).filter(Boolean)
+        : undefined;
 
     const words = await wordService.getAnkiCards({
       mode: mode as "random" | "review",
       limit,
       difficulty,
       language,
+      type,
     });
 
     const message =

@@ -45,7 +45,7 @@ export const AuthController = {
           firstName,
           lastName,
           image,
-          language: user.language || "en",
+          language: user.language || "es",
           explainsLanguage: user.explainsLanguage || "es",
           isActive,
           address,

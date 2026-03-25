@@ -265,7 +265,7 @@ export const getAnkiCards = async (
     const difficulty = req.query.difficulty
       ? (req.query.difficulty as string).split(",")
       : ["hard", "medium"];
-    const language = req.user?.language || "en";
+    const language = req.user?.language || "es";
     const typeParam = req.query.type as string | undefined;
     const type =
       typeParam
@@ -612,7 +612,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 
 export const generateWordJson = async (req: Request, res: Response) => {
   const { word, provider } = req.body;
-  const language = req.body.language || req.user?.language || "en";
+  const language = req.body.language || req.user?.language || "es";
   const userId = req.user?._id || req.user?.id || null;
 
   if (!word) {
@@ -641,7 +641,7 @@ export const generateWordJson = async (req: Request, res: Response) => {
 
 export const generateWordExamplesJson = async (req: Request, res: Response) => {
   const { word, oldExamples, provider } = req.body;
-  const language = req.body.language || req.user?.language || "en";
+  const language = req.body.language || req.user?.language || "es";
   const { id } = req.params as { id: string };
   const userId = req.user?._id || req.user?.id || null;
 
@@ -672,7 +672,7 @@ export const generateWordExamplesCodeSwitchingJson = async (
   res: Response
 ) => {
   const { word, oldExamples, provider } = req.body;
-  const language = req.body.language || req.user?.language || "en";
+  const language = req.body.language || req.user?.language || "es";
   const { id } = req.params as { id: string };
   const userId = req.user?._id || req.user?.id || null;
 
@@ -711,7 +711,7 @@ export const generateWordExamplesCodeSwitchingJson = async (
 
 export const generateWordTypesJson = async (req: Request, res: Response) => {
   const { word, oldExamples, provider } = req.body;
-  const language = req.body.language || req.user?.language || "en";
+  const language = req.body.language || req.user?.language || "es";
   const { id } = req.params as { id: string };
   const userId = req.user?._id || req.user?.id || null;
 
@@ -742,7 +742,7 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
 
 export const generateWordSynomymsJson = async (req: Request, res: Response) => {
   const { word, oldExamples, provider } = req.body;
-  const language = req.body.language || req.user?.language || "en";
+  const language = req.body.language || req.user?.language || "es";
   const { id } = req.params as { id: string };
   const userId = req.user?._id || req.user?.id || null;
 

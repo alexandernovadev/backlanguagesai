@@ -23,7 +23,7 @@ const wordChatSchema = new Schema(
     wordsUsedInConversation: [{ type: String }],
     messages: [chatMessageSchema],
     corrections: { type: Map, of: String, default: () => new Map() },
-    language: { type: String, default: "en" },
+    language: { type: String, default: "es" },
     status: { type: String, enum: ["active", "completed"], default: "active" },
   },
   {

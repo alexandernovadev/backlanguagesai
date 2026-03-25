@@ -11,7 +11,7 @@ export const list = async (req: Request, res: Response) => {
 
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit as string) || 20, 1);
-    const language = req.user?.language || "en";
+    const language = req.user?.language || "es";
 
     const result = await chatService.list(userId, page, limit, language);
     return successResponse(res, "Chats listed", result);
@@ -31,7 +31,7 @@ export const create = async (req: Request, res: Response) => {
       return errorResponse(res, "wordSelectionType required: last10, hard10, medium10, easy10", 400);
     }
 
-    const chat = await chatService.create(userId, wordSelectionType, language || req.user?.language || "en");
+    const chat = await chatService.create(userId, wordSelectionType, language || req.user?.language || "es");
     return successResponse(res, "Chat created", chat, 201);
   } catch (error: any) {
     console.error("Chat create error:", error);

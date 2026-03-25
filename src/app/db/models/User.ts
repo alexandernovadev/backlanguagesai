@@ -12,7 +12,7 @@ const UserSchema: Schema = new Schema(
     lastName: { type: String },
     language: {
       type: String,
-      default: "en",
+      default: "es",
       enum: languagesList,
     },
     explainsLanguage: {

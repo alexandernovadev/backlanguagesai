@@ -413,7 +413,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
       level,
       typeWrite,
       promptWords,
-      language: language || req.user?.language || "en",
+      language: language || req.user?.language || "es",
       rangeMin,
       rangeMax,
       grammarTopics: Array.isArray(grammarTopics) ? grammarTopics : [],
@@ -473,7 +473,7 @@ export const generateTopicStream = async (req: Request, res: Response) => {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     const userId = req.user?._id || req.user?.id || null;
-    const language = req.user?.language || "en";
+    const language = req.user?.language || "es";
     const stream = await generateLectureTopic({
       existingText: existingText || "",
       type,

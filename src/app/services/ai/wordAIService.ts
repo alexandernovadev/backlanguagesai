@@ -29,7 +29,7 @@ export interface WordGenerationOptions extends TextGenerationOptions {
 // Generate complete word data
 export const generateWordData = async (
   prompt: string,
-  language: Language = "en",
+  language: Language = "es",
   wordDataExamples: any[] = [],
   options: WordGenerationOptions = {}
 ) => {
@@ -66,7 +66,7 @@ export const generateWordData = async (
 // Generate word examples
 export const generateWordExamples = async (
   word: string,
-  language: Language = "en",
+  language: Language = "es",
   oldExamples: string = "",
   options: WordGenerationOptions = {}
 ) => {
@@ -100,7 +100,7 @@ export const generateWordExamples = async (
 // Generate word code-switching examples
 export const generateWordCodeSwitching = async (
   word: string,
-  language: Language = "en",
+  language: Language = "es",
   oldExamples: string = "",
   options: WordGenerationOptions = {}
 ) => {
@@ -134,7 +134,7 @@ export const generateWordCodeSwitching = async (
 // Generate word types
 export const generateWordTypes = async (
   word: string,
-  language: Language = "en",
+  language: Language = "es",
   oldExamples: string = "",
   options: WordGenerationOptions = {}
 ) => {
@@ -168,7 +168,7 @@ export const generateWordTypes = async (
 // Generate word synonyms
 export const generateWordSynonyms = async (
   word: string,
-  language: Language = "en",
+  language: Language = "es",
   oldExamples: string = "",
   options: WordGenerationOptions = {}
 ) => {

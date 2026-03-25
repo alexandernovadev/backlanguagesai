@@ -387,7 +387,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
       expressionDefinition: expression.definition,
       userMessage: message,
       chatHistory,
-      language: expression.language || "en",
+      language: expression.language || "es",
       explainsLanguage,
     };
     const userId = req.user?._id || req.user?.id || null;
@@ -412,7 +412,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
 export const generateExpression = async (req: Request, res: Response) => {
   try {
     const { prompt, options = {} } = req.body;
-    const language = req.body.language || req.user?.language || "en";
+    const language = req.body.language || req.user?.language || "es";
     const userId = req.user?._id || req.user?.id || null;
     if (!prompt) {
       return errorResponse(res, "Prompt is required", 400);

@@ -1,2 +1,2 @@
 // Supported languages in the application
-export type Language = "es" | "en" | "pt" | "fr";
+export type Language = "es" | "pt" | "it" | "fr";

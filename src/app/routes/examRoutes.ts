@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { validateObjectId } from "../middlewares/validateObjectId";
 import {
   generate,
   validate,
@@ -17,6 +18,8 @@ import {
 } from "../controllers/ExamController";
 
 const router = Router();
+router.param("id", validateObjectId);
+router.param("attemptId", validateObjectId);
 
 // Generate, validate, correct (no persistence)
 router.post("/generate", generate);

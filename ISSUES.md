@@ -20,6 +20,8 @@ Issues found during security/quality audit. Ordered by priority.
 | Full request body logged (including passwords) | Added `redactBody()` in `requestLogger.ts` — replaces values of sensitive keys (`password`, `token`, `refreshToken`, etc.) with `[REDACTED]` before logging |
 | No Helmet security headers | Installed `helmet@8.1.0`, added `app.use(helmet())` before all other middleware in `main.ts` |
 | CORS origins hardcoded in source | Origins now read from `CORS_ORIGINS` env var (comma-separated); falls back to `localhost:5173` in dev |
+| No MongoDB ObjectId validation on route params | Added `validateObjectId` middleware (`middlewares/validateObjectId.ts`); wired via `router.param("id", ...)` in all 5 route files (+ `attemptId`, `idlecture`) |
+| Empty `.then(() => {})` swallowing Cloudinary delete errors | Removed `.then(() => {})` on all 3 Cloudinary delete calls; changed `Promise<void>` to `Promise<unknown>` so errors propagate into `Promise.all` |
 
 ---
 

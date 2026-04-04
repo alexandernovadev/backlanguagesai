@@ -1,6 +1,7 @@
 import * as cron from 'node-cron';
 import { sendBackupByEmail } from './backupEmailService';
 import logger from '../../utils/logger';
+import { generateId } from '../../utils/generateId';
 
 // Cron configuration
 const BACKUP_CRON_SCHEDULE = process.env.BACKUP_CRON_SCHEDULE || '0 30 23 * * *'; // 11:30 PM daily
@@ -58,7 +59,7 @@ export const initializeBackupScheduler = (): void => {
 
 // Execute scheduled backup
 const executeScheduledBackup = async (): Promise<void> => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
   const startTime = Date.now();
 
   try {

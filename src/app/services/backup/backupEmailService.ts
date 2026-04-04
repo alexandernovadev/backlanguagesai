@@ -3,6 +3,7 @@ import { LectureService } from '../lectures/LectureService';
 import { ExpressionService } from '../expressions/expressionService';
 import { sendEmailWithAttachments } from '../email/gmailService';
 import logger from '../../utils/logger';
+import { generateId } from '../../utils/generateId';
 
 const wordService = new WordService();
 const lectureService = new LectureService();
@@ -26,7 +27,7 @@ export interface BackupResult {
 
 // Generate backup files and send by email
 export const sendBackupByEmail = async (): Promise<BackupResult> => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
   const startTime = Date.now();
 
   try {

@@ -1,6 +1,7 @@
 import Expression from "../../db/models/Expression";
 import { IExpression, ChatMessage } from "../../../../types/models";
 import { escapeRegex } from "../../utils/escapeRegex";
+import { generateId } from "../../utils/generateId";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -127,7 +128,7 @@ export class ExpressionService {
     if (!expression) return null;
 
     const userMessage: ChatMessage = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       role: "user",
       content: message,
       timestamp: new Date()
@@ -143,7 +144,7 @@ export class ExpressionService {
     if (!expression) return null;
 
     const assistantMessage: ChatMessage = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       role: "assistant",
       content: message,
       timestamp: new Date()

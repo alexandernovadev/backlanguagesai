@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import logger from '../../utils/logger';
+import { generateId } from '../../utils/generateId';
 
 // Gmail configuration
 const GMAIL_USER = process.env.GMAIL_USER;
@@ -37,7 +38,7 @@ export const sendEmailWithAttachments = async (
     contentType?: string;
   }>
 ): Promise<boolean> => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
   const startTime = Date.now();
 
   try {

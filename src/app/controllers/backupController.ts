@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { generateId } from '../utils/generateId';
 import { sendBackupByEmail, testBackupService } from '../services/backup/backupEmailService';
 import { testEmailConnection } from '../services/email/gmailService';
 import { 
@@ -13,7 +14,7 @@ import logger from '../utils/logger';
 
 // Send backup immediately (for testing)
 export const sendBackupNow = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
   const startTime = Date.now();
 
   try {
@@ -73,7 +74,7 @@ export const sendBackupNow = async (req: Request, res: Response) => {
 
 // Test backup service (for debugging)
 export const testBackup = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
 
   try {
     logger.info('Testing backup service', {
@@ -117,7 +118,7 @@ export const testBackup = async (req: Request, res: Response) => {
 
 // Get backup service status
 export const getBackupStatus = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
 
   try {
     logger.info('Getting backup service status', {
@@ -156,7 +157,7 @@ export const getBackupStatus = async (req: Request, res: Response) => {
 
 // Test email connection only
 export const testEmailOnly = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
 
   try {
     logger.info('Testing email connection only', {
@@ -198,7 +199,7 @@ export const testEmailOnly = async (req: Request, res: Response) => {
 
 // Start cron scheduler
 export const startCron = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
 
   try {
     logger.info('Starting cron scheduler', {
@@ -233,7 +234,7 @@ export const startCron = async (req: Request, res: Response) => {
 
 // Stop cron scheduler
 export const stopCron = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
 
   try {
     logger.info('Stopping cron scheduler', {
@@ -268,7 +269,7 @@ export const stopCron = async (req: Request, res: Response) => {
 
 // Get cron status
 export const getCronStatusController = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
 
   try {
     logger.info('Getting cron status', {
@@ -302,7 +303,7 @@ export const getCronStatusController = async (req: Request, res: Response) => {
 
 // Test cron execution
 export const testCron = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
 
   try {
     logger.info('Testing cron execution', {
@@ -337,7 +338,7 @@ export const testCron = async (req: Request, res: Response) => {
 
 // Update cron schedule
 export const updateCronScheduleController = async (req: Request, res: Response) => {
-  const operationId = Math.random().toString(36).substr(2, 9);
+  const operationId = generateId();
   const { schedule } = req.body;
 
   try {

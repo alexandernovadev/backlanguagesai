@@ -1,6 +1,7 @@
 import Word from "../../db/models/Word";
 import { IWord, ChatMessage } from "../../../../types/models";
 import { escapeRegex } from "../../utils/escapeRegex";
+import { generateId } from "../../utils/generateId";
 import {
   validateWordTypesForLanguage,
   WordTypeValidationError,
@@ -487,7 +488,7 @@ export class WordService {
     if (!word) return null;
 
     const userMessage: ChatMessage = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       role: "user",
       content: message,
       timestamp: new Date(),
@@ -506,7 +507,7 @@ export class WordService {
     if (!word) return null;
 
     const assistantMessage: ChatMessage = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       role: "assistant",
       content: message,
       timestamp: new Date(),

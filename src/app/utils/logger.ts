@@ -10,6 +10,25 @@ const logFormat = printf(({ level, message, timestamp, stack }) => {
   }\n-----------------------------------`;
 });
 
+const NODE_ENV = process.env.NODE_ENV || "development";
+
+// Build transports array - Console only in development
+const transportsList = [];
+
+if (NODE_ENV === "development") {
+  transportsList.push(new transports.Console());
+}
+
+transportsList.push(
+  new transports.File({
+    filename: path.join(__dirname, "../../../logs/app.log"),
+  }),
+  new transports.File({
+    filename: path.join(__dirname, "../../../logs/errors.log"),
+    level: "error",
+  })
+);
+
 const logger = createLogger({
   level: "info",
   format: combine(
@@ -17,16 +36,7 @@ const logger = createLogger({
     errors({ stack: true }),
     logFormat
   ),
-  transports: [
-    // new transports.Console(),
-    new transports.File({
-      filename: path.join(__dirname, "../../../logs/app.log"),
-    }),
-    new transports.File({
-      filename: path.join(__dirname, "../../../logs/errors.log"),
-      level: "error",
-    }),
-  ],
+  transports: transportsList,
   exceptionHandlers: [
     new transports.File({
       filename: path.join(__dirname, "../../../logs/exceptions.log"),

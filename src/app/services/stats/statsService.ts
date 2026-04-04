@@ -128,9 +128,9 @@ export class StatsService {
       Word.countDocuments({
         $or: [{ examples: { $exists: false } }, { examples: [] }],
       }),
-      Word.countDocuments({ sinonyms: { $exists: true, $ne: [] } }),
+      Word.countDocuments({ synonyms: { $exists: true, $ne: [] } }),
       Word.countDocuments({
-        $or: [{ sinonyms: { $exists: false } }, { sinonyms: [] }],
+        $or: [{ synonyms: { $exists: false } }, { synonyms: [] }],
       }),
       Word.aggregate([
         { $group: { _id: null, total: { $sum: "$seen" } } },

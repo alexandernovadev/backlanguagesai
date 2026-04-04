@@ -36,7 +36,7 @@ export class WordValidator {
     if (word.examples !== undefined && !Array.isArray(word.examples)) {
       errors.push('Examples must be an array');
     }
-    if (word.sinonyms !== undefined && !Array.isArray(word.sinonyms)) {
+    if (word.synonyms !== undefined && !Array.isArray(word.synonyms)) {
       errors.push('Sinonyms must be an array');
     }
     if (word.codeSwitching !== undefined && !Array.isArray(word.codeSwitching)) {

@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { ILecture } from "../../../../types/models";
-import { certificationLevelsList, languagesList, readingTypesList } from "../../data/bussiness/shared";
+import { certificationLevelsList, languagesList, readingTypesList } from "../../data/business/shared";
 
 // Definir el esquema
 const lectureSchema = new Schema<ILecture>(

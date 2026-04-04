@@ -4,6 +4,7 @@ import { seedAdminUser } from "../services/seed/user";
 import { sendBackupByEmail } from "../services/backup/backupEmailService";
 import { LabsService } from "../services/labs/labsService";
 import logger from "../utils/logger";
+import Word from "../db/models/Word";
 
 const labsService = new LabsService();
 
@@ -138,6 +139,26 @@ export const deleteAllExpressions = async (
   } catch (error) {
     logger.error("Error in deleteAllExpressions controller:", error);
     return errorResponse(res, "Error deleting all expressions", 500, error);
+  }
+};
+
+/**
+ * One-time migration: rename field "sinonyms" → "synonyms" on all Word documents
+ */
+export const migrateSinonymsToSynonyms = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const result = await (Word as any).updateMany(
+      { sinonyms: { $exists: true } },
+      { $rename: { sinonyms: "synonyms" } }
+    );
+    logger.info("Migration sinonyms→synonyms completed", { modifiedCount: result.modifiedCount });
+    return successResponse(res, "Migration completed", { modifiedCount: result.modifiedCount });
+  } catch (error) {
+    logger.error("Migration sinonyms→synonyms failed", { error });
+    return errorResponse(res, "Migration failed", 500, error);
   }
 };
 

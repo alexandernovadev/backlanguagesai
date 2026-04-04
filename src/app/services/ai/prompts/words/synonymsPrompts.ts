@@ -19,7 +19,7 @@ export const createWordSynonymsPrompt = (params: WordSynonymsPromptParams) => {
       Use your expertise to consider the nuances of meaning and usage.
       Please generate a JSON object with the following property:
       {
-        "sinonyms": [ <array of synonym examples in ${langLabel}> ]
+        "synonyms": [ <array of synonym examples in ${langLabel}> ]
       }
       Note:
       - The user has provided an array of synonyms that they already have. Include these if applicable.

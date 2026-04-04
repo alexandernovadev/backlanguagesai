@@ -4,7 +4,7 @@ import {
   systemRolesList,
   languagesList,
   contentLanguagesList,
-} from "../../data/bussiness/shared";
+} from "../../data/business/shared";
 
 const UserSchema: Schema = new Schema(
   {

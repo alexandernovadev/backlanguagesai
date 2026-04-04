@@ -11,7 +11,7 @@ export interface IWord extends Document {
   seen?: number;
   img?: string;
   difficulty?: Difficulty;
-  sinonyms?: string[];
+  synonyms?: string[];
   codeSwitching?: string[];
   language: Language;
   spanish?: {

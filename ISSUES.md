@@ -25,17 +25,6 @@ Issues found during security/quality audit. Ordered by priority.
 
 ## 🔵 Low
 
-### 10. Typos in identifiers
-- `sinonyms` → should be `synonyms` (Word model + service)
-- `bussiness` folder → should be `business` (`src/app/data/bussiness/`)
-- `Lectue` → `Lecture` in `LectureController.ts:98`
-
-**Why:** Causes confusion when searching the codebase and inconsistency in the API response shape (`sinonyms` is a public field name).
-
----
-
-
-
 ### 13. No DTOs — raw DB models returned from API
 **Why:** If a model gains a sensitive field in the future, it will be exposed automatically in API responses. The API shape is also tightly coupled to the DB schema.
 **What to do:** Define explicit response types and map DB documents to them before sending — similar to what `authController.ts` already does manually for the user login response.

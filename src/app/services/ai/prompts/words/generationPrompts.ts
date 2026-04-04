@@ -40,7 +40,7 @@ export const createWordGenerationPrompt = (
             "definition": "[Clear and concise Spanish translation of the definition]",
             "word": "[Spanish equivalent of the word]"
         },
-        "sinonyms": [ "List of synonyms in ${langLabel}, minimum 5" ]
+        "synonyms": [ "List of synonyms in ${langLabel}, minimum 5" ]
       }
       Make sure that Its So IMPORTANT all :
       - "word" MUST be the exact word the user provided. NEVER translate it.

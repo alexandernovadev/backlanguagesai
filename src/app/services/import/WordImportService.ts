@@ -8,7 +8,7 @@ import {
   ImportResult,
 } from "../../utils/importTypes";
 import { WordValidator } from "../../utils/validators/wordValidator";
-import { validateWordTypesForLanguage } from "../../data/bussiness/shared/wordTypeCatalog";
+import { validateWordTypesForLanguage } from "../../data/business/shared/wordTypeCatalog";
 
 export class WordImportService {
   private async checkDuplicate(word: Partial<IWord>, session: ClientSession): Promise<IWord | null> {

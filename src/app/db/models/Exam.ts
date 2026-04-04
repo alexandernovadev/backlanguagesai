@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { IExam } from "../../../../types/models";
-import { certificationLevelsList, languagesList } from "../../data/bussiness/shared";
+import { certificationLevelsList, languagesList } from "../../data/business/shared";
 
 const examQuestionSchema = new Schema(
   {

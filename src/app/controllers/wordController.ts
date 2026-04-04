@@ -24,7 +24,7 @@ import {
   uploadImageToCloudinary,
 } from "../services/cloudinary/cloudinaryService";
 import logger from "../utils/logger";
-import { WordTypeValidationError } from "../data/bussiness/shared";
+import { WordTypeValidationError } from "../data/business/shared";
 
 const wordService = new WordService();
 const wordQueryService = new WordQueryService();
@@ -776,7 +776,7 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
     });
     const updated = await wordService.updateWordSynonyms(
       id,
-      generated.sinonyms || []
+      generated.synonyms || []
     );
     if (!updated) {
       return errorResponse(res, "Word not found", 404);

@@ -99,7 +99,7 @@ export const updateImageLecureById = async (req: Request, res: Response) => {
     }
     return successResponse(
       res,
-      "Lecture Update Image Lectue ById successfully",
+      "Lecture Update Image Lecture ById successfully",
       updatedLecture
     );
   } catch (error) {

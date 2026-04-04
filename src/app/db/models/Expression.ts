@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { ChatMessage, IExpression } from "../../../../types/models";
-import { chatRolesList, difficultyList, expressionTypesList } from "../../data/bussiness/shared";
+import { chatRolesList, difficultyList, expressionTypesList } from "../../data/business/shared";
 
 const ChatMessageSchema: Schema = new Schema<ChatMessage>({
   id: {

@@ -5,7 +5,7 @@ import {
   validateWordTypesForLanguage,
   WordTypeValidationError,
   filterTypesQueryForLanguage,
-} from "../../data/bussiness/shared/wordTypeCatalog";
+} from "../../data/business/shared/wordTypeCatalog";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -161,9 +161,9 @@ export class WordService {
     }
 
     if (hasSynonyms === "true") {
-      filter.sinonyms = { $exists: true, $ne: [] };
+      filter.synonyms = { $exists: true, $ne: [] };
     } else if (hasSynonyms === "false") {
-      addOrConditions([{ sinonyms: { $exists: false } }, { sinonyms: [] }]);
+      addOrConditions([{ synonyms: { $exists: false } }, { synonyms: [] }]);
     }
 
     if (hasCodeSwitching === "true") {
@@ -243,8 +243,8 @@ export class WordService {
     return await Word.findByIdAndUpdate(id, { codeSwitching }, { new: true, projection: { codeSwitching: 1 } });
   }
 
-  async updateWordSynonyms(id: string, synonyms: string[]): Promise<{ sinonyms?: string[] } | null> {
-    return await Word.findByIdAndUpdate(id, { sinonyms: synonyms }, { new: true, projection: { sinonyms: 1 } });
+  async updateWordSynonyms(id: string, synonyms: string[]): Promise<{ synonyms?: string[] } | null> {
+    return await Word.findByIdAndUpdate(id, { synonyms: synonyms }, { new: true, projection: { synonyms: 1 } });
   }
 
   async updateWordType(id: string, type: string[]): Promise<{ type?: string[] } | null> {

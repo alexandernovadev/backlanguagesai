@@ -1,7 +1,7 @@
 import Word from "../../db/models/Word";
 import { IWord } from "../../../../types/models";
 import { escapeRegex } from "../../utils/escapeRegex";
-import { filterTypesQueryForLanguage } from "../../data/bussiness/shared/wordTypeCatalog";
+import { filterTypesQueryForLanguage } from "../../data/business/shared/wordTypeCatalog";
 
 export class WordQueryService {
   async getAnkiCards(options: {

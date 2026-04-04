@@ -10,7 +10,7 @@ export const wordDataExamples = [
     ],
     "type": ["verb", "noun", "infinitive"],
     "IPA": "/rʌn/",
-    "sinonyms": ["jog", "sprint", "operate", "manage", "dash"],
+    "synonyms": ["jog", "sprint", "operate", "manage", "dash"],
     "codeSwitching": [
       "Voy a run en el parque.",
       "Ella quiere run la empresa.",
@@ -32,7 +32,7 @@ export const wordDataExamples = [
     ],
     "type": ["noun", "verb", "adjective"],
     "IPA": "/laɪt/",
-    "sinonyms": ["illuminate", "ignite", "lightweight", "bright", "luminous"],
+    "synonyms": ["illuminate", "ignite", "lightweight", "bright", "luminous"],
     "codeSwitching": [
       "Prende the light.",
       "Este bolso es light.",
@@ -54,7 +54,7 @@ export const wordDataExamples = [
     ],
     "type": ["adverb", "verb", "adjective"],
     "IPA": "/fæst/",
-    "sinonyms": ["quickly", "speedy", "abstain", "firm", "secure"],
+    "synonyms": ["quickly", "speedy", "abstain", "firm", "secure"],
     "codeSwitching": [
       "Él corre muy fast.",
       "Voy a fast por un día.",
@@ -76,7 +76,7 @@ export const wordDataExamples = [
     ],
     "type": ["adverb", "verb", "noun"],
     "IPA": "/daʊn/",
-    "sinonyms": ["lower", "reduce", "soft feathers", "descend", "decrease"],
+    "synonyms": ["lower", "reduce", "soft feathers", "descend", "decrease"],
     "codeSwitching": [
       "Mira down.",
       "Vamos a down el precio.",
@@ -98,7 +98,7 @@ export const wordDataExamples = [
     ],
     "type": ["noun", "verb", "adverb"],
     "IPA": "/bæk/",
-    "sinonyms": ["rear", "support", "reverse", "return", "behind"],
+    "synonyms": ["rear", "support", "reverse", "return", "behind"],
     "codeSwitching": [
       "Él está en the back.",
       "Apoyaron the back policy.",
@@ -122,7 +122,7 @@ export const wordDataExamples = [
     ],
     "type": ["verb", "noun"],
     "IPA": "/rʌn/",
-    "sinonyms": ["jog", "sprint", "dash", "operate", "manage"],
+    "synonyms": ["jog", "sprint", "dash", "operate", "manage"],
     "codeSwitching": [
       "Voy a run en el parque hoy.",
       "El software run sin problemas.",
@@ -148,7 +148,7 @@ export const wordDataExamples = [
     ],
     "type": ["gerund"],
     "IPA": "/ˈrʌn.ɪŋ/",
-    "sinonyms": ["jogging", "sprinting", "dashing", "racing", "exercising"],
+    "synonyms": ["jogging", "sprinting", "dashing", "racing", "exercising"],
     "codeSwitching": [
       "El running es mi rutina diaria.",
       "Me encanta el running en la mañana.",
@@ -174,7 +174,7 @@ export const wordDataExamples = [
     ],
     "type": ["adverb"],
     "IPA": "/ˈkwɪk.li/",
-    "sinonyms": ["rapidly", "swiftly", "speedily", "promptly", "hastily"],
+    "synonyms": ["rapidly", "swiftly", "speedily", "promptly", "hastily"],
     "codeSwitching": [
       "Terminó el trabajo quickly.",
       "El coche avanzó quickly.",
@@ -200,7 +200,7 @@ export const wordDataExamples = [
     ],
     "type": ["conjunction", "preposition"],
     "IPA": "/bʌt/",
-    "sinonyms": ["however", "nevertheless", "yet", "still", "except"],
+    "synonyms": ["however", "nevertheless", "yet", "still", "except"],
     "codeSwitching": [
       "Quería ir, but estaba cansado.",
       "Es amable, but muy exigente.",
@@ -226,7 +226,7 @@ export const wordDataExamples = [
     ],
     "type": ["personal pronoun"],
     "IPA": "/ðeɪ/",
-    "sinonyms": [
+    "synonyms": [
       "those",
       "these people",
       "the group",
@@ -258,7 +258,7 @@ export const wordDataExamples = [
     ],
     "type": ["possessive pronoun"],
     "IPA": "/maɪn/",
-    "sinonyms": [
+    "synonyms": [
       "my own",
       "belonging to me",
       "property of mine",
@@ -290,7 +290,7 @@ export const wordDataExamples = [
     ],
     "type": ["determiner"],
     "IPA": "/ðɪs/",
-    "sinonyms": [
+    "synonyms": [
       "that (nearby)",
       "this one",
       "the current",
@@ -322,7 +322,7 @@ export const wordDataExamples = [
     ],
     "type": ["article"],
     "IPA": "/ðə/ or /ðiː/",
-    "sinonyms": [
+    "synonyms": [
       "this specific",
       "that particular",
       "the aforementioned",
@@ -354,7 +354,7 @@ export const wordDataExamples = [
     ],
     "type": ["quantifier", "determiner"],
     "IPA": "/sʌm/",
-    "sinonyms": ["several", "a few", "various", "numerous", "certain"],
+    "synonyms": ["several", "a few", "various", "numerous", "certain"],
     "codeSwitching": [
       "Necesito some ayuda.",
       "Some días son mejores.",
@@ -380,7 +380,7 @@ export const wordDataExamples = [
     ],
     "type": ["interjection"],
     "IPA": "/waʊ/",
-    "sinonyms": [
+    "synonyms": [
       "amazing",
       "astonishing",
       "incredible",
@@ -412,7 +412,7 @@ export const wordDataExamples = [
     ],
     "type": ["modal verb", "auxiliary verb"],
     "IPA": "/kʊd/",
-    "sinonyms": ["might", "would be able to", "can", "possibly", "potentially"],
+    "synonyms": ["might", "would be able to", "can", "possibly", "potentially"],
     "codeSwitching": [
       "Podría ayudarte, could ser la solución.",
       "Could llegar a tiempo, no estoy seguro.",
@@ -438,7 +438,7 @@ export const wordDataExamples = [
     ],
     "type": ["infinitive"],
     "IPA": "/tuː rʌn/",
-    "sinonyms": [
+    "synonyms": [
       "to jog",
       "to sprint",
       "to operate",
@@ -470,7 +470,7 @@ export const wordDataExamples = [
     ],
     "type": ["participle", "adjective"],
     "IPA": "/ˈbroʊ.kən/",
-    "sinonyms": [
+    "synonyms": [
       "damaged",
       "fractured",
       "shattered",
@@ -502,7 +502,7 @@ export const wordDataExamples = [
     ],
     "type": ["phrasal verb"],
     "IPA": "/ɡɪv ʌp/",
-    "sinonyms": ["surrender", "quit", "yield", "concede", "resign"],
+    "synonyms": ["surrender", "quit", "yield", "concede", "resign"],
     "codeSwitching": [
       "No te rindas; don't give up.",
       "Ella decidió give up el hábito.",
@@ -528,7 +528,7 @@ export const wordDataExamples = [
     ],
     "type": ["gerund"],
     "IPA": "/ˈswɪm.ɪŋ/",
-    "sinonyms": ["aquatics", "dipping", "floating", "paddling", "stroke"],
+    "synonyms": ["aquatics", "dipping", "floating", "paddling", "stroke"],
     "codeSwitching": [
       "Swimming es mi deporte favorito.",
       "Me encanta swimming en verano.",

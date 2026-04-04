@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { ChatMessage, IWord } from "../../../../types/models";
-import { chatRolesList, difficultyList, languagesList, wordTypesList } from "../../data/bussiness/shared";
+import { chatRolesList, difficultyList, languagesList, wordTypesList } from "../../data/business/shared";
 
 const ChatMessageSchema: Schema = new Schema<ChatMessage>({
   id: {
@@ -46,7 +46,7 @@ const WordSchema: Schema = new Schema<IWord>(
       type: [String],
       default: [],
     },
-    sinonyms: {
+    synonyms: {
       type: [String],
       default: [],
     },

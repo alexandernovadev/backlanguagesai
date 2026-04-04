@@ -1,4 +1,4 @@
-import { languagesJson } from "../../../data/bussiness/shared";
+import { languagesJson } from "../../../data/business/shared";
 
 const LABEL_MAP = Object.fromEntries(
   languagesJson.map((l) => [l.value, l.promptLabel])

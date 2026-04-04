@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { 
+import {
   createAdminUser,
   sendBackupByEmailHandler,
   deleteAllWords,
   deleteAllExpressions,
-  deleteAllLectures
+  deleteAllLectures,
+  migrateSinonymsToSynonyms
 } from "../controllers/labsController";
 
 const routes = Router();
@@ -14,6 +15,9 @@ routes.post("/users/create-admin", createAdminUser);
 
 // Backup and maintenance
 routes.post("/backup/send-email", sendBackupByEmailHandler);
+
+// Migrations
+routes.post("/migrations/sinonyms-to-synonyms", migrateSinonymsToSynonyms);
 
 // Data Management - Dangerous Operations ⚠️
 routes.delete("/data/words/delete-all", deleteAllWords);

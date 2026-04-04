@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import path from "path";
 
 import { connectDB } from "./app/db/mongoConnection";
@@ -43,6 +44,33 @@ const CORS_ORIGINS = (process.env.CORS_ORIGINS || "http://localhost:5173")
 // Security headers
 app.use(helmet());
 
+// Rate limiting
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many requests, please try again later" },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many login attempts, please try again later" },
+});
+
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "AI request limit reached, please slow down" },
+});
+
+app.use(generalLimiter);
+
 // Middleware to parse JSON
 app.use(express.json());
 
@@ -63,13 +91,13 @@ app.use("/audios", express.static(path.join(publicPath, "audios")));
 app.use("/images", express.static(path.join(publicPath, "images")));
 
 // Routes
-app.use("/api/auth", AuthRoutes);
-app.use("/api/lectures", authMiddleware, LectureRoutes);
-app.use("/api/words", authMiddleware, WordsRoutes);
-app.use("/api/expressions", authMiddleware, ExpressionRoutes);
+app.use("/api/auth", authLimiter, AuthRoutes);
+app.use("/api/lectures", authMiddleware, aiLimiter, LectureRoutes);
+app.use("/api/words", authMiddleware, aiLimiter, WordsRoutes);
+app.use("/api/expressions", authMiddleware, aiLimiter, ExpressionRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 app.use("/api/stats", authMiddleware, StatsRoutes);
-app.use("/api/exams", authMiddleware, ExamRoutes);
+app.use("/api/exams", authMiddleware, aiLimiter, ExamRoutes);
 app.use("/api/ai-config", authMiddleware, AIConfigRoutes);
 
 // Labs routes (conditional auth)

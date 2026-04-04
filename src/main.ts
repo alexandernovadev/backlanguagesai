@@ -10,7 +10,7 @@ import {
   SERVER_TIMEOUT_MS, AI_REQUEST_TIMEOUT_MS,
 } from "./config/constants";
 
-import { connectDB } from "./app/db/mongoConnection";
+import { connectDB, disconnectDB } from "./app/db/mongoConnection";
 import { initializeBackupScheduler } from "./app/services/backup/backupSchedulerService";
 import logger from "./app/utils/logger";
 

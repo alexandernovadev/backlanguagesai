@@ -20,6 +20,7 @@ if (!uri) {
 let connectionAttempts = 0;
 const MAX_RECONNECTION_ATTEMPTS = 5;
 const RECONNECTION_DELAY = MONGO_RECONNECTION_DELAY_MS;
+let listenersRegistered = false;
 
 // Function to check if the connection is active (REAL-TIME)
 export const isDBConnected = (): boolean => {
@@ -118,6 +119,8 @@ export const connectDB = async () => {
 
 // Configure event listeners for the connection
 const setupConnectionListeners = () => {
+  if (listenersRegistered) return;
+  listenersRegistered = true;
   // Event when connected
   mongoose.connection.on('connected', () => {
     connectionAttempts = 0;

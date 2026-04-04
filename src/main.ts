@@ -90,14 +90,22 @@ const publicPath = path.join(__dirname, "..", "public");
 app.use("/audios", express.static(path.join(publicPath, "audios")));
 app.use("/images", express.static(path.join(publicPath, "images")));
 
+// Extends the socket timeout for routes that call OpenAI (streaming, image gen)
+const extendTimeout = (_req: Request, res: Response, next: NextFunction) => {
+  res.setTimeout(120_000, () => {
+    errorResponse(res, "Request timed out", 408);
+  });
+  next();
+};
+
 // Routes
 app.use("/api/auth", authLimiter, AuthRoutes);
-app.use("/api/lectures", authMiddleware, aiLimiter, LectureRoutes);
-app.use("/api/words", authMiddleware, aiLimiter, WordsRoutes);
-app.use("/api/expressions", authMiddleware, aiLimiter, ExpressionRoutes);
+app.use("/api/lectures", authMiddleware, aiLimiter, extendTimeout, LectureRoutes);
+app.use("/api/words", authMiddleware, aiLimiter, extendTimeout, WordsRoutes);
+app.use("/api/expressions", authMiddleware, aiLimiter, extendTimeout, ExpressionRoutes);
 app.use("/api/users", authMiddleware, UserRoutes);
 app.use("/api/stats", authMiddleware, StatsRoutes);
-app.use("/api/exams", authMiddleware, aiLimiter, ExamRoutes);
+app.use("/api/exams", authMiddleware, aiLimiter, extendTimeout, ExamRoutes);
 app.use("/api/ai-config", authMiddleware, AIConfigRoutes);
 
 // Labs routes (conditional auth)
@@ -132,11 +140,8 @@ async function init() {
         message: "Se conectó todo bn",
       });
 
-      app.listen(PORT, () => {
-        console.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
-        logger.info("Server running on port: ", {
-          message: `${PORT} - "${NODE_ENV}`,
-        });
+      const server = app.listen(PORT, () => {
+        logger.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
 
         // Initialize backup cron scheduler
         try {
@@ -146,12 +151,13 @@ async function init() {
           logger.error("Failed to initialize backup cron scheduler", { error });
         }
       });
+
+      // Default socket timeout: 30s. AI/upload routes override this to 120s
+      // via the extendTimeout middleware applied on their routers.
+      server.setTimeout(30_000);
     })
     .catch((error) => {
-      console.error("Error connecting to MongoDB:", error);
-      logger.error("Error Response:", {
-        message: error,
-      });
+      logger.error("Error connecting to MongoDB", { error });
     });
 }
 

@@ -22,14 +22,7 @@ Issues found during security/quality audit. Ordered by priority.
 
 ---
 
-### 5. No request timeout configured
-**File:** `src/main.ts`
-**Why:** A slow or stalled client connection holds a Node.js socket open indefinitely, consuming file descriptors and memory.
-**What to do:** Add `server.setTimeout(30000)` after `app.listen()`, and consider `connect-timeout` middleware for per-request limits.
-
----
-
-### 6. No graceful shutdown / DB connection cleanup
+### 5. No graceful shutdown / DB connection cleanup
 **File:** `src/main.ts`
 **Why:** On `SIGTERM` (e.g. Fly.io rolling deploy), the process exits immediately — in-flight requests are dropped and the MongoDB connection is not cleanly closed, risking write corruption on busy instances.
 **What to do:** Listen for `SIGTERM`/`SIGINT`, stop accepting new connections, wait for in-flight requests to complete, then call `disconnectDB()`.

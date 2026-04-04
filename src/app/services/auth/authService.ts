@@ -4,8 +4,12 @@ import { IUser } from "../../../../types/models";
 import bcrypt from "bcryptjs";
 import logger from "../../utils/logger";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_secret_key";
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "refresh_secret_key";
+if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
+  throw new Error("JWT_SECRET and REFRESH_TOKEN_SECRET environment variables must be set");
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
 export const AuthService = {
   // Generate a JWT token

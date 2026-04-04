@@ -16,6 +16,8 @@ import {
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
+router.param("id", validateObjectId);
+router.param("idlecture", validateObjectId);
 
 // AI Generation routes
 router.post("/generate-text", generateTextStream);

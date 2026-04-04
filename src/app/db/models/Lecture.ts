@@ -30,13 +30,12 @@ const lectureSchema = new Schema<ILecture>(
   }
 );
 
-// Add text index for full-text search on key fields
-lectureSchema.index({
-  content: "text",
-  difficulty: "text",
-  language: "text",
-  typeWrite: "text",
-});
+// Full-text search index
+lectureSchema.index({ content: "text", difficulty: "text", language: "text", typeWrite: "text" });
+
+// Compound indexes for the most common query patterns
+lectureSchema.index({ language: 1, difficulty: 1 }); // getLecturesAdvanced filtered by language+level
+lectureSchema.index({ language: 1, typeWrite: 1 });  // getLecturesAdvanced filtered by language+typeWrite
 // Crear el modelo
 const Lecture = mongoose.model<ILecture>("Lecture", lectureSchema);
 

@@ -3,6 +3,7 @@ import User from "../../db/models/User";
 import { IUser } from "../../../../types/models";
 import bcrypt from "bcryptjs";
 import logger from "../../utils/logger";
+import { JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN } from "../../../config/constants";
 
 if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
   throw new Error("JWT_SECRET and REFRESH_TOKEN_SECRET environment variables must be set");
@@ -14,12 +15,12 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 export const AuthService = {
   // Generate a JWT token
   generateToken: (user: IUser) => {
-    return jwt.sign({ user }, JWT_SECRET, { expiresIn: "7d" });
+    return jwt.sign({ user }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
   },
 
   // Generate a refresh token (longer expiration)
   generateRefreshToken: (user: IUser) => {
-    return jwt.sign({ userId: user._id }, REFRESH_TOKEN_SECRET, { expiresIn: "30d" });
+    return jwt.sign({ userId: user._id }, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
   },
 
   // Verify a JWT token

@@ -82,6 +82,10 @@ const ExpressionSchema: Schema = new Schema<IExpression>(
   { timestamps: true }
 );
 
+// Compound indexes for the most common query patterns
+ExpressionSchema.index({ language: 1, difficulty: 1 }); // getExpressions filtered by language+difficulty
+ExpressionSchema.index({ language: 1, type: 1 });       // getExpressionsByType
+
 // Crear el modelo
 const Expression = mongoose.model<IExpression>("Expression", ExpressionSchema);
 

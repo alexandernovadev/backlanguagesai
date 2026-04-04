@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import logger from "../utils/logger";
+import {
+  MONGO_RECONNECTION_DELAY_MS,
+  MONGO_SERVER_SELECTION_TIMEOUT_MS,
+  MONGO_SOCKET_TIMEOUT_MS,
+  MONGO_HEARTBEAT_FREQUENCY_MS,
+} from "../../config/constants";
 
 dotenv.config();
 
@@ -13,7 +19,7 @@ if (!uri) {
 // Variables for connection state
 let connectionAttempts = 0;
 const MAX_RECONNECTION_ATTEMPTS = 5;
-const RECONNECTION_DELAY = 5000; // 5 seconds
+const RECONNECTION_DELAY = MONGO_RECONNECTION_DELAY_MS;
 
 // Function to check if the connection is active (REAL-TIME)
 export const isDBConnected = (): boolean => {
@@ -68,15 +74,15 @@ export const connectDB = async () => {
     });
 
     const db = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 10000,        // 10 seconds for server selection
-      socketTimeoutMS: 45000,                 // 45 seconds for operations
-      maxPoolSize: 10,                        // Maximum 10 connections in pool
-      minPoolSize: 2,                         // Minimum 2 connections always active
-      maxIdleTimeMS: 30000,                   // Close inactive connections after 30s
-      retryWrites: true,                      // Retry failed writes
-      w: 'majority',                          // Confirm writes to majority of replicas
-      heartbeatFrequencyMS: 10000,            // Heartbeat every 10 seconds
-      serverMonitoringMode: 'auto'            // Automatic server monitoring
+      serverSelectionTimeoutMS: MONGO_SERVER_SELECTION_TIMEOUT_MS,
+      socketTimeoutMS: MONGO_SOCKET_TIMEOUT_MS,
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      maxIdleTimeMS: 30_000,
+      retryWrites: true,
+      w: 'majority',
+      heartbeatFrequencyMS: MONGO_HEARTBEAT_FREQUENCY_MS,
+      serverMonitoringMode: 'auto'
     });
 
     connectionAttempts = 0;
@@ -206,18 +212,5 @@ export const forceReconnect = async () => {
     throw error;
   }
 };
-
-// Graceful shutdown for clean closures
-process.on('SIGINT', async () => {
-  logger.info("SIGINT received, closing MongoDB connection...");
-  await disconnectDB();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  logger.info("SIGTERM received, closing MongoDB connection...");
-  await disconnectDB();
-  process.exit(0);
-});
 
 export default mongoose;

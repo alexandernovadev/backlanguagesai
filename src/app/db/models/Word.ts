@@ -95,6 +95,10 @@ const WordSchema: Schema = new Schema<IWord>(
   { timestamps: true }
 );
 
+// Compound indexes for the most common query patterns
+WordSchema.index({ language: 1, difficulty: 1 }); // getAnkiCards, getWords filtered by language+difficulty
+WordSchema.index({ language: 1, createdAt: -1 }); // getWords sorted by date with language filter
+
 // Crear el modelo
 const Word = mongoose.model<IWord>("Word", WordSchema);
 

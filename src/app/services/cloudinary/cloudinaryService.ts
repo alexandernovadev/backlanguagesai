@@ -1,5 +1,9 @@
 import cloudinary from "cloudinary";
 
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  throw new Error("CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET environment variables must be set");
+}
+
 cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -11,10 +15,6 @@ export const uploadImageToCloudinary = async (
   folder = "lectures"
 ): Promise<string | null> => {
   try {
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      return null;
-    }
-
     const uploadResponse = await cloudinary.v2.uploader.upload(
       `data:image/png;base64,${imageBase64}`,
       {

@@ -1,26 +1,26 @@
+import mongoose, { ClientSession } from "mongoose";
 import Lecture from "../../db/models/Lecture";
 import { ILecture } from "../../../../types/models";
-import { 
-  ImportConfig, 
-  ProcessingResult, 
-  BatchResult, 
-  ImportResult 
+import {
+  ImportConfig,
+  ProcessingResult,
+  BatchResult,
+  ImportResult
 } from "../../utils/importTypes";
 import { LectureValidator } from "../../utils/validators/lectureValidator";
 import logger from "../../utils/logger";
 
 export class LectureImportService {
-  // Check for duplicate lectures
-  private async checkDuplicate(lecture: Partial<ILecture>): Promise<ILecture | null> {
+  private async checkDuplicate(lecture: Partial<ILecture>, session: ClientSession): Promise<ILecture | null> {
     if (!lecture.content) return null;
-    return await Lecture.findOne({ content: lecture.content });
+    return await Lecture.findOne({ content: lecture.content }).session(session);
   }
 
-  // Process a single lecture
   private async processLecture(
-    lecture: Partial<ILecture>, 
-    index: number, 
-    config: ImportConfig
+    lecture: Partial<ILecture>,
+    index: number,
+    config: ImportConfig,
+    session: ClientSession
   ): Promise<ProcessingResult<Partial<ILecture>>> {
     try {
       const validationResult = LectureValidator.validateLecture(lecture, index);
@@ -35,8 +35,8 @@ export class LectureImportService {
         };
       }
 
-      const existingLecture = await this.checkDuplicate(lecture);
-      
+      const existingLecture = await this.checkDuplicate(lecture, session);
+
       if (existingLecture) {
         switch (config.duplicateStrategy) {
           case 'error':
@@ -48,7 +48,7 @@ export class LectureImportService {
               error: 'Duplicate lecture found',
               action: 'skipped'
             };
-          
+
           case 'skip':
             return {
               index,
@@ -57,12 +57,12 @@ export class LectureImportService {
               validationResult,
               action: 'skipped'
             };
-          
+
           case 'overwrite':
             await Lecture.findByIdAndUpdate(
               existingLecture._id,
               { ...lecture, updatedAt: new Date() },
-              { new: true }
+              { new: true, session }
             );
             return {
               index,
@@ -71,12 +71,12 @@ export class LectureImportService {
               validationResult,
               action: 'updated'
             };
-          
+
           case 'merge':
             await Lecture.findByIdAndUpdate(
               existingLecture._id,
               { ...lecture, updatedAt: new Date() },
-              { new: true }
+              { new: true, session }
             );
             return {
               index,
@@ -89,7 +89,7 @@ export class LectureImportService {
       }
 
       const newLecture = new Lecture(lecture);
-      await newLecture.save();
+      await newLecture.save({ session });
       
       return {
         index,
@@ -112,11 +112,10 @@ export class LectureImportService {
     }
   }
 
-  // Import lectures in batches
   async importLectures(lectures: Partial<ILecture>[], config: ImportConfig): Promise<ImportResult> {
     const startTime = Date.now();
     const batches: BatchResult[] = [];
-    
+
     let totalValid = 0;
     let totalInvalid = 0;
     let totalDuplicates = 0;
@@ -125,51 +124,58 @@ export class LectureImportService {
     let totalUpdated = 0;
     let totalSkipped = 0;
 
-    for (let i = 0; i < lectures.length; i += config.batchSize) {
-      const batchLectures = lectures.slice(i, i + config.batchSize);
-      const batchIndex = Math.floor(i / config.batchSize);
-      
-      let batchValid = 0;
-      let batchInvalid = 0;
-      let batchDuplicates = 0;
-      let batchErrors = 0;
-      let batchInserted = 0;
-      let batchUpdated = 0;
-      let batchSkipped = 0;
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        for (let i = 0; i < lectures.length; i += config.batchSize) {
+          const batchLectures = lectures.slice(i, i + config.batchSize);
+          const batchIndex = Math.floor(i / config.batchSize);
 
-      for (let j = 0; j < batchLectures.length; j++) {
-        const result = await this.processLecture(batchLectures[j], i + j, config);
+          let batchValid = 0;
+          let batchInvalid = 0;
+          let batchDuplicates = 0;
+          let batchErrors = 0;
+          let batchInserted = 0;
+          let batchUpdated = 0;
+          let batchSkipped = 0;
 
-        switch (result.status) {
-          case 'valid': batchValid++; totalValid++; break;
-          case 'invalid': batchInvalid++; totalInvalid++; break;
-          case 'duplicate': batchDuplicates++; totalDuplicates++; break;
-          case 'error': batchErrors++; totalErrors++; break;
+          for (let j = 0; j < batchLectures.length; j++) {
+            const result = await this.processLecture(batchLectures[j], i + j, config, session);
+
+            switch (result.status) {
+              case 'valid': batchValid++; totalValid++; break;
+              case 'invalid': batchInvalid++; totalInvalid++; break;
+              case 'duplicate': batchDuplicates++; totalDuplicates++; break;
+              case 'error': batchErrors++; totalErrors++; break;
+            }
+
+            switch (result.action) {
+              case 'inserted': batchInserted++; totalInserted++; break;
+              case 'updated': batchUpdated++; totalUpdated++; break;
+              case 'merged': batchUpdated++; totalUpdated++; break;
+              case 'skipped': batchSkipped++; totalSkipped++; break;
+            }
+          }
+
+          batches.push({
+            batchIndex,
+            processed: batchLectures.length,
+            valid: batchValid,
+            invalid: batchInvalid,
+            duplicates: batchDuplicates,
+            errors: batchErrors,
+            inserted: batchInserted,
+            updated: batchUpdated,
+            skipped: batchSkipped
+          });
         }
-
-        switch (result.action) {
-          case 'inserted': batchInserted++; totalInserted++; break;
-          case 'updated': batchUpdated++; totalUpdated++; break;
-          case 'merged': batchUpdated++; totalUpdated++; break;
-          case 'skipped': batchSkipped++; totalSkipped++; break;
-        }
-      }
-
-      batches.push({
-        batchIndex,
-        processed: batchLectures.length,
-        valid: batchValid,
-        invalid: batchInvalid,
-        duplicates: batchDuplicates,
-        errors: batchErrors,
-        inserted: batchInserted,
-        updated: batchUpdated,
-        skipped: batchSkipped
       });
+    } finally {
+      session.endSession();
     }
 
     const duration = Date.now() - startTime;
-    
+
     return {
       totalItems: lectures.length,
       totalBatches: batches.length,

@@ -1,10 +1,11 @@
 import multer from "multer";
+import { MAX_FILE_SIZE_BYTES } from "../../config/constants";
 
 // Base multer configuration
 const baseConfig = {
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: MAX_FILE_SIZE_BYTES,
   },
 };
 
@@ -97,4 +98,4 @@ export function validateJsonBuffer(buffer: Buffer): boolean {
 }
 
 /** Maximum number of items allowed in a single JSON import. */
-export const MAX_IMPORT_ITEMS = 5_000;
+export { MAX_IMPORT_ITEMS } from "../../config/constants";

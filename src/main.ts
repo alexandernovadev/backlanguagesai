@@ -4,6 +4,11 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import path from "path";
+import {
+  RATE_LIMIT_WINDOW_MS, RATE_LIMIT_GENERAL_MAX, RATE_LIMIT_AUTH_MAX,
+  RATE_LIMIT_AI_WINDOW_MS, RATE_LIMIT_AI_MAX,
+  SERVER_TIMEOUT_MS, AI_REQUEST_TIMEOUT_MS,
+} from "./config/constants";
 
 import { connectDB } from "./app/db/mongoConnection";
 import { initializeBackupScheduler } from "./app/services/backup/backupSchedulerService";
@@ -46,24 +51,24 @@ app.use(helmet());
 
 // Rate limiting
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300,
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_GENERAL_MAX,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, error: "Too many requests, please try again later" },
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_AUTH_MAX,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, error: "Too many login attempts, please try again later" },
 });
 
 const aiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 20,
+  windowMs: RATE_LIMIT_AI_WINDOW_MS,
+  max: RATE_LIMIT_AI_MAX,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, error: "AI request limit reached, please slow down" },
@@ -92,7 +97,7 @@ app.use("/images", express.static(path.join(publicPath, "images")));
 
 // Extends the socket timeout for routes that call OpenAI (streaming, image gen)
 const extendTimeout = (_req: Request, res: Response, next: NextFunction) => {
-  res.setTimeout(120_000, () => {
+  res.setTimeout(AI_REQUEST_TIMEOUT_MS, () => {
     errorResponse(res, "Request timed out", 408);
   });
   next();
@@ -131,34 +136,53 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
   errorResponse(res, "Internal server error", 500, err);
 });
 
+let server: ReturnType<typeof app.listen>;
+
+async function shutdown(signal: string) {
+  logger.info(`${signal} received, starting graceful shutdown...`);
+
+  // Stop accepting new connections; wait for in-flight requests to finish
+  server.close(async () => {
+    logger.info("HTTP server closed");
+    await disconnectDB();
+    logger.info("Graceful shutdown complete");
+    process.exit(0);
+  });
+
+  // Force-kill if shutdown takes too long (10 s)
+  setTimeout(() => {
+    logger.error("Graceful shutdown timed out, forcing exit");
+    process.exit(1);
+  }, 10_000).unref();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT",  () => shutdown("SIGINT"));
+
 async function init() {
-  // Connect DB and start server
-  connectDB()
-    .then(() => {
-      console.info("Connection to MongoDB established successfully");
-      logger.info("Connection to MongoDB", {
-        message: "Se conectó todo bn",
-      });
+  try {
+    await connectDB();
+    logger.info("Connection to MongoDB established successfully");
 
-      const server = app.listen(PORT, () => {
-        logger.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
+    server = app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
 
-        // Initialize backup cron scheduler
-        try {
-          initializeBackupScheduler();
-          logger.info("Backup cron scheduler initialized");
-        } catch (error) {
-          logger.error("Failed to initialize backup cron scheduler", { error });
-        }
-      });
-
-      // Default socket timeout: 30s. AI/upload routes override this to 120s
-      // via the extendTimeout middleware applied on their routers.
-      server.setTimeout(30_000);
-    })
-    .catch((error) => {
-      logger.error("Error connecting to MongoDB", { error });
+      // Initialize backup cron scheduler
+      try {
+        initializeBackupScheduler();
+        logger.info("Backup cron scheduler initialized");
+      } catch (error) {
+        logger.error("Failed to initialize backup cron scheduler", { error });
+      }
     });
+
+    // Default socket timeout: 30s. AI/upload routes override this to 120s
+    // via the extendTimeout middleware applied on their routers.
+    server.setTimeout(SERVER_TIMEOUT_MS);
+  } catch (error) {
+    logger.error("Error connecting to MongoDB", { error });
+    process.exit(1);
+  }
 }
 
 init();

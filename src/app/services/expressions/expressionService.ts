@@ -1,5 +1,6 @@
 import Expression from "../../db/models/Expression";
 import { IExpression, ChatMessage } from "../../../../types/models";
+import { escapeRegex } from "../../utils/escapeRegex";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -27,11 +28,12 @@ export class ExpressionService {
     const filter: any = {};
 
     if (filters.search) {
+      const escapedSearch = escapeRegex(filters.search);
       filter.$or = [
-        { expression: { $regex: filters.search, $options: "i" } },
-        { definition: { $regex: filters.search, $options: "i" } },
-        { "spanish.expression": { $regex: filters.search, $options: "i" } },
-        { "spanish.definition": { $regex: filters.search, $options: "i" } },
+        { expression: { $regex: escapedSearch, $options: "i" } },
+        { definition: { $regex: escapedSearch, $options: "i" } },
+        { "spanish.expression": { $regex: escapedSearch, $options: "i" } },
+        { "spanish.definition": { $regex: escapedSearch, $options: "i" } },
       ];
     }
 
@@ -168,9 +170,10 @@ export class ExpressionService {
   async getExpressionsByType(type: string, limit: number = 10, search?: string): Promise<IExpression[]> {
     const filter: any = { type: { $in: [type] } };
     if (search) {
+      const escapedSearch = escapeRegex(search);
       filter.$or = [
-        { expression: { $regex: search, $options: "i" } },
-        { definition: { $regex: search, $options: "i" } },
+        { expression: { $regex: escapedSearch, $options: "i" } },
+        { definition: { $regex: escapedSearch, $options: "i" } },
       ];
     }
     return await Expression.find(filter).limit(limit);
@@ -183,7 +186,7 @@ export class ExpressionService {
 
     const filter: any = {};
     if (filters.search) {
-      filter.expression = { $regex: filters.search, $options: "i" };
+      filter.expression = { $regex: escapeRegex(filters.search), $options: "i" };
     }
 
     const total = await Expression.countDocuments(filter);

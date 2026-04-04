@@ -1,6 +1,7 @@
 import Lecture from "../../db/models/Lecture";
 import { ILecture } from "../../../../types/models";
 import { calculateReadingTimeFromContent } from "../../utils/text/calculateReadingTime";
+import { escapeRegex } from "../../utils/escapeRegex";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -200,10 +201,10 @@ export class LectureService {
     // Language filter
     if (language) {
       if (Array.isArray(language)) {
-        const regexLang = language.map((lang) => new RegExp(lang, "i"));
+        const regexLang = language.map((lang) => new RegExp(escapeRegex(lang), "i"));
         query.language = { $in: regexLang };
       } else {
-        query.language = { $regex: language, $options: "i" };
+        query.language = { $regex: escapeRegex(language), $options: "i" };
       }
     }
 

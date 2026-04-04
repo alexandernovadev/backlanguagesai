@@ -80,13 +80,6 @@ export const AuthService = {
     }
   },
 
-  // Validate user credentials (for now, hardcoded)
-  validateUser: (username: string, password: string) => {
-    const envUser = process.env.USER_NOVA;
-    const envPass = process.env.PASSWORD_NOVA;
-
-    return username === envUser && password === envPass;
-  },
   validateUserFromDB: async (identifier: string, password: string) => {
     try {
       // Find user by username or email

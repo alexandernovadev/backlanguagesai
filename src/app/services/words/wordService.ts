@@ -1,5 +1,6 @@
 import Word from "../../db/models/Word";
 import { IWord, ChatMessage } from "../../../../types/models";
+import { escapeRegex } from "../../utils/escapeRegex";
 import {
   validateWordTypesForLanguage,
   WordTypeValidationError,
@@ -94,7 +95,7 @@ export class WordService {
 
     // Filtro por palabra (existente)
     if (wordUser) {
-      filter.word = { $regex: wordUser, $options: "i" };
+      filter.word = { $regex: escapeRegex(wordUser), $options: "i" };
     }
 
     // Nuevo filtro por nivel
@@ -156,12 +157,12 @@ export class WordService {
 
     // Nuevo filtro por definición
     if (definition) {
-      filter.definition = { $regex: definition, $options: "i" };
+      filter.definition = { $regex: escapeRegex(definition), $options: "i" };
     }
 
     // Nuevo filtro por IPA
     if (IPA) {
-      filter.IPA = { $regex: IPA, $options: "i" };
+      filter.IPA = { $regex: escapeRegex(IPA), $options: "i" };
     }
 
     // Nuevo filtro por palabras con/sin imagen
@@ -201,13 +202,13 @@ export class WordService {
 
     // Nuevo filtro por palabra en español
     if (spanishWord) {
-      filter["spanish.word"] = { $regex: spanishWord, $options: "i" };
+      filter["spanish.word"] = { $regex: escapeRegex(spanishWord), $options: "i" };
     }
 
     // Nuevo filtro por definición en español
     if (spanishDefinition) {
       filter["spanish.definition"] = {
-        $regex: spanishDefinition,
+        $regex: escapeRegex(spanishDefinition),
         $options: "i",
       };
     }
@@ -457,7 +458,7 @@ export class WordService {
     const query: any = { type: { $in: [type] } };
 
     if (search) {
-      query.word = { $regex: search, $options: "i" };
+      query.word = { $regex: escapeRegex(search), $options: "i" };
     }
 
     const projection = fields ? { word: 1 } : { word: 1, _id: 0 };

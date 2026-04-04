@@ -1,6 +1,7 @@
 import User from "../../db/models/User";
 import { IUser } from "../../../../types/models";
 import bcrypt from "bcryptjs";
+import { escapeRegex } from "../../utils/escapeRegex";
 
 import { Request } from "express";
 
@@ -43,8 +44,8 @@ export class UserService {
 
     const filter: Record<string, any> = {};
 
-    if (username) filter.username = { $regex: username, $options: "i" };
-    if (email) filter.email = { $regex: email, $options: "i" };
+    if (username) filter.username = { $regex: escapeRegex(username), $options: "i" };
+    if (email) filter.email = { $regex: escapeRegex(email), $options: "i" };
     if (role) {
       if (Array.isArray(role)) filter.role = { $in: role };
       else if (typeof role === "string" && role.includes(",")) filter.role = { $in: role.split(",") };
@@ -56,8 +57,8 @@ export class UserService {
       else filter.language = language;
     }
     if (isActive !== undefined) filter.isActive = isActive === "true";
-    if (phone) filter.phone = { $regex: phone, $options: "i" };
-    if (address) filter.address = { $regex: address, $options: "i" };
+    if (phone) filter.phone = { $regex: escapeRegex(phone), $options: "i" };
+    if (address) filter.address = { $regex: escapeRegex(address), $options: "i" };
 
     // Fechas
     if (createdAfter || createdBefore) {

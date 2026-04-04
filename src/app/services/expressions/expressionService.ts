@@ -2,6 +2,7 @@ import Expression from "../../db/models/Expression";
 import { IExpression, ChatMessage } from "../../../../types/models";
 import { escapeRegex } from "../../utils/escapeRegex";
 import { generateId } from "../../utils/generateId";
+import { parseLimit } from "../../utils/pagination";
 
 interface PaginatedResult<T> {
   data: T[];
@@ -22,7 +23,7 @@ export class ExpressionService {
 
   async getExpressions(filters: any = {}): Promise<PaginatedResult<IExpression>> {
     const page = parseInt(filters.page) || 1;
-    const limit = parseInt(filters.limit) || 10;
+    const limit = parseLimit(filters.limit, 10);
     const skip = (page - 1) * limit;
 
     // Build filter object
@@ -182,7 +183,7 @@ export class ExpressionService {
 
   async getExpressionsOnly(filters: any = {}): Promise<PaginatedResult<{ expression: string }>> {
     const page = parseInt(filters.page) || 1;
-    const limit = parseInt(filters.limit) || 10;
+    const limit = parseLimit(filters.limit, 10);
     const skip = (page - 1) * limit;
 
     const filter: any = {};
@@ -205,10 +206,12 @@ export class ExpressionService {
   }
 
   async getAllExpressionsForExport(): Promise<IExpression[]> {
-    return (await Expression.find({})
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec()) as unknown as IExpression[];
+    const results: IExpression[] = [];
+    const cursor = Expression.find({}).sort({ createdAt: -1 }).lean().cursor();
+    for await (const doc of cursor) {
+      results.push(doc as unknown as IExpression);
+    }
+    return results;
   }
 
   // Import expressions from JSON data

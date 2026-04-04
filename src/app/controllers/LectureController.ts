@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { LectureService } from "../services/lectures/LectureService";
 import { LectureImportService } from "../services/import/LectureImportService";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
+import { parseLimit } from "../utils/pagination";
+import { validateJsonBuffer, MAX_IMPORT_ITEMS } from "../middlewares/uploadMiddleware";
 import {
   deleteImageFromCloudinary,
   uploadImageToCloudinary,
@@ -129,7 +131,7 @@ export const getAllLectures = async (
     } = req.query as any;
 
     const page = parseInt(qPage) || 1;
-    const limit = parseInt(qLimit) || 10;
+    const limit = parseLimit(qLimit, 10);
 
     // Parse comma-separated strings into arrays for level, language, typeWrite
     const parseArrayParam = (param: string | string[] | undefined): string | string[] | undefined => {
@@ -211,6 +213,11 @@ export const importLecturesFromFile = async (
       return errorResponse(res, "No file uploaded", 400);
     }
 
+    // Validate file content before parsing (MIME type is spoofable)
+    if (!validateJsonBuffer(req.file.buffer)) {
+      return errorResponse(res, "File content is not valid JSON", 400);
+    }
+
     // Parse the JSON file content
     let fileData: any;
     try {
@@ -242,6 +249,10 @@ export const importLecturesFromFile = async (
         "Invalid file structure. Expected 'data.lectures' or 'data.data.lectures' array",
         400
       );
+    }
+
+    if (lectures.length > MAX_IMPORT_ITEMS) {
+      return errorResponse(res, `Import exceeds maximum of ${MAX_IMPORT_ITEMS} items per request`, 400);
     }
     const {
       duplicateStrategy = "skip",
@@ -340,7 +351,7 @@ export const updateImageLecture = async (req: Request, res: Response) => {
       return errorResponse(res, "Failed to get image data from response.", 400);
     }
 
-    let deleteOldImagePromise: Promise<void> = Promise.resolve();
+    let deleteOldImagePromise: Promise<unknown> = Promise.resolve();
 
     if (imgOld && imgOld.includes("res.cloudinary.com")) {
       const parts = imgOld.split("/");
@@ -354,7 +365,7 @@ export const updateImageLecture = async (req: Request, res: Response) => {
       // Delete old image
       deleteOldImagePromise = deleteImageFromCloudinary(
         "languagesai/lectures/" + publicId
-      ).then(() => {});
+      );
     }
 
     // Upload new image while deleting the old one

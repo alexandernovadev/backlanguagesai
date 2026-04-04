@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/auth/authService";
 import { errorResponse } from "../utils/responseHelpers";
+import logger from "../utils/logger";
 
 // Extend Request interface to include user
 declare global {
@@ -20,32 +21,25 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  // Get token from Authorization header or query parameter
-  const token =
-    req.headers.authorization?.split(" ")[1] || // Bearer <token>
-    (req.query.tokenAPI as string); // tokenAPI in query param
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
-    return errorResponse(
-      res,
-      "Token not provided",
-      401,
-      "Token not provided in request"
-    );
+  if (!authHeader?.startsWith("Bearer ")) {
+    return errorResponse(res, "Token not provided", 401, "Token not provided in request");
   }
+
+  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = AuthService.verifyToken(token) as any;
-    // @ts-ignore
     req.user = {
       id: decoded.user._id || decoded.user.id,
       _id: decoded.user._id || decoded.user.id,
-      ...decoded.user
+      ...decoded.user,
     };
-    console.log('🔐 Auth middleware - User set:', { userId: req.user._id, user: req.user });
+    logger.debug("Auth middleware - user authenticated", { userId: req.user._id });
     next();
   } catch (error) {
-    console.error('🔐 Auth middleware error:', error);
+    logger.error("Auth middleware - invalid token", { error });
     return errorResponse(res, "Unauthorized access", 403, error);
   }
 };

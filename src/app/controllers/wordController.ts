@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { WordService } from "../services/words/wordService";
 import { WordImportService } from "../services/import/WordImportService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
+import { parseLimit } from "../utils/pagination";
+import { validateJsonBuffer, MAX_IMPORT_ITEMS } from "../middlewares/uploadMiddleware";
 import {
   generateWordData,
   generateWordExamples,
@@ -106,7 +108,7 @@ export const getWords = async (
 ): Promise<Response> => {
   try {
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit as string) || 10, 1);
+    const limit = parseLimit(req.query.limit, 10);
 
     // Filtros existentes
     const wordUser = req.query.wordUser as string;
@@ -263,7 +265,7 @@ export const getAnkiCards = async (
 ): Promise<Response> => {
   try {
     const mode = (req.query.mode as string) || "random";
-    const limit = parseInt(req.query.limit as string) || 30;
+    const limit = parseLimit(req.query.limit, 30);
     const difficulty = req.query.difficulty
       ? (req.query.difficulty as string).split(",")
       : ["hard", "medium"];
@@ -304,7 +306,7 @@ export const getWordsByTypeOptimized = async (
 ): Promise<Response> => {
   try {
     const type = req.query.type as string;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const limit = parseLimit(req.query.limit, 10);
     const search = req.query.wordUser as string;
     const fields = req.query.fields as string;
 
@@ -403,6 +405,11 @@ export const importWordsFromFile = async (
       return errorResponse(res, "No file uploaded", 400);
     }
 
+    // Validate file content before parsing (MIME type is spoofable)
+    if (!validateJsonBuffer(req.file.buffer)) {
+      return errorResponse(res, "File content is not valid JSON", 400);
+    }
+
     // Parse the JSON file content
     let fileData: any;
     try {
@@ -434,6 +441,10 @@ export const importWordsFromFile = async (
         "Invalid file structure. Expected 'data.words' or 'data.data.words' array",
         400
       );
+    }
+
+    if (words.length > MAX_IMPORT_ITEMS) {
+      return errorResponse(res, `Import exceeds maximum of ${MAX_IMPORT_ITEMS} items per request`, 400);
     }
     const {
       duplicateStrategy = "skip",
@@ -797,7 +808,7 @@ export const updateImageWord = async (req: Request, res: Response) => {
       return errorResponse(res, "Failed to get image data from response.", 400);
     }
 
-    let deleteOldImagePromise: Promise<void> = Promise.resolve();
+    let deleteOldImagePromise: Promise<unknown> = Promise.resolve();
 
     if (imgOld && imgOld.includes("res.cloudinary.com")) {
       const parts = imgOld.split("/");
@@ -811,7 +822,7 @@ export const updateImageWord = async (req: Request, res: Response) => {
       // Delete old image
       deleteOldImagePromise = deleteImageFromCloudinary(
         "languagesai/words/" + publicId
-      ).then(() => {});
+      );
     }
 
     // Upload new image while deleting the old one

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserService } from "../services/users/userService";
 
 import { successResponse, errorResponse } from "../utils/responseHelpers";
+import { validateJsonBuffer, MAX_IMPORT_ITEMS } from "../middlewares/uploadMiddleware";
 
 const userService = new UserService();
 
@@ -105,6 +106,11 @@ export const importUsersFromFile = async (req: Request, res: Response) => {
       return errorResponse(res, "No file uploaded", 400);
     }
 
+    // Validate file content before parsing (MIME type is spoofable)
+    if (!validateJsonBuffer(req.file.buffer)) {
+      return errorResponse(res, "File content is not valid JSON", 400);
+    }
+
     // Parse the JSON file content
     let fileData: any;
     try {
@@ -128,6 +134,10 @@ export const importUsersFromFile = async (req: Request, res: Response) => {
     }
 
     const users = fileData.data.users;
+
+    if (users.length > MAX_IMPORT_ITEMS) {
+      return errorResponse(res, `Import exceeds maximum of ${MAX_IMPORT_ITEMS} items per request`, 400);
+    }
     const {
       duplicateStrategy = "skip",
       validateOnly = false,

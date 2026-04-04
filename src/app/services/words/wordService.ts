@@ -473,7 +473,12 @@ export class WordService {
 
 
   async getAllWordsForExport(): Promise<IWord[]> {
-    return (await Word.find({}).sort({ createdAt: -1 }).lean().exec()) as unknown as IWord[];
+    const results: IWord[] = [];
+    const cursor = Word.find({}).sort({ createdAt: -1 }).lean().cursor();
+    for await (const doc of cursor) {
+      results.push(doc as unknown as IWord);
+    }
+    return results;
   }
 
   // Chat methods

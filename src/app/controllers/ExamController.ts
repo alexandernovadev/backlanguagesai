@@ -9,6 +9,7 @@
  */
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
+import { parseLimit } from "../utils/pagination";
 import { generateExam, validateExam, correctExam, generateExamQuestionChat } from "../services/ai/examAIService";
 import { ExamService } from "../services/exams/ExamService";
 import { ExamAttemptService } from "../services/exams/ExamAttemptService";
@@ -114,7 +115,7 @@ export const getById = async (req: Request, res: Response) => {
 export const list = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
+    const limit = parseLimit(req.query.limit, 20);
     const userId = req.user?._id?.toString() || req.user?.id;
     const language = req.user?.language;
     const result = await examService.list(page, limit, userId, language);
@@ -208,7 +209,7 @@ export const listAttemptsByExam = async (req: Request, res: Response) => {
     const userId = req.user?._id || req.user?.id;
     if (!userId) return errorResponse(res, "Unauthorized", 401);
 
-    const limit = parseInt(req.query.limit as string) || 20;
+    const limit = parseLimit(req.query.limit, 20);
     const attempts = await attemptService.getByExam(
       req.params.id,
       userId.toString(),
@@ -226,7 +227,7 @@ export const listAttempts = async (req: Request, res: Response) => {
     const userId = req.user?._id || req.user?.id;
     if (!userId) return errorResponse(res, "Unauthorized", 401);
 
-    const limit = parseInt(req.query.limit as string) || 20;
+    const limit = parseLimit(req.query.limit, 20);
     const attempts = await attemptService.getByUser(userId.toString(), limit);
     return successResponse(res, "Attempts listed", attempts);
   } catch (error: any) {

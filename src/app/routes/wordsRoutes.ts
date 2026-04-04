@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { validateObjectId } from "../middlewares/validateObjectId";
 import {
   createWord,
   getWordById,
@@ -27,6 +28,7 @@ import {
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
+router.param("id", validateObjectId);
 
 // Import/Export routes (MUST BE BEFORE DYNAMIC ROUTES)
 router.get("/export-file", exportWordsToJSON);

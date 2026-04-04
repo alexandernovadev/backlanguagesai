@@ -10,6 +10,7 @@ import {
 } from "../services/cloudinary/cloudinaryService";
 import { createExpressionImagePrompt } from "../services/ai/prompts";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
+import { validateJsonBuffer, MAX_IMPORT_ITEMS } from "../middlewares/uploadMiddleware";
 import logger from "../utils/logger";
 import { generateImage } from "../services/ai/imageAIService";
 import { getAIProvider } from "../services/ai/aiConfigHelper";
@@ -188,6 +189,11 @@ export const importExpressionsFromFile = async (
       return errorResponse(res, "No file uploaded", 400);
     }
 
+    // Validate file content before parsing (MIME type is spoofable)
+    if (!validateJsonBuffer(req.file.buffer)) {
+      return errorResponse(res, "File content is not valid JSON", 400);
+    }
+
     // Parse the JSON file content
     let fileData: any;
     try {
@@ -222,6 +228,10 @@ export const importExpressionsFromFile = async (
         "Invalid file structure. Expected 'data.expressions' or 'data.data.expressions' array",
         400
       );
+    }
+
+    if (expressions.length > MAX_IMPORT_ITEMS) {
+      return errorResponse(res, `Import exceeds maximum of ${MAX_IMPORT_ITEMS} items per request`, 400);
     }
     const {
       duplicateStrategy = "skip",
@@ -459,7 +469,7 @@ export const updateImageExpression = async (req: Request, res: Response) => {
       return errorResponse(res, "Failed to get image data from response.", 400);
     }
 
-    let deleteOldImagePromise: Promise<void> = Promise.resolve();
+    let deleteOldImagePromise: Promise<unknown> = Promise.resolve();
 
     if (imgOld && imgOld.includes("res.cloudinary.com")) {
       const parts = imgOld.split("/");
@@ -471,7 +481,7 @@ export const updateImageExpression = async (req: Request, res: Response) => {
 
       deleteOldImagePromise = deleteImageFromCloudinary(
         "languagesai/expressions/" + publicId
-      ).then(() => {});
+      );
     }
 
     const [_, urlImage] = await Promise.all([

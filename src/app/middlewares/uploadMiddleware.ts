@@ -85,3 +85,16 @@ export const createImageUploadMiddleware = () => {
 export const createZipUploadMiddleware = () => {
   return [zipUpload.single("file"), handleMulterError];
 };
+
+/**
+ * Validates that a buffer actually contains JSON, regardless of the declared
+ * MIME type. Checks that the first non-whitespace character is `{` or `[`,
+ * preventing binary files or scripts disguised as JSON from being parsed.
+ */
+export function validateJsonBuffer(buffer: Buffer): boolean {
+  const firstChar = buffer.toString("utf-8", 0, 512).trimStart()[0];
+  return firstChar === "{" || firstChar === "[";
+}
+
+/** Maximum number of items allowed in a single JSON import. */
+export const MAX_IMPORT_ITEMS = 5_000;

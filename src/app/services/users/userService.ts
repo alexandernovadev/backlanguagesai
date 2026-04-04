@@ -147,11 +147,12 @@ export class UserService {
 
   // Export all users for backup/transfer
   async getAllUsersForExport(): Promise<IUser[]> {
-    return (await User.find({})
-      .select("-password") // Never export passwords
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec()) as unknown as IUser[];
+    const results: IUser[] = [];
+    const cursor = User.find({}).select("-password").sort({ createdAt: -1 }).lean().cursor();
+    for await (const doc of cursor) {
+      results.push(doc as unknown as IUser);
+    }
+    return results;
   }
 
   // Import users from JSON data

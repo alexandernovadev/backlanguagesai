@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { validateObjectId } from "../middlewares/validateObjectId";
 import {
   createLecture,
   getLectureById,

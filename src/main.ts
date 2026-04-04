@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import helmet from "helmet";
 import path from "path";
 
 import { connectDB } from "./app/db/mongoConnection";
@@ -34,6 +35,13 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3000;
 const VERSION = `v${packageJson.version}-${NODE_ENV}`;
 const LABS_AUTH = (process.env.LABS_AUTH || "true").toLowerCase() === "true";
+const CORS_ORIGINS = (process.env.CORS_ORIGINS || "http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+// Security headers
+app.use(helmet());
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -41,7 +49,7 @@ app.use(express.json());
 // Middleware to handle CORS
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://languages-ai.alexandernova.pro","https://frontlanguagesai.netlify.app"],
+    origin: CORS_ORIGINS,
     credentials: true,
   })
 );
@@ -84,7 +92,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Error-handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
-  errorResponse(res, "Something went wrong: " + err, 500);
+  errorResponse(res, "Internal server error", 500, err);
 });
 
 async function init() {

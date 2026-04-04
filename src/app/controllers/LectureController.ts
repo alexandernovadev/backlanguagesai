@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { LectureService } from "../services/lectures/LectureService";
+import { LectureExportService } from "../services/lectures/LectureExportService";
 import { LectureImportService } from "../services/import/LectureImportService";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 import { parseLimit } from "../utils/pagination";
@@ -13,7 +14,7 @@ import {
   generateLectureTopic,
   createLectureImagePrompt,
 } from "../services/ai/lectureAIService";
-import { WordService } from "../services/words/wordService";
+import { WordQueryService } from "../services/words/WordQueryService";
 import { promptAddEasyWords } from "../services/ai/prompts/promptAddEasyWords";
 import { generateImage } from "../services/ai/imageAIService";
 import { getAIProvider } from "../services/ai/aiConfigHelper";
@@ -21,8 +22,9 @@ import type { ImageProvider } from "../../config/aiConfig";
 import logger from "../utils/logger";
 
 const lectureService = new LectureService();
+const lectureExportService = new LectureExportService();
 const lectureImportService = new LectureImportService();
-const wordService = new WordService();
+const wordQueryService = new WordQueryService();
 
 export const createLecture = async (
   req: Request,
@@ -175,7 +177,7 @@ export const exportLecturesToJSON = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const lectures = await lectureService.getAllLecturesForExport();
+    const lectures = await lectureExportService.getAllLecturesForExport();
 
     // Set headers for file download
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -413,7 +415,7 @@ export const generateTextStream = async (req: Request, res: Response) => {
     let promptWords = "";
 
     if (addEasyWords) {
-      const getEasyWords = await wordService.getLastEasyWords();
+      const getEasyWords = await wordQueryService.getLastEasyWords();
       const wordsArray = getEasyWords.map((item) => item.word);
       promptWords = promptAddEasyWords(wordsArray);
     }

@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { ExpressionService } from "../services/expressions/expressionService";
+import { ExpressionChatService } from "../services/expressions/ExpressionChatService";
+import { ExpressionImportExportService } from "../services/expressions/ExpressionImportExportService";
 import {
   generateExpressionData,
   generateExpressionChat,
@@ -17,6 +19,8 @@ import { getAIProvider } from "../services/ai/aiConfigHelper";
 import type { ImageProvider } from "../../config/aiConfig";
 
 const expressionService = new ExpressionService();
+const expressionChatService = new ExpressionChatService();
+const expressionImportExportService = new ExpressionImportExportService();
 
 // Create a new expression
 export const createExpression = async (req: Request, res: Response) => {
@@ -154,7 +158,7 @@ export const getExpressionsOnly = async (req: Request, res: Response) => {
 // Export expressions to JSON
 export const exportExpressionsToJSON = async (req: Request, res: Response) => {
   try {
-    const expressions = await expressionService.getAllExpressionsForExport();
+    const expressions = await expressionImportExportService.getAllExpressionsForExport();
 
     // Set headers for file download
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -299,7 +303,7 @@ export const importExpressionsFromFile = async (
     }
 
     // Import expressions
-    const importResult = await expressionService.importExpressions(
+    const importResult = await expressionImportExportService.importExpressions(
       expressions,
       {
         duplicateStrategy: duplicateStrategy as
@@ -328,7 +332,7 @@ export const addChatMessage = async (req: Request, res: Response) => {
       return errorResponse(res, "Message is required", 400);
     }
 
-    const expression = await expressionService.addChatMessage(
+    const expression = await expressionChatService.addChatMessage(
       id,
       message
     );
@@ -348,7 +352,7 @@ export const addChatMessage = async (req: Request, res: Response) => {
 export const getChatHistory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const chatHistory = await expressionService.getChatHistory(id);
+    const chatHistory = await expressionChatService.getChatHistory(id);
     return successResponse(
       res,
       "Chat history retrieved successfully",
@@ -363,7 +367,7 @@ export const getChatHistory = async (req: Request, res: Response) => {
 export const clearChatHistory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const expression = await expressionService.clearChatHistory(id);
+    const expression = await expressionChatService.clearChatHistory(id);
     if (!expression) {
       return errorResponse(res, "Expression not found", 404);
     }
@@ -386,7 +390,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     if (!expression) {
       return errorResponse(res, "Expression not found", 404);
     }
-    await expressionService.addUserMessage(id, message);
+    await expressionChatService.addUserMessage(id, message);
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -412,7 +416,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
         res.write(content);
       }
     }
-    await expressionService.addAssistantMessage(id, fullResponse);
+    await expressionChatService.addAssistantMessage(id, fullResponse);
     res.end();
   } catch (error: any) {
     logger.error("Error streaming chat response:", error);

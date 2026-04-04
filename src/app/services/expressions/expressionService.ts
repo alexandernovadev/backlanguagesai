@@ -1,7 +1,6 @@
 import Expression from "../../db/models/Expression";
-import { IExpression, ChatMessage } from "../../../../types/models";
+import { IExpression } from "../../../../types/models";
 import { escapeRegex } from "../../utils/escapeRegex";
-import { generateId } from "../../utils/generateId";
 import { parseLimit } from "../../utils/pagination";
 
 interface PaginatedResult<T> {
@@ -26,7 +25,6 @@ export class ExpressionService {
     const limit = parseLimit(filters.limit, 10);
     const skip = (page - 1) * limit;
 
-    // Build filter object
     const filter: any = {};
 
     if (filters.search) {
@@ -43,13 +41,8 @@ export class ExpressionService {
       filter.type = { $in: Array.isArray(filters.type) ? filters.type : [filters.type] };
     }
 
-    if (filters.difficulty) {
-      filter.difficulty = filters.difficulty;
-    }
-
-    if (filters.language) {
-      filter.language = filters.language;
-    }
+    if (filters.difficulty) filter.difficulty = filters.difficulty;
+    if (filters.language) filter.language = filters.language;
 
     if (filters.hasImage === "true") {
       filter.img = { $ne: null };
@@ -61,35 +54,23 @@ export class ExpressionService {
       filter.context = { $exists: true, $ne: null, $nin: ["", null] };
     } else if (filters.hasContext === "false") {
       filter.$or = filter.$or || [];
-      filter.$or.push(
-        { context: { $exists: false } },
-        { context: null },
-        { context: "" }
-      );
+      filter.$or.push({ context: { $exists: false } }, { context: null }, { context: "" });
     }
 
     if (filters.createdAt) {
       if (!filter.createdAt) filter.createdAt = {};
-      (filter.createdAt as any).$gte = new Date(filters.createdAt);
+      filter.createdAt.$gte = new Date(filters.createdAt);
     }
 
     if (filters.updatedAt) {
       if (!filter.updatedAt) filter.updatedAt = {};
-      (filter.updatedAt as any).$gte = new Date(filters.updatedAt);
+      filter.updatedAt.$gte = new Date(filters.updatedAt);
     }
 
     const total = await Expression.countDocuments(filter);
-    const data = await Expression.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    const data = await Expression.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-    return {
-      data,
-      total,
-      page,
-      pages: Math.ceil(total / limit),
-    };
+    return { data, total, page, pages: Math.ceil(total / limit) };
   }
 
   async updateExpression(id: string, updateData: Partial<IExpression>): Promise<IExpression | null> {
@@ -103,10 +84,7 @@ export class ExpressionService {
     return await Expression.findByIdAndUpdate(
       id,
       { img },
-      {
-        new: true,
-        projection: { _id: 1, img: 1, updatedAt: 1 },
-      }
+      { new: true, projection: { _id: 1, img: 1, updatedAt: 1 } }
     );
   }
 
@@ -116,57 +94,6 @@ export class ExpressionService {
 
   async findExpressionByExpression(expression: string): Promise<IExpression | null> {
     return await Expression.findOne({ expression });
-  }
-
-  async addChatMessage(expressionId: string, message: string): Promise<IExpression | null> {
-    // Este método ahora solo agrega el mensaje del usuario
-    // Las respuestas se manejan via streaming en el controlador
-    return await this.addUserMessage(expressionId, message);
-  }
-
-  async addUserMessage(expressionId: string, message: string): Promise<IExpression | null> {
-    const expression = await Expression.findById(expressionId);
-    if (!expression) return null;
-
-    const userMessage: ChatMessage = {
-      id: generateId(),
-      role: "user",
-      content: message,
-      timestamp: new Date()
-    };
-
-    expression.chat = expression.chat || [];
-    expression.chat.push(userMessage);
-    return await expression.save();
-  }
-
-  async addAssistantMessage(expressionId: string, message: string): Promise<IExpression | null> {
-    const expression = await Expression.findById(expressionId);
-    if (!expression) return null;
-
-    const assistantMessage: ChatMessage = {
-      id: generateId(),
-      role: "assistant",
-      content: message,
-      timestamp: new Date()
-    };
-
-    expression.chat = expression.chat || [];
-    expression.chat.push(assistantMessage);
-    return await expression.save();
-  }
-
-  async getChatHistory(expressionId: string): Promise<ChatMessage[]> {
-    const expression = await Expression.findById(expressionId);
-    return expression?.chat || [];
-  }
-
-  async clearChatHistory(expressionId: string): Promise<IExpression | null> {
-    const expression = await Expression.findById(expressionId);
-    if (!expression) return null;
-
-    expression.chat = [];
-    return await expression.save();
   }
 
   async getExpressionsByType(type: string, limit: number = 10, search?: string): Promise<IExpression[]> {
@@ -198,118 +125,12 @@ export class ExpressionService {
       .limit(limit);
 
     return {
-      data: data.map(doc => ({ expression: doc.expression })),
+      data: data.map((doc) => ({ expression: doc.expression })),
       total,
       page,
       pages: Math.ceil(total / limit),
     };
   }
+}
 
-  async getAllExpressionsForExport(): Promise<IExpression[]> {
-    const results: IExpression[] = [];
-    const cursor = Expression.find({}).sort({ createdAt: -1 }).lean().cursor();
-    for await (const doc of cursor) {
-      results.push(doc as unknown as IExpression);
-    }
-    return results;
-  }
-
-  // Import expressions from JSON data
-  async importExpressions(expressions: any[], config: {
-    duplicateStrategy: 'skip' | 'overwrite' | 'error' | 'merge';
-    batchSize?: number;
-  }): Promise<{
-    totalItems: number;
-    totalInserted: number;
-    totalUpdated: number;
-    totalSkipped: number;
-    totalErrors: number;
-    batches: any[];
-    summary: {
-      success: boolean;
-      message: string;
-      duration: number;
-    };
-  }> {
-    const startTime = Date.now();
-    const batches: any[] = [];
-    let totalInserted = 0;
-    let totalUpdated = 0;
-    let totalSkipped = 0;
-    let totalErrors = 0;
-
-    const batchSize = config.batchSize || 10;
-
-    for (let i = 0; i < expressions.length; i += batchSize) {
-      const batchExpressions = expressions.slice(i, i + batchSize);
-      const batchIndex = Math.floor(i / batchSize);
-      let batchInserted = 0;
-      let batchUpdated = 0;
-      let batchSkipped = 0;
-      let batchErrors = 0;
-
-      for (const expressionData of batchExpressions) {
-        try {
-          // Check for duplicates by expression text
-          const existingExpression = await Expression.findOne({
-            expression: expressionData.expression
-          });
-
-          if (existingExpression) {
-            switch (config.duplicateStrategy) {
-              case 'error':
-                batchErrors++;
-                totalErrors++;
-                break;
-              case 'skip':
-                batchSkipped++;
-                totalSkipped++;
-                break;
-              case 'overwrite':
-              case 'merge':
-                // Remove _id to avoid conflicts
-                const { _id, ...updateData } = expressionData;
-                await Expression.findByIdAndUpdate(existingExpression._id, updateData, { new: true });
-                batchUpdated++;
-                totalUpdated++;
-                break;
-            }
-          } else {
-            // Create new expression
-            const newExpression = new Expression(expressionData);
-            await newExpression.save();
-            batchInserted++;
-            totalInserted++;
-          }
-        } catch (error) {
-          batchErrors++;
-          totalErrors++;
-        }
-      }
-
-      batches.push({
-        batchIndex,
-        processed: batchExpressions.length,
-        inserted: batchInserted,
-        updated: batchUpdated,
-        skipped: batchSkipped,
-        errors: batchErrors,
-      });
-    }
-
-    const duration = Date.now() - startTime;
-    return {
-      totalItems: expressions.length,
-      totalInserted,
-      totalUpdated,
-      totalSkipped,
-      totalErrors,
-      batches,
-      summary: {
-        success: totalErrors === 0,
-        message: `Import completed. ${totalInserted} inserted, ${totalUpdated} updated, ${totalSkipped} skipped, ${totalErrors} errors`,
-        duration,
-      },
-    };
-  }
-} 
+export default new ExpressionService();

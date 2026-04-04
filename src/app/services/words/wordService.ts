@@ -1,7 +1,6 @@
 import Word from "../../db/models/Word";
-import { IWord, ChatMessage } from "../../../../types/models";
+import { IWord } from "../../../../types/models";
 import { escapeRegex } from "../../utils/escapeRegex";
-import { generateId } from "../../utils/generateId";
 import {
   validateWordTypesForLanguage,
   WordTypeValidationError,
@@ -16,7 +15,6 @@ interface PaginatedResult<T> {
 }
 
 export class WordService {
-  // Create a new word
   async createWord(wordData: IWord): Promise<IWord> {
     const lang = wordData.language;
     const check = validateWordTypesForLanguage(wordData.type, lang);
@@ -27,12 +25,10 @@ export class WordService {
     return await word.save();
   }
 
-  // Get a word by ID
   async getWordById(id: string): Promise<IWord | null> {
     return await Word.findById(id);
   }
 
-  // Get all words with pagination, ordered by creation date
   async getWords(
     filters: {
       page?: number;
@@ -94,15 +90,12 @@ export class WordService {
       }
     };
 
-    // Filtro por palabra (existente)
     if (wordUser) {
       filter.word = { $regex: escapeRegex(wordUser), $options: "i" };
     }
 
-    // Nuevo filtro por nivel
     if (difficulty) {
       if (Array.isArray(difficulty)) {
-        // Múltiples dificultades
         const validDifficulties = difficulty.filter((d) =>
           ["easy", "medium", "hard"].includes(d)
         );
@@ -110,14 +103,12 @@ export class WordService {
           filter.difficulty = { $in: validDifficulties };
         }
       } else {
-        // Una sola dificultad
         if (["easy", "medium", "hard"].includes(difficulty)) {
           filter.difficulty = difficulty;
         }
       }
     }
 
-    // Nuevo filtro por idioma (anclado a códigos exactos)
     if (language) {
       if (Array.isArray(language)) {
         filter.language = { $in: language };
@@ -126,7 +117,6 @@ export class WordService {
       }
     }
 
-    // Filtro por tipo (si el filtro de idioma es un solo código, solo tipos permitidos para ese idioma)
     if (type) {
       let typeArr = Array.isArray(type) ? type : [type];
       const singleLang =
@@ -140,108 +130,73 @@ export class WordService {
       if (singleLang) {
         typeArr = filterTypesQueryForLanguage(typeArr, singleLang);
       }
-      filter.type =
-        typeArr.length === 0 ? { $in: [] } : { $in: typeArr };
+      filter.type = typeArr.length === 0 ? { $in: [] } : { $in: typeArr };
     }
 
-    // Nuevo filtro por rango de vistas
     if (seenMin !== undefined || seenMax !== undefined) {
       const seenFilter: Record<string, number> = {};
-      if (seenMin !== undefined) {
-        seenFilter.$gte = seenMin;
-      }
-      if (seenMax !== undefined) {
-        seenFilter.$lte = seenMax;
-      }
+      if (seenMin !== undefined) seenFilter.$gte = seenMin;
+      if (seenMax !== undefined) seenFilter.$lte = seenMax;
       filter.seen = seenFilter;
     }
 
-    // Nuevo filtro por definición
     if (definition) {
       filter.definition = { $regex: escapeRegex(definition), $options: "i" };
     }
 
-    // Nuevo filtro por IPA
     if (IPA) {
       filter.IPA = { $regex: escapeRegex(IPA), $options: "i" };
     }
 
-    // Nuevo filtro por palabras con/sin imagen
     if (hasImage === "true") {
       filter.img = { $exists: true, $nin: [null, ""] };
     } else if (hasImage === "false") {
-      addOrConditions([
-        { img: { $exists: false } },
-        { img: null },
-        { img: "" },
-      ]);
+      addOrConditions([{ img: { $exists: false } }, { img: null }, { img: "" }]);
     }
 
-    // Nuevo filtro por palabras con/sin ejemplos
     if (hasExamples === "true") {
       filter.examples = { $exists: true, $ne: [] };
     } else if (hasExamples === "false") {
       addOrConditions([{ examples: { $exists: false } }, { examples: [] }]);
     }
 
-    // Nuevo filtro por palabras con/sin sinónimos
     if (hasSynonyms === "true") {
       filter.sinonyms = { $exists: true, $ne: [] };
     } else if (hasSynonyms === "false") {
       addOrConditions([{ sinonyms: { $exists: false } }, { sinonyms: [] }]);
     }
 
-    // Nuevo filtro por palabras con/sin code-switching
     if (hasCodeSwitching === "true") {
       filter.codeSwitching = { $exists: true, $ne: [] };
     } else if (hasCodeSwitching === "false") {
-      addOrConditions([
-        { codeSwitching: { $exists: false } },
-        { codeSwitching: [] },
-      ]);
+      addOrConditions([{ codeSwitching: { $exists: false } }, { codeSwitching: [] }]);
     }
 
-    // Nuevo filtro por palabra en español
     if (spanishWord) {
       filter["spanish.word"] = { $regex: escapeRegex(spanishWord), $options: "i" };
     }
 
-    // Nuevo filtro por definición en español
     if (spanishDefinition) {
-      filter["spanish.definition"] = {
-        $regex: escapeRegex(spanishDefinition),
-        $options: "i",
-      };
+      filter["spanish.definition"] = { $regex: escapeRegex(spanishDefinition), $options: "i" };
     }
 
-    // Filtros de fecha para createdAt
     if (createdAfter || createdBefore) {
       const createdAtFilter: Record<string, Date> = {};
-      if (createdAfter) {
-        createdAtFilter.$gte = new Date(createdAfter);
-      }
-      if (createdBefore) {
-        createdAtFilter.$lte = new Date(createdBefore);
-      }
+      if (createdAfter) createdAtFilter.$gte = new Date(createdAfter);
+      if (createdBefore) createdAtFilter.$lte = new Date(createdBefore);
       filter.createdAt = createdAtFilter;
     }
 
-    // Filtros de fecha para updatedAt
     if (updatedAfter || updatedBefore) {
       const updatedAtFilter: Record<string, Date> = {};
-      if (updatedAfter) {
-        updatedAtFilter.$gte = new Date(updatedAfter);
-      }
-      if (updatedBefore) {
-        updatedAtFilter.$lte = new Date(updatedBefore);
-      }
+      if (updatedAfter) updatedAtFilter.$gte = new Date(updatedAfter);
+      if (updatedBefore) updatedAtFilter.$lte = new Date(updatedBefore);
       filter.updatedAt = updatedAtFilter;
     }
 
     const total = await Word.countDocuments(filter);
     const pages = Math.ceil(total / limit);
 
-    // Configurar ordenamiento
     const sortDirection = sortOrder === "asc" ? 1 : -1;
     const sortOptions: Record<string, 1 | -1> = {};
     sortOptions[sortBy] = sortDirection as 1 | -1;
@@ -255,17 +210,12 @@ export class WordService {
     return { data, total, page, pages };
   }
 
-  async updateWord(
-    id: string,
-    updateData: Partial<IWord>
-  ): Promise<IWord | null> {
+  async updateWord(id: string, updateData: Partial<IWord>): Promise<IWord | null> {
     const existing = await Word.findById(id);
     if (!existing) return null;
 
     const mergedLang =
-      updateData.language !== undefined
-        ? updateData.language
-        : existing.language;
+      updateData.language !== undefined ? updateData.language : existing.language;
     const mergedTypes =
       updateData.type !== undefined ? updateData.type : existing.type ?? [];
 
@@ -281,84 +231,38 @@ export class WordService {
     return await Word.findByIdAndUpdate(id, updateData, { new: true });
   }
 
-  async updateWordDifficulty(
-    id: string,
-    difficulty: string
-  ): Promise<{ difficulty?: string } | null> {
-    return await Word.findByIdAndUpdate(
-      id,
-      { difficulty },
-      { new: true, projection: { difficulty: 1 } }
-    );
+  async updateWordDifficulty(id: string, difficulty: string): Promise<{ difficulty?: string } | null> {
+    return await Word.findByIdAndUpdate(id, { difficulty }, { new: true, projection: { difficulty: 1 } });
   }
 
-  async updateWordExamples(
-    id: string,
-    examples: string[]
-  ): Promise<{ examples?: string[] } | null> {
-    return await Word.findByIdAndUpdate(
-      id,
-      { examples },
-      { new: true, projection: { examples: 1 } }
-    );
+  async updateWordExamples(id: string, examples: string[]): Promise<{ examples?: string[] } | null> {
+    return await Word.findByIdAndUpdate(id, { examples }, { new: true, projection: { examples: 1 } });
   }
 
-  async updateWordCodeSwitching(
-    id: string,
-    codeSwitching: string[]
-  ): Promise<{ codeSwitching?: string[] } | null> {
-    return await Word.findByIdAndUpdate(
-      id,
-      { codeSwitching },
-      { new: true, projection: { codeSwitching: 1 } }
-    );
+  async updateWordCodeSwitching(id: string, codeSwitching: string[]): Promise<{ codeSwitching?: string[] } | null> {
+    return await Word.findByIdAndUpdate(id, { codeSwitching }, { new: true, projection: { codeSwitching: 1 } });
   }
 
-  async updateWordSynonyms(
-    id: string,
-    synonyms: string[]
-  ): Promise<{ sinonyms?: string[] } | null> {
-    return await Word.findByIdAndUpdate(
-      id,
-      { sinonyms: synonyms },
-      { new: true, projection: { sinonyms: 1 } }
-    );
+  async updateWordSynonyms(id: string, synonyms: string[]): Promise<{ sinonyms?: string[] } | null> {
+    return await Word.findByIdAndUpdate(id, { sinonyms: synonyms }, { new: true, projection: { sinonyms: 1 } });
   }
 
-  async updateWordType(
-    id: string,
-    type: string[]
-  ): Promise<{ type?: string[] } | null> {
+  async updateWordType(id: string, type: string[]): Promise<{ type?: string[] } | null> {
     const word = await Word.findById(id);
     if (!word) return null;
     const check = validateWordTypesForLanguage(type, word.language);
     if (check.ok === false) {
       throw new WordTypeValidationError(check.invalid, word.language);
     }
-    return await Word.findByIdAndUpdate(
-      id,
-      { type },
-      { new: true, projection: { type: 1 } }
-    );
+    return await Word.findByIdAndUpdate(id, { type }, { new: true, projection: { type: 1 } });
   }
 
-  async updateWordImg(
-    id: string,
-    img: string
-  ): Promise<{ img?: string } | null> {
-    return await Word.findByIdAndUpdate(
-      id,
-      { img },
-      { new: true, projection: { img: 1 } }
-    );
+  async updateWordImg(id: string, img: string): Promise<{ img?: string } | null> {
+    return await Word.findByIdAndUpdate(id, { img }, { new: true, projection: { img: 1 } });
   }
 
   async incrementWordSeen(id: string): Promise<{ seen?: number } | null> {
-    return await Word.findByIdAndUpdate(
-      id,
-      { $inc: { seen: 1 } },
-      { new: true, projection: { seen: 1 } }
-    );
+    return await Word.findByIdAndUpdate(id, { $inc: { seen: 1 } }, { new: true, projection: { seen: 1 } });
   }
 
   async deleteWord(id: string): Promise<IWord | null> {
@@ -369,172 +273,16 @@ export class WordService {
     return await Word.findOne({ word });
   }
 
-
-
-  // Método para actualizar el progreso de repaso de una palabra
-  async updateWordReview(
-    wordId: string,
-    difficulty: number,
-    quality: number // 1-5, donde 1 es "olvidé completamente" y 5 es "muy fácil"
-  ): Promise<IWord | null> {
+  async updateWordReview(wordId: string, difficulty: number): Promise<IWord | null> {
     const word = await Word.findById(wordId);
     if (!word) return null;
 
-    // Actualizar solo los campos que existen en el modelo actual
-    const updateData: any = {
-      difficulty:
-        difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard",
+    const updateData = {
+      difficulty: difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard",
       seen: (word.seen || 0) + 1,
     };
 
-    // Actualizar palabra
-    const updatedWord = await Word.findByIdAndUpdate(wordId, updateData, {
-      new: true,
-    });
-
-    return updatedWord;
-  }
-
-  // Método unificado para obtener tarjetas Anki
-  async getAnkiCards(options: {
-    mode?: 'random' | 'review';
-    limit?: number;
-    difficulty?: string[];
-    language?: string;
-    type?: string[];
-  } = {}): Promise<IWord[]> {
-    const { mode = 'random', limit = 30, difficulty = ['hard', 'medium'], language, type } = options;
-
-    const matchFilter: Record<string, unknown> = {
-      difficulty: { $in: difficulty },
-    };
-    if (language) {
-      matchFilter.language = language;
-    }
-    if (type && type.length > 0) {
-      const typesFiltered = language
-        ? filterTypesQueryForLanguage(type, language)
-        : type;
-      matchFilter.type =
-        typesFiltered.length === 0 ? { $in: [] } : { $in: typesFiltered };
-    }
-
-    if (mode === 'random') {
-      // Modo aleatorio: obtener palabras aleatorias (comportamiento original de get-cards-anki)
-      return (await Word.aggregate([
-        { $match: matchFilter },
-        { $addFields: { randomSort: { $rand: {} } } },
-        { $sort: { randomSort: 1 } },
-        { $limit: limit },
-        { $project: { randomSort: 0 } },
-      ])) as unknown as IWord[];
-    } else {
-      // Modo review: obtener palabras para repaso inteligente (comportamiento original de get-words-for-review)
-      return (await Word.find(matchFilter)
-        .sort({
-          difficulty: -1,
-          seen: 1,
-          createdAt: -1,
-        })
-        .limit(limit)
-        .lean()) as unknown as IWord[];
-    }
-  }
-
-
-  async getLastEasyWords(): Promise<IWord[]> {
-    return (await Word.find({ difficulty: "easy" })
-      .sort({ createdAt: -1 })
-      .limit(100)
-      .lean()) as unknown as IWord[];
-  }
-
-
-  async getWordsByTypeOptimized(
-    type: string,
-    limit: number = 10,
-    search?: string,
-    fields?: string
-  ): Promise<{ word: string }[]> {
-    const query: any = { type: { $in: [type] } };
-
-    if (search) {
-      query.word = { $regex: escapeRegex(search), $options: "i" };
-    }
-
-    const projection = fields ? { word: 1 } : { word: 1, _id: 0 };
-
-    return await Word.find(query)
-      .select(projection)
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .lean();
-  }
-
-
-  async getAllWordsForExport(): Promise<IWord[]> {
-    const results: IWord[] = [];
-    const cursor = Word.find({}).sort({ createdAt: -1 }).lean().cursor();
-    for await (const doc of cursor) {
-      results.push(doc as unknown as IWord);
-    }
-    return results;
-  }
-
-  // Chat methods
-  async addChatMessage(wordId: string, message: string): Promise<IWord | null> {
-    // Este método ahora solo agrega el mensaje del usuario
-    // Las respuestas se manejan via streaming en el controlador
-    return await this.addUserMessage(wordId, message);
-  }
-
-  async addUserMessage(wordId: string, message: string): Promise<IWord | null> {
-    const word = await Word.findById(wordId);
-    if (!word) return null;
-
-    const userMessage: ChatMessage = {
-      id: generateId(),
-      role: "user",
-      content: message,
-      timestamp: new Date(),
-    };
-
-    word.chat = word.chat || [];
-    word.chat.push(userMessage);
-    return await word.save();
-  }
-
-  async addAssistantMessage(
-    wordId: string,
-    message: string
-  ): Promise<IWord | null> {
-    const word = await Word.findById(wordId);
-    if (!word) return null;
-
-    const assistantMessage: ChatMessage = {
-      id: generateId(),
-      role: "assistant",
-      content: message,
-      timestamp: new Date(),
-    };
-
-    word.chat = word.chat || [];
-    word.chat.push(assistantMessage);
-    return await word.save();
-  }
-
-  async getChatHistory(wordId: string): Promise<ChatMessage[]> {
-    const word = await Word.findById(wordId);
-    if (!word) return [];
-    return word.chat || [];
-  }
-
-  async clearChatHistory(wordId: string): Promise<IWord | null> {
-    const word = await Word.findById(wordId);
-    if (!word) return null;
-
-    word.chat = [];
-    return await word.save();
+    return await Word.findByIdAndUpdate(wordId, updateData, { new: true });
   }
 }
 

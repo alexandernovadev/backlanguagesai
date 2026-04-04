@@ -85,15 +85,6 @@ export class LectureService {
     };
   }
 
-  async getAllLecturesForExport(): Promise<ILecture[]> {
-    const results: ILecture[] = [];
-    const cursor = Lecture.find({}).sort({ createdAt: -1 }).lean().cursor();
-    for await (const doc of cursor) {
-      results.push(doc as unknown as ILecture);
-    }
-    return results;
-  }
-
   // Find operations
   async findLectureByContent(content: string): Promise<ILecture | null> {
     return await Lecture.findOne({ content });

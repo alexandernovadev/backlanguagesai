@@ -43,12 +43,6 @@ Issues found during security/quality audit. Ordered by priority.
 
 ---
 
-### 9. Services mix too many responsibilities
-**Examples:** `WordService` handles CRUD, AI orchestration, and chat history. `ExpressionService` handles CRUD, export, import, and chat.
-**Why:** A bug fix in one area risks breaking another. Testing any single concern requires setting up the entire service.
-**What to do:** Split into focused classes — `WordQueryService`, `WordChatService`, `WordImportService`, etc.
-
----
 
 ## 🔵 Low
 

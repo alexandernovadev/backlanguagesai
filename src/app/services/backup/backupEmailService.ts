@@ -1,13 +1,13 @@
-import { WordService } from '../words/wordService';
-import { LectureService } from '../lectures/LectureService';
-import { ExpressionService } from '../expressions/expressionService';
+import { WordExportService } from '../words/WordExportService';
+import { LectureExportService } from '../lectures/LectureExportService';
+import { ExpressionImportExportService } from '../expressions/ExpressionImportExportService';
 import { sendEmailWithAttachments } from '../email/gmailService';
 import logger from '../../utils/logger';
 import { generateId } from '../../utils/generateId';
 
-const wordService = new WordService();
-const lectureService = new LectureService();
-const expressionService = new ExpressionService();
+const wordService = new WordExportService();
+const lectureService = new LectureExportService();
+const expressionService = new ExpressionImportExportService();
 
 // Backup email configuration
 const BACKUP_EMAIL_RECIPIENT = process.env.BACKUP_EMAIL_RECIPIENT || 'titoantifa69@gmail.com';

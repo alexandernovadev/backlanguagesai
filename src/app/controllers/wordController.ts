@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import { WordService } from "../services/words/wordService";
+import { WordQueryService } from "../services/words/WordQueryService";
+import { WordChatService } from "../services/words/WordChatService";
+import { WordExportService } from "../services/words/WordExportService";
 import { WordImportService } from "../services/import/WordImportService";
 import { errorResponse, successResponse } from "../utils/responseHelpers";
 import { parseLimit } from "../utils/pagination";
@@ -24,6 +27,9 @@ import logger from "../utils/logger";
 import { WordTypeValidationError } from "../data/bussiness/shared";
 
 const wordService = new WordService();
+const wordQueryService = new WordQueryService();
+const wordChatService = new WordChatService();
+const wordExportService = new WordExportService();
 const wordImportService = new WordImportService();
 
 export const getWordByName = async (
@@ -276,7 +282,7 @@ export const getAnkiCards = async (
         ? typeParam.split(",").map((t) => t.trim()).filter(Boolean)
         : undefined;
 
-    const words = await wordService.getAnkiCards({
+    const words = await wordQueryService.getAnkiCards({
       mode: mode as "random" | "review",
       limit,
       difficulty,
@@ -314,7 +320,7 @@ export const getWordsByTypeOptimized = async (
       return errorResponse(res, "Type parameter is required", 400);
     }
 
-    const words = await wordService.getWordsByTypeOptimized(
+    const words = await wordQueryService.getWordsByTypeOptimized(
       type,
       limit,
       search,
@@ -367,7 +373,7 @@ export const exportWordsToJSON = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const words = await wordService.getAllWordsForExport();
+    const words = await wordExportService.getAllWordsForExport();
 
     // Set headers for file download
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -519,7 +525,7 @@ export const addChatMessage = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Message is required" });
     }
 
-    const word = await wordService.addChatMessage(id, message);
+    const word = await wordChatService.addChatMessage(id, message);
     if (!word) {
       return res.status(404).json({ message: "Word not found" });
     }
@@ -537,7 +543,7 @@ export const addChatMessage = async (req: Request, res: Response) => {
 export const getChatHistory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const chatHistory = await wordService.getChatHistory(id);
+    const chatHistory = await wordChatService.getChatHistory(id);
     res.json(chatHistory);
   } catch (error: any) {
     logger.error("Error getting chat history:", error);
@@ -548,7 +554,7 @@ export const getChatHistory = async (req: Request, res: Response) => {
 export const clearChatHistory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const word = await wordService.clearChatHistory(id);
+    const word = await wordChatService.clearChatHistory(id);
     if (!word) {
       return res.status(404).json({ message: "Word not found" });
     }
@@ -579,7 +585,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     }
 
     // Add user message first
-    await wordService.addUserMessage(id, message);
+    await wordChatService.addUserMessage(id, message);
 
     // Set up streaming
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -612,7 +618,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     }
 
     // Save the complete AI response
-    await wordService.addAssistantMessage(id, fullResponse);
+    await wordChatService.addAssistantMessage(id, fullResponse);
 
     res.end();
   } catch (error: any) {

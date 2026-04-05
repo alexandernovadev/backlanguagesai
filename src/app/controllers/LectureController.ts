@@ -20,6 +20,7 @@ import { generateImage } from "../services/ai/imageAIService";
 import { getAIProvider } from "../services/ai/aiConfigHelper";
 import type { ImageProvider } from "../../config/aiConfig";
 import logger from "../utils/logger";
+import { LectureCreateSchema, LectureUpdateSchema, parseBody } from "../validators/schemas";
 
 const lectureService = new LectureService();
 const lectureExportService = new LectureExportService();
@@ -31,7 +32,9 @@ export const createLecture = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const lecture = await lectureService.createLecture(req.body);
+    const lectureData = parseBody(LectureCreateSchema, req.body, res);
+    if (!lectureData) return errorResponse(res, "Invalid request body", 400);
+    const lecture = await lectureService.createLecture(lectureData as any);
 
     return successResponse(res, "Lecture created successfully", lecture, 201);
   } catch (error) {
@@ -61,7 +64,9 @@ export const updateLecture = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const lecture = await lectureService.updateLecture(req.params.id, req.body);
+    const updateData = parseBody(LectureUpdateSchema, req.body, res);
+    if (!updateData) return errorResponse(res, "Invalid request body", 400);
+    const lecture = await lectureService.updateLecture(req.params.id, updateData as any);
     if (!lecture) {
       return errorResponse(res, "Lecture not found", 404);
     }

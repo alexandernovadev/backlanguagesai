@@ -25,6 +25,7 @@ import {
 } from "../services/cloudinary/cloudinaryService";
 import logger from "../utils/logger";
 import { WordTypeValidationError } from "../data/business/shared";
+import { WordCreateSchema, WordUpdateSchema, parseBody } from "../validators/schemas";
 
 const wordService = new WordService();
 const wordQueryService = new WordQueryService();
@@ -66,8 +67,9 @@ export const createWord = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const wordData = req.body;
-    const newWord = await wordService.createWord(wordData);
+    const wordData = parseBody(WordCreateSchema, req.body, res);
+    if (!wordData) return errorResponse(res, "Invalid request body", 400);
+    const newWord = await wordService.createWord(wordData as any);
 
     return successResponse(res, "Word created successfully", newWord, 201);
   } catch (error) {
@@ -199,8 +201,9 @@ export const updateWord = async (
 ): Promise<Response> => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
-    const updatedWord = await wordService.updateWord(id, updateData);
+    const updateData = parseBody(WordUpdateSchema, req.body, res);
+    if (!updateData) return errorResponse(res, "Invalid request body", 400);
+    const updatedWord = await wordService.updateWord(id, updateData as any);
     if (!updatedWord) {
       return errorResponse(res, "Word not found", 404);
     }

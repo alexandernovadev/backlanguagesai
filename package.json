@@ -41,7 +41,8 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.5",
     "openai": "^5.12.2",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^3.25.76"
   },
   "engines": {
     "node": ">=19.9.0"

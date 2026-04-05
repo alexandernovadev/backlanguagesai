@@ -14,6 +14,7 @@ import { createExpressionImagePrompt } from "../services/ai/prompts";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
 import { validateJsonBuffer, MAX_IMPORT_ITEMS } from "../middlewares/uploadMiddleware";
 import logger from "../utils/logger";
+import { ExpressionCreateSchema, ExpressionUpdateSchema, parseBody } from "../validators/schemas";
 import { generateImage } from "../services/ai/imageAIService";
 import { getAIProvider } from "../services/ai/aiConfigHelper";
 import type { ImageProvider } from "../../config/aiConfig";
@@ -25,7 +26,9 @@ const expressionImportExportService = new ExpressionImportExportService();
 // Create a new expression
 export const createExpression = async (req: Request, res: Response) => {
   try {
-    const expression = await expressionService.createExpression(req.body);
+    const expressionData = parseBody(ExpressionCreateSchema, req.body, res);
+    if (!expressionData) return errorResponse(res, "Invalid request body", 400);
+    const expression = await expressionService.createExpression(expressionData as any);
     return successResponse(
       res,
       "Expression created successfully",
@@ -71,9 +74,11 @@ export const getExpressions = async (req: Request, res: Response) => {
 // Update an expression
 export const updateExpression = async (req: Request, res: Response) => {
   try {
+    const updateData = parseBody(ExpressionUpdateSchema, req.body, res);
+    if (!updateData) return errorResponse(res, "Invalid request body", 400);
     const expression = await expressionService.updateExpression(
       req.params.id,
-      req.body
+      updateData as any
     );
     if (!expression) {
       return errorResponse(res, "Expression not found", 404);

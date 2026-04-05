@@ -14,6 +14,7 @@ import { generateExam, validateExam, correctExam, generateExamQuestionChat } fro
 import { ExamService } from "../services/exams/ExamService";
 import { ExamAttemptService } from "../services/exams/ExamAttemptService";
 import logger from "../utils/logger";
+import { ExamCreateSchema, ExamGenerateSchema, parseBody } from "../validators/schemas";
 
 const examService = new ExamService();
 const attemptService = new ExamAttemptService();
@@ -24,11 +25,10 @@ const attemptService = new ExamAttemptService();
  */
 export const generate = async (req: Request, res: Response) => {
   try {
-    const { grammarTopics, difficulty, questionCount, questionTypes, topic } = req.body;
-    const language = req.body.language || req.user?.language || "en";
-    if (!grammarTopics?.length || !difficulty || !questionCount) {
-      return errorResponse(res, "grammarTopics, difficulty, questionCount required", 400);
-    }
+    const parsed = parseBody(ExamGenerateSchema, req.body, res);
+    if (!parsed) return errorResponse(res, "Invalid request body", 400);
+    const { grammarTopics, difficulty, questionCount, questionTypes, topic } = parsed;
+    const language = parsed.language || req.user?.language || "en";
 
     const result = await generateExam(
       { language, grammarTopics, difficulty, questionCount, questionTypes, topic },
@@ -90,9 +90,11 @@ export const correct = async (req: Request, res: Response) => {
  */
 export const create = async (req: Request, res: Response) => {
   try {
+    const examData = parseBody(ExamCreateSchema, req.body, res);
+    if (!examData) return errorResponse(res, "Invalid request body", 400);
     const exam = await examService.create({
-      ...req.body,
-      language: req.body.language || req.user?.language || "en",
+      ...(examData as any),
+      language: examData.language || req.user?.language || "en",
       createdBy: req.user?._id,
     });
     return successResponse(res, "Exam created", exam, 201);

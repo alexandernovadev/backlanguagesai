@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1: Build
 # ==========================================
-FROM node:19.9.0-alpine AS builder
+FROM node:20.19.2-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache python3 make g++

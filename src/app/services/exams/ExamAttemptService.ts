@@ -2,6 +2,7 @@ import ExamAttempt from "../../db/models/ExamAttempt";
 import Exam from "../../db/models/Exam";
 import { IExamAttempt, IAttemptQuestion } from "../../../../types/models";
 import { generateExamQuestionFeedback, evaluateTranslationAnswer } from "../ai/examAIService";
+import logger from "../../utils/logger";
 
 /**
  * Manages exam attempts: create, submit answers, and chat on failed questions.
@@ -85,7 +86,7 @@ export class ExamAttemptService {
             isCorrect = partialScore >= 70;
             isPartial = partialScore > 0 && partialScore < 100;
           } catch (err) {
-            console.error("AI translation eval error for question", i, err);
+            logger.error("AI translation eval error for question", { index: i, err });
             isCorrect = normalize(userAnswer as string) === normalize(q.correctAnswer || "");
             partialScore = isCorrect ? 100 : 0;
             aiFeedback = isCorrect ? "Correct." : "Incorrect.";
@@ -133,7 +134,7 @@ export class ExamAttemptService {
               userId,
             });
           } catch (err) {
-            console.error("AI feedback error for question", i, err);
+            logger.error("AI feedback error for question", { index: i, err });
             aiFeedback = isCorrect ? "Correct." : "Incorrect.";
           }
         }

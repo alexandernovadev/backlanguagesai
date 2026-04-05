@@ -35,7 +35,7 @@ export const createLecture = async (
 
     return successResponse(res, "Lecture created successfully", lecture, 201);
   } catch (error) {
-    console.error(error);
+    logger.error("Error creating lecture:", error);
     return errorResponse(res, "Error creating lecture");
   }
 };
@@ -103,7 +103,7 @@ export const updateImageLecureById = async (req: Request, res: Response) => {
       updatedLecture
     );
   } catch (error) {
-    console.error(error);
+    logger.error("Error updating Image lecture:", error);
     return errorResponse(res, "Error updating Image lecture", 500, error);
   }
 };
@@ -316,7 +316,7 @@ export const importLecturesFromFile = async (
 
     return successResponse(res, "Import completed successfully", importResult);
   } catch (error) {
-    console.error("Import error:", error);
+    logger.error("Import error:", error);
     return errorResponse(res, "Error importing lectures", 500, error);
   }
 };
@@ -514,7 +514,7 @@ export const generateTopicStream = async (req: Request, res: Response) => {
 
     res.end();
   } catch (error: any) {
-    console.error("Error generating topic stream:", error);
+    logger.error("Error generating topic stream:", error);
     return errorResponse(res, "Error generating topic", 500, error);
   }
 };

@@ -13,6 +13,7 @@ import { parseLimit } from "../utils/pagination";
 import { generateExam, validateExam, correctExam, generateExamQuestionChat } from "../services/ai/examAIService";
 import { ExamService } from "../services/exams/ExamService";
 import { ExamAttemptService } from "../services/exams/ExamAttemptService";
+import logger from "../utils/logger";
 
 const examService = new ExamService();
 const attemptService = new ExamAttemptService();
@@ -35,7 +36,7 @@ export const generate = async (req: Request, res: Response) => {
     );
     return successResponse(res, "Exam generated", result);
   } catch (error: any) {
-    console.error("Exam generate error:", error);
+    logger.error("Exam generate error:", error);
     return errorResponse(res, error.message || "Error generating exam", 500, error);
   }
 };
@@ -56,7 +57,7 @@ export const validate = async (req: Request, res: Response) => {
     const result = await validateExam(examJson, { userId });
     return successResponse(res, "Exam validated", result);
   } catch (error: any) {
-    console.error("Exam validate error:", error);
+    logger.error("Exam validate error:", error);
     return errorResponse(res, error.message || "Error validating exam", 500, error);
   }
 };
@@ -78,7 +79,7 @@ export const correct = async (req: Request, res: Response) => {
     const result = await correctExam(exam, validation, { userId });
     return successResponse(res, "Exam corrected", result);
   } catch (error: any) {
-    console.error("Exam correct error:", error);
+    logger.error("Exam correct error:", error);
     return errorResponse(res, error.message || "Error correcting exam", 500, error);
   }
 };
@@ -297,7 +298,7 @@ export const chatOnQuestion = async (req: Request, res: Response) => {
 
     return successResponse(res, "Chat message added", { response: aiResponse });
   } catch (error: any) {
-    console.error("Exam chat error:", error);
+    logger.error("Exam chat error:", error);
     return errorResponse(res, error.message || "Error in chat", 500, error);
   }
 };

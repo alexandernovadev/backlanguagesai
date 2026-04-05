@@ -7,6 +7,7 @@
 import AIConfig from "../../db/models/AIConfig";
 import { TextProvider } from "../../../config/aiConfig";
 import { AIFeature, AIOperation } from "../../../../types/models";
+import logger from "../../utils/logger";
 
 // Defaults del sistema
 const DEFAULT_CONFIGS: Record<AIFeature, Record<string, TextProvider>> = {
@@ -71,7 +72,7 @@ export class AIConfigService {
       }
     } catch (error) {
       // Si falla la consulta, usar default
-      console.error("Error getting AI config from DB:", error);
+      logger.error("Error getting AI config from DB:", error);
     }
 
     // Usar default del sistema si no hay config o si falló

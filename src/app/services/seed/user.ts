@@ -34,7 +34,6 @@ export const seedAdminUser = async () => {
     logger.info("Admin user seeded successfully.", adminUser);
     return await adminUser.save();
   } catch (error) {
-    console.error("Error seeding admin user:", error);
     logger.error("Error seeding admin user:", error);
     throw new Error("Failed to seed admin user");
   } finally {

@@ -1,4 +1,5 @@
 import cloudinary from "cloudinary";
+import logger from "../../utils/logger";
 
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
   throw new Error("CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET environment variables must be set");
@@ -28,7 +29,7 @@ export const uploadImageToCloudinary = async (
 
     return uploadResponse.secure_url;
   } catch (error) {
-    console.error("Error subiendo la imagen a Cloudinary:", error);
+    logger.error("Error subiendo la imagen a Cloudinary:", error);
     return null;
   }
 };
@@ -46,11 +47,11 @@ export const deleteImageFromCloudinary = async (
       console.info(`Imagen eliminada correctamente: ${publicId}`);
       return true;
     } else {
-      console.error(`No se pudo eliminar la imagen: ${publicId}`);
+      logger.error(`No se pudo eliminar la imagen: ${publicId}`);
       return false;
     }
   } catch (error) {
-    console.error("Error eliminando la imagen de Cloudinary:", error);
+    logger.error("Error eliminando la imagen de Cloudinary:", error);
     return false;
   }
 };

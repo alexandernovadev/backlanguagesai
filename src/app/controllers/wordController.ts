@@ -510,7 +510,7 @@ export const importWordsFromFile = async (
 
     return successResponse(res, "Import completed successfully", importResult);
   } catch (error) {
-    console.error("Import error:", error);
+    logger.error("Import error:", error);
     return errorResponse(res, "Error importing words", 500, error);
   }
 };

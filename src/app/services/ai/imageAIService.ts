@@ -5,6 +5,7 @@
 
 import OpenAI from "openai";
 import { AI_CONFIG, ImageProvider, DalleModel, GoogleImagenModel } from "../../../config/aiConfig";
+import logger from "../../utils/logger";
 
 // Options for image generation
 export interface ImageGenerationOptions {
@@ -38,7 +39,7 @@ export const generateImageDalle = async (
     const response = await client.images.generate(requestOptions);
     return response.data[0];
   } catch (error) {
-    console.error("Error generating image with DALL-E:", error);
+    logger.error("Error generating image with DALL-E:", error);
     throw new Error(`Error generating image: ${error}`);
   }
 };
@@ -89,7 +90,7 @@ export const generateImageGoogle = async (
     const data = await response.json() as any;
     return data.candidates[0].content.parts[0].text;
   } catch (error) {
-    console.error("Error generating image with Google Imagen:", error);
+    logger.error("Error generating image with Google Imagen:", error);
     throw new Error(`Error generating image: ${error}`);
   }
 };

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../utils/responseHelpers";
+import logger from "../utils/logger";
 import { uploadImageToCloudinary, deleteImageFromCloudinary } from "../services/cloudinary/cloudinaryService";
 import Word from "../db/models/Word";
 import Lecture from "../db/models/Lecture";
@@ -89,7 +90,7 @@ export const uploadImageHandler = async (
       entityType: result.entityType,
     });
   } catch (error: any) {
-    console.error("Error in uploadImageHandler:", error);
+    logger.error("Error in uploadImageHandler:", error);
 
     if (error.message.includes("not found")) {
       errorResponse(res, error.message, 404);

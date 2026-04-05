@@ -21,6 +21,7 @@ import { getAIProvider } from "../services/ai/aiConfigHelper";
 import type { ImageProvider } from "../../config/aiConfig";
 import logger from "../utils/logger";
 import { LectureCreateSchema, LectureUpdateSchema, parseBody } from "../validators/schemas";
+import { toLectureDTO, mapPaginated } from "../dto/mappers";
 
 const lectureService = new LectureService();
 const lectureExportService = new LectureExportService();
@@ -36,7 +37,7 @@ export const createLecture = async (
     if (!lectureData) return errorResponse(res, "Invalid request body", 400);
     const lecture = await lectureService.createLecture(lectureData as any);
 
-    return successResponse(res, "Lecture created successfully", lecture, 201);
+    return successResponse(res, "Lecture created successfully", toLectureDTO(lecture), 201);
   } catch (error) {
     logger.error("Error creating lecture:", error);
     return errorResponse(res, "Error creating lecture");
@@ -53,7 +54,7 @@ export const getLectureById = async (
       return errorResponse(res, "Lecture not found", 404);
     }
 
-    return successResponse(res, "Lecture Listed by ID successfully", lecture);
+    return successResponse(res, "Lecture Listed by ID successfully", toLectureDTO(lecture));
   } catch (error) {
     return errorResponse(res, "Error retrieving lecture", 500, error);
   }
@@ -71,7 +72,7 @@ export const updateLecture = async (
       return errorResponse(res, "Lecture not found", 404);
     }
 
-    return successResponse(res, "Lecture Updated successfully", lecture);
+    return successResponse(res, "Lecture Updated successfully", toLectureDTO(lecture));
   } catch (error) {
     return errorResponse(res, "Error updating lecture", 500, error);
   }
@@ -105,7 +106,7 @@ export const updateImageLecureById = async (req: Request, res: Response) => {
     return successResponse(
       res,
       "Lecture Update Image Lecture ById successfully",
-      updatedLecture
+      toLectureDTO(updatedLecture)
     );
   } catch (error) {
     logger.error("Error updating Image lecture:", error);
@@ -171,7 +172,7 @@ export const getAllLectures = async (
       sortOrder,
     });
 
-    return successResponse(res, "Lectures retrieved successfully", lectures);
+    return successResponse(res, "Lectures retrieved successfully", mapPaginated(lectures, toLectureDTO));
   } catch (error) {
     return errorResponse(res, "Error fetching lectures", 500, error);
   }
@@ -386,7 +387,7 @@ export const updateImageLecture = async (req: Request, res: Response) => {
     return successResponse(
       res,
       "Lecture image updated successfully",
-      updatedLecture
+      toLectureDTO(updatedLecture)
     );
   } catch (error) {
     return errorResponse(res, "Error generating lecture image", 500, error);

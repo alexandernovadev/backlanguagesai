@@ -26,6 +26,7 @@ import {
 import logger from "../utils/logger";
 import { WordTypeValidationError } from "../data/business/shared";
 import { WordCreateSchema, WordUpdateSchema, parseBody } from "../validators/schemas";
+import { toWordDTO, mapPaginated } from "../dto/mappers";
 
 const wordService = new WordService();
 const wordQueryService = new WordQueryService();
@@ -51,7 +52,7 @@ export const getWordByName = async (
       return errorResponse(res, "Word not found", 404);
     }
 
-    return successResponse(res, "Get Word successFully", foundWord);
+    return successResponse(res, "Get Word successFully", toWordDTO(foundWord));
   } catch (error) {
     return errorResponse(
       res,
@@ -71,7 +72,7 @@ export const createWord = async (
     if (!wordData) return errorResponse(res, "Invalid request body", 400);
     const newWord = await wordService.createWord(wordData as any);
 
-    return successResponse(res, "Word created successfully", newWord, 201);
+    return successResponse(res, "Word created successfully", toWordDTO(newWord), 201);
   } catch (error) {
     if (error instanceof WordTypeValidationError) {
       return errorResponse(res, error.message, 400, error);
@@ -99,7 +100,7 @@ export const getWordById = async (
       return errorResponse(res, "Word not found", 404);
     }
 
-    return successResponse(res, "Word listed by Id successfully", word);
+    return successResponse(res, "Word listed by Id successfully", toWordDTO(word));
   } catch (error) {
     return errorResponse(
       res,
@@ -184,7 +185,7 @@ export const getWords = async (
       updatedBefore,
     });
 
-    return successResponse(res, "Words sucessfully listed", wordList);
+    return successResponse(res, "Words sucessfully listed", mapPaginated(wordList, toWordDTO));
   } catch (error) {
     return errorResponse(
       res,
@@ -207,7 +208,7 @@ export const updateWord = async (
     if (!updatedWord) {
       return errorResponse(res, "Word not found", 404);
     }
-    return successResponse(res, "Word updated successfully", updatedWord);
+    return successResponse(res, "Word updated successfully", toWordDTO(updatedWord));
   } catch (error) {
     if (error instanceof WordTypeValidationError) {
       return errorResponse(res, error.message, 400, error);
@@ -234,7 +235,7 @@ export const updateWordDifficulty = async (
       return errorResponse(res, "Word not found", 404);
     }
 
-    return successResponse(res, "Word difficulty updated successfully", updatedWord);
+    return successResponse(res, "Word difficulty updated successfully", toWordDTO(updatedWord));
   } catch (error) {
     return errorResponse(
       res,
@@ -298,7 +299,7 @@ export const getAnkiCards = async (
         ? "Anki cards retrieved successfully (random mode)"
         : "Anki cards retrieved successfully (review mode)";
 
-    return successResponse(res, message, words);
+    return successResponse(res, message, words.map(toWordDTO));
   } catch (error) {
     return errorResponse(
       res,
@@ -359,7 +360,7 @@ export const updateIncrementWordSeens = async (
     return successResponse(
       res,
       "Word seen count incremented successfully",
-      updatedWord
+      toWordDTO(updatedWord)
     );
   } catch (error) {
     return errorResponse(
@@ -529,7 +530,7 @@ export const addChatMessage = async (req: Request, res: Response) => {
       return errorResponse(res, "Word not found", 404);
     }
 
-    return successResponse(res, "Chat message added successfully", { word });
+    return successResponse(res, "Chat message added successfully", { word: toWordDTO(word) });
   } catch (error: any) {
     logger.error("Error adding chat message:", error);
     return errorResponse(res, error.message, 500, error);
@@ -555,7 +556,7 @@ export const clearChatHistory = async (req: Request, res: Response) => {
       return errorResponse(res, "Word not found", 404);
     }
 
-    return successResponse(res, "Chat history cleared successfully", { word });
+    return successResponse(res, "Chat history cleared successfully", { word: toWordDTO(word) });
   } catch (error: any) {
     logger.error("Error clearing chat history:", error);
     return errorResponse(res, error.message, 500, error);
@@ -641,7 +642,7 @@ export const generateWordJson = async (req: Request, res: Response) => {
     return successResponse(
       res,
       "Word generated and saved successfully",
-      savedWord
+      toWordDTO(savedWord)
     );
   } catch (error) {
     if (error instanceof WordTypeValidationError) {
@@ -673,7 +674,7 @@ export const generateWordExamplesJson = async (req: Request, res: Response) => {
     if (!updated) {
       return errorResponse(res, "Word not found", 404);
     }
-    return successResponse(res, "Word examples updated successfully", updated);
+    return successResponse(res, "Word examples updated successfully", toWordDTO(updated));
   } catch (error) {
     return errorResponse(res, "Error generating word examples", 500, error);
   }
@@ -709,7 +710,7 @@ export const generateWordExamplesCodeSwitchingJson = async (
     return successResponse(
       res,
       "Word code-switching updated successfully",
-      updated
+      toWordDTO(updated)
     );
   } catch (error) {
     return errorResponse(
@@ -743,7 +744,7 @@ export const generateWordTypesJson = async (req: Request, res: Response) => {
     if (!updated) {
       return errorResponse(res, "Word not found", 404);
     }
-    return successResponse(res, "Word types updated successfully", updated);
+    return successResponse(res, "Word types updated successfully", toWordDTO(updated));
   } catch (error) {
     if (error instanceof WordTypeValidationError) {
       return errorResponse(res, error.message, 400, error);
@@ -774,7 +775,7 @@ export const generateWordSynomymsJson = async (req: Request, res: Response) => {
     if (!updated) {
       return errorResponse(res, "Word not found", 404);
     }
-    return successResponse(res, "Word synonyms updated successfully", updated);
+    return successResponse(res, "Word synonyms updated successfully", toWordDTO(updated));
   } catch (error) {
     return errorResponse(res, "Error generating word synonyms", 500, error);
   }

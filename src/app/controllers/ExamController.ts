@@ -15,6 +15,7 @@ import { ExamService } from "../services/exams/ExamService";
 import { ExamAttemptService } from "../services/exams/ExamAttemptService";
 import logger from "../utils/logger";
 import { ExamCreateSchema, ExamGenerateSchema, parseBody } from "../validators/schemas";
+import { toExamDTO, toAttemptDTO, mapPaginated } from "../dto/mappers";
 
 const examService = new ExamService();
 const attemptService = new ExamAttemptService();
@@ -97,7 +98,7 @@ export const create = async (req: Request, res: Response) => {
       language: examData.language || req.user?.language || "en",
       createdBy: req.user?._id,
     });
-    return successResponse(res, "Exam created", exam, 201);
+    return successResponse(res, "Exam created", toExamDTO(exam), 201);
   } catch (error: any) {
     return errorResponse(res, error.message || "Error creating exam", 500, error);
   }
@@ -108,7 +109,7 @@ export const getById = async (req: Request, res: Response) => {
   try {
     const exam = await examService.getById(req.params.id);
     if (!exam) return errorResponse(res, "Exam not found", 404);
-    return successResponse(res, "Exam found", exam);
+    return successResponse(res, "Exam found", toExamDTO(exam));
   } catch (error: any) {
     return errorResponse(res, error.message || "Error getting exam", 500, error);
   }
@@ -122,7 +123,7 @@ export const list = async (req: Request, res: Response) => {
     const userId = req.user?._id?.toString() || req.user?.id;
     const language = req.user?.language;
     const result = await examService.list(page, limit, userId, language);
-    return successResponse(res, "Exams listed", result);
+    return successResponse(res, "Exams listed", mapPaginated(result, toExamDTO));
   } catch (error: any) {
     return errorResponse(res, error.message || "Error listing exams", 500, error);
   }
@@ -149,7 +150,7 @@ export const startAttempt = async (req: Request, res: Response) => {
     if (!userId) return errorResponse(res, "Unauthorized", 401);
 
     const attempt = await attemptService.create(req.params.id, userId.toString());
-    return successResponse(res, "Attempt started", attempt, 201);
+    return successResponse(res, "Attempt started", toAttemptDTO(attempt), 201);
   } catch (error: any) {
     return errorResponse(res, error.message || "Error starting attempt", 500, error);
   }
@@ -175,7 +176,7 @@ export const submitAttempt = async (req: Request, res: Response) => {
       explainsLanguage
     );
     if (!attempt) return errorResponse(res, "Attempt not found", 404);
-    return successResponse(res, "Attempt submitted", attempt);
+    return successResponse(res, "Attempt submitted", toAttemptDTO(attempt));
   } catch (error: any) {
     return errorResponse(res, error.message || "Error submitting attempt", 500, error);
   }
@@ -200,7 +201,7 @@ export const getAttempt = async (req: Request, res: Response) => {
   try {
     const attempt = await attemptService.getById(req.params.attemptId);
     if (!attempt) return errorResponse(res, "Attempt not found", 404);
-    return successResponse(res, "Attempt found", attempt);
+    return successResponse(res, "Attempt found", toAttemptDTO(attempt));
   } catch (error: any) {
     return errorResponse(res, error.message || "Error getting attempt", 500, error);
   }
@@ -218,7 +219,7 @@ export const listAttemptsByExam = async (req: Request, res: Response) => {
       userId.toString(),
       limit
     );
-    return successResponse(res, "Attempts listed", attempts);
+    return successResponse(res, "Attempts listed", attempts.map(toAttemptDTO));
   } catch (error: any) {
     return errorResponse(res, error.message || "Error listing attempts", 500, error);
   }
@@ -232,7 +233,7 @@ export const listAttempts = async (req: Request, res: Response) => {
 
     const limit = parseLimit(req.query.limit, 20);
     const attempts = await attemptService.getByUser(userId.toString(), limit);
-    return successResponse(res, "Attempts listed", attempts);
+    return successResponse(res, "Attempts listed", attempts.map(toAttemptDTO));
   } catch (error: any) {
     return errorResponse(res, error.message || "Error listing attempts", 500, error);
   }

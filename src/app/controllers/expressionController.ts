@@ -15,6 +15,7 @@ import { successResponse, errorResponse } from "../utils/responseHelpers";
 import { validateJsonBuffer, MAX_IMPORT_ITEMS } from "../middlewares/uploadMiddleware";
 import logger from "../utils/logger";
 import { ExpressionCreateSchema, ExpressionUpdateSchema, parseBody } from "../validators/schemas";
+import { toExpressionDTO, mapPaginated } from "../dto/mappers";
 import { generateImage } from "../services/ai/imageAIService";
 import { getAIProvider } from "../services/ai/aiConfigHelper";
 import type { ImageProvider } from "../../config/aiConfig";
@@ -32,7 +33,7 @@ export const createExpression = async (req: Request, res: Response) => {
     return successResponse(
       res,
       "Expression created successfully",
-      expression,
+      toExpressionDTO(expression),
       201
     );
   } catch (error: any) {
@@ -51,7 +52,7 @@ export const getExpressionById = async (req: Request, res: Response) => {
     return successResponse(
       res,
       "Expression retrieved successfully",
-      expression
+      toExpressionDTO(expression)
     );
   } catch (error: any) {
     logger.error("Error getting expression by ID:", error);
@@ -64,7 +65,7 @@ export const getExpressions = async (req: Request, res: Response) => {
   try {
     const filters = { ...req.query, language: (req.query.language as string) || req.user?.language };
     const result = await expressionService.getExpressions(filters);
-    return successResponse(res, "Expressions retrieved successfully", result);
+    return successResponse(res, "Expressions retrieved successfully", mapPaginated(result, toExpressionDTO));
   } catch (error: any) {
     logger.error("Error getting expressions:", error);
     return errorResponse(res, error.message, 500, error);
@@ -83,7 +84,7 @@ export const updateExpression = async (req: Request, res: Response) => {
     if (!expression) {
       return errorResponse(res, "Expression not found", 404);
     }
-    return successResponse(res, "Expression updated successfully", expression);
+    return successResponse(res, "Expression updated successfully", toExpressionDTO(expression));
   } catch (error: any) {
     logger.error("Error updating expression:", error);
     return errorResponse(res, error.message, 400, error);
@@ -119,7 +120,7 @@ export const getExpressionByExpression = async (
     return successResponse(
       res,
       "Expression retrieved successfully",
-      expression
+      toExpressionDTO(expression)
     );
   } catch (error: any) {
     logger.error("Error finding expression by expression text:", error);
@@ -140,7 +141,7 @@ export const getExpressionsByType = async (req: Request, res: Response) => {
     return successResponse(
       res,
       `Expressions of type ${type} retrieved successfully`,
-      expressions
+      expressions.map(toExpressionDTO)
     );
   } catch (error: any) {
     logger.error("Error getting expressions by type:", error);
@@ -342,7 +343,7 @@ export const addChatMessage = async (req: Request, res: Response) => {
     }
 
     return successResponse(res, "Chat message added successfully", {
-      expression,
+      expression: toExpressionDTO(expression),
     });
   } catch (error: any) {
     logger.error("Error adding chat message:", error);

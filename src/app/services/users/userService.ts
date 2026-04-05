@@ -104,10 +104,8 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = new User({ ...data, password: hashedPassword });
     await user.save();
-    
-
-    
-    return user.toObject();
+    const { password: _pw, ...userWithoutPassword } = user.toObject();
+    return userWithoutPassword;
   }
 
   // Editar usuario
@@ -138,10 +136,7 @@ export class UserService {
 
   // Eliminar usuario
   async deleteUser(id: string, req?: Request, performedBy?: string) {
-    const user = await User.findByIdAndDelete(id);
-    
-
-    
+    const user = await User.findByIdAndDelete(id).select("-password");
     return user;
   }
 

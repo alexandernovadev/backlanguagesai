@@ -383,14 +383,10 @@ export const exportWordsToJSON = async (
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
     // Send the JSON data
-    return res.json({
-      success: true,
-      message: `Exported ${words.length} words successfully`,
-      data: {
-        totalWords: words.length,
-        exportDate: new Date().toISOString(),
-        words: words,
-      },
+    return successResponse(res, `Exported ${words.length} words successfully`, {
+      totalWords: words.length,
+      exportDate: new Date().toISOString(),
+      words,
     });
   } catch (error) {
     return errorResponse(
@@ -522,21 +518,18 @@ export const addChatMessage = async (req: Request, res: Response) => {
     const { message } = req.body;
 
     if (!message) {
-      return res.status(400).json({ message: "Message is required" });
+      return errorResponse(res, "Message is required", 400);
     }
 
     const word = await wordChatService.addChatMessage(id, message);
     if (!word) {
-      return res.status(404).json({ message: "Word not found" });
+      return errorResponse(res, "Word not found", 404);
     }
 
-    res.json({
-      message: "Chat message added successfully",
-      word,
-    });
+    return successResponse(res, "Chat message added successfully", { word });
   } catch (error: any) {
     logger.error("Error adding chat message:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -544,10 +537,10 @@ export const getChatHistory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const chatHistory = await wordChatService.getChatHistory(id);
-    res.json(chatHistory);
+    return successResponse(res, "Chat history retrieved", chatHistory);
   } catch (error: any) {
     logger.error("Error getting chat history:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -556,16 +549,13 @@ export const clearChatHistory = async (req: Request, res: Response) => {
     const { id } = req.params;
     const word = await wordChatService.clearChatHistory(id);
     if (!word) {
-      return res.status(404).json({ message: "Word not found" });
+      return errorResponse(res, "Word not found", 404);
     }
 
-    res.json({
-      message: "Chat history cleared successfully",
-      word,
-    });
+    return successResponse(res, "Chat history cleared successfully", { word });
   } catch (error: any) {
     logger.error("Error clearing chat history:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 
@@ -576,12 +566,12 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     const { message } = req.body;
 
     if (!message) {
-      return res.status(400).json({ message: "Message is required" });
+      return errorResponse(res, "Message is required", 400);
     }
 
     const word = await wordService.getWordById(id);
     if (!word) {
-      return res.status(404).json({ message: "Word not found" });
+      return errorResponse(res, "Word not found", 404);
     }
 
     // Add user message first
@@ -623,7 +613,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
     res.end();
   } catch (error: any) {
     logger.error("Error streaming chat response:", error);
-    res.status(500).json({ message: error.message });
+    return errorResponse(res, error.message, 500, error);
   }
 };
 

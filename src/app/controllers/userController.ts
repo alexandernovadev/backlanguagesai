@@ -80,14 +80,10 @@ export const exportUsersToJSON = async (req: Request, res: Response) => {
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
     // Send the JSON data
-    return res.json({
-      success: true,
-      message: `Exported ${users.length} users successfully`,
-      data: {
-        totalUsers: users.length,
-        exportDate: new Date().toISOString(),
-        users: users,
-      },
+    return successResponse(res, `Exported ${users.length} users successfully`, {
+      totalUsers: users.length,
+      exportDate: new Date().toISOString(),
+      users,
     });
   } catch (error: any) {
     return errorResponse(

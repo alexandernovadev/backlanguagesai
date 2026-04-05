@@ -187,14 +187,10 @@ export const exportLecturesToJSON = async (
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
     // Send the JSON data
-    return res.json({
-      success: true,
-      message: `Exported ${lectures.length} lectures successfully`,
-      data: {
-        totalLectures: lectures.length,
-        exportDate: new Date().toISOString(),
-        lectures: lectures,
-      },
+    return successResponse(res, `Exported ${lectures.length} lectures successfully`, {
+      totalLectures: lectures.length,
+      exportDate: new Date().toISOString(),
+      lectures,
     });
   } catch (error) {
     return errorResponse(

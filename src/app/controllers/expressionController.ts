@@ -168,14 +168,10 @@ export const exportExpressionsToJSON = async (req: Request, res: Response) => {
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
     // Send the JSON data
-    return res.json({
-      success: true,
-      message: `Exported ${expressions.length} expressions successfully`,
-      data: {
-        totalExpressions: expressions.length,
-        exportDate: new Date().toISOString(),
-        expressions: expressions,
-      },
+    return successResponse(res, `Exported ${expressions.length} expressions successfully`, {
+      totalExpressions: expressions.length,
+      exportDate: new Date().toISOString(),
+      expressions,
     });
   } catch (error: any) {
     logger.error("Error exporting expressions:", error);

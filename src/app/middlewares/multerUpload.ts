@@ -1,7 +1,6 @@
-import multer from 'multer';
-import path from 'path';
+import multer from "multer";
+import { MAX_FILE_SIZE_BYTES } from "../../config/constants";
 
-// Configure multer for file uploads
 const storage = multer.memoryStorage();
 
 const fileFilter = (req: any, file: any, cb: any) => {
@@ -17,7 +16,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: MAX_FILE_SIZE_BYTES,
   },
 });
 

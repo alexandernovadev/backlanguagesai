@@ -1,15 +1,27 @@
-import express from 'express';
-import upload from '../middlewares/multerUpload';
-import { uploadImageHandler } from '../controllers/uploadController';
+import express from "express";
+import upload from "../middlewares/multerUpload";
+import { handleMulterError } from "../middlewares/uploadMiddleware";
+import { uploadImageHandler } from "../controllers/uploadController";
 
 const router = express.Router();
 
-// Dynamic endpoint for uploading images
+/** Multer debe pasar errores (p. ej. LIMIT_FILE_SIZE) a handleMulterError. */
+const uploadImageFile = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  upload.single("imageFile")(req, res, (err) => {
+    if (err) return handleMulterError(err, req, res, next);
+    next();
+  });
+};
+
 // POST /api/upload-image/:entityType/:entityId
-// Using 'any' to avoid type conflicts between Express and Multer
-router.post('/upload-image/:entityType/:entityId', 
-  upload.single('imageFile') as any, 
-  uploadImageHandler as any
+router.post(
+  "/upload-image/:entityType/:entityId",
+  uploadImageFile as express.RequestHandler,
+  uploadImageHandler as express.RequestHandler
 );
 
 export default router;

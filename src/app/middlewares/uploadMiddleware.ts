@@ -57,9 +57,10 @@ export const handleMulterError = (
 ) => {
   if (error instanceof multer.MulterError) {
     if (error.code === "LIMIT_FILE_SIZE") {
+      const maxMb = Math.round(MAX_FILE_SIZE_BYTES / (1024 * 1024));
       return res.status(400).json({
         success: false,
-        message: "File too large. Maximum size is 10MB",
+        message: `File too large. Maximum size is ${maxMb}MB`,
       });
     }
   }

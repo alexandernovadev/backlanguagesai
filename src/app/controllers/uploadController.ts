@@ -73,7 +73,7 @@ export const uploadImageHandler = async (
     }
 
     // Upload new image
-    const imageUrl = await uploadImageToCloudinary(imageFile.buffer.toString('base64'), folder);
+    const imageUrl = await uploadImageToCloudinary(imageFile.buffer, folder);
     
     // Update entity with new image URL
     await entity.constructor.findByIdAndUpdate(entityId, { img: imageUrl });

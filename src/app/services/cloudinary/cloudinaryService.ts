@@ -1,5 +1,6 @@
 import cloudinary from "cloudinary";
 import logger from "../../utils/logger";
+import { optimizeBase64ToBuffer, optimizeImageBuffer } from "./imageOptimize";
 
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
   throw new Error("CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET environment variables must be set");
@@ -12,12 +13,16 @@ cloudinary.v2.config({
 });
 
 export const uploadImageToCloudinary = async (
-  imageBase64: string,
+  imageInput: string | Buffer,
   folder = "lectures"
 ): Promise<string | null> => {
   try {
+    const optimized = Buffer.isBuffer(imageInput)
+      ? await optimizeImageBuffer(imageInput)
+      : await optimizeBase64ToBuffer(imageInput);
+
     const uploadResponse = await cloudinary.v2.uploader.upload(
-      `data:image/png;base64,${imageBase64}`,
+      `data:image/webp;base64,${optimized.toString("base64")}`,
       {
         folder: `languagesai/${folder}`,
       }

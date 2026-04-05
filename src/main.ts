@@ -46,6 +46,19 @@ const CORS_ORIGINS = (process.env.CORS_ORIGINS || "http://localhost:5173")
   .map((o) => o.trim())
   .filter(Boolean);
 
+// Behind nginx / load balancer / PaaS: Express must trust X-Forwarded-* so req.ip and
+// express-rate-limit work (avoids ERR_ERL_UNEXPECTED_X_FORWARDED_FOR). TRUST_PROXY=false if no proxy.
+const trustProxyEnv = process.env.TRUST_PROXY;
+if (trustProxyEnv === "false" || trustProxyEnv === "0") {
+  // direct exposure, tests
+} else if (trustProxyEnv === "true" || trustProxyEnv === "1") {
+  app.set("trust proxy", 1);
+} else if (trustProxyEnv && /^\d+$/.test(trustProxyEnv)) {
+  app.set("trust proxy", parseInt(trustProxyEnv, 10));
+} else if (NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
 // Security headers
 app.use(helmet());
 
@@ -166,6 +179,7 @@ async function init() {
 
     server = app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} - "${NODE_ENV}"`);
+      logger.info(`Express trust proxy: ${JSON.stringify(app.get("trust proxy"))}`);
 
       // Initialize backup cron scheduler
       try {

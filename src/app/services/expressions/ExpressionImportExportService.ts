@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Expression from "../../db/models/Expression";
 import { IExpression } from "../../../../types/models";
 
@@ -36,55 +35,51 @@ export class ExpressionImportExportService {
 
     const batchSize = config.batchSize || 10;
 
-    const session = await mongoose.startSession();
-    try {
-      await session.withTransaction(async () => {
-        for (let i = 0; i < expressions.length; i += batchSize) {
-          const batchExpressions = expressions.slice(i, i + batchSize);
-          const batchIndex = Math.floor(i / batchSize);
-          let batchInserted = 0;
-          let batchUpdated = 0;
-          let batchSkipped = 0;
-          let batchErrors = 0;
+    // Sin transacción: compatible con MongoDB standalone (replica set no requerido).
+    for (let i = 0; i < expressions.length; i += batchSize) {
+      const batchExpressions = expressions.slice(i, i + batchSize);
+      const batchIndex = Math.floor(i / batchSize);
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
+      let batchErrors = 0;
 
-          for (const expressionData of batchExpressions) {
-            try {
-              const existing = await Expression.findOne({ expression: expressionData.expression }).session(session);
-
-              if (existing) {
-                switch (config.duplicateStrategy) {
-                  case "error":
-                    batchErrors++; totalErrors++; break;
-                  case "skip":
-                    batchSkipped++; totalSkipped++; break;
-                  case "overwrite":
-                  case "merge": {
-                    const { _id, ...updateData } = expressionData;
-                    await Expression.findByIdAndUpdate(existing._id, updateData, { new: true, session });
-                    batchUpdated++; totalUpdated++; break;
-                  }
-                }
-              } else {
-                await new Expression(expressionData).save({ session });
-                batchInserted++; totalInserted++;
-              }
-            } catch {
-              batchErrors++; totalErrors++;
-            }
-          }
-
-          batches.push({
-            batchIndex,
-            processed: batchExpressions.length,
-            inserted: batchInserted,
-            updated: batchUpdated,
-            skipped: batchSkipped,
-            errors: batchErrors,
+      for (const expressionData of batchExpressions) {
+        try {
+          const existing = await Expression.findOne({
+            expression: expressionData.expression,
           });
+
+          if (existing) {
+            switch (config.duplicateStrategy) {
+              case "error":
+                batchErrors++; totalErrors++; break;
+              case "skip":
+                batchSkipped++; totalSkipped++; break;
+              case "overwrite":
+              case "merge": {
+                const { _id: _drop, ...updateData } = expressionData;
+                await Expression.findByIdAndUpdate(existing._id, updateData, { new: true });
+                batchUpdated++; totalUpdated++; break;
+              }
+            }
+          } else {
+            await new Expression(expressionData).save();
+            batchInserted++; totalInserted++;
+          }
+        } catch {
+          batchErrors++; totalErrors++;
         }
+      }
+
+      batches.push({
+        batchIndex,
+        processed: batchExpressions.length,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
+        errors: batchErrors,
       });
-    } finally {
-      session.endSession();
     }
 
     const duration = Date.now() - startTime;

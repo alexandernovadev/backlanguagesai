@@ -1,4 +1,3 @@
-import mongoose, { ClientSession } from "mongoose";
 import Lecture from "../../db/models/Lecture";
 import { ILecture } from "../../../../types/models";
 import {
@@ -11,16 +10,15 @@ import { LectureValidator } from "../../utils/validators/lectureValidator";
 import logger from "../../utils/logger";
 
 export class LectureImportService {
-  private async checkDuplicate(lecture: Partial<ILecture>, session: ClientSession): Promise<ILecture | null> {
+  private async checkDuplicate(lecture: Partial<ILecture>): Promise<ILecture | null> {
     if (!lecture.content) return null;
-    return await Lecture.findOne({ content: lecture.content }).session(session);
+    return await Lecture.findOne({ content: lecture.content });
   }
 
   private async processLecture(
     lecture: Partial<ILecture>,
     index: number,
-    config: ImportConfig,
-    session: ClientSession
+    config: ImportConfig
   ): Promise<ProcessingResult<Partial<ILecture>>> {
     try {
       const validationResult = LectureValidator.validateLecture(lecture, index);
@@ -35,7 +33,7 @@ export class LectureImportService {
         };
       }
 
-      const existingLecture = await this.checkDuplicate(lecture, session);
+      const existingLecture = await this.checkDuplicate(lecture);
 
       if (existingLecture) {
         switch (config.duplicateStrategy) {
@@ -62,7 +60,7 @@ export class LectureImportService {
             await Lecture.findByIdAndUpdate(
               existingLecture._id,
               { ...lecture, updatedAt: new Date() },
-              { new: true, session }
+              { new: true }
             );
             return {
               index,
@@ -76,7 +74,7 @@ export class LectureImportService {
             await Lecture.findByIdAndUpdate(
               existingLecture._id,
               { ...lecture, updatedAt: new Date() },
-              { new: true, session }
+              { new: true }
             );
             return {
               index,
@@ -89,7 +87,7 @@ export class LectureImportService {
       }
 
       const newLecture = new Lecture(lecture);
-      await newLecture.save({ session });
+      await newLecture.save();
       
       return {
         index,
@@ -124,54 +122,48 @@ export class LectureImportService {
     let totalUpdated = 0;
     let totalSkipped = 0;
 
-    const session = await mongoose.startSession();
-    try {
-      await session.withTransaction(async () => {
-        for (let i = 0; i < lectures.length; i += config.batchSize) {
-          const batchLectures = lectures.slice(i, i + config.batchSize);
-          const batchIndex = Math.floor(i / config.batchSize);
+    // Sin transacción: compatible con MongoDB standalone (replica set no requerido).
+    for (let i = 0; i < lectures.length; i += config.batchSize) {
+      const batchLectures = lectures.slice(i, i + config.batchSize);
+      const batchIndex = Math.floor(i / config.batchSize);
 
-          let batchValid = 0;
-          let batchInvalid = 0;
-          let batchDuplicates = 0;
-          let batchErrors = 0;
-          let batchInserted = 0;
-          let batchUpdated = 0;
-          let batchSkipped = 0;
+      let batchValid = 0;
+      let batchInvalid = 0;
+      let batchDuplicates = 0;
+      let batchErrors = 0;
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
 
-          for (let j = 0; j < batchLectures.length; j++) {
-            const result = await this.processLecture(batchLectures[j], i + j, config, session);
+      for (let j = 0; j < batchLectures.length; j++) {
+        const result = await this.processLecture(batchLectures[j], i + j, config);
 
-            switch (result.status) {
-              case 'valid': batchValid++; totalValid++; break;
-              case 'invalid': batchInvalid++; totalInvalid++; break;
-              case 'duplicate': batchDuplicates++; totalDuplicates++; break;
-              case 'error': batchErrors++; totalErrors++; break;
-            }
-
-            switch (result.action) {
-              case 'inserted': batchInserted++; totalInserted++; break;
-              case 'updated': batchUpdated++; totalUpdated++; break;
-              case 'merged': batchUpdated++; totalUpdated++; break;
-              case 'skipped': batchSkipped++; totalSkipped++; break;
-            }
-          }
-
-          batches.push({
-            batchIndex,
-            processed: batchLectures.length,
-            valid: batchValid,
-            invalid: batchInvalid,
-            duplicates: batchDuplicates,
-            errors: batchErrors,
-            inserted: batchInserted,
-            updated: batchUpdated,
-            skipped: batchSkipped
-          });
+        switch (result.status) {
+          case 'valid': batchValid++; totalValid++; break;
+          case 'invalid': batchInvalid++; totalInvalid++; break;
+          case 'duplicate': batchDuplicates++; totalDuplicates++; break;
+          case 'error': batchErrors++; totalErrors++; break;
         }
+
+        switch (result.action) {
+          case 'inserted': batchInserted++; totalInserted++; break;
+          case 'updated': batchUpdated++; totalUpdated++; break;
+          case 'merged': batchUpdated++; totalUpdated++; break;
+          case 'skipped': batchSkipped++; totalSkipped++; break;
+        }
+      }
+
+      batches.push({
+        batchIndex,
+        processed: batchLectures.length,
+        valid: batchValid,
+        invalid: batchInvalid,
+        duplicates: batchDuplicates,
+        errors: batchErrors,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped
       });
-    } finally {
-      session.endSession();
     }
 
     const duration = Date.now() - startTime;

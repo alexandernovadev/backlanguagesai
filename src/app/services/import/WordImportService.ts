@@ -1,4 +1,3 @@
-import mongoose, { ClientSession } from "mongoose";
 import Word from "../../db/models/Word";
 import { IWord } from "../../../../types/models";
 import {
@@ -11,16 +10,15 @@ import { WordValidator } from "../../utils/validators/wordValidator";
 import { validateWordTypesForLanguage } from "../../data/business/shared/wordTypeCatalog";
 
 export class WordImportService {
-  private async checkDuplicate(word: Partial<IWord>, session: ClientSession): Promise<IWord | null> {
+  private async checkDuplicate(word: Partial<IWord>): Promise<IWord | null> {
     if (!word.word) return null;
-    return await Word.findOne({ word: word.word }).session(session);
+    return await Word.findOne({ word: word.word });
   }
 
   private async processWord(
     word: Partial<IWord>,
     index: number,
-    config: ImportConfig,
-    session: ClientSession
+    config: ImportConfig
   ): Promise<ProcessingResult<Partial<IWord>>> {
     const validationResult = WordValidator.validateWord(word, index);
     if (!validationResult.isValid) {
@@ -61,7 +59,7 @@ export class WordImportService {
     );
     if (typeReject) return typeReject;
 
-    const existingWord = await this.checkDuplicate(word, session);
+    const existingWord = await this.checkDuplicate(word);
     if (existingWord) {
       switch (config.duplicateStrategy) {
         case 'error':
@@ -95,7 +93,7 @@ export class WordImportService {
           await Word.findByIdAndUpdate(
             existingWord._id,
             { ...word, updatedAt: new Date() },
-            { new: true, session }
+            { new: true }
           );
           return {
             index,
@@ -119,7 +117,7 @@ export class WordImportService {
           await Word.findByIdAndUpdate(
             existingWord._id,
             { ...word, updatedAt: new Date() },
-            { new: true, session }
+            { new: true }
           );
           return {
             index,
@@ -132,7 +130,7 @@ export class WordImportService {
       }
     }
     const newWord = new Word(word);
-    await newWord.save({ session });
+    await newWord.save();
     return {
       index,
       data: word,
@@ -156,49 +154,43 @@ export class WordImportService {
     let totalUpdated = 0;
     let totalSkipped = 0;
 
-    const session = await mongoose.startSession();
-    try {
-      await session.withTransaction(async () => {
-        for (let i = 0; i < words.length; i += config.batchSize) {
-          const batchWords = words.slice(i, i + config.batchSize);
-          const batchIndex = Math.floor(i / config.batchSize);
-          let batchValid = 0;
-          let batchInvalid = 0;
-          let batchDuplicates = 0;
-          let batchErrors = 0;
-          let batchInserted = 0;
-          let batchUpdated = 0;
-          let batchSkipped = 0;
-          for (let j = 0; j < batchWords.length; j++) {
-            const result = await this.processWord(batchWords[j], i + j, config, session);
-            switch (result.status) {
-              case 'valid': batchValid++; totalValid++; break;
-              case 'invalid': batchInvalid++; totalInvalid++; break;
-              case 'duplicate': batchDuplicates++; totalDuplicates++; break;
-              case 'error': batchErrors++; totalErrors++; break;
-            }
-            switch (result.action) {
-              case 'inserted': batchInserted++; totalInserted++; break;
-              case 'updated': batchUpdated++; totalUpdated++; break;
-              case 'merged': batchUpdated++; totalUpdated++; break;
-              case 'skipped': batchSkipped++; totalSkipped++; break;
-            }
-          }
-          batches.push({
-            batchIndex,
-            processed: batchWords.length,
-            valid: batchValid,
-            invalid: batchInvalid,
-            duplicates: batchDuplicates,
-            errors: batchErrors,
-            inserted: batchInserted,
-            updated: batchUpdated,
-            skipped: batchSkipped,
-          });
+    // Sin transacción: compatible con MongoDB standalone (replica set no requerido).
+    for (let i = 0; i < words.length; i += config.batchSize) {
+      const batchWords = words.slice(i, i + config.batchSize);
+      const batchIndex = Math.floor(i / config.batchSize);
+      let batchValid = 0;
+      let batchInvalid = 0;
+      let batchDuplicates = 0;
+      let batchErrors = 0;
+      let batchInserted = 0;
+      let batchUpdated = 0;
+      let batchSkipped = 0;
+      for (let j = 0; j < batchWords.length; j++) {
+        const result = await this.processWord(batchWords[j], i + j, config);
+        switch (result.status) {
+          case 'valid': batchValid++; totalValid++; break;
+          case 'invalid': batchInvalid++; totalInvalid++; break;
+          case 'duplicate': batchDuplicates++; totalDuplicates++; break;
+          case 'error': batchErrors++; totalErrors++; break;
         }
+        switch (result.action) {
+          case 'inserted': batchInserted++; totalInserted++; break;
+          case 'updated': batchUpdated++; totalUpdated++; break;
+          case 'merged': batchUpdated++; totalUpdated++; break;
+          case 'skipped': batchSkipped++; totalSkipped++; break;
+        }
+      }
+      batches.push({
+        batchIndex,
+        processed: batchWords.length,
+        valid: batchValid,
+        invalid: batchInvalid,
+        duplicates: batchDuplicates,
+        errors: batchErrors,
+        inserted: batchInserted,
+        updated: batchUpdated,
+        skipped: batchSkipped,
       });
-    } finally {
-      session.endSession();
     }
 
     const duration = Date.now() - startTime;

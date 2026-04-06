@@ -1,6 +1,6 @@
 {
   "name": "back",
-  "version": "6.0.1",
+  "version": "6.7.7",
   "main": "dist/main.js",
   "scripts": {
     "build": "node scripts/build-date.js && rm -rf ./dist && tsc && mv dist/src/* dist/ && rm -rf dist/src && cp -r public dist/public",
@@ -10,8 +10,8 @@
     "clean:logs": "node scripts/clean-logs.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "NovaAlex Labs",
+  "license": "MIT",
   "description": "",
   "devDependencies": {
     "@types/cors": "^2.8.17",

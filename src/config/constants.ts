@@ -20,6 +20,9 @@ export const MAX_IMPORT_ITEMS = 5_000;
 // ─── Pagination ───────────────────────────────────────────────────────────────
 export const MAX_PAGINATION_LIMIT = 100;
 
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+export const MAX_CHAT_MESSAGES = 100; // Max messages kept per word/expression
+
 // ─── MongoDB connection ───────────────────────────────────────────────────────
 export const MONGO_RECONNECTION_DELAY_MS = 5_000;
 export const MONGO_SERVER_SELECTION_TIMEOUT_MS = 10_000;

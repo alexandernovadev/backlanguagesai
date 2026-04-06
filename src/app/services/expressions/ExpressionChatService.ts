@@ -1,6 +1,7 @@
 import Expression from "../../db/models/Expression";
 import { IExpression, ChatMessage } from "../../../../types/models";
 import { generateId } from "../../utils/generateId";
+import { MAX_CHAT_MESSAGES } from "../../../../config/constants";
 
 export class ExpressionChatService {
   async addChatMessage(expressionId: string, message: string): Promise<IExpression | null> {
@@ -20,6 +21,7 @@ export class ExpressionChatService {
 
     expression.chat = expression.chat || [];
     expression.chat.push(userMessage);
+    if (expression.chat.length > MAX_CHAT_MESSAGES) expression.chat = expression.chat.slice(-MAX_CHAT_MESSAGES);
     return await expression.save();
   }
 
@@ -36,6 +38,7 @@ export class ExpressionChatService {
 
     expression.chat = expression.chat || [];
     expression.chat.push(assistantMessage);
+    if (expression.chat.length > MAX_CHAT_MESSAGES) expression.chat = expression.chat.slice(-MAX_CHAT_MESSAGES);
     return await expression.save();
   }
 

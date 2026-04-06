@@ -1,13 +1,10 @@
 import { Router } from "express";
 import { validateObjectId } from "../middlewares/validateObjectId";
 import { getUsers, getUserById, createUser, updateUser, deleteUser, exportUsersToJSON, importUsersFromFile } from "../controllers/userController";
-import { authMiddleware } from "../middlewares/authMiddleware";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
 router.param("id", validateObjectId);
-
-router.use(authMiddleware); // Proteger todas las rutas
 
 // Export/Import routes (MUST BE BEFORE DYNAMIC ROUTES)
 router.get("/export-file", exportUsersToJSON);

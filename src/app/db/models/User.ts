@@ -5,6 +5,9 @@ import {
   languagesList,
   contentLanguagesList,
 } from "../../data/business/shared";
+import Exam from "./Exam";
+import ExamAttempt from "./ExamAttempt";
+import AIConfig from "./AIConfig";
 
 const UserSchema: Schema = new Schema(
   {
@@ -32,6 +35,16 @@ const UserSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+
+UserSchema.pre("findOneAndDelete", async function () {
+  const filter = this.getFilter();
+  const userId = filter._id;
+  await Promise.all([
+    Exam.deleteMany({ createdBy: userId }),
+    ExamAttempt.deleteMany({ userId }),
+    AIConfig.deleteMany({ userId: userId.toString() }),
+  ]);
+});
 
 UserSchema.pre("validate", function (next) {
   const doc = this as unknown as { language?: string };

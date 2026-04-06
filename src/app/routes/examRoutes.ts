@@ -15,7 +15,7 @@ import {
   listAttempts,
   listAttemptsByExam,
   chatOnQuestion,
-} from "../controllers/ExamController";
+} from "../controllers/examController";
 
 const router = Router();
 router.param("id", validateObjectId);

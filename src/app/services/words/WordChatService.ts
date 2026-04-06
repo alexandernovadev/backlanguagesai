@@ -1,6 +1,7 @@
 import Word from "../../db/models/Word";
 import { IWord, ChatMessage } from "../../../../types/models";
 import { generateId } from "../../utils/generateId";
+import { MAX_CHAT_MESSAGES } from "../../../../config/constants";
 
 export class WordChatService {
   async addChatMessage(wordId: string, message: string): Promise<IWord | null> {
@@ -20,6 +21,7 @@ export class WordChatService {
 
     word.chat = word.chat || [];
     word.chat.push(userMessage);
+    if (word.chat.length > MAX_CHAT_MESSAGES) word.chat = word.chat.slice(-MAX_CHAT_MESSAGES);
     return await word.save();
   }
 
@@ -36,6 +38,7 @@ export class WordChatService {
 
     word.chat = word.chat || [];
     word.chat.push(assistantMessage);
+    if (word.chat.length > MAX_CHAT_MESSAGES) word.chat = word.chat.slice(-MAX_CHAT_MESSAGES);
     return await word.save();
   }
 

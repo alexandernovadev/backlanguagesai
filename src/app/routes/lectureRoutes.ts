@@ -12,7 +12,7 @@ import {
   updateImageLecture,
   generateTextStream,
   generateTopicStream,
-} from "../controllers/LectureController";
+} from "../controllers/lectureController";
 import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();

@@ -5,7 +5,7 @@ import {
   saveAIConfig,
   deleteAIConfig,
   getDefaults,
-} from "../controllers/AIConfigController";
+} from "../controllers/aiConfigController";
 
 const router = Router();
 

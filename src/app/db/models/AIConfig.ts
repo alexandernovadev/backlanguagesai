@@ -5,7 +5,7 @@ const AIConfigSchema: Schema = new Schema(
   {
     userId: {
       type: String,
-      default: null, // null = configuración global/default
+      default: null, // null = global/default configuration
       index: true,
     },
     feature: {
@@ -42,13 +42,13 @@ const AIConfigSchema: Schema = new Schema(
     },
     model: {
       type: String,
-      default: undefined, // opcional override de modelo específico
+      default: undefined, // optional model-specific override
     },
   },
   { timestamps: true }
 );
 
-// Índice compuesto para búsquedas rápidas
+// Compound index for fast lookups
 AIConfigSchema.index({ userId: 1, feature: 1, operation: 1 }, { unique: true });
 
 export default mongoose.model<IAIConfig>("AIConfig", AIConfigSchema);

@@ -122,7 +122,7 @@ export class LectureImportService {
     let totalUpdated = 0;
     let totalSkipped = 0;
 
-    // Sin transacción: compatible con MongoDB standalone (replica set no requerido).
+    // No transaction: compatible with MongoDB standalone (no replica set required).
     for (let i = 0; i < lectures.length; i += config.batchSize) {
       const batchLectures = lectures.slice(i, i + config.batchSize);
       const batchIndex = Math.floor(i / config.batchSize);

@@ -6,7 +6,7 @@ import { TextProvider } from "../../config/aiConfig";
 import logger from "../utils/logger";
 
 /**
- * Obtiene todas las configuraciones del usuario actual
+ * Get all configurations for the current user
  */
 export const getAIConfigs = async (req: Request, res: Response) => {
   try {
@@ -25,7 +25,7 @@ export const getAIConfigs = async (req: Request, res: Response) => {
 };
 
 /**
- * Obtiene una configuración específica
+ * Get a specific configuration
  */
 export const getAIConfig = async (req: Request, res: Response) => {
   try {
@@ -52,7 +52,7 @@ export const getAIConfig = async (req: Request, res: Response) => {
 };
 
 /**
- * Crea o actualiza una configuración
+ * Create or update a configuration
  */
 export const saveAIConfig = async (req: Request, res: Response) => {
   try {
@@ -79,7 +79,7 @@ export const saveAIConfig = async (req: Request, res: Response) => {
       return errorResponse(res, "Invalid provider. Must be 'openai' or 'deepseek'", 400);
     }
 
-    // Las imágenes no pueden usar DeepSeek (solo OpenAI soporta imágenes)
+    // Images cannot use DeepSeek (only OpenAI supports image generation)
     if (operation === "image" && provider === "deepseek") {
       return errorResponse(res, "Las imágenes solo pueden usar OpenAI. DeepSeek no soporta generación de imágenes.", 400);
     }
@@ -94,7 +94,7 @@ export const saveAIConfig = async (req: Request, res: Response) => {
 };
 
 /**
- * Elimina una configuración (restaura al default)
+ * Delete a configuration (restores to default)
  */
 export const deleteAIConfig = async (req: Request, res: Response) => {
   try {
@@ -119,7 +119,7 @@ export const deleteAIConfig = async (req: Request, res: Response) => {
 };
 
 /**
- * Obtiene los defaults del sistema
+ * Get system defaults
  */
 export const getDefaults = async (req: Request, res: Response) => {
   try {

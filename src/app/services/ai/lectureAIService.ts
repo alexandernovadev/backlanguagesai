@@ -9,7 +9,7 @@ import { getAIProvider } from "./aiConfigHelper";
 
 export interface LectureTextGenerationOptions {
   provider?: TextProvider;
-  userId?: string | null; // Para obtener configuración del usuario
+  userId?: string | null; // To look up user AI configuration
   stream?: boolean;
   [key: string]: any;
 }
@@ -21,8 +21,8 @@ export const generateLectureText = async (
   const provider = await getAIProvider(options.userId, 'lecture', 'text', options);
   const promptData = createLectureTextGenerationPrompt(params);
   
-  // Si stream está activado, retornar el stream directamente
-  // Para streaming, usamos "text" porque enviamos texto plano, no JSON
+  // Stream mode: return the stream directly
+  // Use "text" format for streaming since we send plain text, not JSON
   if (options.stream) {
     return generateText(
       provider,
@@ -37,7 +37,7 @@ export const generateLectureText = async (
     );
   }
   
-  // Si no es streaming, retornar JSON parseado (comportamiento original)
+  // Non-streaming: return parsed JSON (original behavior)
   const response = await generateText(
     provider,
     `${promptData.system}\n\n${promptData.user}`,
@@ -61,7 +61,7 @@ export const generateLectureTopic = async (
   const provider = await getAIProvider(options.userId, 'lecture', 'topic', options);
   const promptData = createTopicGenerationPrompt(params);
   
-  // Si stream está activado, retornar el stream directamente
+  // Stream mode: return the stream directly
   if (options.stream) {
     return generateText(
       provider,
@@ -75,8 +75,8 @@ export const generateLectureTopic = async (
       }
     );
   }
-  
-  // Si no es streaming, retornar texto (comportamiento original)
+
+  // Non-streaming: return plain text (original behavior)
   const response = await generateText(
     provider,
     `${promptData.system}\n\n${promptData.user}`,
@@ -93,5 +93,5 @@ export const generateLectureTopic = async (
   return content.trim();
 };
 
-// Para imágenes, solo retorna el prompt, la generación la hace otro servicio
+// For images, only returns the prompt — generation is handled by the image service
 export { createLectureImagePrompt };

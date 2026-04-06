@@ -426,7 +426,7 @@ export const streamChatResponse = async (req: Request, res: Response) => {
   }
 };
 
-// Nueva función para generar expresiones con AI
+// Generate expressions with AI
 export const generateExpression = async (req: Request, res: Response) => {
   try {
     const { prompt, options = {} } = req.body;

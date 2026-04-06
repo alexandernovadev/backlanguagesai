@@ -51,11 +51,6 @@ export const AuthService = {
         throw new Error("User not found");
       }
 
-      if ((user as { language?: string }).language === "es") {
-        (user as { language: string }).language = "en";
-        await user.save();
-      }
-
       const newAccessToken = AuthService.generateToken(user);
       const newRefreshToken = AuthService.generateRefreshToken(user);
 

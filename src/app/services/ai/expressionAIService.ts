@@ -11,7 +11,7 @@ import { getAIProvider } from "./aiConfigHelper";
 
 export interface ExpressionGenerationOptions {
   provider?: TextProvider;
-  userId?: string | null; // Para obtener configuración del usuario
+  userId?: string | null; // To look up user AI configuration
   [key: string]: any;
 }
 

@@ -23,7 +23,7 @@ import { getAIProvider } from "./aiConfigHelper";
 // Options for word generation
 export interface WordGenerationOptions extends TextGenerationOptions {
   provider?: TextProvider;
-  userId?: string | null; // Para obtener configuración del usuario
+  userId?: string | null; // To look up user AI configuration
 }
 
 // Generate complete word data

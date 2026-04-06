@@ -1,12 +1,12 @@
 import sharp from "sharp";
 import logger from "../../utils/logger";
 
-/** Calidad WebP (1–100). Más alto = más peso, más fiel a la imagen original. */
+/** WebP quality (1–100). Higher = larger file, more faithful to the original. */
 const WEBP_QUALITY = 88;
 const WEBP_EFFORT = 4;
 
 /**
- * Misma resolución; recompresión a WebP. Si el resultado no pesa menos, se devuelve el original.
+ * Same resolution; recompress to WebP. Returns the original buffer if the result is not smaller.
  */
 export async function optimizeImageBuffer(buffer: Buffer): Promise<Buffer> {
   if (!buffer?.length) {
@@ -24,7 +24,7 @@ export async function optimizeImageBuffer(buffer: Buffer): Promise<Buffer> {
 
     return optimized;
   } catch (err) {
-    logger.warn("optimizeImageBuffer: no se pudo optimizar, se usa original", {
+    logger.warn("optimizeImageBuffer: optimization failed, using original", {
       error: err instanceof Error ? err.message : err,
     });
     return buffer;

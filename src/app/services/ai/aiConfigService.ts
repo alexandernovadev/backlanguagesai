@@ -9,7 +9,7 @@ import { TextProvider } from "../../../config/aiConfig";
 import { AIFeature, AIOperation } from "../../../../types/models";
 import logger from "../../utils/logger";
 
-// Defaults del sistema
+// System defaults
 const DEFAULT_CONFIGS: Record<AIFeature, Record<string, TextProvider>> = {
   word: {
     generate: "openai",
@@ -18,17 +18,17 @@ const DEFAULT_CONFIGS: Record<AIFeature, Record<string, TextProvider>> = {
     types: "openai",
     synonyms: "openai",
     chat: "openai",
-    image: "openai", // Imágenes siempre usan OpenAI (DALL-E)
+    image: "openai", // Images always use OpenAI (DALL-E)
   },
   expression: {
     generate: "openai",
     chat: "openai",
-    image: "openai", // Imágenes siempre usan OpenAI (DALL-E)
+    image: "openai", // Images always use OpenAI (DALL-E)
   },
   lecture: {
     text: "deepseek",
     topic: "deepseek",
-    image: "openai", // Imágenes siempre usan OpenAI (DALL-E)
+    image: "openai", // Images always use OpenAI (DALL-E)
   },
   exam: {
     generate: "openai",
@@ -42,17 +42,17 @@ const DEFAULT_CONFIGS: Record<AIFeature, Record<string, TextProvider>> = {
 
 export class AIConfigService {
   /**
-   * Obtiene el provider configurado para una operación
-   * Llamada directa a DB, sin caché
-   * Si falla, retorna el default
-   * Las imágenes siempre usan OpenAI (DeepSeek no soporta imágenes)
+   * Get the configured provider for an operation
+   * Direct DB call, no caching
+   * Falls back to default on failure
+   * Images always use OpenAI (DeepSeek does not support image generation)
    */
   static async getProvider(
     userId: string | null | undefined,
     feature: AIFeature,
     operation: AIOperation
   ): Promise<TextProvider> {
-    // Las imágenes siempre usan OpenAI (DeepSeek no soporta imágenes)
+    // Images always use OpenAI (DeepSeek does not support image generation)
     if (operation === "image") {
       return "openai";
     }
@@ -60,7 +60,7 @@ export class AIConfigService {
     const normalizedUserId = userId || null;
     
     try {
-      // Buscar en DB directamente
+      // Query DB directly
       const config = await AIConfig.findOne({
         userId: normalizedUserId,
         feature,
@@ -71,17 +71,17 @@ export class AIConfigService {
         return config.provider as TextProvider;
       }
     } catch (error) {
-      // Si falla la consulta, usar default
+      // Query failed, fall back to default
       logger.error("Error getting AI config from DB:", error);
     }
 
-    // Usar default del sistema si no hay config o si falló
+    // Use system default if no config found or query failed
     return DEFAULT_CONFIGS[feature]?.[operation] || "openai";
   }
 
   /**
-   * Guarda o actualiza una configuración
-   * Llamada directa a DB, sin caché
+   * Save or update a configuration
+   * Direct DB call, no caching
    */
   static async saveConfig(
     userId: string | null | undefined,
@@ -101,7 +101,7 @@ export class AIConfigService {
   }
 
   /**
-   * Obtiene todas las configuraciones de un usuario (sin caché, para UI)
+   * Get all configurations for a user (no cache, for UI display)
    */
   static async getAllConfigs(userId: string | null | undefined) {
     const normalizedUserId = userId || null;
@@ -109,7 +109,7 @@ export class AIConfigService {
   }
 
   /**
-   * Elimina una configuración específica
+   * Delete a specific configuration
    */
   static async deleteConfig(
     userId: string | null | undefined,
@@ -127,7 +127,7 @@ export class AIConfigService {
   }
 
   /**
-   * Obtiene los defaults del sistema
+   * Get system defaults
    */
   static getDefaults(): typeof DEFAULT_CONFIGS {
     return DEFAULT_CONFIGS;

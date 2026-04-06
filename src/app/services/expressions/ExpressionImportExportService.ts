@@ -35,7 +35,7 @@ export class ExpressionImportExportService {
 
     const batchSize = config.batchSize || 10;
 
-    // Sin transacción: compatible con MongoDB standalone (replica set no requerido).
+    // No transaction: compatible with MongoDB standalone (no replica set required).
     for (let i = 0; i < expressions.length; i += batchSize) {
       const batchExpressions = expressions.slice(i, i + batchSize);
       const batchIndex = Math.floor(i / batchSize);

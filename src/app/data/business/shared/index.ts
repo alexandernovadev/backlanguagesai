@@ -1,4 +1,4 @@
-// 📚 Exportación centralizada de datos compartidos entre idiomas
+// Centralized export of shared business data
 export { topicsJson, topicsList } from './topics';
 export { skillsJson, skillsList } from './skills';
 export { certificationLevelsJson, certificationLevelsList } from './certificationLevels';
@@ -21,7 +21,7 @@ export {
   WordTypeValidationError,
 } from './wordTypeCatalog';
 
-// 📝 Re-exportar tipos de business para conveniencia
+// Re-export business types for convenience
 export type { 
   Topic, Skill, WordType, ExpressionType, ReadingType, 
   Difficulty, CertificationLevel, Language, UserRole, ChatRole,

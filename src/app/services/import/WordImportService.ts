@@ -154,7 +154,7 @@ export class WordImportService {
     let totalUpdated = 0;
     let totalSkipped = 0;
 
-    // Sin transacción: compatible con MongoDB standalone (replica set no requerido).
+    // No transaction: compatible with MongoDB standalone (no replica set required).
     for (let i = 0; i < words.length; i += config.batchSize) {
       const batchWords = words.slice(i, i + config.batchSize);
       const batchIndex = Math.floor(i / config.batchSize);

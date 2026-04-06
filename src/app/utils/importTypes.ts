@@ -1,23 +1,23 @@
 import { ILecture, IWord } from "../../../types/models";
 
-// Estrategias para manejar duplicados
+// Strategies for handling duplicates
 export type DuplicateStrategy = 'skip' | 'overwrite' | 'error' | 'merge';
 
-// Configuración de importación
+// Import configuration
 export interface ImportConfig {
   duplicateStrategy: DuplicateStrategy;
   validateOnly: boolean;
   batchSize: number;
 }
 
-// Resultado de validación
+// Validation result
 export interface ValidationResult {
   isValid: boolean;
   errors: string[];
   warnings: string[];
 }
 
-// Resultado de procesamiento genérico
+// Generic processing result
 export interface ProcessingResult<T = Partial<ILecture>> {
   index: number;
   data: T;
@@ -27,7 +27,7 @@ export interface ProcessingResult<T = Partial<ILecture>> {
   action?: 'skipped' | 'inserted' | 'updated' | 'merged';
 }
 
-// Resultado de procesamiento de un lote
+// Batch processing result
 export interface BatchResult {
   batchIndex: number;
   processed: number;
@@ -41,7 +41,7 @@ export interface BatchResult {
   results?: ProcessingResult[];
 }
 
-// Resultado final de la importación genérico
+// Final import result
 export interface ImportResult {
   totalItems: number;
   totalBatches: number;
@@ -60,24 +60,24 @@ export interface ImportResult {
   };
 }
 
-// Tipos específicos para compatibilidad
+// Specific types for backwards compatibility
 export interface LectureProcessingResult extends ProcessingResult<Partial<ILecture>> {
-  lecture: Partial<ILecture>; // Para compatibilidad hacia atrás
+  lecture: Partial<ILecture>; // Backwards compatibility
 }
 
 export interface WordProcessingResult extends ProcessingResult<Partial<IWord>> {
-  word: Partial<IWord>; // Para compatibilidad hacia atrás
+  word: Partial<IWord>; // Backwards compatibility
 }
 
 export interface LectureImportResult extends ImportResult {
-  totalLectures: number; // Para compatibilidad hacia atrás
+  totalLectures: number; // Backwards compatibility
 }
 
 export interface WordImportResult extends ImportResult {
-  totalWords: number; // Para compatibilidad hacia atrás
+  totalWords: number; // Backwards compatibility
 }
 
-// Payload de la request de importación
+// Import request payload
 export interface ImportRequest<T = Partial<ILecture>> {
   data: T[];
   config: ImportConfig;

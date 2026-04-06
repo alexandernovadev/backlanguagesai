@@ -1,4 +1,4 @@
-// 📝 Exportación centralizada de todos los prompts de AI
+// Centralized export of all AI prompts
 
 // Text Generation Prompts
 export {

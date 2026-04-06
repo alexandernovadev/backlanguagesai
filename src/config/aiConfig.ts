@@ -16,7 +16,7 @@ export type ChatGPTModel =
 export type DeepSeekModel = 
   | "deepseek-chat"      // DeepSeek-V3.1 (modo no-thinking)
   | "deepseek-reasoner"   // DeepSeek-V3.1 (modo thinking)
-  | "deepseek-coder";     // Especializado en código
+  | "deepseek-coder";     // Specialized in code
 
 export type DalleModel = 
   | "dall-e-3"

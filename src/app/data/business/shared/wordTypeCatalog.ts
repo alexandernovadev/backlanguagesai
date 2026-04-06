@@ -28,7 +28,7 @@ export function getWordTypesForLanguage(language: string): WordType[] {
   if (language === "pt") {
     return wordTypesList.filter((t) => !NOT_IN_PORTUGUESE.includes(t));
   }
-  // es, fr, it y resto: conjunto general sin phrasal verb (inglés L2)
+  // es, fr, it and others: general set without phrasal verbs (English as L2)
   return wordTypesList.filter((t) => !ENGLISH_SPECIFIC.includes(t));
 }
 

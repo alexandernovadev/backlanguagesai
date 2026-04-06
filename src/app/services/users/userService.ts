@@ -6,7 +6,7 @@ import { escapeRegex } from "../../utils/escapeRegex";
 import { Request } from "express";
 
 export class UserService {
-  // Listar usuarios con filtros y paginación
+  // List users with filters and pagination
   async getUsers(filters: {
     page?: number;
     limit?: number;
@@ -84,7 +84,7 @@ export class UserService {
       .sort(sortOptions)
       .skip((page - 1) * limit)
       .limit(limit)
-      .select("-password") // nunca enviar el password
+      .select("-password") // never expose the password
       .exec();
 
     return { data, total, page, pages };

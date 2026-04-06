@@ -17,7 +17,7 @@ const languagesJson: LanguageOption[] = [
 
 const languagesList: Language[] = languagesJson.map((language) => language.value);
 
-/** Idioma de estudio (User.language): sin español; el español va en explainsLanguage */
+/** Study language (User.language): excludes Spanish; Spanish is used in explainsLanguage */
 const contentLanguagesJson: LanguageOption[] = languagesJson.filter(
   (l) => l.value !== "es"
 );

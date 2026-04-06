@@ -1,6 +1,6 @@
 /**
- * Helper para obtener el provider correcto
- * Prioridad: options.provider > user config > default
+ * Helper to resolve the correct AI provider
+ * Priority: options.provider > user config > default
  */
 
 import { AIConfigService } from "./aiConfigService";
@@ -8,8 +8,8 @@ import { TextProvider } from "../../../config/aiConfig";
 import { AIFeature, AIOperation } from "../../../../types/models";
 
 /**
- * Helper que obtiene el provider correcto
- * Prioridad: options.provider > user config > default
+ * Resolves the correct AI provider for a given feature/operation
+ * Priority: options.provider > user config > default
  */
 export async function getAIProvider(
   userId: string | null | undefined,
@@ -17,11 +17,11 @@ export async function getAIProvider(
   operation: AIOperation,
   options?: { provider?: TextProvider }
 ): Promise<TextProvider> {
-  // Si viene explícito en options, usar ese (override manual)
+  // Explicit provider in options takes precedence
   if (options?.provider) {
     return options.provider;
   }
 
-  // Obtener de configuración del usuario (con caché)
+  // Fall through to user config
   return await AIConfigService.getProvider(userId, feature, operation);
 }

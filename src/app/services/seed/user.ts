@@ -10,19 +10,22 @@ export const seedAdminUser = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL!);
 
+    const username = process.env.USER_NOVA;
+    const password = process.env.PASSWORD_NOVA;
+
+    if (!username || !password) {
+      throw new Error("USER_NOVA and PASSWORD_NOVA environment variables are required");
+    }
+
     const existingAdmin = await User.findOne({ role: "admin" });
     if (existingAdmin) {
-      // DELETE THE ADMIN USER
       await User.deleteOne({ role: "admin", username: existingAdmin.username });
     }
 
-    const hashedPassword = await bcrypt.hash(
-      process.env.PASSWORD_NOVA || "adminpassword",
-      10
-    );
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const adminUser = new User({
-      username: process.env.USER_NOVA || "admin",
+      username,
       email: "admin@example.com",
       password: hashedPassword,
       role: "admin",

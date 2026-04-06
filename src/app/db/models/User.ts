@@ -46,22 +46,4 @@ UserSchema.pre("findOneAndDelete", async function () {
   ]);
 });
 
-UserSchema.pre("validate", function (next) {
-  const doc = this as unknown as { language?: string };
-  if (doc.language === "es") {
-    doc.language = "en";
-  }
-  next();
-});
-
-const coerceContentLanguage = (_doc: unknown, ret: Record<string, unknown>) => {
-  if (ret.language === "es") {
-    ret.language = "en";
-  }
-  return ret;
-};
-
-UserSchema.set("toJSON", { transform: coerceContentLanguage });
-UserSchema.set("toObject", { transform: coerceContentLanguage });
-
 export default mongoose.model<IUser>("User", UserSchema);

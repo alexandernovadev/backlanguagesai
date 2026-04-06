@@ -42,7 +42,7 @@ export const getWordByName = async (
     // Forzamos el tipo a `string`, y si es un array, tomamos el primer elemento.
     const word = (req.params.word || req.query.word) as string | undefined;
 
-    // Verificamos que `word` sea un `string` y no esté vacío.
+    // Ensure `word` is a non-empty string.
     if (!word || Array.isArray(word)) {
       return errorResponse(res, "A single word parameter is required");
     }
@@ -122,7 +122,7 @@ export const getWords = async (
     // Filtros existentes
     const wordUser = req.query.wordUser as string;
 
-    // Nuevos filtros básicos
+    // Basic filters
     const difficulty = req.query.difficulty as string;
     const language = req.query.language as string;
     const type = req.query.type as string;
@@ -151,7 +151,7 @@ export const getWords = async (
     const updatedAfter = req.query.updatedAfter as string;
     const updatedBefore = req.query.updatedBefore as string;
 
-    // Procesar filtros que pueden tener múltiples valores
+    // Process filters that may have multiple comma-separated values
     const difficulties = difficulty
       ? difficulty.split(",").map((d) => d.trim())
       : undefined;

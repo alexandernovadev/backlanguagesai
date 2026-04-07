@@ -1,7 +1,7 @@
 import Expression from "../../db/models/Expression";
 import { IExpression, ChatMessage } from "../../../../types/models";
 import { generateId } from "../../utils/generateId";
-import { MAX_CHAT_MESSAGES } from "../../../../config/constants";
+import { MAX_CHAT_MESSAGES } from "../../../config/constants";
 
 export class ExpressionChatService {
   async addChatMessage(expressionId: string, message: string): Promise<IExpression | null> {

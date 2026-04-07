@@ -1,7 +1,7 @@
 import Word from "../../db/models/Word";
 import { IWord, ChatMessage } from "../../../../types/models";
 import { generateId } from "../../utils/generateId";
-import { MAX_CHAT_MESSAGES } from "../../../../config/constants";
+import { MAX_CHAT_MESSAGES } from "../../../config/constants";
 
 export class WordChatService {
   async addChatMessage(wordId: string, message: string): Promise<IWord | null> {

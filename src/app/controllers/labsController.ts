@@ -163,6 +163,31 @@ export const migrateSinonymsToSynonyms = async (
 };
 
 /**
+ * Delete all exams and their attempts from the database
+ * ⚠️ DANGEROUS OPERATION - Cannot be undone
+ */
+export const deleteAllExams = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const result = await labsService.deleteAllExams();
+    return successResponse(
+      res,
+      "Successfully deleted all exams and attempts",
+      {
+        deletedCount: result.deletedCount,
+        deletedAttempts: result.deletedAttempts,
+        timestamp: result.timestamp,
+      }
+    );
+  } catch (error) {
+    logger.error("Error in deleteAllExams controller:", error);
+    return errorResponse(res, "Error deleting all exams", 500, error);
+  }
+};
+
+/**
  * Delete all lectures from the database
  * ⚠️ DANGEROUS OPERATION - Cannot be undone
  */

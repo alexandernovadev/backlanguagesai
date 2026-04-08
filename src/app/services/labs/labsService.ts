@@ -1,6 +1,8 @@
 import Word from "../../db/models/Word";
 import Expression from "../../db/models/Expression";
 import Lecture from "../../db/models/Lecture";
+import Exam from "../../db/models/Exam";
+import ExamAttempt from "../../db/models/ExamAttempt";
 import logger from "../../utils/logger";
 
 export class LabsService {
@@ -78,6 +80,37 @@ export class LabsService {
       };
     } catch (error) {
       logger.error("❌ Error deleting all lectures:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete all exams and their attempts from the database
+   * ⚠️ DANGEROUS OPERATION - Cannot be undone
+   */
+  async deleteAllExams(): Promise<{ deletedCount: number; deletedAttempts: number; timestamp: Date }> {
+    try {
+      logger.warn("⚠️ INITIATING: Delete all exams operation");
+
+      const [examsResult, attemptsResult] = await Promise.all([
+        Exam.deleteMany({}),
+        ExamAttempt.deleteMany({}),
+      ]);
+      const timestamp = new Date();
+
+      logger.warn("⚠️ COMPLETED: All exams and attempts deleted", {
+        deletedCount: examsResult.deletedCount,
+        deletedAttempts: attemptsResult.deletedCount,
+        timestamp: timestamp.toISOString(),
+      });
+
+      return {
+        deletedCount: examsResult.deletedCount || 0,
+        deletedAttempts: attemptsResult.deletedCount || 0,
+        timestamp,
+      };
+    } catch (error) {
+      logger.error("❌ Error deleting all exams:", error);
       throw error;
     }
   }

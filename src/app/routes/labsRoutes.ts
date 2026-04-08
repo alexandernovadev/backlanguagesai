@@ -5,6 +5,7 @@ import {
   deleteAllWords,
   deleteAllExpressions,
   deleteAllLectures,
+  deleteAllExams,
   migrateSinonymsToSynonyms
 } from "../controllers/labsController";
 
@@ -23,5 +24,6 @@ routes.post("/migrations/sinonyms-to-synonyms", migrateSinonymsToSynonyms);
 routes.delete("/data/words/delete-all", deleteAllWords);
 routes.delete("/data/expressions/delete-all", deleteAllExpressions);
 routes.delete("/data/lectures/delete-all", deleteAllLectures);
+routes.delete("/data/exams/delete-all", deleteAllExams);
 
 export default routes;

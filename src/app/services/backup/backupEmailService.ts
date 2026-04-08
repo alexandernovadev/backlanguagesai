@@ -1,6 +1,7 @@
 import { WordExportService } from '../words/WordExportService';
 import { LectureExportService } from '../lectures/LectureExportService';
 import { ExpressionImportExportService } from '../expressions/ExpressionImportExportService';
+import { ExamExportService } from '../exams/ExamExportService';
 import { sendEmailWithAttachments } from '../email/gmailService';
 import logger from '../../utils/logger';
 import { generateId } from '../../utils/generateId';
@@ -8,6 +9,7 @@ import { generateId } from '../../utils/generateId';
 const wordService = new WordExportService();
 const lectureService = new LectureExportService();
 const expressionService = new ExpressionImportExportService();
+const examService = new ExamExportService();
 
 // Backup email configuration
 const BACKUP_EMAIL_RECIPIENT = process.env.BACKUP_EMAIL_RECIPIENT || 'titoantifa69@gmail.com';
@@ -18,6 +20,7 @@ export interface BackupResult {
   wordsCount: number;
   lecturesCount: number;
   expressionsCount: number;
+  examsCount: number;
   emailSent: boolean;
   messageId?: string;
   error?: string;
@@ -45,15 +48,19 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
     // 1. Generate backup data
     logger.info('Generating backup data', { operationId });
     
-    const words = await wordService.getAllWordsForExport();
-    const lectures = await lectureService.getAllLecturesForExport();
-    const expressions = await expressionService.getAllExpressionsForExport();
+    const [words, lectures, expressions, exams] = await Promise.all([
+      wordService.getAllWordsForExport(),
+      lectureService.getAllLecturesForExport(),
+      expressionService.getAllExpressionsForExport(),
+      examService.getAllExamsForExport(),
+    ]);
 
     logger.info('Backup data generated', {
       operationId,
       wordsCount: words.length,
       lecturesCount: lectures.length,
-      expressionsCount: expressions.length
+      expressionsCount: expressions.length,
+      examsCount: exams.length,
     });
 
     // 2. Create backup files with timestamp
@@ -61,6 +68,7 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
     const wordsFilename = `words-backup-${timestamp}.json`;
     const lecturesFilename = `lectures-backup-${timestamp}.json`;
     const expressionsFilename = `expressions-backup-${timestamp}.json`;
+    const examsFilename = `exams-backup-${timestamp}.json`;
 
     // 3. Prepare email content
     const emailSubject = `🔒 Backup Diario - LanguageAI [${new Date().toLocaleDateString('es-ES')}]`;
@@ -70,6 +78,7 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
 - Words: ${words.length} registros
 - Lectures: ${lectures.length} registros
 - Expressions: ${expressions.length} registros
+- Exams: ${exams.length} registros
 - Fecha: ${new Date().toLocaleDateString('es-ES')}
 - Hora: ${new Date().toLocaleTimeString('es-ES')}
 
@@ -77,6 +86,7 @@ export const sendBackupByEmail = async (): Promise<BackupResult> => {
 - ${wordsFilename}
 - ${lecturesFilename}
 - ${expressionsFilename}
+- ${examsFilename}
 
 Este backup se genera automáticamente todos los días.`;
 
@@ -120,6 +130,19 @@ Este backup se genera automáticamente todos los días.`;
           }
         }, null, 2),
         contentType: 'application/json'
+      },
+      {
+        filename: examsFilename,
+        content: JSON.stringify({
+          success: true,
+          message: `Backup generated ${exams.length} exams successfully`,
+          data: {
+            totalExams: exams.length,
+            exportDate: new Date().toISOString(),
+            exams: exams
+          }
+        }, null, 2),
+        contentType: 'application/json'
       }
     ];
 
@@ -150,6 +173,7 @@ Este backup se genera automáticamente todos los días.`;
       wordsCount: words.length,
       lecturesCount: lectures.length,
       expressionsCount: expressions.length,
+      examsCount: exams.length,
       recipient: BACKUP_EMAIL_RECIPIENT,
       duration: `${duration}ms`,
       timestamp: new Date().toISOString()
@@ -160,6 +184,7 @@ Este backup se genera automáticamente todos los días.`;
       wordsCount: words.length,
       lecturesCount: lectures.length,
       expressionsCount: expressions.length,
+      examsCount: exams.length,
       emailSent: true,
       timestamp: new Date().toISOString(),
       duration
@@ -183,6 +208,7 @@ Este backup se genera automáticamente todos los días.`;
       wordsCount: 0,
       lecturesCount: 0,
       expressionsCount: 0,
+      examsCount: 0,
       emailSent: false,
       error: error.message,
       timestamp: new Date().toISOString(),
@@ -197,14 +223,18 @@ Este backup se genera automáticamente todos los días.`;
         logger.info('Testing backup service...');
         
         // Test data generation
-        const words = await wordService.getAllWordsForExport();
-        const lectures = await lectureService.getAllLecturesForExport();
-        const expressions = await expressionService.getAllExpressionsForExport();
-        
+        const [words, lectures, expressions, exams] = await Promise.all([
+          wordService.getAllWordsForExport(),
+          lectureService.getAllLecturesForExport(),
+          expressionService.getAllExpressionsForExport(),
+          examService.getAllExamsForExport(),
+        ]);
+
         logger.info('Backup service test successful', {
           wordsCount: words.length,
           lecturesCount: lectures.length,
-          expressionsCount: expressions.length
+          expressionsCount: expressions.length,
+          examsCount: exams.length,
         });
         
         return true;

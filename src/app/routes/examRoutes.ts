@@ -15,11 +15,18 @@ import {
   listAttempts,
   listAttemptsByExam,
   chatOnQuestion,
+  exportExamsToJSON,
+  importExamsFromFile,
 } from "../controllers/examController";
+import { createJsonUploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = Router();
 router.param("id", validateObjectId);
 router.param("attemptId", validateObjectId);
+
+// Export/Import routes (MUST BE BEFORE DYNAMIC ROUTES)
+router.get("/export-file", exportExamsToJSON);
+router.post("/import-file", ...createJsonUploadMiddleware(), importExamsFromFile as any);
 
 // Generate, validate, correct (no persistence)
 router.post("/generate", generate);

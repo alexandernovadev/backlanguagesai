@@ -13,11 +13,16 @@ import { parseLimit } from "../utils/pagination";
 import { generateExam, validateExam, correctExam, generateExamQuestionChat } from "../services/ai/examAIService";
 import { ExamService } from "../services/exams/ExamService";
 import { ExamAttemptService } from "../services/exams/ExamAttemptService";
+import { ExamExportService } from "../services/exams/ExamExportService";
+import { ExamImportService } from "../services/import/ExamImportService";
+import { validateJsonBuffer, MAX_IMPORT_ITEMS } from "../middlewares/uploadMiddleware";
 import logger from "../utils/logger";
 import { ExamCreateSchema, ExamGenerateSchema, parseBody } from "../validators/schemas";
 import { toExamDTO, toAttemptDTO, mapPaginated } from "../dto/mappers";
 
 const examService = new ExamService();
+const examExportService = new ExamExportService();
+const examImportService = new ExamImportService();
 const attemptService = new ExamAttemptService();
 
 /**
@@ -303,5 +308,90 @@ export const chatOnQuestion = async (req: Request, res: Response) => {
   } catch (error: any) {
     logger.error("Exam chat error:", error);
     return errorResponse(res, error.message || "Error in chat", 500, error);
+  }
+};
+
+/** GET /api/exams/export-file - Exports all exams as a JSON file */
+export const exportExamsToJSON = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const exams = await examExportService.getAllExamsForExport();
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename="exams-export-${timestamp}.json"`);
+    return successResponse(res, `Exported ${exams.length} exams successfully`, {
+      totalExams: exams.length,
+      exportDate: new Date().toISOString(),
+      exams,
+    });
+  } catch (error) {
+    return errorResponse(res, "An error occurred while exporting exams to JSON", 500, error);
+  }
+};
+
+/** POST /api/exams/import-file - Imports exams from a JSON file */
+export const importExamsFromFile = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    if (!req.file) return errorResponse(res, "No file uploaded", 400);
+
+    if (!validateJsonBuffer(req.file.buffer)) {
+      return errorResponse(res, "File content is not valid JSON", 400);
+    }
+
+    let fileData: any;
+    try {
+      fileData = JSON.parse(req.file.buffer.toString("utf-8"));
+    } catch {
+      return errorResponse(res, "Invalid JSON file format", 400);
+    }
+
+    let exams: any[] = [];
+    if (fileData.data?.exams && Array.isArray(fileData.data.exams)) {
+      exams = fileData.data.exams;
+    } else if (fileData.data?.data?.exams && Array.isArray(fileData.data.data.exams)) {
+      exams = fileData.data.data.exams;
+    } else if (fileData.exams && Array.isArray(fileData.exams)) {
+      exams = fileData.exams;
+    } else if (Array.isArray(fileData)) {
+      exams = fileData;
+    } else {
+      return errorResponse(res, "Invalid file structure. Expected 'exams' array", 400);
+    }
+
+    if (exams.length > MAX_IMPORT_ITEMS) {
+      return errorResponse(res, `Import exceeds maximum of ${MAX_IMPORT_ITEMS} items per request`, 400);
+    }
+
+    const { duplicateStrategy = "skip", validateOnly = "false", batchSize = "10" } = req.query;
+
+    const validStrategies = ["skip", "overwrite", "error", "merge"];
+    if (!validStrategies.includes(duplicateStrategy as string)) {
+      return errorResponse(res, `Invalid duplicateStrategy. Must be one of: ${validStrategies.join(", ")}`, 400);
+    }
+
+    const batchSizeNum = parseInt(batchSize as string);
+    if (isNaN(batchSizeNum) || batchSizeNum < 1 || batchSizeNum > 100) {
+      return errorResponse(res, "Invalid batchSize. Must be a number between 1 and 100", 400);
+    }
+
+    if (validateOnly === "true") {
+      const results = await examImportService.validateExams(exams);
+      return successResponse(res, "Validation completed", {
+        totalExams: exams.length,
+        valid: results.filter((r) => r.status === "valid").length,
+        invalid: results.filter((r) => r.status === "invalid").length,
+        validationResults: results,
+      });
+    }
+
+    const importResult = await examImportService.importExams(exams, {
+      duplicateStrategy: duplicateStrategy as any,
+      validateOnly: false,
+      batchSize: batchSizeNum,
+    });
+
+    return successResponse(res, "Import completed successfully", importResult);
+  } catch (error) {
+    logger.error("Exam import error:", error);
+    return errorResponse(res, "Error importing exams", 500, error);
   }
 };

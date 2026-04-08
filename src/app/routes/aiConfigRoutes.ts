@@ -9,7 +9,7 @@ import {
 
 const router = Router();
 
-// Get all configs for current user
+// Get all configs for current user DONE
 router.get("/", getAIConfigs);
 
 // Get defaults
